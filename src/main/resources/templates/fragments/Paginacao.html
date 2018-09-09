@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" 
+	xmlns:th="http://www.thymeleaf.org">
+	
+<th:block th:fragment="pagination (pagina)">
+	<div class="col-sm-12  text-center" th:if="${not pagina.vazia}">
+		<nav>
+			<ul class='pagination pagination-centered' th:with="paginaAtual=${pagina.atual}">
+		        
+		         <li th:class="${pagina.primeira}?'disabled':''">
+              	 	<span th:if='${pagina.primeira}'>Primeira</span>
+                	<a th:if='${not pagina.primeira}' th:href='@{${pagina.urlParaPagina(paginaAtual-paginaAtual)}}'>Primeira</a>
+                </li>
+                <li th:class="${pagina.primeira} ? disabled">
+                	<a th:href="${pagina.urlParaPagina(paginaAtual - 1)}" th:remove="${pagina.primeira} ? tag" title='Ir para página anterior'><span>&laquo;</span></a>
+                </li>
+                <li th:each='item : ${pagina.items}' th:class="${item.current}? 'active' : ''">
+                	<span th:if='${item.current}' th:text='${item.number}'>1</span>
+                	<a th:if='${not item.current}' th:href='@{${pagina.urlParaPagina(item.number-1)}}'><span th:text='${item.number}'>1</span></a>
+                </li>
+				<li th:class="${pagina.ultima} ? disabled">
+					<a th:href="${pagina.urlParaPagina(paginaAtual + 1)}" th:remove="${pagina.ultima} ? tag" title='Ir para próxima página'><span>&raquo;</span></a>
+				</li>
+				<li th:class="${pagina.ultima}? disabled">
+					<span th:if='${pagina.ultima}'>Último</span>
+                	<a th:if='${not pagina.ultima}' th:href='@{${pagina.urlParaPagina(pagina.total-1)}}'>Última</a>
+                </li>
+
+            </ul>
+		</nav>
+	</div>
+</th:block>
+
+

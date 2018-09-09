@@ -1,0 +1,101 @@
+package br.edu.ifrn.sinapiPRO.controller;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
+import br.edu.ifrn.sinapiPRO.dto.InsumoDTO;
+import br.edu.ifrn.sinapiPRO.model.Base;
+import br.edu.ifrn.sinapiPRO.model.Insumo;
+import br.edu.ifrn.sinapiPRO.repository.Estados;
+import br.edu.ifrn.sinapiPRO.repository.Insumos;
+import br.edu.ifrn.sinapiPRO.repository.filter.InsumoFilter;
+import br.edu.ifrn.sinapiPRO.service.CadastroInsumoService;
+import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
+
+@Controller
+@RequestMapping("/insumos")
+public class InsumosController {
+		
+	@Autowired
+	private CadastroInsumoService cadastroInsumoService;
+	
+	@Autowired
+	private Estados estados;
+	
+	@Autowired
+	private Insumos insumos;
+
+	@RequestMapping("/novo")
+	public ModelAndView novo(Insumo insumo) {
+		ModelAndView mv = new ModelAndView("insumo/CadastroInsumo");
+		mv.addObject("bases", Base.values());
+		mv.addObject("estados", estados.findAll());
+		return mv;
+	}
+	
+	@RequestMapping(value = { "/novo", "{\\d+}" }, method = RequestMethod.POST)
+	public ModelAndView salvar(@Valid Insumo insumo, BindingResult result, Model model, RedirectAttributes attributes) {
+		if (result.hasErrors()) {
+			return novo(insumo);
+		}
+		
+		cadastroInsumoService.salvar(insumo);
+		attributes.addFlashAttribute("mensagem", "Insumo salvo com sucesso!");
+		return new ModelAndView("redirect:/insumos/novo");
+	}
+	
+	@GetMapping
+	public ModelAndView pesquisar(InsumoFilter insumoFilter, BindingResult result
+			, @PageableDefault(size = 20) Pageable pageable, HttpServletRequest httpServletRequest) {
+		ModelAndView mv = new ModelAndView("insumo/PesquisaInsumos");
+		mv.addObject("estados", estados.findAll());
+		mv.addObject("bases", Base.values());
+		
+		PageWrapper<Insumo> paginaWrapper = new PageWrapper<>(insumos.filtrar(insumoFilter, pageable), httpServletRequest);
+		mv.addObject("pagina", paginaWrapper);
+		return mv;
+	}
+	
+	@RequestMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody List<InsumoDTO> pesquisar(String skuOuDescricao) {
+		return insumos.porSkuOuDescricao(skuOuDescricao);
+	}
+	
+	@DeleteMapping("/{codigo}")
+	public @ResponseBody ResponseEntity<?> excluir(@PathVariable("codigo") Insumo insumo) {
+		try {
+			cadastroInsumoService.excluir(insumo);
+		} catch (ImpossivelExcluirEntidadeException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+		return ResponseEntity.ok().build();
+	}
+	
+	@GetMapping("/{codigo}")
+	public ModelAndView editar(@PathVariable("codigo") Insumo insumo) {
+		ModelAndView mv = novo(insumo);
+		mv.addObject(insumo);
+		return mv;
+	}
+	
+}
