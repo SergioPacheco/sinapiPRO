@@ -107,7 +107,7 @@ public class ItemizarOrcamentoUtil {
 	 * @param itoc1_niv_num
 	 *            Gera somente de um nível específico
 	 * */
-	protected HashMap<Long, String> gerarItemizacao(Long caoc1_cod, String itoc1_seq, Long itoc1_niv_num, IAcoesConv acoesConv) throws Exception {
+	protected HashMap<Long, String> gerarItemizacao(Long caoc1_cod, String itoc1_seq, Long itoc1_niv_num) throws Exception {
 
 		HashMap<Long, String> map = new HashMap<Long, String>();
 

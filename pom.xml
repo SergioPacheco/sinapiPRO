@@ -83,11 +83,12 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Migracoes - Flyway -->
+        <!-- Migracoes - Flyway 
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
         </dependency>
+        -->
         
         <!-- thumbnailator - Gerar Thumbnail -->
 		<dependency>

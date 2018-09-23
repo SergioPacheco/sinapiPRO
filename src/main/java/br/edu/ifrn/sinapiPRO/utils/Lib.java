@@ -2273,7 +2273,6 @@ public class Lib {
 	 * @param arquivo
 	 *            que vai ser lido.
 	 * @return retorna uma string com o conteudo do arquivo.
-	 * @author Donizete
 	 * @throws IOException
 	 */
 	public static String lerArquivo(File diretorio, String arquivo) throws IOException {
