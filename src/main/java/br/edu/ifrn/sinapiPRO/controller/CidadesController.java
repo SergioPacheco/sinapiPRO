@@ -55,7 +55,6 @@ public class CidadesController {
 	
 	
 	@Cacheable(value = "cidades", key = "#codigoEstado")
-	// /brewer/cidades?estado=2
 	@RequestMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody List<Cidade> pesquisarPorCodigoEstado(
 			@RequestParam(name = "estado", defaultValue = "-1") Long codigoEstado){

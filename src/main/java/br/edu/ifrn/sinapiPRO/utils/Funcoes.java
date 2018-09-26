@@ -7,7 +7,8 @@ import java.util.List;
 public class Funcoes {
 
 	/**
-	 * Passa para o próximo dia do mes ou do mes anterior
+	 * Passa para o próximo dia do mês ou do mês anterior
+	 * cOper + ou - 
 	 * 
 	 */
 	public static Date AddDia(Date data, Integer nDia_Vencto, String cOper) {
@@ -146,22 +147,6 @@ public class Funcoes {
 
 		cRet.append(")");
 		return cRet.toString();
-	}
-
-	/**
-	 * Extrair Texto Codigo Barra
-	 * 
-	 */
-	public static String ExtrairTextoCodigoBarra(String cTexto, Integer nPosIni, Integer nPosFim) {
-
-		String cValor = "";
-
-		if (!Lib.Empty(cTexto)) {
-
-			cValor = Lib.Substr(cTexto, nPosIni, nPosFim);
-		}
-
-		return cValor;
 	}
 
 	

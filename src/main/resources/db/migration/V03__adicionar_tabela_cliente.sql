@@ -13,4 +13,3 @@ CREATE TABLE cliente (
     FOREIGN KEY (codigo_cidade) REFERENCES cidade(codigo)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-
