@@ -11,14 +11,16 @@ public class SegurancaController {
 	@GetMapping("/login")
 	public String login(@AuthenticationPrincipal User user) {
 		if (user != null) {
-			// return "redirect:/composicoes";
-			return "redirect:/dashboard";
+			System.out.println(">>> SegurandaControlle orcamentos");
+			return "redirect:/orcamentos";
 		}
+		System.out.println(">>> SegurandaControlle Login ");
 		return "Login";
 	}
 	
 	@GetMapping("/403")
 	public String acessoNegado() {
+		System.out.println(">>> SegurandaControlle 403");
 		return "403";
 	}
 	

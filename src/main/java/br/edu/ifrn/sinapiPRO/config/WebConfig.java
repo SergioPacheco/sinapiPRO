@@ -17,8 +17,9 @@ public class WebConfig implements WebMvcConfigurer {
 	
 	@Bean
 	public CacheManager cacheManager() throws Exception {		
-		return new JCacheCacheManager(Caching.getCachingProvider().getCacheManager(
-				getClass().getResource("/env/ehcache.xml").toURI(),
+		return new JCacheCacheManager(Caching
+				.getCachingProvider()
+				.getCacheManager(getClass().getResource("/env/ehcache.xml").toURI(),
 				getClass().getClassLoader()));
 	}
 	

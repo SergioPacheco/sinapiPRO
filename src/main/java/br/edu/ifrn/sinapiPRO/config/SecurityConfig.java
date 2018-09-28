@@ -40,7 +40,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http
 			.authorizeRequests()
-			    .antMatchers("/index", "/").permitAll()
 				.antMatchers("/cidades/nova").hasRole("CADASTRAR_CIDADE")
 				.antMatchers("/usuarios/**").hasRole("CADASTRAR_USUARIO")
 				.anyRequest().authenticated()
@@ -51,9 +50,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.and()
 			.logout()
 				.logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-				.and()
-			.exceptionHandling()
-				.accessDeniedPage("/403")
 				.and()
 			.sessionManagement()
 				.invalidSessionUrl("/login");

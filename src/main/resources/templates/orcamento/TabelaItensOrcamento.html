@@ -1,34 +1,43 @@
 <!DOCTYPE html>
-<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" 
-	xmlns:th="http://www.thymeleaf.org"
-	xmlns:data="http://www.thymeleaf.org/extras/data">
+<html lang="pt" 
+      xmlns="http://www.w3.org/1999/xhtml" 
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:data="http://www.thymeleaf.org/extras/data">
 
-	<div class="bw-tabela-item  js-tabela-item" th:each="item : ${itens}" data:valor-total="${valorTotal}">
+	<div class="bw-tabela-item  js-tabela-item" 
+		 th:each="item : ${itens}" 
+		 data:valor-total="${valorTotal}">
+		 
 		<div class="bw-tabela-item__coluna  bw-tabela-item__coluna--foto">
 			<img th:src="${item.composicao.urlThumbnailFoto}" class="img-responsive"/>
 		</div>
 		
 		<div class="bw-tabela-item__coluna  bw-tabela-item__coluna--detalhes">
 			<span class="bw-tabela-composicao-nome" th:text="${item.composicao.nome}">Negra Modelo Long Neck 355ml</span>
-			<span class="label  label-default" th:text="${item.composicao.sku}">AA1112</span>
+			<span class="label  label-default" 		th:text="${item.composicao.sku}">AA1112</span>
 			<span class="bw-tabela-composicao-base" th:text="${item.composicao.base.descricao}">Importada</span>
 		</div>
 		
 		<div class="bw-tabela-item__coluna  bw-tabela-item__coluna--valores">
 			<div class="bw-tabela-composicao-valor-pequeno">
-				<input type="text" maxlength="3" 
-					class="bw-tabela-composicao-campo-quantidade  js-tabela-composicao-quantidade-item" 
-					th:value="${item.quantidade}" data:codigo-composicao="${item.composicao.codigo}"
-					th:disabled="${orcamento != null ? orcamento.salvarProibido : false}"/>
+				<input type="text" 
+				       maxlength="3" 
+					   class="bw-tabela-composicao-campo-quantidade  js-tabela-composicao-quantidade-item" 
+					   th:value="${item.quantidade}" 
+					   data:codigo-composicao="${item.composicao.codigo}"
+					   th:disabled="${orcamento != null ? orcamento.salvarProibido : false}"/>
 				<span>x R$[[${{item.valorUnitario}}]]</span>
 			</div>
 			<div class="bw-tabela-composicao-valor-grande">R$[[${{item.valorTotal}}]]</div>
 		</div>
 		
-		<div class="bw-tabela-item__painel-exclusao" th:if="${orcamento != null ? orcamento.salvarPermitido : false}">
-			<span class="bw-tabela-item__titulo-exclusao">Excluir este item do orcamento?</span>
-			<button type="button" class="btn  btn-danger  js-exclusao-item-btn"
-				data:codigo-composicao="${item.composicao.codigo}">Sim, excluir!</button>
+		<div class="bw-tabela-item__painel-exclusao" 
+		     th:if="${orcamento != null ? orcamento.salvarPermitido : false}">
+			 <span class="bw-tabela-item__titulo-exclusao">Excluir este item do orcamento?</span>
+			 
+			 <button type="button" 
+			         class="btn  btn-danger  js-exclusao-item-btn"
+				     data:codigo-composicao="${item.composicao.codigo}">Sim, excluir!</button>
 		</div>
 	</div>
 	
@@ -36,4 +45,5 @@
 		<i class="glyphicon  glyphicon-shopping-cart"></i> 
 		<span>Você ainda não adicionou nenhuma composicao.</span>
 	</div>
+	
 </html>

@@ -56,12 +56,12 @@ public class SinapiController {
 	private List<ItemComposicao> itens = new ArrayList<>();
 	
 	
-	@GetMapping(path="/insumo/{estado}/{anoMes}")  
-	public @ResponseBody String importaInsumos (@PathVariable String estado, @PathVariable String anoMes) {
+	@GetMapping(path="/insumo/{estado}/{ano}/{mes}")  
+	public @ResponseBody String importaInsumos (@PathVariable String estado, @PathVariable String ano, @PathVariable String mes) {
 		
 		//TODO: Fazer aqui o download do arquivo 
 		 
-		String fileName = "/home/sergio/sinapiDownload/SINAPI_Preco_Ref_Insumos_"+estado.trim()+"_"+anoMes.trim()+"_NaoDesonerado.XLS";
+		String fileName = "/home/sergio/sinapi-download/"+estado+"/"+ano+"/"+mes+"/desonerado/SINAPI_Preco_Ref_Insumos_"+estado.trim()+"_"+ano+mes.trim()+"_Desonerado.XLS";
 		Double n = null; 
 		String s = null;
 		
@@ -168,7 +168,7 @@ public class SinapiController {
 					Optional<Estado> e = estadoRepository.findBySiglaIgnoreCase(estado);
 					insumo.setEstado(e.get());
 					
-					insumo.setAnoMes(anoMes);
+					insumo.setAnoMes(ano+mes);
 					insumo.setBase(Base.SINAPI);
 					System.out.println(insumo.toString());
 					insumoRepository.save(insumo);
@@ -181,12 +181,22 @@ public class SinapiController {
 		return "Insumos Importados com Sucesso!";
 	}
 	
-	@GetMapping(path="/composicao/{estado}/{anoMes}")
-	public @ResponseBody String importaComposicoes(@PathVariable String estado, @PathVariable String anoMes) {
+	
+	/*  http://www.caixa.gov.br/Downloads/sinapi-a-partir-jul-2009-rn/SINAPI_ref_Insumos_Composicoes_RN_01a062018.zip (6 arquivos zip)
+	 * 
+	 *  http://www.caixa.gov.br/Downloads/sinapi-a-partir-jul-2009-rn/SINAPI_ref_Insumos_Composicoes_RN_072018_NaoDesonerado.zip
+	 *  http://www.caixa.gov.br/Downloads/sinapi-a-partir-jul-2009-rn/SINAPI_ref_Insumos_Composicoes_RN_082018_NaoDesonerado.zip
+	 *  http://www.caixa.gov.br/Downloads/sinapi-a-partir-jul-2009-rn/SINAPI_ref_Insumos_Composicoes_RN_072018_Desonerado.zip
+	 *  http://www.caixa.gov.br/Downloads/sinapi-a-partir-jul-2009-rn/SINAPI_ref_Insumos_Composicoes_RN_082018_Desonerado.zip
+	 *  
+	 */
+	
+	@GetMapping(path="/composicao/{estado}/{ano}/{mes}")
+	public @ResponseBody String importaComposicoes(@PathVariable String estado, @PathVariable String ano, @PathVariable String mes) {
 		
 		// TODO: Importar o Arquivo zip e descompactar no diretorio  da aplicação 
-		
-		String fileName = "/home/sergio/sinapiDownload/SINAPI_Custo_Ref_Composicoes_Analitico_"+estado+"_"+anoMes+"_NaoDesonerado.xls";
+	
+		String fileName = "/home/sergio/sinapi-download/"+estado+"/"+ano+"/"+mes+"/desonerado/SINAPI_Custo_Ref_Composicoes_Analitico_"+estado+"_"+ano+mes+"_Desonerado.xls";
 		Double n = null; 
 		String s = null;
 		String aux = null;
@@ -310,7 +320,7 @@ public class SinapiController {
 									if (composicaoAnterior.compareTo(s) != 0) {
 										System.out.println("Quebra composicao= "+s+" anterior="+composicaoAnterior);
 										composicao.setEstado(e.get());
-										composicao.setAnoMes(anoMes);
+										composicao.setAnoMes(ano+mes);
 										composicao.setBase(Base.SINAPI);
 										composicao.adicionarItens(itens);
 										composicaoRepository.save(composicao);
@@ -467,3 +477,14 @@ public class SinapiController {
     }
 	
 }
+
+/*  http://www.caixa.gov.br/Downloads/sinapi-a-partir-jul-2009-rn/SINAPI_ref_Insumos_Composicoes_RN_01a062018.zip
+ * 
+ *  http://www.caixa.gov.br/Downloads/sinapi-a-partir-jul-2009-rn/SINAPI_ref_Insumos_Composicoes_RN_072018_NaoDesonerado.zip
+ *  http://www.caixa.gov.br/Downloads/sinapi-a-partir-jul-2009-rn/SINAPI_ref_Insumos_Composicoes_RN_082018_NaoDesonerado.zip
+ *  http://www.caixa.gov.br/Downloads/sinapi-a-partir-jul-2009-rn/SINAPI_ref_Insumos_Composicoes_RN_072018_Desonerado.zip
+ *  http://www.caixa.gov.br/Downloads/sinapi-a-partir-jul-2009-rn/SINAPI_ref_Insumos_Composicoes_RN_082018_Desonerado.zip
+ *  
+ */
+
+

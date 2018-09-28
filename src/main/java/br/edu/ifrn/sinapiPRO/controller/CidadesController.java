@@ -103,7 +103,6 @@ public class CidadesController {
 	
 	@GetMapping("/{codigo}")
 	public ModelAndView editar(@PathVariable Long codigo) {
-		//cidade = cidades.findOne(cidade.getCodigo());
 		Cidade cidade = cidades.buscarComEstado(codigo);
 		ModelAndView mv = nova(cidade);
 		mv.addObject(cidade);

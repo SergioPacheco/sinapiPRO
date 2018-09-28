@@ -26,13 +26,7 @@ public class DashboardController {
 	@Autowired
 	private Clientes clientes;
 	
-	@RequestMapping("/")	
-	public ModelAndView home() {
-		ModelAndView mv = new ModelAndView("Index");
-		return mv;
-	}
-	
-	@GetMapping("/dashboard")
+	@GetMapping("/")	
 	public ModelAndView dashboard() {
 		ModelAndView mv = new ModelAndView("Dashboard");
 		
@@ -40,7 +34,7 @@ public class DashboardController {
 		mv.addObject("totalInsumos",     insumos.count());
 		mv.addObject("totalComposicoes", composicoes.count());
 		mv.addObject("totalClientes",    clientes.count());
-		
+		System.out.println(">>> dashboard ");
 		return mv;
 	}
 	
