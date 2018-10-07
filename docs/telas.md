@@ -1,4 +1,21 @@
-/*
+# TELA INSUMO SINAPI 
+
+### Pesquisa Insumo 
+
+Código Descricao                         Tipo       Unidade        Preço      Ações  
+123456 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxxxx xxxxxxx    R$ 999.999,99  Excluir/Editar/Historico   
+
+### Historico de Preços 
+
+Código Descrição                        Unidade 
+123456 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxx
+------------------------------------------------ 
+Preço             Período      
+R$ 999.999.999,00 99/9999  
+                                          FECHAR 
+
+                        
+
 # TELA PESQUISA ORCAMENTO
 -----------------------
 Pesquisa ... 
@@ -12,15 +29,11 @@ Codigo Descricao           Obra              Periodo Estado Desonerado Ultima Al
  
 TELA CADASTRO ORÇAMENTO
 -----------------------
-Numero Estado      Periodo
-999999 xxxxxxxxxxx 99/9999 
-Obra
-xxxxxxxxxxxxxxxxxxxxxxxxxx
+Numero UF  Periodo Obra
+999999 xx  99/9999 xxxxxxxxxxxxxxxxxxxxxxxxxx
 
-Descricao
-xxxxxxxxxxxxxxxxxxxxxxxxxx 
-% BDI
-99,99
+Descricao 				    %BDI
+xxxxxxxxxxxxxxxxxxxxxxxxxx  99,99
 
 -[Confirmar Cancelar] 
 
@@ -31,8 +44,9 @@ TELA CADASTRO ITENS ORÇAMENTO
 [+INSUMO +COMPOSICAO +ETAPA]
 --------------------------------
 Item  Tipo Código    Descrição    Unidade  qtd    P.Unit  Preço.BDI      Total  Ações-------------  
-99.99  X   xxxxxxxxx xxxxxxxxxxxxxxxx xxx  9999 9.999,99 999.999,99 999.999,99  [Editar] [Excluir]
-99.99  X   xxxxxxxxx xxxxxxxxxxxxxxxx xxx  9999 9.999,99 999.999,99 999.999,99  [Editar] [Excluir]
+99.99  X   xxxxxxxxx xxxxxxxxxxxxxxxx xxx  9999 9.999,99 999.999,99 999.999,99  Editar Excluir
+99.99  X   xxxxxxxxx xxxxxxxxxxxxxxxx xxx  9999 9.999,99 999.999,99 999.999,99  Editar Excluir
+
 
 
 TELA LISTA INSUMOS DO ORCAMENTO

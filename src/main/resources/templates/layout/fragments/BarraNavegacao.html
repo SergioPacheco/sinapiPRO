@@ -20,6 +20,13 @@
 	
 	    <ul class="nav navbar-nav  navbar-right">
 	    	<li>
+	    		<p Estado: </p>
+	    	</li>
+	    
+	    	<li>
+	    		<p class="navbar-text" th:text="${#authentication.principal.usuario.estado}">Estado</p>
+	    	</li>
+	    	<li>
 	    		<p class="navbar-text" th:text="${#authentication.principal.usuario.nome}">Usuário</p>
 	    	</li>
 	    

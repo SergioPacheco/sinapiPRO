@@ -35,7 +35,7 @@ class TabelaItensComposicao {
 			itemComposicao = new ItemComposicao();
 			itemComposicao.setInsumo(insumo);
 			itemComposicao.setCoeficiente(coeficiente);
-			itemComposicao.setPrecoUnitario(insumo.getPreco());
+			itemComposicao.setPrecoUnitario(insumo.getPrecoGenerico());
 			itens.add(0, itemComposicao);
 		}
 	}

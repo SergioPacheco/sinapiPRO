@@ -39,7 +39,7 @@ public class Composicao implements Serializable {
 	private String sku;  
 	 
 	@Enumerated(EnumType.STRING)
-	private Base base;
+	private BaseInsumo base;
 	 
 	@Column(name = "ano_mes")
 	private String anoMes;
@@ -127,11 +127,11 @@ public class Composicao implements Serializable {
 		this.sku = sku;
 	}
 
-	public Base getBase() {
+	public BaseInsumo getBase() {
 		return base;
 	}
 
-	public void setBase(Base base) {
+	public void setBase(BaseInsumo base) {
 		this.base = base;
 	}
 		

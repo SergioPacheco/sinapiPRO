@@ -1,22 +1,19 @@
 package br.edu.ifrn.sinapiPRO.model;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Date;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "estado")
-public class Estado implements Serializable {
+@Table(name = "base_preco")
+public class BasePreco implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -24,36 +21,28 @@ public class Estado implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY, generator="native")
 	@GenericGenerator(name = "native", strategy = "native")
 	private Long codigo;
-	
-	@NotBlank(message = "O nome é obrigatório")
-	@Size(max = 20, message = "O tamanho do nome não pode ser maior que {max} caracteres")
 	private String nome;
-	private String sigla;
+	private Date dataReferencia;
 	
- 	public Long getCodigo() {
+	public Long getCodigo() {
 		return codigo;
 	}
-
 	public void setCodigo(Long codigo) {
 		this.codigo = codigo;
 	}
-
 	public String getNome() {
 		return nome;
 	}
-
 	public void setNome(String nome) {
 		this.nome = nome;
 	}
-
-	public String getSigla() {
-		return sigla;
+	public Date getDataReferencia() {
+		return dataReferencia;
 	}
-
-	public void setSigla(String sigla) {
-		this.sigla = sigla;
+	public void setDataReferencia(Date dataReferencia) {
+		this.dataReferencia = dataReferencia;
 	}
-
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -70,13 +59,13 @@ public class Estado implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Estado other = (Estado) obj;
+		BasePreco other = (BasePreco) obj;
 		if (codigo == null) {
 			if (other.codigo != null)
 				return false;
 		} else if (!codigo.equals(other.codigo))
 			return false;
 		return true;
-	}
-
+	} 
+		
 }

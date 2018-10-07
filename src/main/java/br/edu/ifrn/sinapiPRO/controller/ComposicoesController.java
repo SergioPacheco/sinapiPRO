@@ -22,7 +22,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
-import br.edu.ifrn.sinapiPRO.model.Base;
+import br.edu.ifrn.sinapiPRO.model.BaseInsumo;
 import br.edu.ifrn.sinapiPRO.model.Composicao;
 import br.edu.ifrn.sinapiPRO.model.Insumo;
 import br.edu.ifrn.sinapiPRO.model.ItemComposicao;
@@ -62,7 +62,7 @@ public class ComposicoesController {
 		ModelAndView mv = new ModelAndView("composicao/CadastroComposicao");
 		
 		setUuid(composicao);
-		mv.addObject("bases", Base.values());
+		mv.addObject("bases", BaseInsumo.values());
 		mv.addObject("estados", estados.findAll());
 		mv.addObject("classes", classes.findAll());
 		mv.addObject("itens", composicao.getItens());
@@ -111,7 +111,7 @@ public class ComposicoesController {
 			           @PageableDefault(size = 5) Pageable pageable, 
 			                  HttpServletRequest httpServletRequest) {
 		ModelAndView mv = new ModelAndView("/composicao/PesquisaComposicoes");
-		mv.addObject("bases", Base.values());
+		mv.addObject("bases", BaseInsumo.values());
 		mv.addObject("estados", estados.findAll());
 		mv.addObject("classes", classes.findAll());
 		PageWrapper<Composicao> paginaWrapper = new PageWrapper<>(composicoes.filtrar(composicaoFilter, pageable)

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" 
+				xmlns:th="http://www.thymeleaf.org"
+				xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+				layout:decorate="~{layout/LayoutPadrao}">
+
+<head>
+	<title>Cadastro de Base de Insumo</title>
+	<link rel="stylesheet" type="text/css" th:href="@{/stylesheets/vendors/bootstrap-switch.min.css}"/>
+</head>
+<body>
+<section layout:fragment="conteudo">
+		<div class="page-header">
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-sm-10">
+						<h1 th:if="${baseInsumo.nova}">Cadastro de Base de Insumo</h1>
+						<h1 th:unless="${baseInsumo.nova}" th:text="|Edição de ${baseInsumo.nome}|">Edição de Base de Insumo</h1>
+					</div>
+					<div class="col-sm-2">
+						<div class="aw-page-header-controls">
+							<a class="btn  btn-default" th:href="@{/baseInsumos}"> 
+							   <i class="glyphicon  glyphicon-plus-sign"></i> 
+							   <span class="hidden-xs  hidden-sm">Pesquisa</span>
+							</a>
+						</div>
+					</div>
+				
+				</div>
+			</div>
+		</div>
+		
+		<div class="container-fluid">
+			<form method="POST" th:object="${baseInsumo}" class="form-vertical  js-form-loading"
+				th:action="${baseInsumo.nova} ? @{/baseInsumos/nova} : @{/baseInsumos/{codigo}(codigo=${baseInsumo.codigo})}">
+				
+				<sinapiPRO:message/>
+				
+				<input type="hidden" th:field="*{codigo}"/>
+				
+				<div class="row">
+				 
+					<div class="form-group col-sm-10    bw-required" sinapiPRO:classforerror="nome">
+						<label for="nome" class="control-label">Nome</label>
+						<input id="nome" type="text" class="form-control" th:field="*{nome}" />
+					</div>	
+				</div>
+				
+				<button class="btn  btn-primary" type="submit">Salvar</button>
+				
+			</form>
+		</div>
+	</section>
+</body>
+</html>

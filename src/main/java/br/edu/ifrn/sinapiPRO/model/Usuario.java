@@ -51,11 +51,14 @@ public class Usuario implements Serializable {
 	private String confirmacaoSenha;
 
 	private Boolean ativo;
+	
+	private String estado;
 
 	@Size(min = 1, message = "Selecione pelo menos um grupo")
 	@ManyToMany
-	@JoinTable(name = "usuario_grupo", joinColumns = @JoinColumn(name = "codigo_usuario")
-				, inverseJoinColumns = @JoinColumn(name = "codigo_grupo"))	
+	@JoinTable(      name = "usuario_grupo", 
+	          joinColumns = @JoinColumn(name = "codigo_usuario"), 
+	   inverseJoinColumns = @JoinColumn(name = "codigo_grupo"))	
 	private List<Grupo> grupos;
 
 	@Column(name = "data_nascimento")
@@ -101,9 +104,17 @@ public class Usuario implements Serializable {
 	public Boolean getAtivo() {
 		return ativo;
 	}
-
+	
 	public void setAtivo(Boolean ativo) {
 		this.ativo = ativo;
+	}
+	
+	public String getEstado() {
+		return estado;
+	}
+	
+	public void setEstado(String estado) {
+		this.estado = estado;
 	}
 
 	public LocalDate getDataNascimento() {

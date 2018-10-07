@@ -56,11 +56,16 @@ public class UsuariosController {
 		}
 		
 		try {
+
 			cadastroUsuarioService.salvar(usuario);
+			
 		} catch (EmailUsuarioJaCadastradoException e) {
+			
 			result.rejectValue("email", e.getMessage(), e.getMessage());
 			return novo(usuario);
+			
 		} catch (SenhaObrigatoriaUsuarioException e) {
+			
 			result.rejectValue("senha", e.getMessage(), e.getMessage());
 			return novo(usuario);
 		}

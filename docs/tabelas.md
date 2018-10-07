@@ -1,4 +1,57 @@
 # Carro
+´´´ 
+
+CREATE TABLE estudante (
+    estudanteID INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    nome VARCHAR(25),
+    sobrenome VARCHAR(25) NOT NULL,
+    PRIMARY KEY (`estudanteID`)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_general_ci
+
+CREATE TABLE curso (
+    cursoID SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    codigo VARCHAR(10) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
+    nome VARCHAR(100) NOT NULL,
+    PRIMARY KEY (cursoID`)
+) ENGINE=INNODB CHARACTER SET utf8 COLLATE utf8_general_ci
+
+CREATE TABLE cursoInscricao (
+    estudante INT UNSIGNED NOT NULL,
+    curso SMALLINT UNSIGNED NOT NULL,
+    PRIMARY KEY (estudante, curso),
+    CONSTRAINT constr_cursoInscricao_estudante_fk
+        FOREIGN KEY estudante_fk (estudante) REFERENCES estudante (estudanteID)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT constr_cursoInscricao_curso_fk`
+        FOREIGN KEY curso_fk (curso) REFERENCES course (cursoID)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=INNODB CHARACTER SET ascii COLLATE ascii_general_ci
+
+
+SELECT
+    `Student`.*
+FROM
+    `Student`
+    JOIN `CourseMembership` ON `Student`.`StudentID` = `CourseMembership`.`Student`
+WHERE
+    `CourseMembership`.`Course` = 1234
+    
+Find all courses taken by a given student:
+
+SELECT
+    `Course`.*
+FROM
+    `Course`
+    JOIN `CourseMembership` ON `Course`.`CourseID` = `CourseMembership`.`Course`
+WHERE
+    `CourseMembership`.`Student` = 5678
+    
+    
+    
+
+
+
+
 create table marca (
     id_marca number(7),
     nome_marca varchar2(120) not null unique,
@@ -12,7 +65,7 @@ CREATE table modelo (
     id_modelo number(7) NOT NULL, 
     nome_modelo VARCHAR3(120) not null unique; 
     ativo char(1) constraint modelo_ativo check(ativo in ('S','s','N','n')),
-    constraint fk_tlb_marca foreign ke (id_marca) references marca(id_marca),
+    constraint fk_tlb_marca foreign key (id_marca) references marca(id_marca),
     constraint pk_modelo primary key (id_marca, id_modelo) 
 ); 
 
@@ -28,7 +81,7 @@ CREATE table versao number(7) not null,
 ); 
 
 select * from StudentSchool  
-where (StudentId = 233) and (SchoolID = 22)      
+ where (StudentId = 233) and (SchoolID = 22)      
 
 CREATE TABLE base_precos ( 
     codigo      BIGINT, 
@@ -37,7 +90,7 @@ CREATE TABLE base_precos (
     ano_mes     VARCHAR(6),
     PRIMARY KEY (codigo) 
 );
-
+´´´ 
 ==================================================
 
 CREATE TABLE base_precos ( 

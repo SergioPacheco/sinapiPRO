@@ -2,7 +2,7 @@ package br.edu.ifrn.sinapiPRO.dto;
 
 import java.math.BigDecimal;
 
-import br.edu.ifrn.sinapiPRO.model.Base;
+import br.edu.ifrn.sinapiPRO.model.BaseInsumo;
 
 public class ComposicaoDTO {
 
@@ -12,11 +12,10 @@ public class ComposicaoDTO {
 	private String base;
 	private BigDecimal valor;
 
-	public ComposicaoDTO(Long codigo, String sku, String nome, Base base, BigDecimal valor) {
+	public ComposicaoDTO(Long codigo, String sku, String nome, BaseInsumo base, BigDecimal valor) {
 		this.codigo = codigo;
 		this.sku = sku;
 		this.nome = nome;
-		this.base = base.getDescricao();
 		this.valor = valor;
 	}
 

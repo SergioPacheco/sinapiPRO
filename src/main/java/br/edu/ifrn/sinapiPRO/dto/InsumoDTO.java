@@ -2,7 +2,7 @@ package br.edu.ifrn.sinapiPRO.dto;
 
 import java.math.BigDecimal;
 
-import br.edu.ifrn.sinapiPRO.model.Base;
+import br.edu.ifrn.sinapiPRO.model.BaseInsumo;
 import br.edu.ifrn.sinapiPRO.model.Estado;
 
 public class InsumoDTO {

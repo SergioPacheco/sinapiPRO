@@ -21,7 +21,6 @@ INSERT INTO estado (codigo, nome, sigla) VALUES (5,'Santa Catarina', 'SC');
 INSERT INTO estado (codigo, nome, sigla) VALUES (6,'São Paulo', 'SP');
 INSERT INTO estado (codigo, nome, sigla) VALUES (7,'Rio Grande do Norte', 'RN');
 
-
 INSERT INTO cidade (nome, codigo_estado) VALUES ('Rio Branco', 1);
 INSERT INTO cidade (nome, codigo_estado) VALUES ('Cruzeiro do Sul', 1);
 INSERT INTO cidade (nome, codigo_estado) VALUES ('Salvador', 2);

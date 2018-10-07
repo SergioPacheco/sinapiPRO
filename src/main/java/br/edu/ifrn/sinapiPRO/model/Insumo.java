@@ -2,10 +2,8 @@ package br.edu.ifrn.sinapiPRO.model;
 
 import java.math.BigDecimal;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -28,29 +26,24 @@ public class Insumo {
 	
 	private String sku; 
 	
-	@Column(name = "ano_mes")
-	@NotNull(message = "Valor é obrigatório")
-	private String anoMes; 
-	
-	@NotNull(message = "Valor é obrigatório")
-	@Enumerated(EnumType.STRING)
-	private Base base; 
-	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "codigo_base_insumos")
+	private BaseInsumo baseInsumos;
+	 
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "codigo_base_precos")
+	private BasePreco basePrecos;
+		
 	@Size(max = 400)
-	@NotNull(message = "Valor é obrigatório")
+	@NotNull(message = "Descrição é obrigatória")
 	private String descricao; 
 	
-	@NotNull(message = "Valor é obrigatório")
+	@NotNull(message = "Unidade é obrigatório")
 	private String unidade; 
 	
-	@NotNull(message = "Valor é obrigatório")
-	private BigDecimal preco;
+	private BigDecimal precoGenerico;
+ 	
 	
-	@NotNull(message = "O estado é obrigatório")
-	@ManyToOne
-	@JoinColumn(name = "codigo_estado")
-	private Estado estado;
-
 	public Long getCodigo() {
 		return codigo;
 	}
@@ -64,18 +57,7 @@ public class Insumo {
 	public void setSku(String sku) {
 		this.sku = sku;
 	}
-	public String getAnoMes() {
-		return anoMes;
-	}	
-	public Base getBase() {
-		return base;
-	}
-	public void setBase(Base base) {
-		this.base = base;
-	}
-	public void setAnoMes(String anoMes) {
-		this.anoMes = anoMes;
-	}
+ 	 
 	public String getDescricao() {
 		return descricao;
 	}
@@ -88,20 +70,13 @@ public class Insumo {
 	public void setUnidade(String unidade) {
 		this.unidade = unidade;
 	}
-	public BigDecimal getPreco() {
-		return preco;
+	public BigDecimal getPrecoGenerico() {
+		return precoGenerico;
 	}
-	public void setPreco(BigDecimal preco) {
-		this.preco = preco;
+	public void setPrecoGenerico(BigDecimal preco) {
+		this.precoGenerico = preco;
 	}
-	
-	public Estado getEstado() {
-		return estado;
-	}
-	public void setEstado(Estado estado) {
-		this.estado = estado;
-	}
-	
+ 
 	public boolean isNovo() {
 		return codigo == null;
 	}
@@ -129,8 +104,5 @@ public class Insumo {
 			return false;
 		return true;
 	}
-	@Override
-	public String toString() {
-		return "Insumo [codigo=" + codigo + ", descricao=" + descricao + ", unidade=" + unidade + ", preco=" + preco + "]";
-	} 
+	 
 }

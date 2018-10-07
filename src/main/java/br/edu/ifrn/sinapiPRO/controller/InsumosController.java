@@ -24,7 +24,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
 import br.edu.ifrn.sinapiPRO.dto.InsumoDTO;
-import br.edu.ifrn.sinapiPRO.model.Base;
+import br.edu.ifrn.sinapiPRO.model.BaseInsumo;
 import br.edu.ifrn.sinapiPRO.model.Insumo;
 import br.edu.ifrn.sinapiPRO.repository.Estados;
 import br.edu.ifrn.sinapiPRO.repository.Insumos;
@@ -38,18 +38,15 @@ public class InsumosController {
 		
 	@Autowired
 	private CadastroInsumoService cadastroInsumoService;
-	
-	@Autowired
-	private Estados estados;
-	
+		 
 	@Autowired
 	private Insumos insumos;
 
 	@RequestMapping("/novo")
 	public ModelAndView novo(Insumo insumo) {
 		ModelAndView mv = new ModelAndView("insumo/CadastroInsumo");
-		mv.addObject("bases", Base.values());
-		mv.addObject("estados", estados.findAll());
+		// mv.addObject("baseInsumos", BaseInsumos.values());
+		// mv.addObject("estados", estados.findAll());
 		return mv;
 	}
 	
@@ -68,8 +65,8 @@ public class InsumosController {
 	public ModelAndView pesquisar(InsumoFilter insumoFilter, BindingResult result
 			, @PageableDefault(size = 20) Pageable pageable, HttpServletRequest httpServletRequest) {
 		ModelAndView mv = new ModelAndView("insumo/PesquisaInsumos");
-		mv.addObject("estados", estados.findAll());
-		mv.addObject("bases", Base.values());
+		// mv.addObject("estados", estados.findAll());
+		// mv.addObject("bases", BaseInsumo.values());
 		
 		PageWrapper<Insumo> paginaWrapper = new PageWrapper<>(insumos.filtrar(insumoFilter, pageable), httpServletRequest);
 		mv.addObject("pagina", paginaWrapper);

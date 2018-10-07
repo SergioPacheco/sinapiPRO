@@ -102,27 +102,8 @@ public class InsumosImpl implements InsumosQueries {
 			if (!StringUtils.isEmpty(filtro.getDescricao())) {
 				criteria.add(Restrictions.ilike("descricao", filtro.getDescricao(), MatchMode.ANYWHERE));
 			}
-
-			if (isEstadoPresente(filtro)) {
-				criteria.add(Restrictions.eq("estado", filtro.getEstado()));
-			}
-/*			
-			if (filtro.getAnoMes() != null) {
-				criteria.add(Restrictions.eq("anoMes", filtro.getAnoMes()));
-			}
-*/
-			if (filtro.getValorDe() != null) {
-				criteria.add(Restrictions.ge("preco", filtro.getValorDe()));
-			}
-
-			if (filtro.getValorAte() != null) {
-				criteria.add(Restrictions.le("preco", filtro.getValorAte()));
-			}
 		}
 		
-	}
-	private boolean isEstadoPresente(InsumoFilter filtro) {
-		return filtro.getEstado() != null && filtro.getEstado().getCodigo() != null;
 	}
 	
 }

@@ -24,7 +24,9 @@ public class CadastroUsuarioService {
 	
 	@Transactional
 	public void salvar(Usuario usuario) {
+		
 		Optional<Usuario> usuarioExistente = usuarios.findByEmail(usuario.getEmail());
+		
 		if (usuarioExistente.isPresent() && !usuarioExistente.get().equals(usuario)) {
 			throw new EmailUsuarioJaCadastradoException("E-mail já cadastrado");
 		}

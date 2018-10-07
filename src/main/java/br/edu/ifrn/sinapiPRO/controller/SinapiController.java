@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import br.edu.ifrn.sinapiPRO.model.Base;
+import br.edu.ifrn.sinapiPRO.model.BaseInsumo;
 import br.edu.ifrn.sinapiPRO.model.Classe;
 import br.edu.ifrn.sinapiPRO.model.Composicao;
 import br.edu.ifrn.sinapiPRO.model.Estado;
@@ -56,12 +56,13 @@ public class SinapiController {
 	private List<ItemComposicao> itens = new ArrayList<>();
 	
 	
-	@GetMapping(path="/insumo/{estado}/{ano}/{mes}")  
-	public @ResponseBody String importaInsumos (@PathVariable String estado, @PathVariable String ano, @PathVariable String mes) {
+	@GetMapping(path="/insumo/{estado}/{ano}/{mes}/{oneracao}")  
+	public @ResponseBody String importaInsumos (@PathVariable String estado, @PathVariable String ano, @PathVariable String mes, @PathVariable String oneracao) {
 		
 		//TODO: Fazer aqui o download do arquivo 
+		//TODO: Checar se o arquivo existe
 		 
-		String fileName = "/home/sergio/sinapi-download/"+estado+"/"+ano+"/"+mes+"/desonerado/SINAPI_Preco_Ref_Insumos_"+estado.trim()+"_"+ano+mes.trim()+"_Desonerado.XLS";
+		String fileName = "/home/sergio/sinapi-download/"+estado+"/"+ano+"/"+mes+"/"+oneracao+"/SINAPI_Preco_Ref_Insumos_"+estado.trim()+"_"+ano+mes.trim()+"_Desonerado.xls";
 		Double n = null; 
 		String s = null;
 		
@@ -154,7 +155,7 @@ public class SinapiController {
 									// insumo.setOrigem(valueString.trim());
 									break;
 								case 4:
-									insumo.setPreco(StrToBig(valueString, 2)); 
+									insumo.setPrecoGenerico(StrToBig(valueString, 2)); 
 									break;
 								default:
 									insumo = null; 
@@ -169,7 +170,7 @@ public class SinapiController {
 					insumo.setEstado(e.get());
 					
 					insumo.setAnoMes(ano+mes);
-					insumo.setBase(Base.SINAPI);
+					insumo.setBase(BaseInsumo.SINAPI);
 					System.out.println(insumo.toString());
 					insumoRepository.save(insumo);
 				}
@@ -321,7 +322,7 @@ public class SinapiController {
 										System.out.println("Quebra composicao= "+s+" anterior="+composicaoAnterior);
 										composicao.setEstado(e.get());
 										composicao.setAnoMes(ano+mes);
-										composicao.setBase(Base.SINAPI);
+										composicao.setBase(BaseInsumo.SINAPI);
 										composicao.adicionarItens(itens);
 										composicaoRepository.save(composicao);
 										// 

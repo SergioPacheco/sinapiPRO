@@ -8,35 +8,35 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import br.edu.ifrn.sinapiPRO.model.Classe;
-import br.edu.ifrn.sinapiPRO.repository.Classes;
+import br.edu.ifrn.sinapiPRO.model.BaseInsumo;
+import br.edu.ifrn.sinapiPRO.repository.BaseInsumos;
 import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
 import br.edu.ifrn.sinapiPRO.service.exception.NomeClasseJaCadastradaException;
 
 @Service
-public class CadastroClasseService {
+public class CadastroBaseInsumoService  {
 	
 	@Autowired
-	private Classes classes;
+	private BaseInsumos baseInsumos;
 	
-	@Transactional
-	public Classe salvar(Classe classe){
+	@Transactional 
+	public BaseInsumo salvar(BaseInsumo baseInsumo){
 		
-		Optional<Classe> classeOptional = classes.findByNomeIgnoreCase(classe.getNome());
-		if(classeOptional.isPresent()){
+		Optional<BaseInsumo> baseInsumoOptional = baseInsumos.findByNomeIgnoreCase(baseInsumo.getNome());
+		if(baseInsumoOptional.isPresent()){
 			throw new NomeClasseJaCadastradaException("Nome do classe já cadastrado");
 		}
-		return classes.saveAndFlush(classe);
+		return baseInsumos.saveAndFlush(baseInsumo);
 	}
 
 	@Transactional
 	public void excluir(Long codigo) {
 		try {
-			classes.deleteById(codigo);
-			classes.flush();
+			baseInsumos.deleteById(codigo);
+			baseInsumos.flush();
 		} catch (PersistenceException e) {
 			
-			throw new ImpossivelExcluirEntidadeException("Impossível apagar classe. Já foi usado em alguma cerveja.");
+			throw new ImpossivelExcluirEntidadeException("Impossível apagar base. Já foi usado em alguma cerveja.");
 
 		}
 	}
