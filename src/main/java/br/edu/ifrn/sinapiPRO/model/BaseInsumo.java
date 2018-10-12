@@ -1,7 +1,6 @@
 package br.edu.ifrn.sinapiPRO.model;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -21,41 +20,26 @@ public class BaseInsumo implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY, generator="native")
 	@GenericGenerator(name = "native", strategy = "native")
 	private Long codigo;
-	
-	private String sigla;
 	private String nome;
-	private Long codigo_base_preco;
-	private Date dataReferencia;
+
 	public Long getCodigo() {
 		return codigo;
 	}
 	public void setCodigo(Long codigo) {
 		this.codigo = codigo;
 	}
-	public String getSigla() {
-		return sigla;
-	}
-	public void setSigla(String sigla) {
-		this.sigla = sigla;
-	}
+	 
 	public String getNome() {
 		return nome;
 	}
 	public void setNome(String nome) {
 		this.nome = nome;
 	}
-	public Long getCodigo_base_preco() {
-		return codigo_base_preco;
+	
+	public boolean isNova() {
+		return codigo == null;
 	}
-	public void setCodigo_base_precos(Long codigo_base_precos) {
-		this.codigo_base_preco = codigo_base_precos;
-	}
-	public Date getDataReferencia() {
-		return dataReferencia;
-	}
-	public void setDataReferencia(Date dataReferencia) {
-		this.dataReferencia = dataReferencia;
-	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

@@ -29,7 +29,7 @@ import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeExceptio
 import br.edu.ifrn.sinapiPRO.service.exception.NomeBaseInsumoJaCadastradaException;
 
 @Controller
-@RequestMapping("/baseBaseInsumos")
+@RequestMapping("/baseInsumos")
 public class BaseInsumosController {
 
 	@Autowired
@@ -46,6 +46,7 @@ public class BaseInsumosController {
 	@RequestMapping(value = { "/nova", "{\\d+}" }, method = RequestMethod.POST)
 	public ModelAndView cadastrar(@Valid BaseInsumo baseInsumo, BindingResult result, 
 			RedirectAttributes attributes){
+		
 		if (result.hasErrors()) {
 			return nova(baseInsumo);
 		}
@@ -56,9 +57,9 @@ public class BaseInsumosController {
 			result.rejectValue("nome",e.getMessage(), e.getMessage());
 			return nova(baseInsumo);
 		}
-		attributes.addFlashAttribute("mensagem", "BaseInsumo salvo com sucesso!");
+		attributes.addFlashAttribute("mensagem", "Base de Insumo salva com sucesso!");
 		
-		return new ModelAndView("redirect:/baseInsumos/nova");// Redirect
+		return new ModelAndView("redirect:/baseInsumos/nova"); 
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE})
@@ -75,7 +76,7 @@ public class BaseInsumosController {
 	@GetMapping
 	public ModelAndView pesquisar(BaseInsumoFilter baseInsumoFilter, BindingResult result
 			,@PageableDefault(size = 5) Pageable pageable, HttpServletRequest httpServletRequest){
-		ModelAndView mv = new ModelAndView("baseInsumo/PesquisaBaseInsumos");
+		ModelAndView mv = new ModelAndView("baseInsumo/PesquisaBaseInsumo");
 		
 		PageWrapper<BaseInsumo> paginaWrapper = new PageWrapper<>(baseInsumos.filtrar(baseInsumoFilter, pageable)
 				, httpServletRequest);

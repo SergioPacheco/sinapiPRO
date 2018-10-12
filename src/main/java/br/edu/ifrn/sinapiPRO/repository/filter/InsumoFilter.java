@@ -2,15 +2,15 @@ package br.edu.ifrn.sinapiPRO.repository.filter;
 
 public class InsumoFilter {
 
-	private String sku;
+	private Long codigoInsumo;
 	private String descricao;
 
-	public String getSku() {
-		return sku;
+	public Long getCodigoInsumo() {
+		return codigoInsumo;
 	}
 
-	public void setSku(String sku) {
-		this.sku = sku;
+	public void setCodigoInsumo(Long codigoInsumo) {
+		this.codigoInsumo = codigoInsumo;
 	}
 
 	public String getDescricao() {

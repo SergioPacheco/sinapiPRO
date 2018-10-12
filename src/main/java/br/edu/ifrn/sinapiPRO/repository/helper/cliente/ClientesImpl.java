@@ -32,6 +32,7 @@ public class ClientesImpl implements ClientesQueries {
 	@Override
 	@Transactional(readOnly = true)
 	public Page<Cliente> filtrar(ClienteFilter filtro, Pageable pageable) {
+		@SuppressWarnings("deprecation")
 		Criteria criteria = manager.unwrap(Session.class).createCriteria(Cliente.class);
 		
 		paginacaoUtil.preparar(criteria, pageable);
@@ -44,6 +45,7 @@ public class ClientesImpl implements ClientesQueries {
 	@Transactional(readOnly=true)
 	@Override
 	public Cliente buscarComCidadeEstado(Long codigo) {
+		@SuppressWarnings("deprecation")
 		Criteria criteria = manager.unwrap(Session.class).createCriteria(Cliente.class);		
 		criteria.createAlias("endereco.cidade", "c", JoinType.LEFT_OUTER_JOIN);
 		criteria.createAlias("c.estado", "e", JoinType.LEFT_OUTER_JOIN); //certo
@@ -52,6 +54,7 @@ public class ClientesImpl implements ClientesQueries {
 	}
 	
 	private Long total(ClienteFilter filtro) {
+		@SuppressWarnings("deprecation")
 		Criteria criteria = manager.unwrap(Session.class).createCriteria(Cliente.class);
 		adicionarFiltro(filtro, criteria);
 		criteria.setProjection(Projections.rowCount());

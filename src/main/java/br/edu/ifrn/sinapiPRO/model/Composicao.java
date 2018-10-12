@@ -32,35 +32,26 @@ public class Composicao implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY, generator="native")
-	@GenericGenerator(name = "native", strategy = "native")
-	private Long codigo;
-
-	private String sku;  
+	@Column(name = "codigo_composicao")
+	private Long codigoComposicao;  
 	 
-	@Enumerated(EnumType.STRING)
-	private BaseInsumo base;
-	 
-	@Column(name = "ano_mes")
-	private String anoMes;
-
 	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "codigo_estado")
-	private Estado estado;
+	@JoinColumn(name = "codigo_base_preco")
+	private BasePreco basePreco;
 	
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "codigo_classe")
 	private Classe classe;
 	
-	@ManyToOne
-	@JoinColumn(name = "codigo_usuario")
-	private Usuario usuario;
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "codigo_tipo")
+	private TipoComposicao tipoComposicao;
 
 	@Enumerated(EnumType.STRING)
-	private StatusComposicao status = StatusComposicao.ATIVA;
+	private StatusComposicao ativa = StatusComposicao.ATIVA;
 	
 	@OneToMany(mappedBy = "composicao", cascade = CascadeType.ALL, orphanRemoval = true)
-	public List<ItemComposicao> itens = new ArrayList<>();
+	public List<ItemComposicao> itemComposicao = new ArrayList<>();
 		
 	@Transient
 	private String uuid;
@@ -84,95 +75,48 @@ public class Composicao implements Serializable {
 	@Column(name = "custo_mao_obra")
 	private BigDecimal custoMaoObra; 
 	
-	@Column(name = "percentual_mao_obra")
-	private BigDecimal percentualMaoObra;
+	@Column(name = "perce_mao_obra")
+	private BigDecimal percMaoObra;
 
 	@Column(name = "custo_material")
 	private BigDecimal custoMaterial;
 	
-	@Column(name = "percentual_material")
-	private BigDecimal percentualMaterial;
+	@Column(name = "perc_material")
+	private BigDecimal percMaterial;
 	
 	@Column(name = "custo_equipamento")
 	private BigDecimal custoEquipamento;
 	
-	@Column(name = "percentual_equipamento")
-	private BigDecimal percentualEquipamento;
+	@Column(name = "perc_equipamento")
+	private BigDecimal percEquipamento;
 	
 	@Column(name = "custo_servicos_terceiros")
 	private BigDecimal custoServicosTerceiros; 
 
-	@Column(name = "percentual_servicos_terceiros")
-	private BigDecimal percentualServicosTerceiros;
+	@Column(name = "perc_servicos_terceiros")
+	private BigDecimal percServicosTerceiros;
 	
 	@Column(name = "custo_outros")
 	private BigDecimal custoOutros;
 	
-	@Column(name = "percentual_outros")
-	private BigDecimal percentualOutros;
+	@Column(name = "perc_outros")
+	private BigDecimal percOutros;
 	
-	public Long getCodigo() {
-		return codigo;
+	
+	public Long getCodigoComposicao() {
+		return codigoComposicao;
 	}
 
-	public void setCodigo(Long codigo) {
-		this.codigo = codigo;
+	public void setCodigoComposicao(Long codigoComposicao) {
+		this.codigoComposicao = codigoComposicao;
 	}
 
-	public String getSku() {
-		return sku;
+	public BasePreco getBasePreco() {
+		return basePreco;
 	}
 
-	public void setSku(String sku) {
-		this.sku = sku;
-	}
-
-	public BaseInsumo getBase() {
-		return base;
-	}
-
-	public void setBase(BaseInsumo base) {
-		this.base = base;
-	}
-		
-	public String getAnoMes() {
-		return anoMes;
-	}
-
-	public void setAnoMes(String anoMes) {
-		this.anoMes = anoMes;
-	}
-
-	public LocalDateTime getDataCriacao() {
-		return dataCriacao;
-	}
-
-	public void setDataCriacao(LocalDateTime dataCriacao) {
-		this.dataCriacao = dataCriacao;
-	}
-
-	public Estado getEstado() {
-		return estado;
-	}
-
-	public void setEstado(Estado estado) {
-		this.estado = estado;
-	}
-
-	public List<ItemComposicao> getItens() {
-		return itens;
-	}
-
-	public void setItens(List<ItemComposicao> itens) {
-		this.itens = itens;
-	}
-
-	public String getUuid() {
-		return uuid;
-	}
-
-	public void setUuid(String uuid) {
-		this.uuid = uuid;
+	public void setBasePreco(BasePreco basePreco) {
+		this.basePreco = basePreco;
 	}
 
 	public Classe getClasse() {
@@ -181,6 +125,38 @@ public class Composicao implements Serializable {
 
 	public void setClasse(Classe classe) {
 		this.classe = classe;
+	}
+
+	public TipoComposicao getTipoComposicao() {
+		return tipoComposicao;
+	}
+
+	public void setTipoComposicao(TipoComposicao tipoComposicao) {
+		this.tipoComposicao = tipoComposicao;
+	}
+
+	public StatusComposicao getAtiva() {
+		return ativa;
+	}
+
+	public void setAtiva(StatusComposicao ativa) {
+		this.ativa = ativa;
+	}
+
+	public List<ItemComposicao> getItens() {
+		return itemComposicao;
+	}
+
+	public void setItens(List<ItemComposicao> itens) {
+		this.itemComposicao = itens;
+	}
+
+	public String getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
 	}
 
 	public String getDescricao() {
@@ -198,7 +174,23 @@ public class Composicao implements Serializable {
 	public void setUnidade(String unidade) {
 		this.unidade = unidade;
 	}
-	
+
+	public LocalDateTime getDataCriacao() {
+		return dataCriacao;
+	}
+
+	public void setDataCriacao(LocalDateTime dataCriacao) {
+		this.dataCriacao = dataCriacao;
+	}
+
+	public BigDecimal getValorTotal() {
+		return valorTotal;
+	}
+
+	public void setValorTotal(BigDecimal valorTotal) {
+		this.valorTotal = valorTotal;
+	}
+
 	public BigDecimal getCustoTotal() {
 		return custoTotal;
 	}
@@ -215,12 +207,12 @@ public class Composicao implements Serializable {
 		this.custoMaoObra = custoMaoObra;
 	}
 
-	public BigDecimal getPercentualMaoObra() {
-		return percentualMaoObra;
+	public BigDecimal getPercMaoObra() {
+		return percMaoObra;
 	}
 
-	public void setPercentualMaoObra(BigDecimal percentualMaoObra) {
-		this.percentualMaoObra = percentualMaoObra;
+	public void setPercMaoObra(BigDecimal percMaoObra) {
+		this.percMaoObra = percMaoObra;
 	}
 
 	public BigDecimal getCustoMaterial() {
@@ -231,12 +223,12 @@ public class Composicao implements Serializable {
 		this.custoMaterial = custoMaterial;
 	}
 
-	public BigDecimal getPercentualMaterial() {
-		return percentualMaterial;
+	public BigDecimal getPercMaterial() {
+		return percMaterial;
 	}
 
-	public void setPercentualMaterial(BigDecimal percentualMaterial) {
-		this.percentualMaterial = percentualMaterial;
+	public void setPercMaterial(BigDecimal percMaterial) {
+		this.percMaterial = percMaterial;
 	}
 
 	public BigDecimal getCustoEquipamento() {
@@ -247,12 +239,12 @@ public class Composicao implements Serializable {
 		this.custoEquipamento = custoEquipamento;
 	}
 
-	public BigDecimal getPercentualEquipamento() {
-		return percentualEquipamento;
+	public BigDecimal getPercEquipamento() {
+		return percEquipamento;
 	}
 
-	public void setPercentualEquipamento(BigDecimal percentualEquipamento) {
-		this.percentualEquipamento = percentualEquipamento;
+	public void setPercEquipamento(BigDecimal percEquipamento) {
+		this.percEquipamento = percEquipamento;
 	}
 
 	public BigDecimal getCustoServicosTerceiros() {
@@ -263,12 +255,12 @@ public class Composicao implements Serializable {
 		this.custoServicosTerceiros = custoServicosTerceiros;
 	}
 
-	public BigDecimal getPercentualServicosTerceiros() {
-		return percentualServicosTerceiros;
+	public BigDecimal getPercServicosTerceiros() {
+		return percServicosTerceiros;
 	}
 
-	public void setPercentualServicosTerceiros(BigDecimal percentualServicosTerceiros) {
-		this.percentualServicosTerceiros = percentualServicosTerceiros;
+	public void setPercServicosTerceiros(BigDecimal percServicosTerceiros) {
+		this.percServicosTerceiros = percServicosTerceiros;
 	}
 
 	public BigDecimal getCustoOutros() {
@@ -279,29 +271,21 @@ public class Composicao implements Serializable {
 		this.custoOutros = custoOutros;
 	}
 
-	public BigDecimal getPercentualOutros() {
-		return percentualOutros;
+	public BigDecimal getPercOutros() {
+		return percOutros;
 	}
 
-	public void setPercentualOutros(BigDecimal percentualOutros) {
-		this.percentualOutros = percentualOutros;
-	}
-	
-	public boolean isNova(){
-		return codigo == null;
-	}
-	
-	public Usuario getUsuario() {
-		return usuario;
+	public void setPercOutros(BigDecimal percOutros) {
+		this.percOutros = percOutros;
 	}
 
-	public void setUsuario(Usuario usuario) {
-		this.usuario = usuario;
-	}
-	
 	public void adicionarItens(List<ItemComposicao> itens) {
-		this.itens = itens;
-		this.itens.forEach(i ->i.setComposicao(this));
+		this.itemComposicao = itens;
+		this.itemComposicao.forEach(i ->i.setComposicao(this));
+	}
+	
+	public boolean isNova() {
+		return codigoComposicao == null;
 	}
 	
 	public BigDecimal getValorTotalItens(){
@@ -312,7 +296,7 @@ public class Composicao implements Serializable {
 	}
 	
 	public boolean isSalvarPermitido() {
-		return !status.equals(StatusComposicao.CANCELADA);
+		return !ativa.equals(StatusComposicao.CANCELADA);
 	}
 	
 	public boolean isSalvarProibido() {
@@ -327,12 +311,12 @@ public class Composicao implements Serializable {
 		BigDecimal valorTotal = valorTotalItens;
 		return valorTotal;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((codigo == null) ? 0 : codigo.hashCode());
+		result = prime * result + ((codigoComposicao == null) ? 0 : codigoComposicao.hashCode());
 		return result;
 	}
 
@@ -345,12 +329,14 @@ public class Composicao implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Composicao other = (Composicao) obj;
-		if (codigo == null) {
-			if (other.codigo != null)
+		if (codigoComposicao == null) {
+			if (other.codigoComposicao != null)
 				return false;
-		} else if (!codigo.equals(other.codigo))
+		} else if (!codigoComposicao.equals(other.codigoComposicao))
 			return false;
 		return true;
 	}
+	
+	 
 
 }

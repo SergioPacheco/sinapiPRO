@@ -5,18 +5,22 @@
 				layout:decorate="~{layout/LayoutPadrao}">
 
 <head>
-	<title>Cadastro de Base de Insumo</title>
+	<title>Cadastro de Base de Insumos</title>
 	<link rel="stylesheet" type="text/css" th:href="@{/stylesheets/vendors/bootstrap-switch.min.css}"/>
 </head>
 <body>
+
 <section layout:fragment="conteudo">
 		<div class="page-header">
 			<div class="container-fluid">
 				<div class="row">
-					<div class="col-sm-10">
+					<div class="col-sm-8">
 						<h1 th:if="${baseInsumo.nova}">Cadastro de Base de Insumo</h1>
-						<h1 th:unless="${baseInsumo.nova}" th:text="|Edição de ${baseInsumo.nome}|">Edição de Base de Insumo</h1>
+						<h1 th:unless="${baseInsumo.nova}" th:text="|Edição da Base ${baseInsumo.nome}|">Edição de Base de Insumo</h1>
 					</div>
+					
+				
+					
 					<div class="col-sm-2">
 						<div class="aw-page-header-controls">
 							<a class="btn  btn-default" th:href="@{/baseInsumos}"> 
@@ -25,14 +29,18 @@
 							</a>
 						</div>
 					</div>
+					
+					
 				
 				</div>
 			</div>
 		</div>
 		
 		<div class="container-fluid">
-			<form method="POST" th:object="${baseInsumo}" class="form-vertical  js-form-loading"
-				th:action="${baseInsumo.nova} ? @{/baseInsumos/nova} : @{/baseInsumos/{codigo}(codigo=${baseInsumo.codigo})}">
+			<form method="POST" 
+			      th:object="${baseInsumo}" 
+			      class="form-vertical  js-form-loading"
+				  th:action="${baseInsumo.nova} ? @{/baseInsumos/nova} : @{/baseInsumos/{codigo}(codigo=${baseInsumo.codigo})}">
 				
 				<sinapiPRO:message/>
 				

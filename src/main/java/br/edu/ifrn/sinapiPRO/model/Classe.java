@@ -46,6 +46,7 @@ public class Classe implements Serializable {
 	public boolean isNova() {
 		return codigo == null;
 	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

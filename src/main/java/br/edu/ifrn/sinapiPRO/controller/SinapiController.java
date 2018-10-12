@@ -8,6 +8,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -23,16 +24,24 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import br.edu.ifrn.sinapiPRO.model.BaseInsumo;
+import br.edu.ifrn.sinapiPRO.model.BaseKey;
+import br.edu.ifrn.sinapiPRO.model.BasePreco;
 import br.edu.ifrn.sinapiPRO.model.Classe;
 import br.edu.ifrn.sinapiPRO.model.Composicao;
-import br.edu.ifrn.sinapiPRO.model.Estado;
+import br.edu.ifrn.sinapiPRO.model.ComposicaoKey;
 import br.edu.ifrn.sinapiPRO.model.Insumo;
+import br.edu.ifrn.sinapiPRO.model.ItemBasePreco;
 import br.edu.ifrn.sinapiPRO.model.ItemComposicao;
+import br.edu.ifrn.sinapiPRO.model.TipoComposicao;
+import br.edu.ifrn.sinapiPRO.repository.BasePrecos;
 import br.edu.ifrn.sinapiPRO.repository.Classes;
 import br.edu.ifrn.sinapiPRO.repository.Composicoes;
-import br.edu.ifrn.sinapiPRO.repository.Estados;
 import br.edu.ifrn.sinapiPRO.repository.Insumos;
+import br.edu.ifrn.sinapiPRO.repository.ItemBasePrecoRepository;
+import br.edu.ifrn.sinapiPRO.repository.TipoComposicaoRepository;
+import br.edu.ifrn.sinapiPRO.service.CadastroInsumoService;
+import br.edu.ifrn.sinapiPRO.service.exception.ResourceNotFoundException;
+import br.edu.ifrn.sinapiPRO.utils.Lib;
 
 @Controller     
 @RequestMapping(path="/sinapi")  
@@ -41,11 +50,20 @@ public class SinapiController {
 	@Autowired  
 	private Insumos insumoRepository;
 	
+	@Autowired
+	private CadastroInsumoService cadastroInsumoService;
+	
+	@Autowired
+	private BasePrecos basePrecoRepository;
+	
+	@Autowired
+	private ItemBasePrecoRepository itemBasePrecoRepository;
+				
 	@Autowired  
 	private Composicoes composicaoRepository;
 	
 	@Autowired  
-	private Estados estadoRepository;
+	private TipoComposicaoRepository tipoComposicaoRepository;
 	
 	@Autowired  
 	private Classes classeRepository;
@@ -54,21 +72,43 @@ public class SinapiController {
 	private String valueString;
 	
 	private List<ItemComposicao> itens = new ArrayList<>();
-	
-	
-	@GetMapping(path="/insumo/{estado}/{ano}/{mes}/{oneracao}")  
-	public @ResponseBody String importaInsumos (@PathVariable String estado, @PathVariable String ano, @PathVariable String mes, @PathVariable String oneracao) {
+
+	// Codigo = Base da Precos
+	@GetMapping(path="/insumo/{codigo}")  
+	public @ResponseBody String importaInsumos (@PathVariable Long codigo) {
 		
 		//TODO: Fazer aqui o download do arquivo 
 		//TODO: Checar se o arquivo existe
+	
+	
+		if(!basePrecoRepository.existsById(codigo)) {
+            throw new ResourceNotFoundException("Erro ao pesquisar Base Precos");
+        }
+		
+		BasePreco basePreco = basePrecoRepository.findById(codigo).get();
+		BaseKey baseKey = new BaseKey(); 
+		
+		String uf = basePreco.getEstado().getSigla();
+	
+		Date df = Lib.asDate(basePreco.getDataReferencia());
+		
+		String ano = Integer.toString(Lib.Year(df)); 
+		String mes = Lib.StrZero(Lib.Month(df), 2);
+		
+		String oneracao;  
+		if (basePreco.getOneracao() == "O") { 
+			oneracao = "Desonerado"; 	
+		} else oneracao = "NaoDesonerado"; 
+		
 		 
-		String fileName = "/home/sergio/sinapi-download/"+estado+"/"+ano+"/"+mes+"/"+oneracao+"/SINAPI_Preco_Ref_Insumos_"+estado.trim()+"_"+ano+mes.trim()+"_Desonerado.xls";
+		//  /home/sergio/sinapi-download/RN/2018/01/Desonerado/SINAPI_Preco_Ref_Insumos_RN_201801_Desonerado.xls
+		
+		
+		String fileName = "/home/sergio/sinapi-download/"+uf+"/"+ano+"/"+mes+"/"+oneracao+"/SINAPI_Preco_Ref_Insumos_"+uf+"_"+ano+mes+"_"+oneracao+".xls";
 		Double n = null; 
 		String s = null;
 		
 		System.out.println(fileName);
-		System.out.println("<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-		 
 		   
 		try (HSSFWorkbook wb = SinapiController.readFile(fileName)) {
 			
@@ -78,7 +118,7 @@ public class SinapiController {
 				
 				HSSFSheet sheet = wb.getSheetAt(k);
 				int rows = sheet.getPhysicalNumberOfRows();
-				System.out.println("Planilha " + k + " \"" + wb.getSheetName(k) + "\" tem " + rows + " linha(s).");
+				// System.out.println("Planilha " + k + " \"" + wb.getSheetName(k) + "\" tem " + rows + " linha(s).");
 				
 				for (int r = 0; r < rows; r++) {
 					HSSFRow row = sheet.getRow(r);
@@ -93,7 +133,7 @@ public class SinapiController {
 						continue; 
 					}
 					
-					System.out.println("\nROW " + row.getRowNum() + " has " + row.getPhysicalNumberOfCells() + " cell(s).");
+					// System.out.println("\nROW " + row.getRowNum() + " has " + row.getPhysicalNumberOfCells() + " cell(s).");
 					
 					Insumo insumo = new Insumo(); 
 					
@@ -139,11 +179,7 @@ public class SinapiController {
 							
 							switch (cell.getColumnIndex()) {
 								case 0:
-									// insumo.setCodigo((int) Math.floor(valueNumeric));  s.replace("/", "")
-									//s = String.valueOf(Math.floor(valueNumeric)); 
-									//s = s.replace(".0","").trim(); 
-									s = String.format ("%.0f", valueNumeric);
-									insumo.setSku(s); 
+									insumo.setCodigoInsumo( Lib.Round(valueNumeric,0).longValue() ); 
 									break;
 								case 1:
 									insumo.setDescricao(valueString.trim()); 
@@ -159,21 +195,92 @@ public class SinapiController {
 									break;
 								default:
 									insumo = null; 
-							
 							}
 						}
+					} // end for
+					
+					if (insumo==null) {
+						continue;
 					}
-					System.out.println(insumo.toString());	
+					
+					Optional<Insumo> insumoExistente = insumoRepository.findByCodigoInsumo(insumo.getCodigoInsumo());
+					
+					if(!insumoExistente.isPresent()){
+						// Novo Insumo
+						
+						insumo.setBasePreco(basePreco);
+						if (insumo.getCodigoInsumo() !=null &&
+							insumo.getDescricao()    !=null &&
+							insumo.getUnidade()      !=null &&
+							insumo.getPrecoGenerico()!=null) {
+							
+							cadastroInsumoService.salvar(insumo);
+							// insumoRepository.saveAndFlush(insumo);
+							System.out.println("Novo Insumo "+insumo.getDescricao());
+						} else {
+							System.out.println("insumo NOVO NULLO");
+							insumo=null;
+							continue;
+						}
+					} else { 
+						// Atualiza Insumo
+						if (insumo.getCodigoInsumo() !=null &&
+							insumo.getDescricao()    !=null &&
+							insumo.getUnidade()      !=null &&
+							insumo.getPrecoGenerico()!=null) {
+							
+							Insumo insumoEdita = insumoExistente.get(); 
+							
+							insumoEdita.setUnidade(insumo.getUnidade());
+							insumoEdita.setDescricao(insumo.getDescricao());
+							insumoEdita.setPrecoGenerico(insumo.getPrecoGenerico());
+							cadastroInsumoService.salvar(insumoEdita);
+							// insumoRepository.saveAndFlush(insumo);
+							System.out.println("Atualiza Insumo "+insumoEdita.getCodigo());
+						} else {
+							System.out.println("insumo ATUALIZA NULLO");
+							insumo=null;
+							continue;
+						}
+							
+					}
+					
+					// Salva preco  
+					
+					baseKey = new BaseKey(); 
+					
+					// System.out.println("BaseKey: base="+basePreco.getCodigo()+" Insumo="+insumo.getCodigoInsumo());
+					// System.out.println(baseKey!=null);	
+					// System.out.println(basePreco.getCodigo()!=null);
+					// System.out.println(insumo.getCodigoInsumo()!=null);
+					
+					baseKey.setBasePrecoID(basePreco.getCodigo());
+					baseKey.setInsumoID(insumo.getCodigoInsumo());
+					
+					Optional<ItemBasePreco> item = itemBasePrecoRepository.findById(baseKey);
+					
+					if(!item.isPresent()){
+						
+						ItemBasePreco novoItem = new ItemBasePreco();
+						novoItem.setBaseKey(baseKey);
+						novoItem.setPreco(insumo.getPrecoGenerico());
+						novoItem.setBasePreco(basePreco);
+						
+						itemBasePrecoRepository.saveAndFlush(novoItem);
+												
+					} else { 
+						
+						ItemBasePreco editaItem = item.get();
+						editaItem.setPreco(insumo.getPrecoGenerico()); 
+						itemBasePrecoRepository.saveAndFlush(editaItem);
+					
+					}
+					
+					baseKey = null; 
+					insumo = null; 
 					
 					
-					Optional<Estado> e = estadoRepository.findBySiglaIgnoreCase(estado);
-					insumo.setEstado(e.get());
-					
-					insumo.setAnoMes(ano+mes);
-					insumo.setBase(BaseInsumo.SINAPI);
-					System.out.println(insumo.toString());
-					insumoRepository.save(insumo);
-				}
+				} // for row
 			}
 		} catch (Exception e) {
 				e.printStackTrace();
@@ -183,7 +290,7 @@ public class SinapiController {
 	}
 	
 	
-	/*  http://www.caixa.gov.br/Downloads/sinapi-a-partir-jul-2009-rn/SINAPI_ref_Insumos_Composicoes_RN_01a062018.zip (6 arquivos zip)
+	/*  http://www.caixa.gov.br/Downloads/sinapi-a-partir-jul-2009-rn/SINAPI_ref_Insumos_Composicoes_RN_01a062018.zip (6 arquivos .zip)
 	 * 
 	 *  http://www.caixa.gov.br/Downloads/sinapi-a-partir-jul-2009-rn/SINAPI_ref_Insumos_Composicoes_RN_072018_NaoDesonerado.zip
 	 *  http://www.caixa.gov.br/Downloads/sinapi-a-partir-jul-2009-rn/SINAPI_ref_Insumos_Composicoes_RN_082018_NaoDesonerado.zip
@@ -192,29 +299,51 @@ public class SinapiController {
 	 *  
 	 */
 	
-	@GetMapping(path="/composicao/{estado}/{ano}/{mes}")
-	public @ResponseBody String importaComposicoes(@PathVariable String estado, @PathVariable String ano, @PathVariable String mes) {
+	@GetMapping(path="/composicao/{codigo}")
+	public @ResponseBody String importaComposicoes(@PathVariable Long codigo) {
 		
 		// TODO: Importar o Arquivo zip e descompactar no diretorio  da aplicação 
+		
+
+		BasePreco basePreco = basePrecoRepository.findById(codigo).get();
+		
+		if(!basePrecoRepository.existsById(codigo)) {
+            throw new ResourceNotFoundException("Erro ao pesquisar Base Precos");
+        }
+				
+				
+		String uf = basePreco.getEstado().getSigla();
 	
-		String fileName = "/home/sergio/sinapi-download/"+estado+"/"+ano+"/"+mes+"/desonerado/SINAPI_Custo_Ref_Composicoes_Analitico_"+estado+"_"+ano+mes+"_Desonerado.xls";
+		Date df = Lib.asDate(basePreco.getDataReferencia());
+		
+		String ano = Integer.toString(Lib.Year(df)); 
+		String mes = Lib.StrZero(Lib.Month(df), 2);
+		
+		String oneracao;  
+		if (basePreco.getOneracao() == "O") { 
+			oneracao = "Onerado"; 	
+		} else oneracao = "Desonerado"; 
+			
+	
+		String fileName = "/home/sergio/sinapi-download/"+uf+"/"+ano+"/"+mes+"/desonerado/SINAPI_Custo_Ref_Composicoes_Analitico_"+uf+"_"+ano+mes+"_"+oneracao+".xls";
 		Double n = null; 
 		String s = null;
-		String aux = null;
+		String campo0Atual        = null;
+		String campo1Atual        = null;
+		String campo2Atual        = null;
+		String campo3Atual        = null;
+		String campo4Atual        = null;
+		
 		String siglaAnterior      = "ASTU";
 		String siglaAtual         = "ASTU"; 
 		String composicaoAnterior = "97141";
 		int i = 0; 
+		Object o;
+		
 		Composicao composicao = new Composicao(); 
 		ItemComposicao itemComposicao = new ItemComposicao(); 
-		Classe classe = new Classe(); 
-
-		Optional<Estado> e = estadoRepository.findBySiglaIgnoreCase(estado);
-		if (!e.isPresent()) {
-			e.get().setSigla(estado);
-		}
-		composicao.setEstado(e.get());
-		
+		Classe classe = new Classe();
+		ComposicaoKey composicaoKey = new ComposicaoKey();
 		
 		try (HSSFWorkbook wb = SinapiController.readFile(fileName)) {
 			
@@ -283,139 +412,188 @@ public class SinapiController {
 							
 							 
 							switch (cell.getColumnIndex()) {
-								case 0:
-									// composicao.setDescricaoClasse(s); 
-									aux = s; 
-									i=0; 
+								case 0: // Nome da Clase
+									campo0Atual = s; 
+									i=0;  
+									break;
+									
+								case 1: // Sigla da Classe
+									campo1Atual = s; 
+									
+									Optional<Classe> classeExistente = classeRepository.findBySiglaIgnoreCase(s);
+									
+									if (classeExistente.isPresent()) {
+										composicao.setClasse(classeExistente.get()); 
+									} 
+									break;
+									
+								case 2: // Nome do Tipo 
+									
+									campo2Atual = s;
 									
 									break;
-								case 1:
-									// composicao.setSiglaClasse(s);
-									siglaAtual=s; 
 									
-									Optional<Classe> classeOptional = classeRepository.findBySiglaIgnoreCase(s);
+								case 3: // codigo do Tipo
 									
-									if (classeOptional.isPresent()) {
-										composicao.setClasse(classeOptional.get()); 
-									}  
+									Optional<TipoComposicao> tipoExistente = tipoComposicaoRepository.findById(Long.parseLong(s));
+									
+									if (tipoExistente.isPresent()) {
+										composicao.setTipoComposicao(tipoExistente.get()); 
+									} 
+									
+									break;
+									
+								case 4: // pula codigo agrupado 
 
 									break;
-								case 2:
-									// composicao.setDescricaoTipo(s);
-									break;
-								case 3:
-									// composicao.setSiglaTipo(n.longValue());
-									break;
-								case 4:
-									//composicao.setCodigoAgrupador(n.longValue());
-									break;
-								case 5:
-									// composicao.setDescricaoAgrupador(s); 
+									
+								case 5: // pula descricao do agrupador 
+									 
 									break;	
-								case 6:
+									
+								case 6: // Código da composição 
+									
 									// Quebra composicao 
 									System.out.println("Quebra composicao="+s+" anterior="
 											+composicaoAnterior+" FORA=" 
 											+composicaoAnterior.compareTo(s));
 									
-									if (composicaoAnterior.compareTo(s) != 0) {
+									if (composicaoAnterior.compareTo(s) != 0) {    // 0 são idênticas     
 										System.out.println("Quebra composicao= "+s+" anterior="+composicaoAnterior);
-										composicao.setEstado(e.get());
-										composicao.setAnoMes(ano+mes);
-										composicao.setBase(BaseInsumo.SINAPI);
+										
+										// salva composicao atual 
+										composicao.setBasePreco(basePreco); 
 										composicao.adicionarItens(itens);
 										composicaoRepository.save(composicao);
-										// 
+										 
+										// inicia nova composicao
 										composicao = new Composicao(); 
 										
+										classeExistente = classeRepository.findBySiglaIgnoreCase(s);
 										
-										
-										classeOptional = classeRepository.findBySiglaIgnoreCase(s);
-										
-										if (classeOptional.isPresent()) {
-											composicao.setClasse(classeOptional.get()); 
+										if (classeExistente.isPresent()) {
+											composicao.setClasse(classeExistente.get()); 
 										} else {   
 											classe =new Classe();
-											classe.setNome(aux);
-											classe.setSigla(siglaAtual);
+											classe.setNome(campo0Atual);
+											classe.setSigla(campo1Atual);
 											composicao.setClasse(classe);
 										}	
 									   
-									    composicaoAnterior=s;
+									    composicaoAnterior = s;
 									    itens = new ArrayList<>(); 
 									    i=0;
 									}
-									
-									composicao.setSku(s);
+									o=s;
+									composicao.setCodigoComposicao(Long.parseLong(  Lib.StrTran(o, "/", "0")  ));
 									break;	
+									
 								case 7:
 									composicao.setDescricao(s); 
 									break;	
+									
 								case 8:
 									composicao.setUnidade(s); 
+									break;
+									
+								case 9: // pula Origem do Preco
 									break;	
-								case 9:
-									// composicao.setOrigem(s); 
-									break;	
-								case 10:
+									
+								case 10: // Valor da Composição
 									composicao.setCustoTotal(StrToBig(s, 2)); 
 									break;	
-								case 11:
-									itemComposicao = new ItemComposicao(); 
-									itemComposicao.setTipo(s); 
+									
+								case 11: // tipo do item - {COMPOSICAO INSUMO}
+									
+									if (!s.trim().isEmpty()) {
+										itemComposicao = new ItemComposicao(); 
+										itemComposicao.setTipo(s); 
+									}
 									break;	
-								case 12:
-									itemComposicao.setSku(s);
+									
+								case 12: // codigo do item
+									
+									if (!s.trim().isEmpty()) {
+										composicaoKey.setComposicaoID(composicao.getCodigoComposicao());;
+										composicaoKey.setItemID(Long.parseLong(s));
+										itemComposicao.setComposicaoKey(composicaoKey); 
+									}
+									
 									break;	
-								case 13:
-									itemComposicao.setDescricao(s); 
+									
+								case 13: // Descricao do Item 
+									if (!s.trim().isEmpty()) {
+										itemComposicao.setDescricao(s); 
+									}
 									break;	
-								case 14:
-									itemComposicao.setUnidade(s); 
+									
+								case 14: // Unidade do Item
+									if (!s.trim().isEmpty()) {
+										itemComposicao.setUnidade(s);
+									}
 									break;	
-								case 15:
-									// itemComposicao.setOrigem(s); 
+									
+								case 15: // pula origem do preco 
 									break;	
-								case 16:
-									itemComposicao.setCoeficiente(StrToBig(s, 7)); 
+									
+								case 16: // coeficiente do item
+									if (!s.trim().isEmpty()) {
+										itemComposicao.setCoeficiente(StrToBig(s, 7)); 
+									}	
 									break;	
-								case 17:
-									itemComposicao.setPrecoUnitario(StrToBig(s, 2)); 
+									
+								case 17: // preco unitario do item 
+									if (!s.trim().isEmpty()) {
+										itemComposicao.setPrecoUnitario(StrToBig(s, 2)); 
+									}
 									break;	
-								case 18:
-									itemComposicao.setCustoTotal(StrToBig(s, 2)); 
-									itens.add(i, itemComposicao); 
-									i++;
+									
+								case 18: // Custo Total do Item 
+									if (!s.trim().isEmpty()) {
+										itemComposicao.setCustoTotal(StrToBig(s, 2)); 
+										itens.add(i, itemComposicao); 
+										i++;
+									}
 									break;	
-								case 19:
+									
+								case 19: // Custo Mão de Obra 
 									composicao.setCustoMaoObra(StrToBig(s, 2)); 
 									break;	
-								case 20:
-									composicao.setPercentualMaoObra(StrToBig(s, 7)); 
+									
+								case 20: // Percentual da Mão de Obra 
+									composicao.setPercMaoObra(StrToBig(s, 7)); 
 									break;	
+									
 								case 21:
 									composicao.setCustoMaterial(StrToBig(s, 2)); 
 									break;	
+									
 								case 22:
-									composicao.setPercentualMaterial(StrToBig(s, 7)); 
+									composicao.setPercMaterial(StrToBig(s, 7)); 
 									break;	
+									
 								case 23:
 									composicao.setCustoEquipamento(StrToBig(s, 2));
 									break;	
+									
 								case 24:
-									composicao.setPercentualEquipamento(StrToBig(s, 7)); 
+									composicao.setPercEquipamento(StrToBig(s, 7)); 
 									break;	
+									
 								case 25:
 									composicao.setCustoServicosTerceiros(StrToBig(s, 2)); 
 									break;	
+									
 								case 26:
-									composicao.setPercentualServicosTerceiros(StrToBig(s, 7)); 
+									composicao.setPercServicosTerceiros(StrToBig(s, 7)); 
 									break;	
+									
 								case 27:
 									composicao.setCustoOutros(StrToBig(s, 2)); 
 									break;	
+									
 								case 28:
-									composicao.setPercentualOutros(StrToBig(s, 7)); 
+									composicao.setPercOutros(StrToBig(s, 7)); 
 									break;	
 							}
 						}

@@ -31,6 +31,7 @@ public class EstadosImpl implements EstadosQueries {
 	@Override
 	@Transactional(readOnly = true)
 	public Page<Estado> filtra(EstadoFilter filtro, Pageable pageable) {
+		@SuppressWarnings("deprecation")
 		Criteria criteria = manager.unwrap(Session.class).createCriteria(Estado.class);
 		
 		paginacaoUtil.preparar(criteria, pageable);
@@ -40,6 +41,7 @@ public class EstadosImpl implements EstadosQueries {
 	}
 	
 	private Long total(EstadoFilter filtro) {
+		@SuppressWarnings("deprecation")
 		Criteria criteria = manager.unwrap(Session.class).createCriteria(Estado.class);
 		adicionarFiltro(filtro, criteria);
 		criteria.setProjection(Projections.rowCount());

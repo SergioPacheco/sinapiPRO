@@ -24,8 +24,11 @@ public class MenuAttributeTagProcessor extends AbstractAttributeTagProcessor {
 	}
 	
 	@Override
-	protected void doProcess(ITemplateContext context, IProcessableElementTag tag, AttributeName attributeName,
-			String attributeValue, IElementTagStructureHandler structureHandler) {
+	protected void doProcess(ITemplateContext context, 
+			                 IProcessableElementTag tag, 
+			                 AttributeName attributeName,
+			                 String attributeValue, 
+			                 IElementTagStructureHandler structureHandler) {
 		
 		IEngineConfiguration configuration = context.getConfiguration();
 		IStandardExpressionParser parser = StandardExpressions.getExpressionParser(configuration);

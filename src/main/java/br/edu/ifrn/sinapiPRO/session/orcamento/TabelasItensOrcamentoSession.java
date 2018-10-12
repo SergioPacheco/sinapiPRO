@@ -1,4 +1,4 @@
-package br.edu.ifrn.sinapiPRO.session;
+package br.edu.ifrn.sinapiPRO.session.orcamento;
 
 import java.util.HashSet;
 import java.util.List;
@@ -16,13 +16,15 @@ public class TabelasItensOrcamentoSession {
 
 	private Set<TabelaItensOrcamento> tabelas = new HashSet<>();
 
-	public void adicionarItem(String uuid, Composicao composicao, int quantidade) {
+	public void adicionarItem(String tipo, String uuid, Composicao composicao, int quantidade) {
+		
 		TabelaItensOrcamento tabela = buscarTabelaPorUuid(uuid);
 		tabela.adicionarItem(composicao, quantidade);
 		tabelas.add(tabela);
+	
 	}
 
-	public void alterarQuantidadeItens(String uuid, Composicao composicao, Integer quantidade) {
+	public void alterarCoeficiente(String tipo, String uuid, Composicao composicao, Integer quantidade) {
 		TabelaItensOrcamento tabela = buscarTabelaPorUuid(uuid);
 		tabela.alterarQuantidadeItens(composicao, quantidade);
 	}

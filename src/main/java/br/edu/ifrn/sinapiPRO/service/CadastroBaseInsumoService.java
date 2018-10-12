@@ -22,9 +22,10 @@ public class CadastroBaseInsumoService  {
 	@Transactional 
 	public BaseInsumo salvar(BaseInsumo baseInsumo){
 		
-		Optional<BaseInsumo> baseInsumoOptional = baseInsumos.findByNomeIgnoreCase(baseInsumo.getNome());
-		if(baseInsumoOptional.isPresent()){
-			throw new NomeClasseJaCadastradaException("Nome do classe já cadastrado");
+		Optional<BaseInsumo> baseInsumoExistente = baseInsumos.findByNomeIgnoreCase(baseInsumo.getNome());
+		
+		if(baseInsumoExistente.isPresent() && baseInsumo.isNova()) {
+			throw new NomeClasseJaCadastradaException("Nome da Base Já Cadastrada");
 		}
 		return baseInsumos.saveAndFlush(baseInsumo);
 	}

@@ -8,7 +8,6 @@ public class Funcoes {
 
 	/**
 	 * Passa para o próximo dia do mês ou do mês anterior
-	 * cOper + ou - 
 	 * 
 	 */
 	public static Date AddDia(Date data, Integer nDia_Vencto, String cOper) {

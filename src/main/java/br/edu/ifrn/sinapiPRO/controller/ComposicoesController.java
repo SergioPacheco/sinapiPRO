@@ -22,31 +22,38 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
-import br.edu.ifrn.sinapiPRO.model.BaseInsumo;
 import br.edu.ifrn.sinapiPRO.model.Composicao;
-import br.edu.ifrn.sinapiPRO.model.Insumo;
 import br.edu.ifrn.sinapiPRO.model.ItemComposicao;
+import br.edu.ifrn.sinapiPRO.repository.BaseInsumos;
+import br.edu.ifrn.sinapiPRO.repository.BasePrecos;
 import br.edu.ifrn.sinapiPRO.repository.Classes;
 import br.edu.ifrn.sinapiPRO.repository.Composicoes;
 import br.edu.ifrn.sinapiPRO.repository.Estados;
 import br.edu.ifrn.sinapiPRO.repository.Insumos;
+import br.edu.ifrn.sinapiPRO.repository.TipoComposicaoRepository;
 import br.edu.ifrn.sinapiPRO.repository.filter.ComposicaoFilter;
 import br.edu.ifrn.sinapiPRO.security.UsuarioSistema;
 import br.edu.ifrn.sinapiPRO.service.CadastroComposicaoService;
-import br.edu.ifrn.sinapiPRO.session.TabelaItensComposicaoSession;
+import br.edu.ifrn.sinapiPRO.session.composicao.TabelaItensComposicaoSession;
 
 @Controller
 @RequestMapping("/composicoes")
 public class ComposicoesController {
 	
 	@Autowired
-	private Insumos insumos;
-	
-	@Autowired
 	private Estados estados;
 	
 	@Autowired
 	private Classes classes;
+	
+	@Autowired
+	private TipoComposicaoRepository tipos;
+	
+	@Autowired
+	private BaseInsumos baseInsumos;
+	
+	@Autowired
+	private BasePrecos basePrecos;
 	
 	@Autowired 
 	private TabelaItensComposicaoSession tabelaItensComposicao; 
@@ -62,9 +69,11 @@ public class ComposicoesController {
 		ModelAndView mv = new ModelAndView("composicao/CadastroComposicao");
 		
 		setUuid(composicao);
-		mv.addObject("bases", BaseInsumo.values());
+		mv.addObject("basePrecos", basePrecos.findAll());
+		mv.addObject("baseInsumos", baseInsumos.findAll());
 		mv.addObject("estados", estados.findAll());
 		mv.addObject("classes", classes.findAll());
+		mv.addObject("tipos", tipos.findAll());
 		mv.addObject("itens", composicao.getItens());
 		mv.addObject("valorTotal", tabelaItensComposicao.getValorTotal(composicao.getUuid()));
 		return mv;
@@ -76,33 +85,32 @@ public class ComposicoesController {
 			           RedirectAttributes attributes, 
 			                 @AuthenticationPrincipal UsuarioSistema usuarioSistema){
 
-		
-		composicao.setUsuario(usuarioSistema.getUsuario());
-
 		cadastroComposicaoService.salvar(composicao);
 		attributes.addFlashAttribute("mensagem", "Composicao salva com sucesso!");
 		return new ModelAndView("redirect:/composicoes/nova");
 	}
 			
 	@PostMapping("/item")
-	public ModelAndView adicionarItem(Long codigoInsumo, String uuid){
-		Insumo insumo = insumos.getOne(codigoInsumo);
-		tabelaItensComposicao.adicionarItem(uuid, insumo, new BigDecimal(1));
+	public ModelAndView adicionarItem(String tipo, Long codigoItem,  String uuid){
+		// Insumo insumo = insumos.getOne(codigoInsumo);
+		tabelaItensComposicao.adicionarItem(tipo, uuid, codigoItem, new BigDecimal(1));
 		return mvTabelaItensComposicao(uuid);
 	}
 	
-	@PutMapping("/item/{codigoInsumo}")
-	public ModelAndView alterarQuantidadeItem(@PathVariable("codigoInsumo") Insumo insumo
-				, BigDecimal coeficiente, String uuid){
+	@PutMapping("/item/{codigoItem}/{tipo}")
+	public ModelAndView alterarQuantidadeItem(
+			      		@PathVariable("codigoItem") Long codigoItem, 
+			      		@PathVariable("tipo") String tipo, BigDecimal coeficiente, String uuid){
 		 
-		tabelaItensComposicao.alterarQuantidadeItens(uuid, insumo, coeficiente);
+		tabelaItensComposicao.alterarCoeficiente(uuid, tipo, codigoItem, coeficiente); 
 		return mvTabelaItensComposicao(uuid);
 	}
 	
-	@DeleteMapping("/item/{uuid}/{codigoInsumo}")
-	public ModelAndView excluirItem (@PathVariable("codigoInsumo") Insumo insumo
-			, @PathVariable String uuid){
-		tabelaItensComposicao.excluirItem(uuid, insumo);
+	@DeleteMapping("/item/{uuid}/{codigoItem}/{tipo}")
+	public ModelAndView excluirItem (@PathVariable("codigoItem") Long codigoItem, 
+								     @PathVariable("uuid") String uuid,
+									 @PathVariable("tipo") String tipo) {
+		tabelaItensComposicao.excluirItem(uuid, codigoItem);
 		return mvTabelaItensComposicao(uuid);
 	}
 	
@@ -111,7 +119,8 @@ public class ComposicoesController {
 			           @PageableDefault(size = 5) Pageable pageable, 
 			                  HttpServletRequest httpServletRequest) {
 		ModelAndView mv = new ModelAndView("/composicao/PesquisaComposicoes");
-		mv.addObject("bases", BaseInsumo.values());
+		mv.addObject("baseInsumos", baseInsumos.findAll());
+		mv.addObject("basePrecos", basePrecos.findAll());
 		mv.addObject("estados", estados.findAll());
 		mv.addObject("classes", classes.findAll());
 		PageWrapper<Composicao> paginaWrapper = new PageWrapper<>(composicoes.filtrar(composicaoFilter, pageable)
@@ -126,7 +135,7 @@ public class ComposicoesController {
 		
 		setUuid(composicao);
 		for (ItemComposicao	item : composicao.getItens() ) {
-			tabelaItensComposicao.adicionarItem(composicao.getUuid(), item.getInsumo(), item.getCoeficiente());
+			// tabelaItensComposicao.adicionarItem(composicao.getUuid(), item.getComposicaoKey().getItemID(), item.getCoeficiente());
 		}
 		
 		ModelAndView mv = nova(composicao);
@@ -135,15 +144,19 @@ public class ComposicoesController {
 	}
 		
 	private ModelAndView mvTabelaItensComposicao(String uuid) {
+		
 		ModelAndView mv = new ModelAndView("composicao/TabelaItensComposicao");
 		mv.addObject("itens", tabelaItensComposicao.getItens(uuid));
 		mv.addObject("valorTotal", tabelaItensComposicao.getValorTotal(uuid));
+		
 		return mv;
 	}
 	
 	private void setUuid(Composicao composicao) {
+		
 		if(StringUtils.isEmpty(composicao.getUuid())){
 			composicao.setUuid(UUID.randomUUID().toString());
 		}
+		
 	}
 }

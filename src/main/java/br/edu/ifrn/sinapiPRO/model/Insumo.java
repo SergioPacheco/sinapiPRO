@@ -24,16 +24,13 @@ public class Insumo {
 	@GenericGenerator(name = "native", strategy = "native")
 	private Long codigo;
 	
-	private String sku; 
+	@NotNull(message = "Codigo Insumo é obrigatório")
+	private Long codigoInsumo; 
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "codigo_base_preco")
+	private BasePreco basePreco;
 	
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "codigo_base_insumos")
-	private BaseInsumo baseInsumos;
-	 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "codigo_base_precos")
-	private BasePreco basePrecos;
-		
 	@Size(max = 400)
 	@NotNull(message = "Descrição é obrigatória")
 	private String descricao; 
@@ -47,36 +44,51 @@ public class Insumo {
 	public Long getCodigo() {
 		return codigo;
 	}
+
 	public void setCodigo(Long codigo) {
 		this.codigo = codigo;
 	}
-	
-	public String getSku() {
-		return sku;
+
+	public Long getCodigoInsumo() {
+		return codigoInsumo;
 	}
-	public void setSku(String sku) {
-		this.sku = sku;
+
+	public void setCodigoInsumo(Long codigoInsumo) {
+		this.codigoInsumo = codigoInsumo;
 	}
- 	 
+
+	public BasePreco getBasePreco() {
+		return basePreco;
+	}
+
+	public void setBasePreco(BasePreco basePreco) {
+		this.basePreco = basePreco;
+	}
+
 	public String getDescricao() {
 		return descricao;
 	}
+
 	public void setDescricao(String descricao) {
 		this.descricao = descricao;
 	}
+
 	public String getUnidade() {
 		return unidade;
 	}
+
 	public void setUnidade(String unidade) {
 		this.unidade = unidade;
 	}
+
 	public BigDecimal getPrecoGenerico() {
 		return precoGenerico;
 	}
-	public void setPrecoGenerico(BigDecimal preco) {
-		this.precoGenerico = preco;
+
+	public void setPrecoGenerico(BigDecimal precoGenerico) {
+		this.precoGenerico = precoGenerico;
 	}
- 
+
 	public boolean isNovo() {
 		return codigo == null;
 	}

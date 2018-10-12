@@ -22,7 +22,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
 import br.edu.ifrn.sinapiPRO.model.BasePreco;
+import br.edu.ifrn.sinapiPRO.repository.BaseInsumos;
 import br.edu.ifrn.sinapiPRO.repository.BasePrecos;
+import br.edu.ifrn.sinapiPRO.repository.Estados;
 import br.edu.ifrn.sinapiPRO.repository.filter.BasePrecoFilter;
 import br.edu.ifrn.sinapiPRO.service.CadastroBasePrecoService;
 import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
@@ -36,11 +38,24 @@ public class BasePrecosController  {
 	private CadastroBasePrecoService cadastroBasePrecoService;
 	
 	@Autowired
+	private SinapiController sinapiController;
+	
+	@Autowired
 	private BasePrecos basePrecos;
+	
+	@Autowired
+	private BaseInsumos baseInsumos;
+	
+	@Autowired
+	private Estados estados;
 	
 	@RequestMapping("/nova")
 	public ModelAndView nova(BasePreco basePreco) {
-		return new ModelAndView("basePreco/CadastroBasePreco");
+		ModelAndView mv = new ModelAndView("basePreco/CadastroBasePreco");
+		mv.addObject("estados", estados.findAll()); 
+		mv.addObject("baseInsumos", baseInsumos.findAll()); 
+		
+		return mv;
 	}
 	
 	@RequestMapping(value = { "/nova", "{\\d+}" }, method = RequestMethod.POST)
@@ -57,7 +72,7 @@ public class BasePrecosController  {
 		}
 		attributes.addFlashAttribute("mensagem", "BasePreco salvo com sucesso!");
 		
-		return new ModelAndView("redirect:/basePrecos/nova");// Redirect
+		return new ModelAndView("redirect:/basePrecos/nova"); 
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE})
@@ -74,7 +89,7 @@ public class BasePrecosController  {
 	@GetMapping
 	public ModelAndView pesquisar(BasePrecoFilter basePrecoFilter, BindingResult result
 			,@PageableDefault(size = 5) Pageable pageable, HttpServletRequest httpServletRequest){
-		ModelAndView mv = new ModelAndView("basePreco/PesquisaBasePrecos");
+		ModelAndView mv = new ModelAndView("basePreco/PesquisaBasePreco");
 		
 		PageWrapper<BasePreco> paginaWrapper = new PageWrapper<>(basePrecos.filtrar(basePrecoFilter, pageable)
 				, httpServletRequest);
@@ -83,15 +98,6 @@ public class BasePrecosController  {
 		return mv;
 	}
 	
-/*	Esse método não funciona é porque existe o conflito de converters, que configuramos no WebConfig, 
- * ai nesse caso você precisa fazer a pesquisa mesmo no controller.  
- * @GetMapping("/{codigo}")
-	public ModelAndView editar(@PathVariable("codigo") BasePreco basePreco) {
-		ModelAndView mv = novo(basePreco);
-		mv.addObject(basePreco);
-		return mv;
-	}*/
-	
 	@GetMapping("/{codigo}")
 	public ModelAndView editar(@PathVariable Long codigo) {
 		BasePreco basePreco = basePrecos.getOne(codigo);
@@ -99,6 +105,7 @@ public class BasePrecosController  {
 		mv.addObject(basePreco);
 		return mv;
 	}
+	
 	
 	@DeleteMapping("/{codigo}")
 	public @ResponseBody ResponseEntity<?> excluir(@PathVariable("codigo") Long codigo) {
@@ -109,5 +116,31 @@ public class BasePrecosController  {
 		}
 		return ResponseEntity.ok().build();
 	}
-
+	
+	/**
+	 * 
+	 * @param codigo - código da base de preços
+	 * @return
+	 */
+	@GetMapping("importaInsumo/{codigo}")
+	public ModelAndView  importarInsumos(@PathVariable Long codigo) {
+		
+	 
+		sinapiController.importaInsumos(codigo);
+		 
+		return new ModelAndView("redirect:/Dashboard");
+	}
+	/**
+	 * 
+	 * @param codigo - Código da base preços
+	 * @return
+	 */
+	@GetMapping("importaComposicao/{codigo}")
+	public ModelAndView  importarComposicao(@PathVariable Long codigo) {
+				 
+		sinapiController.importaComposicoes(codigo);
+		 
+		return new ModelAndView("redirect:/Dashboard");
+	}
+		
 }

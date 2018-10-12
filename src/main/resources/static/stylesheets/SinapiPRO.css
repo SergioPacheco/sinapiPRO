@@ -87,65 +87,13 @@
 }
 
 /* Colunas - Pesquisa de Insumos */
-.table-insumos-col-foto {
-	min-width: 50px;
-	width: 50px
-}
+.table-insumos-col-foto {min-width: 50px; width: 50px}
+.table-insumos-col-codigo {width: 50px; text-align: center;}
+.table-insumos-col-unidade {width: 50px; text-align: center;}
+.table-insumos-col-preco {width: 100px; text-align: right;}
+.table-insumos-col-descricao {width: 500px; text-align: center}
 
-.table-insumos-col-sku {
-	width: 90px;
-	text-align: center;
-}
-
-.table-insumos-col-descricao {
-	
-}
-
-.table-insumos-col-estilo {
-	width: 120px;
-}
-
-.table-insumos-col-base {
-	width: 100px;
-}
-
-.table-insumos-col-valor {
-	width: 100px;
-	text-align: right;
-}
-
-.table-insumos-col-acoes {
-	width: 80px;
-}
-
-/* Colunas - Pesquisa de Insumos */
-
-.table-insumos-col-sku {
-	width: 90px;
-	text-align: center;
-}
-
-.table-insumos-col-descricao {
-	
-}
-
-.table-insumos-col-estado {
-	width: 120px;
-}
-
-.table-insumos-col-base {
-	width: 100px;
-}
-
-.table-insumos-col-preco {
-	width: 100px;
-	text-align: right;
-}
-
-.table-insumos-col-acoes {
-	width: 80px;
-}
-
+.table-insumos-col-acoes {width: 120px;}
 
 
 /* Colunas - Pesquisa de Estilos */

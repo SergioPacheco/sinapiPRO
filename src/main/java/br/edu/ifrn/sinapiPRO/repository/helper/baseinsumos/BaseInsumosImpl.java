@@ -33,6 +33,7 @@ public class BaseInsumosImpl implements BaseInsumosQueries {
 	@Override
 	@Transactional(readOnly = true)
 	public Page<BaseInsumo> filtrar(BaseInsumoFilter filtro, Pageable pageable) {
+		@SuppressWarnings("deprecation")
 		Criteria criteria = manager.unwrap(Session.class).createCriteria(BaseInsumo.class);
 		paginacaoUtil.preparar(criteria, pageable);
 		adicionarFiltro(filtro, criteria);
@@ -40,6 +41,7 @@ public class BaseInsumosImpl implements BaseInsumosQueries {
 	}
 
 	private Long total(BaseInsumoFilter filtro) {
+		@SuppressWarnings("deprecation")
 		Criteria criteria = manager.unwrap(Session.class).createCriteria(BaseInsumo.class);
 		adicionarFiltro(filtro, criteria);
 		criteria.setProjection(Projections.rowCount());

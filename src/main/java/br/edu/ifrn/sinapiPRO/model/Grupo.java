@@ -28,7 +28,9 @@ public class Grupo implements Serializable {
 	private String nome;
 
 	@ManyToMany
-	@JoinTable(name = "grupo_permissao", joinColumns = @JoinColumn(name = "codigo_grupo"), inverseJoinColumns = @JoinColumn(name = "codigo_permissao"))
+	@JoinTable(name = "grupo_permissao", 
+	           joinColumns = @JoinColumn(name = "codigo_grupo"), 
+			   inverseJoinColumns = @JoinColumn(name = "codigo_permissao"))
 	private List<Permissao> permissoes;
 
 	public Long getCodigo() {

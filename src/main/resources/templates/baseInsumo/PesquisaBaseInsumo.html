@@ -20,7 +20,7 @@
 				</div>
 				<div class="col-sm-2">
 					<div class="aw-page-header-controls">
-						<a class="btn  btn-default" th:href="@{/classes/nova}">
+						<a class="btn  btn-default" th:href="@{/baseInsumos/nova}">
 							<i class="glyphicon  glyphicon-plus-sign"></i> 
 							<span class="hidden-xs  hidden-sm">Nova Base de Insumo</span>
 						</a>
@@ -30,7 +30,7 @@
 		</div>
 	</div>
 	<div class="container-fluid">
-		<form method="GET" th:object="${BaseInsumoFilter}">
+		<form method="GET" th:object="${baseInsumoFilter}">
 			<div class="row">
 				<div class="form-group  col-sm-12">
 					<label class="control-label" for="nome">Base de Insumo</label>
@@ -43,30 +43,30 @@
 			<table class="table  table-hover">
 				<thead>
 					<tr>
-						<th class="table-classes-col-codigo">Código</th>
+						<th class="table-baseInsumo-col-codigo">Código</th>
 						<th> <sinapiPRO:order page="${pagina}" field="nome" text="Nome"/> </th>
 						<th class="table-col-acoes"></th>
 					</tr>
 				</thead>
 				
 				<tbody>
-					<tr th:each="classe : ${pagina.conteudo}">
+					<tr th:each="baseInsumo : ${pagina.conteudo}">
 						<td class="text-left" th:text="${baseInsumo.codigo}">001</td>
-						 
 						<td th:text="${baseInsumo.nome}">Hidraulica</td>
 						<td class="text-center">
 							<a class="btn  btn-link  btn-xs  js-tooltip" title="Editar" 
 							   th:href="@{/baseInsumos/{codigo}(codigo=${baseInsumo.codigo})}"> 
 							   <i class="glyphicon glyphicon-pencil"></i>
 							</a>
-							<a class="btn  btn-link  btn-xs  js-tooltip  js-exclusao-btn" title="Excluir" 
+							<a class="btn  btn-link  btn-xs  js-tooltip  js-exclusao-btn" 
+							   title="Excluir" 
 							   href="#" data:url="@{/baseInsumos/{codigo}(codigo=${baseInsumo.codigo})}"
 							   data:objeto="${baseInsumo.nome}"> <i class="glyphicon glyphicon-remove"></i>
 							</a>
 						</td>
 					</tr>
 					<tr th:if="${pagina.vazia}">
-						<td colspan="3" >Nenhuma classe encontrado</td>
+						<td colspan="3" >Nenhuma Base de Insumo encontrado</td>
 					</tr>
 				</tbody>
 			</table>

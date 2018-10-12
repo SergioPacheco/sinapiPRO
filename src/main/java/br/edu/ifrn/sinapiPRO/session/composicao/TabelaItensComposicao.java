@@ -1,4 +1,4 @@
-package br.edu.ifrn.sinapiPRO.session;
+package br.edu.ifrn.sinapiPRO.session.composicao;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
-import br.edu.ifrn.sinapiPRO.model.Insumo;
+import br.edu.ifrn.sinapiPRO.model.ComposicaoKey;
 import br.edu.ifrn.sinapiPRO.model.ItemComposicao;
 
 class TabelaItensComposicao {
@@ -25,29 +25,41 @@ class TabelaItensComposicao {
 				.orElse(BigDecimal.ZERO);
 	}
 	
-	public void adicionarItem(Insumo insumo, BigDecimal coeficiente) {
-		Optional<ItemComposicao> itemComposicaoOptional = buscarItemPorInsumo(insumo);
+	public void adicionarItem(String tipo, Long codigoItem, BigDecimal coeficiente) {
+		
+		Optional<ItemComposicao> itemComposicaoOptional = buscarItem(codigoItem);
 		
 		ItemComposicao itemComposicao = null;
+		
 		if (itemComposicaoOptional.isPresent()) {
 			itemComposicao = itemComposicaoOptional.get();
 		} else {
+			
 			itemComposicao = new ItemComposicao();
-			itemComposicao.setInsumo(insumo);
+			ComposicaoKey compoKey = new ComposicaoKey();
+			compoKey.setItemID(codigoItem);
+			itemComposicao.setComposicaoKey(compoKey);
 			itemComposicao.setCoeficiente(coeficiente);
-			itemComposicao.setPrecoUnitario(insumo.getPrecoGenerico());
+			
+			// Buscar preco {basePreco -> codigoIusmo -> itemBasePreco }
+			if (tipo=="INSUMO") {
+				
+			}
+			
+			// itemComposicao.setPrecoUnitario(insumo.getPrecoGenerico());
 			itens.add(0, itemComposicao);
 		}
 	}
 	
-	public void alterarQuantidadeItens(Insumo insumo, BigDecimal coeficiente) {
-		ItemComposicao itemComposicao = buscarItemPorInsumo(insumo).get();
+	public void alterarQuantidadeItens(Long codigoItem, BigDecimal coeficiente) {
+		
+		ItemComposicao itemComposicao = buscarItem(codigoItem).get();
 		itemComposicao.setCoeficiente(coeficiente);
 	}
 	
-	public void excluirItem(Insumo insumo) {
+	public void excluirItem(Long codigoItem) {
 		int indice = IntStream.range(0, itens.size())
-				.filter(i -> itens.get(i).getInsumo().equals(insumo))
+				.filter(i -> itens.get(i).getComposicaoKey().getItemID().equals(codigoItem))
 				.findAny().getAsInt();
 		itens.remove(indice);
 	}
@@ -60,9 +72,9 @@ class TabelaItensComposicao {
 		return itens;
 	}
 	
-	private Optional<ItemComposicao> buscarItemPorInsumo(Insumo insumo) {
+	private Optional<ItemComposicao> buscarItem(Long codigoItem) {
 		return itens.stream()
-				.filter(i -> i.getInsumo().equals(insumo))
+				.filter(i -> i.getComposicaoKey().getItemID().equals(codigoItem))
 				.findAny();
 	}
 

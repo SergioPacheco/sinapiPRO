@@ -34,6 +34,7 @@ public class BasePrecosImpl implements BasePrecosQueries {
 	@Override
 	@Transactional(readOnly = true)
 	public Page<BasePreco> filtrar(BasePrecoFilter filtro, Pageable pageable) {
+		@SuppressWarnings("deprecation")
 		Criteria criteria = manager.unwrap(Session.class).createCriteria(BasePreco.class);
 		paginacaoUtil.preparar(criteria, pageable);
 		adicionarFiltro(filtro, criteria);
@@ -41,6 +42,7 @@ public class BasePrecosImpl implements BasePrecosQueries {
 	}
 
 	private Long total(BasePrecoFilter filtro) {
+		@SuppressWarnings("deprecation")
 		Criteria criteria = manager.unwrap(Session.class).createCriteria(BasePreco.class);
 		adicionarFiltro(filtro, criteria);
 		criteria.setProjection(Projections.rowCount());

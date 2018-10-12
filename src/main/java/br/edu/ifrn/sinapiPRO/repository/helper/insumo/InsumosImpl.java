@@ -96,14 +96,12 @@ public class InsumosImpl implements InsumosQueries {
 
 	private void adicionarFiltro(InsumoFilter filtro, Criteria criteria) {
 		if (filtro != null) {
-			if(!StringUtils.isEmpty(filtro.getSku())){
-				criteria.add(Restrictions.eq("sku", filtro.getSku()));
+			if(filtro.getCodigoInsumo()!=null){
+				criteria.add(Restrictions.eq("codigoInsumo", filtro.getCodigoInsumo()));
 			}
 			if (!StringUtils.isEmpty(filtro.getDescricao())) {
 				criteria.add(Restrictions.ilike("descricao", filtro.getDescricao(), MatchMode.ANYWHERE));
 			}
 		}
-		
 	}
-	
 }

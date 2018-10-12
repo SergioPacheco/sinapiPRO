@@ -24,9 +24,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
 import br.edu.ifrn.sinapiPRO.dto.InsumoDTO;
-import br.edu.ifrn.sinapiPRO.model.BaseInsumo;
 import br.edu.ifrn.sinapiPRO.model.Insumo;
-import br.edu.ifrn.sinapiPRO.repository.Estados;
 import br.edu.ifrn.sinapiPRO.repository.Insumos;
 import br.edu.ifrn.sinapiPRO.repository.filter.InsumoFilter;
 import br.edu.ifrn.sinapiPRO.service.CadastroInsumoService;
@@ -41,7 +39,7 @@ public class InsumosController {
 		 
 	@Autowired
 	private Insumos insumos;
-
+	
 	@RequestMapping("/novo")
 	public ModelAndView novo(Insumo insumo) {
 		ModelAndView mv = new ModelAndView("insumo/CadastroInsumo");
@@ -63,7 +61,7 @@ public class InsumosController {
 	
 	@GetMapping
 	public ModelAndView pesquisar(InsumoFilter insumoFilter, BindingResult result
-			, @PageableDefault(size = 20) Pageable pageable, HttpServletRequest httpServletRequest) {
+			, @PageableDefault(size = 15) Pageable pageable, HttpServletRequest httpServletRequest) {
 		ModelAndView mv = new ModelAndView("insumo/PesquisaInsumos");
 		// mv.addObject("estados", estados.findAll());
 		// mv.addObject("bases", BaseInsumo.values());

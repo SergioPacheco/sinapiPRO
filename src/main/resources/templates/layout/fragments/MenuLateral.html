@@ -11,7 +11,7 @@
       		<ul class="aw-menu__list">
 
         		<li class="aw-menu__item" sinapiPRO:menu="@{/}">
-          			<a th:href="@{/dashboard}"><i class="fa  fa-fw  fa-home"></i><span>Dashboard</span></a>
+          			<a th:href="@{/}"><i class="fa  fa-fw  fa-home"></i><span>Dashboard</span></a>
         		</li>
         		
         		<li class="aw-menu__item" sinapiPRO:menu="@{/}">
@@ -58,13 +58,11 @@
 
           			<ul class="aw-menu__list  aw-menu__list--sublist">
           				<li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/baseInsumos.*}">
-			            	<a th:href="@{/cidades}">BaseInsumos</a>
+			            	<a th:href="@{/baseInsumos}">BaseInsumos</a>
 			            </li>
-			            
 			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/basePrecos.*}">
-			            	<a th:href="@{/cidades}">BasePrecos</a>
+			            	<a th:href="@{/basePrecos}">BasePrecos</a>
 			            </li>
-          			
 			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/cidades.*}">
 			            	<a th:href="@{/cidades}">Cidades</a>
 			            </li>

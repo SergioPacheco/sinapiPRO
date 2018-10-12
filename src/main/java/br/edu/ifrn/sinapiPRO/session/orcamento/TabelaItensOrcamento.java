@@ -1,4 +1,4 @@
-package br.edu.ifrn.sinapiPRO.session;
+package br.edu.ifrn.sinapiPRO.session.orcamento;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

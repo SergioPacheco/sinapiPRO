@@ -30,11 +30,18 @@ public class DashboardController {
 	public ModelAndView dashboard() {
 		ModelAndView mv = new ModelAndView("Dashboard");
 		
-		mv.addObject("totalOrcamentos",  orcamentos.count());
+		// count() VALOR NULO CAUSA ERRO
+		
+		//mv.addObject("totalOrcamentos",  orcamentos.count());
+		//mv.addObject("totalInsumos",     insumos.count());
+		//mv.addObject("totalComposicoes", composicoes.count());
+		//mv.addObject("totalClientes",    clientes.count());
+		
+		mv.addObject("totalOrcamentos",  10);
 		mv.addObject("totalInsumos",     insumos.count());
-		mv.addObject("totalComposicoes", composicoes.count());
-		mv.addObject("totalClientes",    clientes.count());
-		System.out.println(">>> dashboard ");
+		mv.addObject("totalComposicoes", 10);
+		mv.addObject("totalClientes",    10);
+		
 		return mv;
 	}
 	

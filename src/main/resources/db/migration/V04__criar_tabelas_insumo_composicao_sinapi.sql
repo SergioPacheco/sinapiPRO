@@ -11,8 +11,18 @@ CREATE TABLE base_preco (
     codigo BIGINT(20) PRIMARY KEY AUTO_INCREMENT,
     nome VARCHAR(300) NOT NULL, 
     codigo_base_insumo BIGINT(20),
-    data_referencia DATE
+    codigo_estado BIGINT(20),
+    oneracao VARCHAR(1),
+    data_referencia DATE  
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE item_base_preco (
+    codigo BIGINT(20) PRIMARY KEY AUTO_INCREMENT,
+    codigo_base_preco BIGINT(20),
+    codigo_insumo BIGINT(20), 
+    preco DECIMAL(15,2)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 
 INSERT INTO base_preco  (codigo, nome, codigo_base_insumo) VALUES (1, 'Sinapi_RN_Janeiro_2018_com_desoneração', 1);
 
@@ -28,12 +38,6 @@ CREATE TABLE insumo_preco (
 INSERT TABLE insumo_preco (codigo_base_insumo, codigo_base_preco) VALUE (1,1) 
 INSERT TABLE insumo_preco (codigo_base_insumo, codigo_base_preco) VALUE (2,1) 
 
-CREATE TABLE item_base_preco (
-    codigo BIGINT(20) PRIMARY KEY AUTO_INCREMENT,
-    codigo_base_preco BIGINT(20),
-    codigo_insumo BIGINT(20), 
-    preco DECIMAL(15,2)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO base_insumos (codigo, nome, codigo_base_precos) VALUES (1,'Sinapi', '1');
 INSERT INTO base_insumos (codigo, nome, codigo_base_precos) VALUES (2,'Base Propria', '1');
@@ -57,13 +61,12 @@ CREATE TABLE classe (
 CREATE TABLE insumo (
     codigo BIGINT(20) PRIMARY KEY AUTO_INCREMENT,
     codigo_base_preco BIGINT(20),
-    codigo_base_insumo BIGINT(20),
     codigo_classe BIGINT(20),
     sku VARCHAR(50) NOT NULL,
     unidade VARCHAR(10),
     tipo VARCHAR(03), 
     descricao TEXT NOT NULL,
-    preco_generico DECIMAL(15, 2),
+    preco_generico DECIMAL(15, 2)
     
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -72,6 +75,8 @@ CREATE TABLE composicao (
     codigo BIGINT(20) PRIMARY KEY AUTO_INCREMENT,
     sku VARCHAR(50), 
     status VARCHAR(20),
+    codigo_base_preco BIGINT(20),
+    codigo_base_insumos BIGINT(20),
     codigo_classe BIGINT(20),
     descricao TEXT,
     unidade VARCHAR(50),
@@ -87,7 +92,8 @@ CREATE TABLE composicao (
     percentual_servicos_terceiros DECIMAL(15, 7),
     custo_outros DECIMAL(15, 7),
     percentual_outros DECIMAL(15, 7),
-    data_criacao DATETIME,  
+    data_criacao DATETIME, 
+    ativa VARCHAR(10)
     FOREIGN KEY (codigo_classe) REFERENCES classe(codigo),
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

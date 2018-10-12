@@ -40,50 +40,22 @@
 			<input type="hidden" th:field="*{codigo}"/>   
 			
 			<div class="row">
-				
-			    <div class="col-sm-2  form-group  bw-required" sinapiPRO:classforerror="base">
-					<label for="base" class="control-label">Base</label>
-					<select id="base" class="form-control" th:field="*{base}">
-						<option value="">Selecione a base</option>
-						<option th:each="base : ${bases}" th:value="${base}" th:text="${base.descricao}">Sinapi</option>
-					</select>
+							
+				<div class="col-sm-3  form-group  bw-required" sinapiPRO:classforerror="codigoInsumo">
+					<label for="codigoInsumo" class="control-label">Código do Insumo</label>
+					<input id="codigoInsumo" type="number" class="form-control" th:field="*{codigoInsumo}"/>
 				</div>
-				 
-				<div class="col-sm-2 form-group  bw-required" sinapiPRO:classforerror="estado">
-					<label for="estado" class="control-label">Estado</label>
-					<div class="bw-field-action">
-						<select id="estado" class="form-control" th:field="*{estado}">
-							<option value="">Selecione o estado</option>
-							<option th:each="estado : ${estados}" th:value="${estado.codigo}" th:text="${estado.nome}">Parana</option>
-						</select>
-					</div>
-				</div>
-				
-				<div class="col-sm-2  form-group  bw-required" sinapiPRO:classforerror="anoMes">
-					<label for="anoMes" class="control-label">Ano/Mes</label>
-					<input id="anoMes" type="text" class="form-control" th:field="*{anoMes}"/>
-				</div>
-				
-				
-				
-			</div>
-			
-			<div class="row">
-				<div class="col-sm-2  form-group  bw-required" sinapiPRO:classforerror="sku">
-					<label for="sku" class="control-label">SKU</label>
-					<input id="sku" type="text" class="form-control" th:field="*{sku}"/>
-				</div>	
-				
-				<div class="col-sm-2  form-group  bw-required" sinapiPRO:classforerror="unidade">
+		
+				<div class="col-sm-3  form-group  bw-required" sinapiPRO:classforerror="unidade">
 					<label for="unidade" class="control-label">UN</label>
 					<input id="unidade" type="text" class="form-control" th:field="*{unidade}"/>
 				</div>
 				
-				<div class="col-sm-2  form-group  bw-required" sinapiPRO:classforerror="preco">
-					<label for="valor" class="control-label">Preço</label>
+				<div class="col-sm-3  form-group  bw-required" sinapiPRO:classforerror="precoGenerico">
+					<label for="precoGenerico" class="control-label">Preço Generico</label>
 					<div class="input-group">
 						<div class="input-group-addon">R$</div>
-						<input id="valor" type="text" class="form-control  js-decimal" th:field="*{preco}"/>
+						<input id="valor" type="text" class="form-control  js-decimal" th:field="*{precoGenerico}"/>
 					</div>
 				</div>
 			</div>

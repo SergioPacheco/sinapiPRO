@@ -24,7 +24,7 @@ public class CadastroBasePrecoService {
 	public BasePreco salvar(BasePreco basePreco){
 		
 		Optional<BasePreco> basePrecoOptional = basePrecos.findByNomeIgnoreCase(basePreco.getNome());
-		if(basePrecoOptional.isPresent()){
+		if(basePrecoOptional.isPresent() && basePreco.isNova()){
 			throw new NomeBasePrecoJaCadastradaException("Nome da base já cadastrada");
 		}
 		return basePrecos.saveAndFlush(basePreco);
@@ -36,9 +36,7 @@ public class CadastroBasePrecoService {
 			basePrecos.deleteById(codigo);
 			basePrecos.flush();
 		} catch (PersistenceException e) {
-			
 			throw new ImpossivelExcluirEntidadeException("Impossível apagar Base. Já foi usado em algum orçamento.");
-
 		}
 	}
 

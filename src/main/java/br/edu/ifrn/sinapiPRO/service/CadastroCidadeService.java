@@ -23,7 +23,7 @@ public class CadastroCidadeService {
 	public void salvar(Cidade cidade){
 		
 		Optional<Cidade> cidadeExistente = cidades.findByNomeAndEstado(cidade.getNome(), cidade.getEstado());
-		if(cidadeExistente.isPresent()){
+		if(cidadeExistente.isPresent() && cidade.isNova()){
 			throw new NomeCidadeJaCadastradaException("Nome da cidade já cadastrado");
 		}
 		cidades.save(cidade);

@@ -76,7 +76,6 @@ public class CidadesController {
 			return nova(cidade);
 		}
 		
-		//Salvar no banco de dados...
 		try {
 			cadastroCidadeService.salvar(cidade);
 			

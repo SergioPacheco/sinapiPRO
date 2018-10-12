@@ -52,7 +52,7 @@
 				<tbody>
 					<tr th:each="basePreco : ${pagina.conteudo}">
 						<td class="text-left" th:text="${basePreco.codigo}">001</td>
-						<td th:text="${basePreco.nome}">Hidraulica</td>
+						<td th:text="${basePreco.nome}">Sinapi_RN_2018_01</td>
 						<td class="text-center">
 							<a class="btn  btn-link  btn-xs  js-tooltip" title="Editar" 
 							   th:href="@{/basePrecos/{codigo}(codigo=${basePreco.codigo})}"> 

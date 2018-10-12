@@ -35,8 +35,8 @@
 		
 			<div class="row">
 				<div class="form-group  col-sm-2">
-					<label class="control-label" for="sku">Código Insumo</label>
-					<input type="text" class="form-control" id="sku" autofocus="autofocus" th:field="*{sku}"/>
+					<label class="control-label" for="codigoInsumo">Código Insumo</label>
+					<input type="number" class="form-control" id="codigoInsumo" autofocus="autofocus" th:field="*{codigoInsumo}"/>
 				</div>
 			 
 				<div class="form-group  col-sm-10">
@@ -47,30 +47,6 @@
 				
 			</div>
 
-			<div class="row">
-				<div class="form-group  col-sm-2">
-					<label for="estado">Estado</label>
-					<select id="estado" class="form-control" th:field="*{estado}">
-	                    <option value="">Todos</option>
-	                    <option th:each="estado : ${estados}" th:value="${estado.codigo}" th:text="${estado.nome}">São Paulo</option>
-	                </select>
-				</div>
-				 
-				<div class="form-group  col-sm-2" >
-					<label class="control-label" for="anoMes">AnoMes</label>
-					<input type="text" class="form-control" id="anoMes" th:field="*{anoMes}"/>
-				</div>
-				
-				<div class="form-group col-sm-8">
-					<label for="valorDe">Valor unitário</label>
-					<div class="form-inline">
-						<input type="text" class="form-control  aw-form-control-inline-sm  js-decimal" id="valorDe" th:field="*{valorDe}"/>
-						<label for="valorAte" class="aw-form-label-between">até</label>
-						<input type="text" class="form-control  aw-form-control-inline-sm  js-decimal" id="valorAte" th:field="*{valorAte}"/>
-					</div>
-				</div>
-			</div>
-			
 			<button type="submit" class="btn  btn-primary">Pesquisar</button>
 		</form>
 		
@@ -78,12 +54,13 @@
 			<table class="table  table-hover">
 				<thead>
 					<tr>
-						<th class="table-insumos-col-sku">
-							<sinapiPRO:order page="${pagina}" field="sku" text="Código"/>
+						<th class="table-insumos-col-codigo">
+							<sinapiPRO:order page="${pagina}" field="codigoInsumo" text="Código"/>
 						</th>
-						<th class="table-insumos-col-preco">Preco</th>
+						<th class="table-insumos-col-unidade">Unidade</th>
+						<th class="table-insumos-col-preco">Preco Genérico</th>
 						<th class="table-insumos-col-descricao">
-							<sinapiPRO:order page="${pagina}" field="descricao" text="Descricao"/>
+							<sinapiPRO:order page="${pagina}" field="descricao" text="Descrição"/>
 						</th>
 						
 						<th class="table-insumos-col-acoes"></th>
@@ -93,23 +70,34 @@
 				<tbody>
 					<tr th:each="insumo : ${pagina.conteudo}">
 						 
-						<td class="text-center" th:text="${insumo.sku}">1234</td>
-						<td class="text-right" th:text="|R$ ${{insumo.preco}}|">R$ 8.00</td>
+						<td class="text-center" th:text="${insumo.codigoInsumo}">1234</td>
+						<td class="text-center" th:text="${insumo.unidade}">KG</td>
+						<td class="text-right"  th:text="|R$ ${{insumo.precoGenerico}}|">R$ 8.00</td>
 						<td th:text="${insumo.descricao}">Pedreiro</td>
+						
 						<td class="text-center">
-							<a class="btn  btn-link  btn-xs  js-tooltip" title="Editar" 
-									th:href="@{/insumos/{codigo}(codigo=${insumo.codigo})}"> 
-								<i class="glyphicon glyphicon-pencil"></i>
+							<a class="btn  btn-link  btn-xs  js-tooltip" 
+							   title="Preços" 
+							   href="#" data-toggle="modal" data-target="#modalListaPrecos"> 
+							   <i class="glyphicon glyphicon-stats"></i>
 							</a>
-							<a class="btn  btn-link  btn-xs  js-tooltip  js-exclusao-btn" title="Excluir" href="#" 
-									data:url="@{/insumos/{codigo}(codigo=${insumo.codigo})}"
-									data:objeto="${insumo.descricao}">
-								<i class="glyphicon glyphicon-remove"></i>
+						
+							<a class="btn  btn-link  btn-xs  js-tooltip" 
+							   title="Editar" 
+							   th:href="@{/insumos/{codigo}(codigo=${insumo.codigo})}"> 
+							   <i class="glyphicon glyphicon-pencil"></i>
+							</a>
+							
+							<a class="btn  btn-link  btn-xs  js-tooltip  js-exclusao-btn" 
+							   title="Excluir" href="#" 
+							   data:url="@{/insumos/{codigo}(codigo=${insumo.codigo})}"
+							   data:objeto="${insumo.descricao}">
+							   <i class="glyphicon glyphicon-remove"></i>
 							</a>
 						</td>
 					</tr>
 					<tr th:if="${pagina.vazia}">
-						<td colspan="7">Nenhum insumo encontrado</td>
+						<td colspan="7">Nenhum Insumo encontrado</td>
 					</tr>
 				</tbody>
 				

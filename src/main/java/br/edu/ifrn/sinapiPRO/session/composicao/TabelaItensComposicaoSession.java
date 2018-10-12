@@ -1,4 +1,4 @@
-package br.edu.ifrn.sinapiPRO.session;
+package br.edu.ifrn.sinapiPRO.session.composicao;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
@@ -8,7 +8,6 @@ import java.util.Set;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.SessionScope;
 
-import br.edu.ifrn.sinapiPRO.model.Insumo;
 import br.edu.ifrn.sinapiPRO.model.ItemComposicao;
 
 @SessionScope
@@ -17,21 +16,21 @@ public class TabelaItensComposicaoSession {
 
 	private Set<TabelaItensComposicao> tabelas = new HashSet<>();
 
-	public void adicionarItem(String uuid, Insumo insumo, BigDecimal coeficiente) {
+	public void adicionarItem(String uuid, String tipo, Long codigoItem, BigDecimal coeficiente) {
 		TabelaItensComposicao tabela = buscarTabelaPorUuid(uuid);
-		tabela.adicionarItem(insumo, coeficiente);
+		tabela.adicionarItem(tipo, codigoItem, coeficiente);
 		tabelas.add(tabela);
 	}
 
 
-	public void alterarQuantidadeItens(String uuid, Insumo insumo, BigDecimal coeficiente) {
+	public void alterarCoeficiente(String uuid, String tipo, Long codigoItem, BigDecimal coeficiente) {
 		TabelaItensComposicao tabela = buscarTabelaPorUuid(uuid);
-		tabela.alterarQuantidadeItens(insumo, coeficiente);
+		tabela.alterarQuantidadeItens(codigoItem, coeficiente);
 	}
 
-	public void excluirItem(String uuid, Insumo insumo) {
+	public void excluirItem(String uuid, Long codigoItem) {
 		TabelaItensComposicao tabela = buscarTabelaPorUuid(uuid);
-		tabela.excluirItem(insumo);
+		tabela.excluirItem(codigoItem);
 	}
 
 	public List<ItemComposicao> getItens(String uuid) {

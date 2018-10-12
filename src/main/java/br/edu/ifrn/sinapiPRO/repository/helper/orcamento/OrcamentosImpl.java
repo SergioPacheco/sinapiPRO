@@ -45,6 +45,7 @@ public class OrcamentosImpl implements OrcamentosQueries {
 	@Transactional(readOnly = true)
 	@Override
 	public Page<Orcamento> filtrar(OrcamentoFilter filtro, Pageable pageable) {
+		@SuppressWarnings("deprecation")
 		Criteria criteria = manager.unwrap(Session.class).createCriteria(Orcamento.class);
 		paginacaoUtil.preparar(criteria, pageable);
 		adicionarFiltro(filtro, criteria);
@@ -55,6 +56,7 @@ public class OrcamentosImpl implements OrcamentosQueries {
 	@Transactional(readOnly = true)
 	@Override
 	public Orcamento buscarComItens(Long codigo) {
+		@SuppressWarnings("deprecation")
 		Criteria criteria = manager.unwrap(Session.class).createCriteria(Orcamento.class);
 		criteria.createAlias("itens", "i", JoinType.LEFT_OUTER_JOIN);
 		criteria.add(Restrictions.eq("codigo", codigo));
@@ -132,6 +134,7 @@ public class OrcamentosImpl implements OrcamentosQueries {
 	}
 	
 	private Long total(OrcamentoFilter filtro) {
+		@SuppressWarnings("deprecation")
 		Criteria criteria = manager.unwrap(Session.class).createCriteria(Orcamento.class);
 		adicionarFiltro(filtro, criteria);
 		criteria.setProjection(Projections.rowCount());

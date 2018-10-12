@@ -37,7 +37,7 @@ import br.edu.ifrn.sinapiPRO.repository.Orcamentos;
 import br.edu.ifrn.sinapiPRO.repository.filter.OrcamentoFilter;
 import br.edu.ifrn.sinapiPRO.security.UsuarioSistema;
 import br.edu.ifrn.sinapiPRO.service.CadastroOrcamentoService;
-import br.edu.ifrn.sinapiPRO.session.TabelasItensOrcamentoSession;
+import br.edu.ifrn.sinapiPRO.session.orcamento.TabelasItensOrcamentoSession;
 
 @Controller
 @RequestMapping("/orcamentos")
@@ -103,13 +103,13 @@ public class OrcamentosController {
 	@PostMapping("/item")
 	public ModelAndView adicionarItem(Long codigoComposicao, String uuid) {
 		Composicao composicao = composicoes.getOne(codigoComposicao);
-		tabelaItens.adicionarItem(uuid, composicao, 1);
+		tabelaItens.adicionarItem(uuid, uuid, composicao, 1);
 		return mvTabelaItensOrcamento(uuid);
 	}
 	
 	@PutMapping("/item/{codigoComposicao}")
-	public ModelAndView alterarQuantidadeItem(@PathVariable("codigoComposicao") Composicao composicao, Integer quantidade, String uuid) {
-		tabelaItens.alterarQuantidadeItens(uuid, composicao, quantidade);
+	public ModelAndView alterarQuantidadeItem(@PathVariable("codigoComposicao") Composicao composicao, String tipo, Integer quantidade, String uuid) {
+		tabelaItens.alterarCoeficiente(tipo, uuid, composicao, quantidade);  
 		return mvTabelaItensOrcamento(uuid);
 	}
 	
@@ -132,13 +132,14 @@ public class OrcamentosController {
 		return mv;
 	}
 	
-	@GetMapping("/{codigo}")
-	public ModelAndView editar(@PathVariable Long codigo) {
+	@GetMapping("/{codigo}/{tipo}")
+	public ModelAndView editar(@PathVariable Long codigo, @PathVariable String tipo ) {
 		Orcamento orcamento = orcamentos.buscarComItens(codigo);
 		
 		setUuid(orcamento);
+		
 		for (ItemOrcamento item : orcamento.getItens()) {
-			tabelaItens.adicionarItem(orcamento.getUuid(), item.getComposicao(), item.getQuantidade());
+			tabelaItens.adicionarItem(tipo, orcamento.getUuid(), item.getComposicao(), item.getQuantidade());
 		}
 		
 		ModelAndView mv = nova(orcamento);

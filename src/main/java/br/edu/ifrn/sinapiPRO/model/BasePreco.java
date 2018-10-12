@@ -1,17 +1,21 @@
 package br.edu.ifrn.sinapiPRO.model;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDate;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.TableGenerator;
 
 import org.hibernate.annotations.GenericGenerator;
 
-@Entity
+@Entity(name = "BasePreco")
 @Table(name = "base_preco")
 public class BasePreco implements Serializable {
 
@@ -21,26 +25,75 @@ public class BasePreco implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY, generator="native")
 	@GenericGenerator(name = "native", strategy = "native")
 	private Long codigo;
+	
 	private String nome;
-	private Date dataReferencia;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "codigo_base_insumo")
+	private BaseInsumo baseInsumo; 
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "codigo_estado")
+	private Estado estado;
+	
+	private String oneracao;
+	
+	private LocalDate dataReferencia;
+
+	// base_preco tem muitos filhos, vamos tentar outra mapear somente do lado dos filhos 
+	// @OneToMany(mappedBy = "basePreco", cascade = CascadeType.ALL, orphanRemoval = true)
+	// private List<ItemBasePreco> itensPreco = new ArrayList<>();
 	
 	public Long getCodigo() {
 		return codigo;
 	}
+
 	public void setCodigo(Long codigo) {
 		this.codigo = codigo;
 	}
+
 	public String getNome() {
 		return nome;
 	}
+
 	public void setNome(String nome) {
 		this.nome = nome;
 	}
-	public Date getDataReferencia() {
+
+	public BaseInsumo getBaseInsumo() {
+		return baseInsumo;
+	}
+
+	public void setBaseInsumo(BaseInsumo baseInsumo) {
+		this.baseInsumo = baseInsumo;
+	}
+
+	public Estado getEstado() {
+		return estado;
+	}
+
+	public void setEstado(Estado estado) {
+		this.estado = estado;
+	}
+
+	public String getOneracao() {
+		return oneracao;
+	}
+
+	public void setOneracao(String oneracao) {
+		this.oneracao = oneracao;
+	}
+
+	public LocalDate getDataReferencia() {
 		return dataReferencia;
 	}
-	public void setDataReferencia(Date dataReferencia) {
+
+	public void setDataReferencia(LocalDate dataReferencia) {
 		this.dataReferencia = dataReferencia;
+	}
+
+	public boolean isNova() {
+		return codigo == null;
 	}
 	
 	@Override
