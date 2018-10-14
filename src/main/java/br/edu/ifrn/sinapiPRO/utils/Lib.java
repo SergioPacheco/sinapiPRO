@@ -38,8 +38,10 @@ public class Lib {
 	 * @param value
 	 * @return
 	 */
-	public static boolean Empty(Object value) {
-
+	public static boolean Empty(String val) {
+		Object value = new Object(); 
+		value = val;
+		
 		if (value != null && !value.toString().trim().isEmpty()) {
 
 			if (value instanceof Number) {
@@ -62,6 +64,38 @@ public class Lib {
 
 		return true;
 	}
+	
+	/**
+	 * 
+	 * @param value - Object string 
+	 * @return
+	 */
+	public static boolean Empty(Object value) {
+			
+		if (value != null && !value.toString().trim().isEmpty()) {
+
+			if (value instanceof Number) {
+
+				if (((Number) value).doubleValue() != 0) {
+
+					return false;
+
+				} else {
+
+					return true;
+
+				}
+			} else if (value instanceof List) {
+				return ((List<?>) value).isEmpty();
+			}
+
+			return false;
+		}
+
+		return true;
+	}
+	
+	
 
 	/**
 	 * Arredonda o valor limitando o numero de decimais conforme o informado
@@ -367,7 +401,7 @@ public class Lib {
 					sRetorno.setCharAt(sRetorno.length() - 1, ' ');
 				}
 
-				return Lib.RTrim(sRetorno);
+				return Lib.RTrim(sRetorno.toString());
 			}
 
 			retorno = new StringBuilder(retorno.substring(0, length));
@@ -494,13 +528,13 @@ public class Lib {
 	 * @param campo
 	 * @return
 	 */
-	public static String RTrim(Object campo) {
+	public static String RTrim(String campo) {
 
 		if (campo == null) {
 			return null;
 		}
 
-		return String.valueOf(campo).replaceAll("\\s+$", "");
+		return campo.replaceAll("\\s+$", "");
 	}
 
 	/**
@@ -509,13 +543,13 @@ public class Lib {
 	 * @param campo
 	 * @return
 	 */
-	public static String LTrim(Object campo) {
+	public static String LTrim(String campo) {
 
 		if (campo == null) {
 			return null;
 		}
 
-		return String.valueOf(campo).replaceAll("^\\s+", "");
+		return campo.replaceAll("^\\s+", "");
 	}
 
 	

@@ -3,7 +3,7 @@ sinapiPRO = sinapiPRO || {};
 sinapiPRO.Autocomplete = (function(){
 
 	function Autocomplete(){
-		this.skuOuDescricaoInput = $('.js-sku-descricao-insumo-input');
+		this.skuOuDescricaoInput = $('.js-codigo-descricao-composicao-input');
 		var htmlTemplateAutocomplete = $('#template-autocomplete-insumo').html();
 		this.template = Handlebars.compile(htmlTemplateAutocomplete);
 		this.emitter = $({});

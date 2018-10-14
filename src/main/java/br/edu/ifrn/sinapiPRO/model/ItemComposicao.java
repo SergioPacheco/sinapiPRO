@@ -3,8 +3,8 @@ package br.edu.ifrn.sinapiPRO.model;
 import java.math.BigDecimal;
 
 import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -13,22 +13,25 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
-import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name = "item_composicao")
 public class ItemComposicao {
 
-	@EmbeddedId
-	private ComposicaoKey composicaoKey; // {composicaoID, itemID}
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long codigo;
 	
-	private String tipo; 
+	private Long codigoItem; 
+
+	private String tipo;     // {COMPOSICAO, INSUMO}
 	
-	@ManyToOne
-	@JoinColumn(name = "composicaoID", nullable=false, insertable = false, updatable = false)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "codigo_composicao")
 	private Composicao composicao;
 	
 	@ManyToOne
+	@JoinColumn(name = "codigo_base_preco")
 	private BasePreco basePreco;
 	
 	@Size(max = 400)
@@ -36,22 +39,31 @@ public class ItemComposicao {
 	
 	private String unidade; 
 	
-	@Column(length = 15, precision = 7)
+	@Column(precision=15, scale=2)
 	private BigDecimal coeficiente; // Quantidade usada
 	
-	@Column(name = "preco_unitario")
+	@Column(precision=15, scale=2)
 	private BigDecimal precoUnitario; 
 	
-	@Column(name = "custo_total")
+	@Column(precision=15, scale=2)
 	private BigDecimal custoTotal;
 	
 	
-	public ComposicaoKey getComposicaoKey() {
-		return composicaoKey;
+	
+	public Long getCodigo() {
+		return codigo;
 	}
 
-	public void setComposicaoKey(ComposicaoKey composicaoKey) {
-		this.composicaoKey = composicaoKey;
+	public void setCodigo(Long codigo) {
+		this.codigo = codigo;
+	}
+
+	public Long getCodigoItem() {
+		return codigoItem;
+	}
+
+	public void setCodigoItem(Long codigoItem) {
+		this.codigoItem = codigoItem;
 	}
 
 	public BasePreco getBasePreco() {
@@ -121,9 +133,32 @@ public class ItemComposicao {
 	public BigDecimal getValorTotal(){
 		return precoUnitario.multiply(coeficiente);
 	}
-	
-	
-	
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((codigoItem == null) ? 0 : codigoItem.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ItemComposicao other = (ItemComposicao) obj;
+		if (codigoItem == null) {
+			if (other.codigoItem != null)
+				return false;
+		} else if (!codigoItem.equals(other.codigoItem))
+			return false;
+		return true;
+	}
+
 	
 	
 }	

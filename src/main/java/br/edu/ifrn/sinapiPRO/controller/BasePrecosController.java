@@ -51,6 +51,7 @@ public class BasePrecosController  {
 	
 	@RequestMapping("/nova")
 	public ModelAndView nova(BasePreco basePreco) {
+		
 		ModelAndView mv = new ModelAndView("basePreco/CadastroBasePreco");
 		mv.addObject("estados", estados.findAll()); 
 		mv.addObject("baseInsumos", baseInsumos.findAll()); 
@@ -123,12 +124,12 @@ public class BasePrecosController  {
 	 * @return
 	 */
 	@GetMapping("importaInsumo/{codigo}")
-	public ModelAndView  importarInsumos(@PathVariable Long codigo) {
+	public @ResponseBody ResponseEntity<?>  importarInsumos(@PathVariable Long codigo) {
 		
 	 
 		sinapiController.importaInsumos(codigo);
 		 
-		return new ModelAndView("redirect:/Dashboard");
+		return ResponseEntity.ok().build();
 	}
 	/**
 	 * 
@@ -136,11 +137,11 @@ public class BasePrecosController  {
 	 * @return
 	 */
 	@GetMapping("importaComposicao/{codigo}")
-	public ModelAndView  importarComposicao(@PathVariable Long codigo) {
+	public @ResponseBody ResponseEntity<?>  importarComposicoes(@PathVariable Long codigo) {
 				 
 		sinapiController.importaComposicoes(codigo);
 		 
-		return new ModelAndView("redirect:/Dashboard");
+		return ResponseEntity.ok().build();
 	}
 		
 }

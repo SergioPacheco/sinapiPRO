@@ -29,7 +29,6 @@ import br.edu.ifrn.sinapiPRO.repository.BasePrecos;
 import br.edu.ifrn.sinapiPRO.repository.Classes;
 import br.edu.ifrn.sinapiPRO.repository.Composicoes;
 import br.edu.ifrn.sinapiPRO.repository.Estados;
-import br.edu.ifrn.sinapiPRO.repository.Insumos;
 import br.edu.ifrn.sinapiPRO.repository.TipoComposicaoRepository;
 import br.edu.ifrn.sinapiPRO.repository.filter.ComposicaoFilter;
 import br.edu.ifrn.sinapiPRO.security.UsuarioSistema;
@@ -39,9 +38,6 @@ import br.edu.ifrn.sinapiPRO.session.composicao.TabelaItensComposicaoSession;
 @Controller
 @RequestMapping("/composicoes")
 public class ComposicoesController {
-	
-	@Autowired
-	private Estados estados;
 	
 	@Autowired
 	private Classes classes;
@@ -64,22 +60,29 @@ public class ComposicoesController {
 	@Autowired
 	private Composicoes composicoes;
 
+	/**
+	 * 
+	 * @param composicao
+	 * @return
+	 */
 	@GetMapping("/nova")
 	public ModelAndView nova(Composicao composicao) {
+		
 		ModelAndView mv = new ModelAndView("composicao/CadastroComposicao");
 		
 		setUuid(composicao);
+		
 		mv.addObject("basePrecos", basePrecos.findAll());
 		mv.addObject("baseInsumos", baseInsumos.findAll());
-		mv.addObject("estados", estados.findAll());
 		mv.addObject("classes", classes.findAll());
-		mv.addObject("tipos", tipos.findAll());
+		mv.addObject("tipoComposicao", tipos.findAll());
 		mv.addObject("itens", composicao.getItens());
 		mv.addObject("valorTotal", tabelaItensComposicao.getValorTotal(composicao.getUuid()));
+		
 		return mv;
 	}
 	
-	@PostMapping(value = "/nova")
+	@PostMapping(value = "/nova", params = "salvar")
 	public ModelAndView salvar(Composicao composicao, 
 			                    BindingResult result, 
 			           RedirectAttributes attributes, 
@@ -92,8 +95,9 @@ public class ComposicoesController {
 			
 	@PostMapping("/item")
 	public ModelAndView adicionarItem(String tipo, Long codigoItem,  String uuid){
+		
 		// Insumo insumo = insumos.getOne(codigoInsumo);
-		tabelaItensComposicao.adicionarItem(tipo, uuid, codigoItem, new BigDecimal(1));
+		tabelaItensComposicao.adicionarItem(tipo, uuid, codigoItem,  new BigDecimal(0),  new BigDecimal(1));
 		return mvTabelaItensComposicao(uuid);
 	}
 	
@@ -110,32 +114,45 @@ public class ComposicoesController {
 	public ModelAndView excluirItem (@PathVariable("codigoItem") Long codigoItem, 
 								     @PathVariable("uuid") String uuid,
 									 @PathVariable("tipo") String tipo) {
+		
 		tabelaItensComposicao.excluirItem(uuid, codigoItem);
 		return mvTabelaItensComposicao(uuid);
 	}
-	
+
 	@GetMapping
 	public ModelAndView pesquisar(ComposicaoFilter composicaoFilter,
 			           @PageableDefault(size = 5) Pageable pageable, 
 			                  HttpServletRequest httpServletRequest) {
+		
 		ModelAndView mv = new ModelAndView("/composicao/PesquisaComposicoes");
 		mv.addObject("baseInsumos", baseInsumos.findAll());
 		mv.addObject("basePrecos", basePrecos.findAll());
-		mv.addObject("estados", estados.findAll());
 		mv.addObject("classes", classes.findAll());
+		mv.addObject("tipoComposicao", tipos.findAll());
+		
 		PageWrapper<Composicao> paginaWrapper = new PageWrapper<>(composicoes.filtrar(composicaoFilter, pageable)
 				, httpServletRequest);
 		mv.addObject("pagina", paginaWrapper);
 		return mv;
 	}
 	
+	/**
+	 * 
+	 * @param codigo - código da composição
+	 * @return
+	 */
 	@GetMapping("/{codigo}")
 	public ModelAndView editar(@PathVariable Long codigo) {
-		Composicao composicao = composicoes.buscarComItens(codigo);
 		
+		Composicao composicao = composicoes.buscarComItens(codigo);
 		setUuid(composicao);
 		for (ItemComposicao	item : composicao.getItens() ) {
-			// tabelaItensComposicao.adicionarItem(composicao.getUuid(), item.getComposicaoKey().getItemID(), item.getCoeficiente());
+			
+			tabelaItensComposicao.adicionarItem( item.getTipo(),
+					                       composicao.getUuid(),
+					                            item.getCodigoItem(), 
+					                            item.getPrecoUnitario(),
+					                            item.getCoeficiente());
 		}
 		
 		ModelAndView mv = nova(composicao);

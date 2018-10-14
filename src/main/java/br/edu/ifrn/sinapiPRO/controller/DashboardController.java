@@ -38,7 +38,7 @@ public class DashboardController {
 		//mv.addObject("totalClientes",    clientes.count());
 		
 		mv.addObject("totalOrcamentos",  10);
-		mv.addObject("totalInsumos",     insumos.count());
+		mv.addObject("totalInsumos",     10);
 		mv.addObject("totalComposicoes", 10);
 		mv.addObject("totalClientes",    10);
 		

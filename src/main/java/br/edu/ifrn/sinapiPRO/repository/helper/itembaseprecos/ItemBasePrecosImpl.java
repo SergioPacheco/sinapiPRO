@@ -14,7 +14,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
-import br.edu.ifrn.sinapiPRO.model.Cidade;
 import br.edu.ifrn.sinapiPRO.model.ItemBasePreco;
 import br.edu.ifrn.sinapiPRO.repository.filter.ItemBasePrecoFilter;
 import br.edu.ifrn.sinapiPRO.repository.paginacao.PaginacaoUtil;

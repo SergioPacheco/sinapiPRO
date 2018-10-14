@@ -32,48 +32,34 @@
 	
 	<div class="container-fluid">
 		<form method="GET" th:object="${composicaoFilter}" th:action="@{/composicoes}">
+		
+			<!-- pesquisar pelo codigo tambem -->
 			<div class="row">
-				<div class="form-group  col-sm-2">
-					<label class="control-label" for="codigo">Código</label>
-					<input type="text" class="form-control" id="codigo" autofocus="autofocus" th:field="*{codigo}"/>
+				<div class="form-group  col-sm-6">
+					<label class="control-label" for="descricao">Código ou Descrição da composição</label>
+					<input type="text" class="form-control" id="descricao" autofocus="autofocus" th:field="*{descricao}"/>
 				</div>
-				
-				<div class="form-group  col-sm-2">
-					<label class="control-label" for="sku">SKU</label>
-					<input type="text" class="form-control" id="sku"  th:field="*{sku}"/>
-				</div>
-				
-				<div class="form-group  col-sm-4">
+			 
+				<div class="form-group  col-sm-3">
 					<label for="classe">Classe</label>
 					<select id="classe" class="form-control" th:field="*{classe}">
 	                    <option value="">Todas Classes</option>
-	                    <option th:each="classe : ${classes}" th:value="${classe.codigo}" th:text="${classe.descricao}">Hidraulica</option>
+	                    <option th:each="classe : ${classes}" th:value="${classe.codigo}" th:text="${classe.nome}">Hidraulica</option>
 	                </select>
 				</div>
 				
-				<div class="form-group  col-sm-2">
-					<label for="status" class="control-label">Base Preços</label>
-					<select id="status" class="form-control" th:field="*{base}">
-	                    <option value="">Todos as bases</option>
-	                    <option th:each="base : ${bases}" th:value="${base}" th:text="${base.descricao}"></option>
-	                </select>
-				</div>
-				<div class="form-group  col-sm-2">
-					<label for="estado">Estado</label>
-					<select id="estado" class="form-control" th:field="*{estado}">
+				<div class="form-group  col-sm-3">
+					<label for="tipoComposicao">Sub-Classe </label>
+					<select id="tipoComposicao" class="form-control" th:field="*{tipoComposicao}">
 	                    <option value="">Todos</option>
-	                    <option th:each="estado : ${estados}" th:value="${estado.codigo}" th:text="${estado.nome}">São Paulo</option>
+	                    <option th:each="tipoCompo : ${tipoComposicao}" 
+	                    	       th:value="${tipoCompo.codigo}" 
+	                    	       th:text="${tipoCompo.nome}">SINAPI</option>
 	                </select>
 				</div>
+				
 				
 			</div>
-			
-			<div class="row">
-				<div class="form-group  col-sm-12">
-					<label class="control-label" for="descricao">Descrição</label>
-					<input type="text" class="form-control" id="descricao" autofocus="autofocus" th:field="*{descricao}"/>
-				</div>
-			</div>>
 			
 			<button type="submit" class="btn  btn-primary">Pesquisar</button>
 
@@ -83,28 +69,39 @@
 			<table class="table  table-hover">
 	            <thead>
 	            	<tr>
-	                	<th>Código</th>
-	                	<th>
-	                		<sinapiPRO:order page="${pagina}" field="sku" text="SKU"/>
+	            		<th class="table-composicoes-col-classe">Classe</th>
+	            		<th class="table-composicoes-col-subclasse">Sub-Classe</th>
+	                	<th class="table-composicoes-col-codigo">
+	                		<sinapiPRO:order page="${pagina}" field="codigo" text="Código"/>
 	                	</th>
-	                	<th>Preço</th>
-	                	<th>Descricao</th>
-	                	<th>Base</th>
-	                	<th>UF</th>
-	                	<th>Classe</th>
+	                	<th class="table-composicoes-col-descricao">Descricao</th>
+	                	<th class="table-composicoes-col-unidade">Unidade</th>
+	                	<th class="table-composicoes-col-valor">Valor</th>
+	                	<th class="table-composicoes-col-base">Base de Preço</th>
 	                 	<th class="table-col-acoes"></th>
 					</tr>
 				</thead>
 				
 	            <tbody>
 					<tr th:each="composicao : ${pagina.conteudo}">
-						<td th:text="${composicao.codigo}"></td>
-						<td th:text="${composicao.sku}"></td>
-						<td th:text="|R$ ${{composicao.valorTotal}}|"></td>
-						<td th:text="${composicao.base.descricao}"></td>
-						<td th:text="${composicao.estado.sigla}"></td>
-						<td th:text="${composicao.classe.sigla}"></td>
+						<td class="text-center" th:text="${composicao.classe.sigla}"></td>
+						<td class="text-left" th:text="${composicao.tipoComposicao.nome}"></td>
+						<td class="text-center" th:text="${composicao.codigo}"></td>
+						<td class="text-left"   th:text="${composicao.descricao}"></td>
+						<td class="text-center" th:text="${composicao.unidade}"></td>
+						<td class="text-right"  th:text="|R$ ${{composicao.custoTotal}}|"></td>
+						
+						<td class="text-center" th:text="${composicao.basePreco.nome}"></td>
+						
+						
 	                 	<td class="text-center">
+	                 	    
+	                 	    <a class="btn  btn-link  btn-xs  js-tooltip" 
+							   title="Preços" 
+							   href="#" data-toggle="modal" data-target="#modalListaPrecos"> 
+							   <i class="glyphicon glyphicon-stats"></i>
+							</a>
+							
 		   					<a class="btn  btn-link  btn-xs  js-tooltip" title="Editar" 
 		   						th:href="@{/composicoes/{codigo}(codigo=${composicao.codigo})}">
 		   						<i class="glyphicon glyphicon-pencil"></i>

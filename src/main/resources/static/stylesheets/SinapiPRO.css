@@ -12,7 +12,6 @@
 }
 
 
-
 /*
 ######################
 # COMPONENTES
@@ -76,9 +75,9 @@
 }
 
 /*
-###################
+####################
 # PÁGINAS DO SISTEMA
-###################
+####################
 */
 
 /* Colunas comuns */
@@ -92,8 +91,17 @@
 .table-insumos-col-unidade {width: 50px; text-align: center;}
 .table-insumos-col-preco {width: 100px; text-align: right;}
 .table-insumos-col-descricao {width: 500px; text-align: center}
-
 .table-insumos-col-acoes {width: 120px;}
+
+/* Colunas - Pesquisa de Composições */
+.table-composicoes-col-classe {width: 40px; width: 50px}
+.table-composicoes-col-codigo {width: 40px; text-align: center;}
+.table-composicoes-col-unidade {width: 40px; text-align: center;}
+.table-composicoes-col-valor {width: 100px; text-align: right;}
+.table-composicoes-col-descricao {width: 400px; text-align: center}
+.table-composicoes-col-base {width: 150px; text-align: center}
+.table-composicoes-col-tipo {width: 100px; text-align: center}
+
 
 
 /* Colunas - Pesquisa de Estilos */

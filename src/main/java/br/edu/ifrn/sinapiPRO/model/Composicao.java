@@ -1,6 +1,5 @@
 package br.edu.ifrn.sinapiPRO.model;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,37 +21,39 @@ import javax.persistence.Transient;
 import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name = "composicao")
 @DynamicUpdate
-public class Composicao implements Serializable {
-
-	private static final long serialVersionUID = 1L;
-
+public class Composicao  {
+	
 	@Id
-	@Column(name = "codigo_composicao")
-	private Long codigoComposicao;  
-	 
-	@ManyToOne(cascade = CascadeType.ALL)
+	private Long codigo;   // codigo da composicao  
+	
+	@OneToMany(mappedBy = "composicao", 
+		    cascade = CascadeType.ALL, 
+      orphanRemoval = true)
+	private List<ItemComposicao> itens = new ArrayList<>();
+
+	@ManyToOne 
 	@JoinColumn(name = "codigo_base_preco")
 	private BasePreco basePreco;
 	
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne 
+	@JoinColumn(name = "codigo_base_insumo")
+	private BaseInsumo baseInsumo;
+	
+	@ManyToOne 
 	@JoinColumn(name = "codigo_classe")
 	private Classe classe;
 	
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne 
 	@JoinColumn(name = "codigo_tipo")
 	private TipoComposicao tipoComposicao;
-
+	
 	@Enumerated(EnumType.STRING)
 	private StatusComposicao ativa = StatusComposicao.ATIVA;
-	
-	@OneToMany(mappedBy = "composicao", cascade = CascadeType.ALL, orphanRemoval = true)
-	public List<ItemComposicao> itemComposicao = new ArrayList<>();
-		
+			
 	@Transient
 	private String uuid;
 	
@@ -66,49 +67,37 @@ public class Composicao implements Serializable {
 	@Column(name = "data_criacao")
 	private LocalDateTime dataCriacao;
 	
-	@Column(name = "valor_total")
+	@Column(name = "valor_total", precision=15, scale=2)
 	private BigDecimal valorTotal = BigDecimal.ZERO;
 	
-	@Column(name = "custo_total")
+	@Column(name = "custo_total", precision=15, scale=2)
 	private BigDecimal custoTotal;
 	
-	@Column(name = "custo_mao_obra")
+	@Column(name = "custo_mao_obra", precision=15, scale=2)
 	private BigDecimal custoMaoObra; 
 	
-	@Column(name = "perce_mao_obra")
+	@Column(name = "perce_mao_obra", precision=10, scale=7)
 	private BigDecimal percMaoObra;
 
-	@Column(name = "custo_material")
+	@Column(name = "custo_material", precision=15, scale=2)
 	private BigDecimal custoMaterial;
 	
-	@Column(name = "perc_material")
+	@Column(name = "perc_material",  precision=10, scale=7)
 	private BigDecimal percMaterial;
 	
-	@Column(name = "custo_equipamento")
+	@Column(name = "custo_equipamento", precision=15, scale=2)
 	private BigDecimal custoEquipamento;
 	
-	@Column(name = "perc_equipamento")
+	@Column(name = "perc_equipamento",  precision=10, scale=7)
 	private BigDecimal percEquipamento;
 	
-	@Column(name = "custo_servicos_terceiros")
-	private BigDecimal custoServicosTerceiros; 
-
-	@Column(name = "perc_servicos_terceiros")
-	private BigDecimal percServicosTerceiros;
-	
-	@Column(name = "custo_outros")
-	private BigDecimal custoOutros;
-	
-	@Column(name = "perc_outros")
-	private BigDecimal percOutros;
-	
-	
-	public Long getCodigoComposicao() {
-		return codigoComposicao;
+		
+	public Long getCodigo() {
+		return codigo;
 	}
 
-	public void setCodigoComposicao(Long codigoComposicao) {
-		this.codigoComposicao = codigoComposicao;
+	public void setCodigo(Long codigo) {
+		this.codigo = codigo;
 	}
 
 	public BasePreco getBasePreco() {
@@ -117,6 +106,14 @@ public class Composicao implements Serializable {
 
 	public void setBasePreco(BasePreco basePreco) {
 		this.basePreco = basePreco;
+	}
+
+	public BaseInsumo getBaseInsumo() {
+		return baseInsumo;
+	}
+
+	public void setBaseInsumo(BaseInsumo baseInsumo) {
+		this.baseInsumo = baseInsumo;
 	}
 
 	public Classe getClasse() {
@@ -144,11 +141,11 @@ public class Composicao implements Serializable {
 	}
 
 	public List<ItemComposicao> getItens() {
-		return itemComposicao;
+		return itens;
 	}
 
 	public void setItens(List<ItemComposicao> itens) {
-		this.itemComposicao = itens;
+		this.itens = itens;
 	}
 
 	public String getUuid() {
@@ -247,45 +244,14 @@ public class Composicao implements Serializable {
 		this.percEquipamento = percEquipamento;
 	}
 
-	public BigDecimal getCustoServicosTerceiros() {
-		return custoServicosTerceiros;
-	}
-
-	public void setCustoServicosTerceiros(BigDecimal custoServicosTerceiros) {
-		this.custoServicosTerceiros = custoServicosTerceiros;
-	}
-
-	public BigDecimal getPercServicosTerceiros() {
-		return percServicosTerceiros;
-	}
-
-	public void setPercServicosTerceiros(BigDecimal percServicosTerceiros) {
-		this.percServicosTerceiros = percServicosTerceiros;
-	}
-
-	public BigDecimal getCustoOutros() {
-		return custoOutros;
-	}
-
-	public void setCustoOutros(BigDecimal custoOutros) {
-		this.custoOutros = custoOutros;
-	}
-
-	public BigDecimal getPercOutros() {
-		return percOutros;
-	}
-
-	public void setPercOutros(BigDecimal percOutros) {
-		this.percOutros = percOutros;
-	}
 
 	public void adicionarItens(List<ItemComposicao> itens) {
-		this.itemComposicao = itens;
-		this.itemComposicao.forEach(i ->i.setComposicao(this));
+		this.itens = itens;
+		this.itens.forEach(i -> i.setComposicao(this));
 	}
 	
 	public boolean isNova() {
-		return codigoComposicao == null;
+		return codigo == null;
 	}
 	
 	public BigDecimal getValorTotalItens(){
@@ -316,7 +282,7 @@ public class Composicao implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((codigoComposicao == null) ? 0 : codigoComposicao.hashCode());
+		result = prime * result + ((codigo == null) ? 0 : codigo.hashCode());
 		return result;
 	}
 
@@ -329,14 +295,12 @@ public class Composicao implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Composicao other = (Composicao) obj;
-		if (codigoComposicao == null) {
-			if (other.codigoComposicao != null)
+		if (codigo == null) {
+			if (other.codigo != null)
 				return false;
-		} else if (!codigoComposicao.equals(other.codigoComposicao))
+		} else if (!codigo.equals(other.codigo))
 			return false;
 		return true;
 	}
-	
-	 
 
 }

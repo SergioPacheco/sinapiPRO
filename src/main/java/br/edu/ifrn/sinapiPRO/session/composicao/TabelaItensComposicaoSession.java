@@ -16,16 +16,17 @@ public class TabelaItensComposicaoSession {
 
 	private Set<TabelaItensComposicao> tabelas = new HashSet<>();
 
-	public void adicionarItem(String uuid, String tipo, Long codigoItem, BigDecimal coeficiente) {
+	public void adicionarItem(String uuid, String tipo, Long codigoItem, BigDecimal precoUnitario, BigDecimal coeficiente) {
+		
 		TabelaItensComposicao tabela = buscarTabelaPorUuid(uuid);
-		tabela.adicionarItem(tipo, codigoItem, coeficiente);
+		tabela.adicionarItem(tipo, codigoItem, precoUnitario, coeficiente);
 		tabelas.add(tabela);
 	}
 
-
 	public void alterarCoeficiente(String uuid, String tipo, Long codigoItem, BigDecimal coeficiente) {
+		
 		TabelaItensComposicao tabela = buscarTabelaPorUuid(uuid);
-		tabela.alterarQuantidadeItens(codigoItem, coeficiente);
+		tabela.alterarCoeficiente(codigoItem, coeficiente);
 	}
 
 	public void excluirItem(String uuid, Long codigoItem) {

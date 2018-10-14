@@ -1,10 +1,13 @@
 package br.edu.ifrn.sinapiPRO.service;
 
+
 import java.time.LocalDateTime;
 
 import javax.persistence.PersistenceException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,15 +21,24 @@ public class CadastroComposicaoService {
 	@Autowired
 	private Composicoes composicoes;
 	
+	@Autowired
+	private ApplicationEventPublisher publisher;
+	
 	@Transactional
-	public void salvar(Composicao composicao) {
+	public Composicao salvar(Composicao composicao) {
+	
 		
-		if(composicao.isNova()){
+		if (composicao.isNova()) {
 			composicao.setDataCriacao(LocalDateTime.now());
+		} else {
+			Composicao composicaoExistente = composicoes.getOne(composicao.getCodigo());
+			composicao.setDataCriacao(composicaoExistente.getDataCriacao());
 		}
-		composicoes.saveAndFlush(composicao);
+		
+		return composicoes.saveAndFlush(composicao);
 	}
 	
+	@PreAuthorize("#composicao.usuario == principal.usuario or hasRole('EXCLUIR_COMPOSICAO_SINAPI')")
 	@Transactional
 	public void excluir(Composicao composicao) {
 		try {

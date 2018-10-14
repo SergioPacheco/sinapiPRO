@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
-import br.edu.ifrn.sinapiPRO.model.ComposicaoKey;
 import br.edu.ifrn.sinapiPRO.model.ItemComposicao;
 
 class TabelaItensComposicao {
@@ -19,39 +18,36 @@ class TabelaItensComposicao {
 	}
 
 	public BigDecimal getValorTotal() {
+		
 		return itens.stream()
 				.map(ItemComposicao::getValorTotal)
 				.reduce(BigDecimal::add)
 				.orElse(BigDecimal.ZERO);
 	}
 	
-	public void adicionarItem(String tipo, Long codigoItem, BigDecimal coeficiente) {
+	public void adicionarItem(String tipo, Long codigoItem, BigDecimal precoUnitario, BigDecimal coeficiente) {
 		
-		Optional<ItemComposicao> itemComposicaoOptional = buscarItem(codigoItem);
+		Optional<ItemComposicao> itemExistente = buscarItem(codigoItem);
 		
 		ItemComposicao itemComposicao = null;
 		
-		if (itemComposicaoOptional.isPresent()) {
-			itemComposicao = itemComposicaoOptional.get();
+		if (itemExistente.isPresent()) {
+			itemComposicao = itemExistente.get();
 		} else {
-			
-			itemComposicao = new ItemComposicao();
-			ComposicaoKey compoKey = new ComposicaoKey();
-			compoKey.setItemID(codigoItem);
-			itemComposicao.setComposicaoKey(compoKey);
+		    itemComposicao = new ItemComposicao();
+			itemComposicao.setTipo(tipo);
+			itemComposicao.setCodigoItem(codigoItem);
 			itemComposicao.setCoeficiente(coeficiente);
+			itemComposicao.setPrecoUnitario(precoUnitario);
 			
 			// Buscar preco {basePreco -> codigoIusmo -> itemBasePreco }
-			if (tipo=="INSUMO") {
-				
-			}
 			
 			// itemComposicao.setPrecoUnitario(insumo.getPrecoGenerico());
 			itens.add(0, itemComposicao);
 		}
 	}
 	
-	public void alterarQuantidadeItens(Long codigoItem, BigDecimal coeficiente) {
+	public void alterarCoeficiente(Long codigoItem, BigDecimal coeficiente) {
 		
 		ItemComposicao itemComposicao = buscarItem(codigoItem).get();
 		itemComposicao.setCoeficiente(coeficiente);
@@ -59,12 +55,12 @@ class TabelaItensComposicao {
 	
 	public void excluirItem(Long codigoItem) {
 		int indice = IntStream.range(0, itens.size())
-				.filter(i -> itens.get(i).getComposicaoKey().getItemID().equals(codigoItem))
+				.filter(i -> itens.get(i).getCodigoItem().equals(codigoItem))
 				.findAny().getAsInt();
 		itens.remove(indice);
 	}
 	
-	public int total() {
+	public int quantidadeItens() {
 		return itens.size();
 	}
 
@@ -73,8 +69,9 @@ class TabelaItensComposicao {
 	}
 	
 	private Optional<ItemComposicao> buscarItem(Long codigoItem) {
+		
 		return itens.stream()
-				.filter(i -> i.getComposicaoKey().getItemID().equals(codigoItem))
+				.filter(i -> i.getCodigoItem().equals(codigoItem))
 				.findAny();
 	}
 
