@@ -25,6 +25,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
 import br.edu.ifrn.sinapiPRO.dto.InsumoDTO;
 import br.edu.ifrn.sinapiPRO.model.Insumo;
+import br.edu.ifrn.sinapiPRO.repository.BasePrecos;
 import br.edu.ifrn.sinapiPRO.repository.Insumos;
 import br.edu.ifrn.sinapiPRO.repository.filter.InsumoFilter;
 import br.edu.ifrn.sinapiPRO.service.CadastroInsumoService;
@@ -40,10 +41,13 @@ public class InsumosController {
 	@Autowired
 	private Insumos insumos;
 	
+	@Autowired
+	private BasePrecos basePrecosRepository;
+	
 	@RequestMapping("/novo")
 	public ModelAndView novo(Insumo insumo) {
 		ModelAndView mv = new ModelAndView("insumo/CadastroInsumo");
-		// mv.addObject("baseInsumos", BaseInsumos.values());
+		mv.addObject("basePrecos", basePrecosRepository.findAll());
 		// mv.addObject("estados", estados.findAll());
 		return mv;
 	}

@@ -102,7 +102,13 @@
 .table-composicoes-col-base {width: 150px; text-align: center}
 .table-composicoes-col-tipo {width: 100px; text-align: center}
 
-
+/* Colunas - Itens da Composição */ 
+.table-item-composicao-col-tipo {width: 30px; text-align: center;}
+.table-item-composicao-col-codigo-item {width: 40px; text-align: center;}
+.table-item-composicao-col-descricao {width: 300px; text-align:left;}
+.table-item-composicao-col-unidade {width: 40px; text-align: center;}
+.table-item-composicao-col-coeficiente {width: 40px; text-align: center;}
+.table-item-composicao-col-valor{width: 40px; text-align: center;} 
 
 /* Colunas - Pesquisa de Estilos */
 .table-estilos-col-codigo {
@@ -114,40 +120,17 @@
 	
 }
 
-.table-clientes-col-tipo-pessoa {
-	width: 120px;
-	text-align: center;
-}
-
-.table-clientes-col-cpf-cnpj {
-	width: 140px;
-	text-align: right;
-}
-
-.table-clientes-col-telefone {
-	width: 140px;
-	text-align: right;
-}
-
-.table-clientes-col-cidade-estado {
-	width: 140px;
-	text-align: right;
-}
+.table-clientes-col-tipo-pessoa {width: 120px; text-align: center; }
+.table-clientes-col-cpf-cnpj {width: 140px; text-align: right; }
+.table-clientes-col-telefone {width: 140px; text-align: right; }
+.table-clientes-col-cidade-estado {width: 140px; text-align: right;}
 
 /* Colunas - Pesquisa de cidades */
-.table-cidades-col-nome {
-	
-}
-
-.table-cidades-col-estado {
-	width: 140px;
-	text-align: right;
-}
+.table-cidades-col-nome {}
+.table-cidades-col-estado {width: 140px; text-align: right;}
 
 /* Colunas - Pesquisa de usuários */
-.table-usuarios-col-status {
-	width: 30px;
-	text-align: center;
+.table-usuarios-col-status {width: 30px; text-align: center;
 }
 
 /* Tabela Composicoes página de Orçamentos */
@@ -212,96 +195,31 @@
 /* Tabela Item */
 .bw-tabela-item {
 	position: relative; /* Para que o painel de exclusão apareça dentro da linha */
-	
 	padding: 15px 0;
-	
 	user-select: none;
 	-webkit-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
 }
 
-.bw-tabela-item:after {
-	clear: both;
-	display: block;
-    content: "";
-}
-
-.bw-tabela-item ~ .bw-tabela-item {
-	border-top: 1px solid #ddd;
-}
-
-.bw-tabela-item__coluna {
-	padding: 0 10px;
-}
-
-.bw-tabela-item__coluna--foto {
-	float: left;
-	width: 60px;
-	
-	text-align: center;
-}
-
-.bw-tabela-item__coluna--valores {
-	padding-right: 0px;
-}
-
-.bw-tabela-item__coluna--detalhes, .bw-tabela-item__coluna--valores {
-	margin-left: 60px;
-}
-
-.bw-tabela-insumos-descricao {
-	font-weight: 500;
-	font-size: 1.1em;
-	display: block;
-}
-
-.bw-tabela-insumos-base {
-	color: #aaa;
-	display: block;
-	font-weight: 200;
-}
-
-.bw-tabela-insumo-campo-quantidade {
-	width: 30px;
-	text-align: right;
-}
-
-.bw-tabela-insumo-valor-pequeno {
-	font-weight: 300;
-	font-size: 1em;
-}
-
-.bw-tabela-insumo-valor-medio {
-	font-weight: 300;
-	font-size: 1.3em;
-}
-
-.bw-tabela-insumo-valor-grande {
-	font-weight: 300;
-	font-size: 1.6em;
-}
-
-.bw-tabela-item__painel-exclusao {
-    position: absolute;
-    top: 0;
-    right: 100000px;
-	height: 100%;
-    width: 50%;
-    
-    text-align: center;
-    padding-top: 35px;
-    
-	background-color: #f0ad4e;
-	
+.bw-tabela-item:after {	clear: both; display: block;  content: ""; }
+.bw-tabela-item ~ .bw-tabela-item {	border-top: 1px solid #ddd;}
+.bw-tabela-item__coluna {padding: 0 10px;}
+.bw-tabela-item__coluna--foto {float: left; width: 60px; text-align: center; }
+.bw-tabela-item__coluna--valores {padding-right: 0px;}
+.bw-tabela-item__coluna--detalhes, .bw-tabela-item__coluna--valores {margin-left: 60px;}
+.bw-tabela-item-descricao {font-weight: 500; font-size: 1.1em; display: block; }
+.bw-tabela-item-unidade { color: #aaa; display: block; 	font-weight: 200;}
+.bw-tabela-item-campo-coeficiente {width: 30px; text-align: right;}
+.bw-tabela-item-valor-pequeno {font-weight: 300; font-size: 1em; }
+.bw-tabela-item-valor-medio {font-weight: 300; font-size: 1.3em;}
+.bw-tabela-item-valor-grande {font-weight: 300; font-size: 1.6em;}
+.bw-tabela-item__painel-exclusao {position: absolute; top: 0; right: 100000px; height: 100%; width: 50%; text-align: center;  padding-top: 35px; background-color: #f0ad4e;
 	opacity: 0;
 	transition: opacity 0.5s;
 }
 
-.solicitando-exclusao .bw-tabela-item__painel-exclusao {
-	right: 0;
-	opacity: 1;
-}
+.solicitando-exclusao .bw-tabela-item__painel-exclusao { right: 0; opacity: 1;}
 
 .bw-tabela-item__titulo-exclusao {
     display: block;

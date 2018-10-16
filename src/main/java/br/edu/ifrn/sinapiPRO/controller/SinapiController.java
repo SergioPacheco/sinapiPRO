@@ -97,7 +97,7 @@ public class SinapiController {
 		String mes = Lib.StrZero(Lib.Month(df), 2);
 		
 		String oneracao;  
-		if (basePreco.getOneracao() == "O") { 
+		if (basePreco.getDesonerado()) { 
 			oneracao = "Desonerado"; 	
 		} else oneracao = "NaoDesonerado"; 
 		
@@ -193,7 +193,7 @@ public class SinapiController {
 									// insumo.setOrigem(valueString.trim());
 									break;
 								case 4:
-									insumo.setPrecoGenerico(StrToBig(valueString, 2)); 
+									insumo.setPrecoPadrao(StrToBig(valueString, 2)); 
 									break;
 								default:
 									insumo = null; 
@@ -214,13 +214,13 @@ public class SinapiController {
 						if (insumo.getCodigoInsumo() !=null &&
 							insumo.getDescricao()    !=null &&
 							insumo.getUnidade()      !=null &&
-							insumo.getPrecoGenerico()!=null) {
+							insumo.getPrecoPadrao() !=null) {
 							
 							cadastroInsumoService.salvar(insumo);
 							// insumoRepository.saveAndFlush(insumo);
-							System.out.println("Novo Insumo "+insumo.getDescricao());
+							// System.out.println("Novo Insumo "+insumo.getDescricao());
 						} else {
-							System.out.println("insumo NOVO NULLO");
+							// System.out.println("insumo NOVO NULLO");
 							insumo=null;
 							continue;
 						}
@@ -229,13 +229,15 @@ public class SinapiController {
 						if (insumo.getCodigoInsumo() !=null &&
 							insumo.getDescricao()    !=null &&
 							insumo.getUnidade()      !=null &&
-							insumo.getPrecoGenerico()!=null) {
+							insumo.getPrecoPadrao()!=null) {
 							
 							Insumo insumoEdita = insumoExistente.get(); 
 							
 							insumoEdita.setUnidade(insumo.getUnidade());
 							insumoEdita.setDescricao(insumo.getDescricao());
-							insumoEdita.setPrecoGenerico(insumo.getPrecoGenerico());
+							insumoEdita.setPrecoPadrao(insumo.getPrecoPadrao());
+							insumoEdita.setBasePreco(basePreco);
+							
 							cadastroInsumoService.salvar(insumoEdita);
 							// insumoRepository.saveAndFlush(insumo);
 							System.out.println("Atualiza Insumo "+insumoEdita.getCodigo());
@@ -265,7 +267,7 @@ public class SinapiController {
 						
 						ItemBasePreco novoItem = new ItemBasePreco();
 						novoItem.setBaseKey(baseKey);
-						novoItem.setPreco(insumo.getPrecoGenerico());
+						novoItem.setPreco(insumo.getPrecoPadrao());
 						novoItem.setBasePreco(basePreco);
 						
 						itemBasePrecoRepository.saveAndFlush(novoItem);
@@ -273,7 +275,7 @@ public class SinapiController {
 					} else { 
 						
 						ItemBasePreco editaItem = item.get();
-						editaItem.setPreco(insumo.getPrecoGenerico()); 
+						editaItem.setPreco(insumo.getPrecoPadrao()); 
 						itemBasePrecoRepository.saveAndFlush(editaItem);
 					
 					}
@@ -326,7 +328,7 @@ public class SinapiController {
 		String mes = Lib.StrZero(Lib.Month(df), 2);
 		
 		String oneracao;  
-		if (basePreco.getOneracao() == "O") { 
+		if (basePreco.getDesonerado()) { 
 			oneracao = "Onerado"; 	
 		} else oneracao = "Desonerado"; 
 			

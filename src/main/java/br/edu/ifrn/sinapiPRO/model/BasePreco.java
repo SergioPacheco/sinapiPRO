@@ -36,14 +36,10 @@ public class BasePreco implements Serializable {
 	@JoinColumn(name = "codigo_estado")
 	private Estado estado;
 	
-	private String oneracao;
+	private Boolean desonerado;
 	
 	private LocalDate dataReferencia;
 
-	// base_preco tem muitos filhos, vamos tentar outra mapear somente do lado dos filhos 
-	// @OneToMany(mappedBy = "basePreco", cascade = CascadeType.ALL, orphanRemoval = true)
-	// private List<ItemBasePreco> itensPreco = new ArrayList<>();
-	
 	public Long getCodigo() {
 		return codigo;
 	}
@@ -76,12 +72,12 @@ public class BasePreco implements Serializable {
 		this.estado = estado;
 	}
 
-	public String getOneracao() {
-		return oneracao;
+	public Boolean getDesonerado() {
+		return desonerado;
 	}
 
-	public void setOneracao(String oneracao) {
-		this.oneracao = oneracao;
+	public void setDesonerado(Boolean desonerado) {
+		this.desonerado = desonerado;
 	}
 
 	public LocalDate getDataReferencia() {

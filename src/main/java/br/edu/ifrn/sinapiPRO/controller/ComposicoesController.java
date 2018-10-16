@@ -28,7 +28,7 @@ import br.edu.ifrn.sinapiPRO.repository.BaseInsumos;
 import br.edu.ifrn.sinapiPRO.repository.BasePrecos;
 import br.edu.ifrn.sinapiPRO.repository.Classes;
 import br.edu.ifrn.sinapiPRO.repository.Composicoes;
-import br.edu.ifrn.sinapiPRO.repository.Estados;
+import br.edu.ifrn.sinapiPRO.repository.Insumos;
 import br.edu.ifrn.sinapiPRO.repository.TipoComposicaoRepository;
 import br.edu.ifrn.sinapiPRO.repository.filter.ComposicaoFilter;
 import br.edu.ifrn.sinapiPRO.security.UsuarioSistema;
@@ -40,10 +40,16 @@ import br.edu.ifrn.sinapiPRO.session.composicao.TabelaItensComposicaoSession;
 public class ComposicoesController {
 	
 	@Autowired
+	private Composicoes composicoes;
+	
+	@Autowired
 	private Classes classes;
 	
 	@Autowired
-	private TipoComposicaoRepository tipos;
+	private Insumos insumos;
+	
+	@Autowired
+	private TipoComposicaoRepository tipoComposicoes;
 	
 	@Autowired
 	private BaseInsumos baseInsumos;
@@ -57,8 +63,7 @@ public class ComposicoesController {
 	@Autowired
 	private CadastroComposicaoService cadastroComposicaoService;
 	
-	@Autowired
-	private Composicoes composicoes;
+	
 
 	/**
 	 * 
@@ -75,7 +80,7 @@ public class ComposicoesController {
 		mv.addObject("basePrecos", basePrecos.findAll());
 		mv.addObject("baseInsumos", baseInsumos.findAll());
 		mv.addObject("classes", classes.findAll());
-		mv.addObject("tipoComposicao", tipos.findAll());
+		mv.addObject("tipoComposicoes", tipoComposicoes.findAll());
 		mv.addObject("itens", composicao.getItens());
 		mv.addObject("valorTotal", tabelaItensComposicao.getValorTotal(composicao.getUuid()));
 		
@@ -128,7 +133,7 @@ public class ComposicoesController {
 		mv.addObject("baseInsumos", baseInsumos.findAll());
 		mv.addObject("basePrecos", basePrecos.findAll());
 		mv.addObject("classes", classes.findAll());
-		mv.addObject("tipoComposicao", tipos.findAll());
+		mv.addObject("tipoComposicao", tipoComposicoes.findAll());
 		
 		PageWrapper<Composicao> paginaWrapper = new PageWrapper<>(composicoes.filtrar(composicaoFilter, pageable)
 				, httpServletRequest);

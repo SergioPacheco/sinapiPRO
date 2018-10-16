@@ -56,6 +56,4 @@ public class ComposicaoDTO {
 	public void setValor(BigDecimal valor) {
 		this.valor = valor;
 	}
-
-	
 }

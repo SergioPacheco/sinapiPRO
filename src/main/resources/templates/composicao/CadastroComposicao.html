@@ -12,14 +12,13 @@
 </head>
  
 <section layout:fragment="conteudo">
-
 	<div class="page-header">
-	
 		<div class="container-fluid">
 			<div class="row">
 				<div class="col-xs-10">
 					<h1 th:if="${composicao.nova}">Cadastro de Composições</h1>
-					<h1 th:unless="${composicao.nova}" th:text="|Edição da composição ${composicao.codigo}|">Edição de composição</h1>
+					<h1 th:unless="${composicao.nova}" 
+					    th:text="|Edição da composição ${composicao.codigo}|">Edição de composição</h1>
 				</div>
 				 <div class="col-sm-2">
 					<div class="aw-page-header-controls">
@@ -37,18 +36,20 @@
 	
 		<form method="POST" 
 		      th:object="${composicao}" 
-		      class="form-vertical  js-form-loading"
+		      class="js-formulario-principal"
 			  th:action="${composicao.nova} ? @{/composicao/nova} : @{/composicao/{codigo}(codigo=${composicao.codigo})}">
 			
 			<sinapiPRO:message/>
 			
 			<div class="row">
 			
-				<div class="col-sm-4 form-group" sinapiPRO:classforerror="codigo">
-					<label for="codigo" class="control-label">Codigo</label>
-					<input id="codigo" type="numeric" class="form-control" th:field="*{codigo}" />
-				</div>
+				<div class="col-sm-12 form-group bw-required" sinapiPRO:classforerror="descricao">
+					<label for="descricao" class="control-label">Descrição</label>
+					<textarea id="descricao" rows="2" class="form-control" th:field="*{descricao}"></textarea>
+				</div>	
+			</div>	
 				
+			<div class="row">	
 				<div class="col-sm-4 form-group bw-required" sinapiPRO:classforerror="unidade">
 					<label for="unidade" class="control-label">Unidade</label>
 					<input id="unidade" type="text" class="form-control" th:field="*{unidade}" />
@@ -61,19 +62,22 @@
 						<input id="custoTotal" type="text" class="form-control  js-decimal" th:field="*{custoTotal}"/>
 					</div>
 				</div>
-								
+				
+				<div class="form-group  col-sm-4">
+					<label for="baseInsumo">Base Insumos Padrão</label>
+					<select id="baseInsumo" class="form-control" th:field="*{baseInsumo}">
+	                    <option value="">Selecione a Base de Insumos</option>
+	                    <option th:each="baseInsumo : ${baseInsumos}" 
+	                            th:value="${baseInsumo.codigo}" 
+	                            th:text="${baseInsumo.nome}">SINAPI</option>
+	                </select>
+	       		</div>  
 			</div>
 			
-			<div class="row">
-				<div class="col-sm-12 form-group bw-required" sinapiPRO:classforerror="descricao">
-					<label for="descricao" class="control-label">Descrição</label>
-					<textarea id="descricao" rows="4" class="form-control" th:field="*{descricao}"></textarea>
-				</div>	
-			</div>
-			
+						
 			<div class="row">
 			
-				<div class="form-group  col-sm-3">
+				<div class="form-group  col-sm-4">
 					<label for="classe">Classe</label>
 					<select id="classe" class="form-control" th:field="*{classe}">
 	                    
@@ -85,29 +89,20 @@
 	                </select>
 				</div>
 				
-				<div class="form-group  col-sm-3">
+				<div class="form-group  col-sm-4">
 					<label for="tipoComposicao">Sub-Classe</label>
 					<select id="tipoComposicao" class="form-control" th:field="*{tipoComposicao}">
 	                    
-	                    <option value="">Selecione a Classe da Composição</option>
+	                    <option value="">Selecione a Sub-Classe da Composição</option>
 	                    
-	                    <option th:each="tipo : ${TipoComposicoes}" 
+	                    <option th:each="tipo : ${tipoComposicoes}" 
 	                            th:value="${tipo.codigo}" 
 	                            th:text="${tipo.nome}">SINAPI</option>
 	                </select>
 				</div>
 			
-				<div class="form-group  col-sm-3">
-					<label for="baseInsumo">Base Insumos Padrão</label>
-					<select id="baseInsumo" class="form-control" th:field="*{baseInsumo}">
-	                    <option value="">Selecione a Base de Insumos</option>
-	                    <option th:each="baseInsumo : ${baseInsumos}" 
-	                            th:value="${baseInsumo.codigo}" 
-	                            th:text="${baseInsumo.nome}">SINAPI</option>
-	                </select>
-	                
-	       		</div>  
-                <div class="form-group  col-sm-3">
+				
+                <div class="form-group  col-sm-4">
 					<label for="basePreco">Base Preços Padrão</label>
 					<select id="basePreco" class="form-control" th:field="*{basePreco}">
 	                   <option value="">Selecione a Base de Preços</option>
@@ -118,71 +113,78 @@
 				</div>
 			</div>
 				
+				
+				
 			<div class="row">
 				<div class="form-group  col-lg-12">
-					<ul class="nav nav-tabs  js-abas-venda">
-					  <li role="presentation" class="active"><a href="#itens">Itens e Coeficientes</a></li>
-					  <li role="presentation"><a href="#historico">Histórico de Precos</a></li>
+					<ul class="nav nav-tabs  js-abas-composicao">
+					  <li role="presentation" class="active"> <a href="#itens-composicao">Itens e Coeficientes</a></li>
+					  <li role="presentation"><a href="#historico">Histórico de Preços</a></li>
 					</ul>
 				</div>
 			</div>
 			
 			<div class="tab-content">
-				<div class="tab-pane active" id="itens">
-
-					<div class="row">
-						<div class="form-group  col-lg-12">
-							<input type="text" class="form-control  js-codigo-nome-composicao-input" id="composicao" 
-								placeholder="Pesquise e adicione a composição pelo codigo ou nome" autofocus="autofocus" 
-								data:url="@{/composicoes}"/>
-						</div>
-					</div>
-					
-					<div class="bw-tabela-composicoes  js-tabela-composicoes-container" data:valor="${valorTotalItens}">
-					
-						<th:block th:replace="composicao/TabelaItensComposicao"/>
-					
+			
+				<div class="tab-pane active" id="itens-composicao">
+					 
+					<div class="table-responsive  bw-tabela-simples">
+						<table class="table  table-hover">
+				            <thead>
+				            	<tr>
+				            		<th class="table-item-composicao-col-tipo">Tipo</th>
+				                	<th class="table-item-composicao-col-codigo-item">Código</th>
+				                	<th class="table-item-composicao-col-descricao">Descricao</th>
+				                	<th class="table-item-composicao-col-unidade">Unidade</th>
+				                	<th class="table-item-composicao-col-coeficiente">Coeficiente</th>
+				                	<th class="table-item-composicao-col-valor">Vl.Unitário</th>
+				                 	<th class="table-col-acoes"></th>
+								</tr>
+							</thead>
+							
+				            <tbody>
+								<tr th:each="it : ${itens}">
+									<td th:text="${it.tipo}"></td>
+									<td th:text="${it.codigoItem}"></td>
+									<td th:text="${it.descricao}"></td>
+									<td th:text="${it.unidade}"></td>
+									<td th:text="|${{it.coeficiente}}|"></td>
+									<td th:text="|R$ ${{it.precoUnitario}}|"></td>
+									
+				                 	<td class="text-center">
+				                 	    <a class="btn  btn-link  btn-xs  js-tooltip" 
+										   title="Preços" 
+										   href="#" data-toggle="modal" data-target="#modalListaPrecos"> 
+										   <i class="glyphicon glyphicon-stats"></i>
+										</a>
+					   				
+				                 	</td>
+				                </tr>
+				             </tbody>
+			         	</table>
 					</div>
 				</div>
 				
 				<div class="tab-pane" id="historico">
+				
 					<div class="row">
-						<div class="form-group  col-sm-3" brewer:classforerror="dataEntrega">
+						<div class="form-group  col-sm-3">
+								HISTÓRICO PREÇOS
 						</div>
 						
 						<div class="form-group  col-sm-3">
+						
 						</div>
 					</div>
-					
-					<div class="row">
-						<div class="form-group  col-sm-12">
-						</div>
-					</div>
+				 
 				</div>
 			</div>
-			
 					
 			<button class="btn  btn-primary" type="submit">Salvar</button>
 			
 		</form>
 	</div>
-</section>
-<th:block layout:fragment="javascript-extra">
-	<script th:src="@{/javascripts/vendors/jquery.easy-autocomplete.min.js}"></script>
-	<script th:src="@{/javascripts/vendors/handlebars.min.js}"></script>
-	<script th:src="@{/javascripts/venda.autocomplete-itens.js}"></script>
-	<script th:src="@{/javascripts/venda.tabela-itens.js}"></script>
-	<script th:src="@{/javascripts/venda.js}"></script>
-	<script th:src="@{/javascripts/venda.botoes-submit.js}"></script>
-	<script>
-	$(function() {
-		$('.js-abas-venda a').click(function (e) {
-			e.preventDefault();
-			$(this).tab('show');
-		});
-	});
-	</script>
-</th:block>
 
+</section>
  
 </html>

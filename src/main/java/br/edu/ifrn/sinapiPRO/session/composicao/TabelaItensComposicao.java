@@ -42,7 +42,7 @@ class TabelaItensComposicao {
 			
 			// Buscar preco {basePreco -> codigoIusmo -> itemBasePreco }
 			
-			// itemComposicao.setPrecoUnitario(insumo.getPrecoGenerico());
+			// itemComposicao.setPrecoUnitario(insumo.getPrecoPadrao());
 			itens.add(0, itemComposicao);
 		}
 	}

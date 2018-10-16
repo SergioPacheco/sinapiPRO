@@ -71,7 +71,7 @@ public class BasePrecosController  {
 			result.rejectValue("nome",e.getMessage(), e.getMessage());
 			return nova(basePreco);
 		}
-		attributes.addFlashAttribute("mensagem", "BasePreco salvo com sucesso!");
+		attributes.addFlashAttribute("mensagem", "Base de Preço salvo com sucesso!");
 		
 		return new ModelAndView("redirect:/basePrecos/nova"); 
 	}

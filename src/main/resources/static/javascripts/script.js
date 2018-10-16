@@ -23,7 +23,7 @@ function openAjax() {
 	return ajax;
 }
 
-// Chama a fun��o para notificar sobre novo atendimento e chat
+// Chama a função para notificar sobre novo atendimento e chat
 function verificaNovoAttChat() {
 	verificaNovoAtt();
 }
@@ -69,7 +69,7 @@ function verificaNovoAtt() {
 	ajax.send(null);
 }
 
-// Chama a fun��o para notificar sobre novo atendimento e chat
+// Chama a funçaoo para notificar sobre novo atendimento e chat
 function verificaPopAjax() {
 	verificaPop();
 }
@@ -243,7 +243,7 @@ function respostaPop(resposta) {
 
 function verificaPopAjaxDrop() {
 	verificaWinDrop();
-	// For�a mais 2 verifica��es, pois o init da tela pode demorar para processar.
+	// Força mais 2 verificações, pois o init da tela pode demorar para processar.
 	try {
 		setTimeout("verificaWinDrop()", 500);
 		setTimeout("verificaWinDrop()", 1500);
@@ -502,7 +502,7 @@ function selecionaAtualizarVersao() {
 	}
 
 	var ajax = openAjax();
-	ajax.open("POST", "/ajax/MenuStrato.jsp" + cParam, true);
+	ajax.open("POST", "/ajax/Menu.jsp" + cParam, true);
 	ajax.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	ajax.setRequestHeader("Content-length", res.length);
 	ajax.onreadystatechange = function() {
@@ -534,7 +534,7 @@ function selecionaMostrarSobreVersao() {
 	}
 
 	var ajax = openAjax();
-	ajax.open("POST", "/ajax/MenuStrato.jsp" + cParam, true);
+	ajax.open("POST", "/ajax/Menu.jsp" + cParam, true);
 	ajax.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	ajax.setRequestHeader("Content-length", res.length);
 	ajax.onreadystatechange = function() {
@@ -566,7 +566,7 @@ function selecionaMostrarSobre() {
 	}
 
 	var ajax = openAjax();
-	ajax.open("POST", "/ajax/MenuStrato.jsp" + cParam, true);
+	ajax.open("POST", "/ajax/Menu.jsp" + cParam, true);
 	ajax.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	ajax.setRequestHeader("Content-length", res.length);
 	ajax.onreadystatechange = function() {
@@ -597,7 +597,7 @@ function atualizarModulos() {
 	}
 
 	var ajax = openAjax();
-	ajax.open("POST", "/ajax/MenuStrato.jsp" + cParam, true);
+	ajax.open("POST", "/ajax/Menu.jsp" + cParam, true);
 	ajax.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	ajax.setRequestHeader("Content-length", res.length);
 	ajax.onreadystatechange = function() {
@@ -628,7 +628,7 @@ function clickHelpDesk() {
 	}
 
 	var ajax = openAjax();
-	ajax.open("POST", "/ajax/MenuStrato.jsp" + cParam, true);
+	ajax.open("POST", "/ajax/Menu.jsp" + cParam, true);
 	ajax.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	ajax.setRequestHeader("Content-length", res.length);
 	ajax.onreadystatechange = function() {
@@ -660,7 +660,7 @@ function selecionaMenuNotificacao() {
 	}
 
 	var ajax = openAjax();
-	ajax.open("POST", "/ajax/MenuStrato.jsp" + cParam, true);
+	ajax.open("POST", "/ajax/Menu.jsp" + cParam, true);
 	ajax.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	ajax.setRequestHeader("Content-length", res.length);
 	ajax.onreadystatechange = function() {
@@ -695,11 +695,10 @@ function selecionaMenu(id) {
 		cParam = "";
 	}
 
-	// d 07/11/2013 - Fernando Philippi - AT 72402 - Abrir telas dialog no menu
 	verificaPopAjaxDrop();
 
 	var ajax = openAjax();
-	ajax.open("POST", "/ajax/MenuStrato.jsp" + cParam, true);
+	ajax.open("POST", "/ajax/Menu.jsp" + cParam, true);
 	ajax.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	ajax.setRequestHeader("Content-length", res.length);
 	ajax.onreadystatechange = function() {
@@ -727,7 +726,7 @@ function selecionaMenuFerramenta(id) {
 	}
 
 	var ajax = openAjax();
-	ajax.open("POST", "/ajax/MenuStrato.jsp" + cParam, true);
+	ajax.open("POST", "/ajax/Menu.jsp" + cParam, true);
 	ajax.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	ajax.setRequestHeader("Content-length", res.length);
 	ajax.onreadystatechange = function() {
@@ -759,7 +758,7 @@ function selecionaMenuCliente(id) {
 	}
 
 	var ajax = openAjax();
-	ajax.open("POST", "/ajax/MenuStrato.jsp" + cParam, true);
+	ajax.open("POST", "/ajax/Menu.jsp" + cParam, true);
 	ajax.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	ajax.setRequestHeader("Content-length", res.length);
 	ajax.onreadystatechange = function() {
@@ -791,7 +790,7 @@ function selecionaMenuOculto() {
 	}
 
 	var ajax = openAjax();
-	ajax.open("POST", "/ajax/MenuStrato.jsp" + cParam, true);
+	ajax.open("POST", "/ajax/Menu.jsp" + cParam, true);
 	ajax.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	ajax.setRequestHeader("Content-length", res.length);
 	ajax.onreadystatechange = function() {
@@ -826,7 +825,7 @@ function selecionaMenuMdi() {
 	}
 
 	var ajax = openAjax();
-	ajax.open("POST", "/ajax/MenuStrato.jsp" + cParam, true);
+	ajax.open("POST", "/ajax/Menu.jsp" + cParam, true);
 	ajax.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	ajax.setRequestHeader("Content-length", res.length);
 	ajax.onreadystatechange = function() {
@@ -874,7 +873,7 @@ function entrarLogin(cTipo, lProcessando) {
 	}
 
 	var ajax = openAjax();
-	ajax.open("POST", "/ajax/LoginStratoAjax.jsp" + cParam, true);
+	ajax.open("POST", "/ajax/LoginAjax.jsp" + cParam, true);
 	ajax.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	ajax.setRequestHeader("Content-length", res.length);
 	ajax.onreadystatechange = function() {
@@ -920,7 +919,7 @@ function selecionaNavegador(nome, versao, mobile, android, ios) {
 	}
 
 	var ajax = openAjax();
-	ajax.open("POST", "/ajax/LoginStratoAjax.jsp" + cParam, true);
+	ajax.open("POST", "/ajax/LoginAjax.jsp" + cParam, true);
 	ajax.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	ajax.setRequestHeader("Content-length", res.length);
 	ajax.onreadystatechange = function() {
@@ -956,7 +955,7 @@ function pesquisaMenuAjax(text) {
 	}
 
 	var ajax = openAjax();
-	ajax.open("POST", "/ajax/MenuStrato.jsp" + cParam, true);
+	ajax.open("POST", "/ajax/Menu.jsp" + cParam, true);
 	ajax.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=ISO-8859-1");
 	// ajax.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	ajax.setRequestHeader("Content-length", res.length);
@@ -989,7 +988,7 @@ function marcaMensagemLida(cod) {
 	}
 
 	var ajax = openAjax();
-	ajax.open("POST", "/ajax/MenuStrato.jsp" + cParam, true);
+	ajax.open("POST", "/ajax/Menu.jsp" + cParam, true);
 	ajax.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	ajax.setRequestHeader("Content-length", res.length);
 	ajax.onreadystatechange = function() {
@@ -1085,8 +1084,8 @@ function downloadGantt(cId, cType, nHeight, nWidth) {
 
 function blurWeb(cMostrarStatus, comp, idComp) {
 
-	// N�o chamar o onBlur quando a divAutoComplete estiver aberta.
-	// Ocorre problema pois chama o onBlur sem o valor estar preenchido no campo de c�digo.
+	// Não chamar o onBlur quando a divAutoComplete estiver aberta.
+	// Ocorre problema pois chama o onBlur sem o valor estar preenchido no campo de código.
 	var divAutoComplete = document.getElementById("divAutoComplete");
 	if (divAutoComplete != null && divAutoComplete.style.visibility == 'visible') {
 

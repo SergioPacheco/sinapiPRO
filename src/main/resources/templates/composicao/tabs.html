@@ -1,0 +1,60 @@
+		<div class="tab-content">
+			
+				<div class="tab-pane active" id="itens-composicao">
+					<div class="row">
+						<div class="form-group  col-lg-12">
+						
+							<input type="text" 
+							       class="form-control  js-codigo-descricao-composicao-input" 
+							       id="composicao" 
+								   placeholder="Pesquise e adicione a composição pelo codigo ou nome" 
+								   autofocus="autofocus" 
+								   data:url="@{/composicoes}"/>
+						</div>
+					</div>
+					
+					<div class="bw-tabela-composicoes  js-tabela-composicoes-container" 
+					     data:valor="${valorTotalItens}">
+					
+						<th:block th:replace="composicao/TabelaItensComposicao"/>
+					
+					</div>
+				</div>
+				
+				<div class="tab-pane" id="historico">
+				
+					<div class="row">
+						<div class="form-group  col-sm-3">
+								HISTÓRICO PREÇOS
+						</div>
+						
+						<div class="form-group  col-sm-3">
+						
+						</div>
+					</div>
+				 
+				</div>
+		</div>
+	 
+			
+			<th:block layout:fragment="javascript-extra">
+	<script th:src="@{/javascripts/vendors/jquery.easy-autocomplete.min.js}"></script>
+	<script th:src="@{/javascripts/vendors/handlebars.min.js}"></script>
+	<script th:src="@{/javascripts/composicao.autocomplete-itens.js}"></script>
+	<script th:src="@{/javascripts/composicao.tabela-itens.js}"></script>
+	<script th:src="@{/javascripts/composicao.js}"></script>
+	<script th:src="@{/javascripts/composicao.botoes-submit.js}"></script>
+	<script>
+	$(function() {
+		$('.js-abas-composicao a').click(function (e) {
+			e.preventDefault();
+			$(this).tab('show');
+		});
+	});
+	</script>
+</th:block>
+			
+			
+			
+			
+			

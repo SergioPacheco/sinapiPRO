@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import br.edu.ifrn.sinapiPRO.dto.ComposicaoDTO;
 import br.edu.ifrn.sinapiPRO.model.Composicao;
 import br.edu.ifrn.sinapiPRO.repository.filter.ComposicaoFilter;
 import br.edu.ifrn.sinapiPRO.repository.paginacao.PaginacaoUtil;
@@ -98,6 +99,12 @@ public class ComposicoesImpl implements ComposicoesQueries {
 
 	private boolean isBasePrecoPresente(ComposicaoFilter filtro) {
 		return filtro.getBasePreco() != null && filtro.getBasePreco().getCodigo() != null;
+	}
+
+	@Override
+	public List<ComposicaoDTO> porCodigoOuDescricao(String codigoOuDescricao) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

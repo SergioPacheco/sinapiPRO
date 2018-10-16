@@ -34,7 +34,7 @@ public class ItemBasePrecosController {
  	 
  	@GetMapping("/basePreco/{codigoBase}/itens")
     public Page<ItemBasePreco> pesquisa(@PathVariable (value = "codigoBase") Long codigoBase, 
-    										     Pageable pageable) {
+    								    Pageable pageable) {
  		
         return itemBasePrecoRepository.findByBaseKeyBasePrecoID(codigoBase, pageable);
     }

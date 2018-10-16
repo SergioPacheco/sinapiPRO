@@ -2,7 +2,7 @@ sinapiPRO.TabelaItens = (function(){
 	
 	function TabelaItens(autocomplete){
 		this.autocomplete = autocomplete;
-		this.tabelaInsumosContainer = $('.js-tabela-insumos-container');
+		this.tabelaInsumosContainer = $('.js-tabela-itens-container');
 		this.uuid = $('#uuid').val();
 		this.emitter = $({});
 		this.on = this.emitter.on.bind(this.emitter);
@@ -51,10 +51,10 @@ sinapiPRO.TabelaItens = (function(){
 			quantidade =1;
 		}
 		
-		var codigoInsumo = input.data('codigo-insumo');
+		var codigoItem = input.data('codigo-item');
 		
 		var resposta = $.ajax({
-			url: 'item/' + codigoInsumo,
+			url: 'item/' + codigoItem,
 			method: 'PUT',
 			data: {
 				quantidade: quantidade,
@@ -70,9 +70,9 @@ sinapiPRO.TabelaItens = (function(){
 	}
 	
 	function onExclusaoItemClick(evento){
-		var codigoInsumo = $(evento.target).data('codigo-insumo');
+		var codigoInsumo = $(evento.target).data('codigo-item');
 		var resposta = $.ajax({
-					url: 'item/' + this.uuid + '/' + codigoInsumo,
+					url: 'item/' + this.uuid + '/' + codigoItem,
 					method: 'DELETE'
 		});
 		
@@ -80,7 +80,7 @@ sinapiPRO.TabelaItens = (function(){
 	}
 	
 	function bindQuantidade(){
-		var quantidadeItemInput = $('.js-tabela-insumo-coeficiente-item');
+		var quantidadeItemInput = $('.js-tabela-item-coeficiente');
 		quantidadeItemInput.on('change', onQuantidadeItemAlterado.bind(this));
 		quantidadeItemInput.maskNumber({ integer: true, thousands: ''});
 	}

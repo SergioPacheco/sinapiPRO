@@ -24,7 +24,10 @@ public class ItemComposicao {
 	
 	private Long codigoItem; 
 
-	private String tipo;     // {COMPOSICAO, INSUMO}
+	private String tipo;         // {COMPOSICAO, INSUMO}
+	
+	@Size(max = 400)
+	private String descricaoItem; 
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "codigo_composicao")
@@ -47,8 +50,6 @@ public class ItemComposicao {
 	
 	@Column(precision=15, scale=2)
 	private BigDecimal custoTotal;
-	
-	
 	
 	public Long getCodigo() {
 		return codigo;
@@ -88,6 +89,14 @@ public class ItemComposicao {
 
 	public void setTipo(String tipo) {
 		this.tipo = tipo;
+	}
+	
+	public String getDescricaoItem() {
+		return descricaoItem;
+	}
+
+	public void setDescricaoItem(String descricaoItem) {
+		this.descricaoItem = descricaoItem;
 	}
 
 	public String getDescricao() {

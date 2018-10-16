@@ -2,9 +2,9 @@ sinapiPRO = sinapiPRO || {};
 
 sinapiPRO.Autocomplete = (function(){
 
-	function Autocomplete(){
-		this.skuOuDescricaoInput = $('.js-codigo-descricao-composicao-input');
-		var htmlTemplateAutocomplete = $('#template-autocomplete-insumo').html();
+	function Autocomplete(){           
+		this.codigoOuDescricaoInput = $('.js-codigo-descricao-composicao-input');
+		var htmlTemplateAutocomplete = $('#template-autocomplete-item').html();
 		this.template = Handlebars.compile(htmlTemplateAutocomplete);
 		this.emitter = $({});
 		this.on = this.emitter.on.bind(this.emitter);
@@ -12,8 +12,8 @@ sinapiPRO.Autocomplete = (function(){
 	
 	Autocomplete.prototype.iniciar = function(){
 		var options = {
-				url: function(skuOuDescricao){
-					return this.skuOuDescricaoInput.data('url') + '?skuOuDescricao=' + skuOuDescricao;
+				url: function(codigoOuDescricao){
+					return this.codigoOuDescricaoInput.data('url') + '?codigoOuDescricao=' + codigoOuDescricao;
 				}.bind(this),
 				getValue: 'descricao',
 				minCharNumber: 3,
@@ -30,18 +30,18 @@ sinapiPRO.Autocomplete = (function(){
 				}
 		};
 		
-		this.skuOuDescricaoInput.easyAutocomplete(options);
+		this.codigoOuDescricaoInput.easyAutocomplete(options);
 	}
 	
 	function onItemSelecionado(){
-		this.emitter.trigger('item-selecionado', this.skuOuDescricaoInput.getSelectedItemData());
-		this.skuOuDescricaoInput.val('');
-		this.skuOuDescricaoInput.focus();
+		this.emitter.trigger('item-selecionado', this.codigoOuDescricaoInput.getSelectedItemData());
+		this.codigoOuDescricaoInput.val('');
+		this.codigoOuDescricaoInput.focus();
 	}
 	
-	function template(nome, insumo){
-		insumo.valorFormatado = sinapiPRO.formatarMoeda(insumo.preco);
-		return this.template(insumo);
+	function template(nome, item){
+		insumo.valorFormatado = sinapiPRO.formatarMoeda(item.preco);
+		return this.template(item);
 	}
 	
 	return Autocomplete

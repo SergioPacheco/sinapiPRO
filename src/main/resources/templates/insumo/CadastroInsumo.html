@@ -51,17 +51,28 @@
 					<input id="unidade" type="text" class="form-control" th:field="*{unidade}"/>
 				</div>
 				
-				<div class="col-sm-3  form-group  bw-required" sinapiPRO:classforerror="precoGenerico">
-					<label for="precoGenerico" class="control-label">Preço Generico</label>
+				<div class="col-sm-3  form-group  bw-required" sinapiPRO:classforerror="precoPadrao">
+					<label for="precoPadrao" class="control-label">Preço Padrão</label>
 					<div class="input-group">
 						<div class="input-group-addon">R$</div>
-						<input id="precoGenerico" type="text" class="form-control  js-decimal" th:field="*{precoGenerico}"/>
+						<input id="precoPadrao" type="text" class="form-control  js-decimal" th:field="*{precoPadrao}"/>
 					</div>
 				</div>
+				
+				<div class="col-sm-3 form-group">
+					<label for="basePreco">Base Preços Padrão</label>
+					<select id="basePreco" class="form-control" th:field="*{basePreco}">
+	                   <option value="">Selecione a Base de Preços</option>
+	                   <option th:each="basePreco : ${basePrecos}" 
+	                           th:value="${basePreco.codigo}" 
+	                           th:text="${basePreco.nome}">SINAPI</option>
+                	</select>
+				</div>
+				
 			</div>
 			
 			<div class="row">
-				 <div class="col-sm-10  form-group bw-required" sinapiPRO:classforerror="descricao">
+				 <div class="col-sm-12  form-group bw-required" sinapiPRO:classforerror="descricao">
 					<label for="descricao" class="control-label">Descricao</label>
 					<textarea id="descricao" rows="4" class="form-control" th:field="*{descricao}"></textarea>
 				</div>

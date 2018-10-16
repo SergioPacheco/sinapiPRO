@@ -1,3 +1,4 @@
+
 package br.edu.ifrn.sinapiPRO.model;
 
 import java.io.Serializable;

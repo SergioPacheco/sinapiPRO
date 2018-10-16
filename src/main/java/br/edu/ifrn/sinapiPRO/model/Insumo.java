@@ -38,7 +38,7 @@ public class Insumo {
 	@NotNull(message = "Unidade é obrigatório")
 	private String unidade; 
 	
-	private BigDecimal precoGenerico;
+	private BigDecimal precoPadrao;
  	
 	
 	public Long getCodigo() {
@@ -81,12 +81,12 @@ public class Insumo {
 		this.unidade = unidade;
 	}
 
-	public BigDecimal getPrecoGenerico() {
-		return precoGenerico;
+	public BigDecimal getPrecoPadrao() {
+		return precoPadrao;
 	}
 
-	public void setPrecoGenerico(BigDecimal precoGenerico) {
-		this.precoGenerico = precoGenerico;
+	public void setPrecoPadrao(BigDecimal precoPadrao) {
+		this.precoPadrao = precoPadrao;
 	}
 
 	public boolean isNovo() {
