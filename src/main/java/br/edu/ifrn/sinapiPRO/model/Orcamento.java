@@ -47,7 +47,7 @@ public class Orcamento implements Serializable {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "codigo_base_preco")
-	private BaseInsumo basePreco; 
+	private BasePreco basePreco; 
 	
 	@Column(name = "data_criacao")
 	private LocalDateTime dataCriacao;
@@ -93,11 +93,11 @@ public class Orcamento implements Serializable {
 		this.baseInsumo = baseInsumo;
 	}
 
-	public BaseInsumo getBasePreco() {
+	public BasePreco getBasePreco() {
 		return basePreco;
 	}
 
-	public void setBasePreco(BaseInsumo basePreco) {
+	public void setBasePreco(BasePreco basePreco) {
 		this.basePreco = basePreco;
 	}
 
