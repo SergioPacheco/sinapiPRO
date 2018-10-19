@@ -1,0 +1,45 @@
+<!DOCTYPE html> 
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+	
+<div th:fragment="pesquisaRapidaPrecos"
+     id="pesquisaRapidaPrecos" 
+	 class="modal  fade" 
+     tabindex="-1" 
+     role="dialog" >
+     
+ 	<div class="modal-dialog">
+   		<div class="modal-content">
+   		
+   			<div class="modal-header">
+       			<button type="button" 
+       			        class="close" 
+       			        data-dismiss="modal">
+       			        <i>&times;
+       			</i></button>
+        		<h4 class="modal-title">Histórico de Preços</h4>
+      		</div>
+      		
+   			<div class="modal-body">
+   			
+   				<div class="alert  alert-danger  alert-dismissible  hidden  js-mensagem-erro" 
+   				     role="alert">
+					<button type="button" 
+					        class="close" 
+					        data-dismiss="alert" >
+					        <span aria-hidden="true">&times;</span>
+					</button>
+					<div><i class="fa  fa-exclamation-circle"></i>Erro na Pesquisa</div>
+				</div>
+   			
+		        <div id="containerTabelaPesquisaRapidaPrecos">  </div>
+		        
+     		</div>
+   		</div>
+ 	</div>
+ 	
+ 	<th:block th:replace="hbs/TabelaPesquisaRapidaPrecos"></th:block>
+ 	
+</div>
+	
+</html>
