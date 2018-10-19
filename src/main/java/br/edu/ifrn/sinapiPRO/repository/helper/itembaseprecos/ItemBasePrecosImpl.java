@@ -38,7 +38,9 @@ public class ItemBasePrecosImpl implements ItemBasePrecosQueries {
 		return new PageImpl<>(criteria.list(), pageable, total(filtro));
 	}
 
-	//Buscar a cidade com seu estado por JoinType
+	/**
+	 * busca todos os items de uma base de preco  
+	 */
 	@Override
 	@Transactional(readOnly = true)	
 	public ItemBasePreco buscarComBasePreco(Long codigoItem) {

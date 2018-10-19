@@ -30,9 +30,9 @@ de “execução”.
 
 Portanto, existem 3 tipos diferentes de orçamento:
 
-- Estimativa: Esboços de orçamentos para o projeto (histórico do projeto);
-- Venda: Orçamento guia de execução do projeto.
-- Execução: Orçamento guia de execução do projeto
+-Estimativa: Esboços de orçamentos para o projeto (histórico do projeto);
+-Venda: Orçamento guia de execução do projeto.
+-Execução: Orçamento guia de execução do projeto.
 
 ### Orçamento de Estimativa
 Este é o orçamento impreciso, estimado, quando um cliente solicita um orçamento prévio para realização de um determinado serviço, sendo esse somente uma estimativa pois, neste momento, não há um projeto definido, não se conhecem todas as atividades necessárias para sua execução - somente atividades básicas e não complexas.
@@ -74,8 +74,7 @@ Serviço é uma atividade na qual a construtora está apta a realizar. Ex.:
 * Ensaio para determinacao do Indice Suporte California (CBR) - 3 pontos - obtido com energia Proctor Intermediario, atraves de, no minimo, 5 corpos de prova, conforme reco mendacao da NBR9895, NBR6457, NBR7182; ou
 * Alvenaria de tijolo macico (7x10x20)cm, com argamassa de cimento e saibro no traco 1:6, em paredes com vaos ou arestas, de meia vez (0,10m), ate 3m de altura, e medida pela area real.
 
-`Inclusive alguns serviços como o uso de engenheiros da contrutora como se fosse uma
-consultoria.`
+`Inclusive alguns serviços como o uso de engenheiros da contrutora como se fosse uma consultoria.`
 
 Os serviços também podem apresentar, assim como os insumos, a incidência de tributos.
  
@@ -244,7 +243,7 @@ O grupo deverá possuir:
 ### Categoria
 O sistema deverá permitir:
 * Incluir/Alterar/Remover uma categoria; e
-* Associar/Desassociar clãns a uma categoria.
+* Associar/Desassociar uma classe uma categoria.
 
 Uma categoria deverá possuir:
 * Um código (sigla);

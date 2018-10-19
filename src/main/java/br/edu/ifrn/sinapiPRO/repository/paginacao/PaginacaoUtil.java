@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 public class PaginacaoUtil {
 
 	public void preparar(Criteria criteria, Pageable pageable) {
+		
 		int paginaAtual = pageable.getPageNumber();
 		int totalRegistrosPorPagina = pageable.getPageSize();
 		int primeiroRegistro = paginaAtual * totalRegistrosPorPagina;

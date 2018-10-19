@@ -19,10 +19,11 @@ class TabelaItensComposicao {
 
 	public BigDecimal getValorTotal() {
 		
-		return itens.stream()
-				.map(ItemComposicao::getValorTotal)
-				.reduce(BigDecimal::add)
-				.orElse(BigDecimal.ZERO);
+		return itens
+					.stream()
+					.map(ItemComposicao::getValorTotal)
+					.reduce(BigDecimal::add)
+					.orElse(BigDecimal.ZERO);
 	}
 	
 	public void adicionarItem(String tipo, Long codigoItem, BigDecimal precoUnitario, BigDecimal coeficiente) {

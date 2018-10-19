@@ -13,10 +13,23 @@
         		<li class="aw-menu__item" sinapiPRO:menu="@{/}">
           			<a th:href="@{/}"><i class="fa  fa-fw  fa-home"></i><span>Dashboard</span></a>
         		</li>
-        		
-        		<li class="aw-menu__item" sinapiPRO:menu="@{/}">
-          			<a th:href="@{/orcamentos}"><i class="fa  fa-fw  fa-table"></i><span>Orçamentos</span></a>
+        		<li class="aw-menu__item">
+          			<a href="#">
+          				<i class="fa  fa-fw  fa-table"></i><span>ORÇAMENTOS</span>
+            			<i class="aw-menu__navigation-icon  fa"></i>	
+          			</a>
+          			<ul class="aw-menu__list  aw-menu__list--sublist">
+          				<li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/orcamentos.*}">
+			            	<a th:href="@{/orcamentos}">Pesquisar</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/etapas.*}">
+			            	<a th:href="@{/etapas}">Cadastrar Etapas</a>
+			            </li>
+          			
+          			</ul>
         		</li>
+        		
+			        	 
        		      		
         		<li class="aw-menu__item">
           			<a href="#">
@@ -36,7 +49,7 @@
         		
         		<li class="aw-menu__item">
           			<a href="#">
-            			<i class="fa  fa-fw  fa-cubes"></i><span>Base Própria</span>
+            			<i class="fa  fa-fw  fa-cubes"></i><span>BASE PRÓPRIA</span>
             			<i class="aw-menu__navigation-icon  fa"></i>
           			</a>
       
@@ -52,7 +65,7 @@
 
         		<li class="aw-menu__item">
           			<a href="#">
-            			<i class="fa  fa-fw  fa-database"></i><span>Cadastros</span>
+            			<i class="fa  fa-fw  fa-database"></i><span>CADASTROS</span>
             			<i class="aw-menu__navigation-icon  fa"></i>
           			</a>
 
@@ -72,9 +85,7 @@
 			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/clientes.*}">
 			            	<a th:href="@{/clientes}">Clientes</a>
 			            </li>
-			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/etapas.*}">
-			            	<a th:href="@{/etapas}">Etapas</a>
-			            </li>
+			            
 			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/usuarios.*}">
 			            	<a th:href="@{/usuarios}">Usuários</a>
 			            </li>

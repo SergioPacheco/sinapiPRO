@@ -15,6 +15,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -29,7 +30,6 @@ import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name = "orcamento")
-@DynamicUpdate
 public class Orcamento implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
@@ -38,23 +38,21 @@ public class Orcamento implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY, generator="native")
 	@GenericGenerator(name = "native", strategy = "native")
 	private Long codigo;
-
+	
+	private String nome;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "codigo_base_insumo")
+	private BaseInsumo baseInsumo; 
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "codigo_base_preco")
+	private BaseInsumo basePreco; 
+	
 	@Column(name = "data_criacao")
 	private LocalDateTime dataCriacao;
 
-	@Column(name = "valor_frete")
-	private BigDecimal valorFrete;
-
-	@Column(name = "valor_desconto")
-	private BigDecimal valorDesconto;
-
-	@Column(name = "valor_total")
-	private BigDecimal valorTotal = BigDecimal.ZERO;
-
 	private String observacao;
-
-	@Column(name = "data_hora_entrega")
-	private LocalDateTime dataHoraEntrega;
 
 	@ManyToOne
 	@JoinColumn(name = "codigo_cliente")
@@ -65,19 +63,11 @@ public class Orcamento implements Serializable {
 	private Usuario usuario;
 
 	@Enumerated(EnumType.STRING)
-	private StatusOrcamento status = StatusOrcamento.ORCAMENTO;
-
-	@OneToMany(mappedBy = "orcamento", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<ItemOrcamento> itens = new ArrayList<>();
+	private SituacaoOrcamento situacao = SituacaoOrcamento.ABERTO;
 
 	@Transient
 	private String uuid;
 
-	@Transient
-	private LocalDate dataEntrega;
-
-	@Transient
-	private LocalTime horarioEntrega;
 
 	public Long getCodigo() {
 		return codigo;
@@ -85,6 +75,30 @@ public class Orcamento implements Serializable {
 
 	public void setCodigo(Long codigo) {
 		this.codigo = codigo;
+	}
+	
+	public String getNome() {
+		return nome;
+	}
+
+	public void setNome(String nome) {
+		this.nome = nome;
+	}
+
+	public BaseInsumo getBaseInsumo() {
+		return baseInsumo;
+	}
+
+	public void setBaseInsumo(BaseInsumo baseInsumo) {
+		this.baseInsumo = baseInsumo;
+	}
+
+	public BaseInsumo getBasePreco() {
+		return basePreco;
+	}
+
+	public void setBasePreco(BaseInsumo basePreco) {
+		this.basePreco = basePreco;
 	}
 
 	public LocalDateTime getDataCriacao() {
@@ -95,30 +109,6 @@ public class Orcamento implements Serializable {
 		this.dataCriacao = dataCriacao;
 	}
 
-	public BigDecimal getValorFrete() {
-		return valorFrete;
-	}
-
-	public void setValorFrete(BigDecimal valorFrete) {
-		this.valorFrete = valorFrete;
-	}
-
-	public BigDecimal getValorDesconto() {
-		return valorDesconto;
-	}
-
-	public void setValorDesconto(BigDecimal valorDesconto) {
-		this.valorDesconto = valorDesconto;
-	}
-
-	public BigDecimal getValorTotal() {
-		return valorTotal;
-	}
-
-	public void setValorTotal(BigDecimal valorTotal) {
-		this.valorTotal = valorTotal;
-	}
-
 	public String getObservacao() {
 		return observacao;
 	}
@@ -127,14 +117,7 @@ public class Orcamento implements Serializable {
 		this.observacao = observacao;
 	}
 
-	public LocalDateTime getDataHoraEntrega() {
-		return dataHoraEntrega;
-	}
-
-	public void setDataHoraEntrega(LocalDateTime dataHoraEntrega) {
-		this.dataHoraEntrega = dataHoraEntrega;
-	}
-
+	
 	public Cliente getCliente() {
 		return cliente;
 	}
@@ -151,20 +134,12 @@ public class Orcamento implements Serializable {
 		this.usuario = usuario;
 	}
 
-	public StatusOrcamento getStatus() {
-		return status;
+	public SituacaoOrcamento getSituacao() {
+		return situacao;
 	}
 
-	public void setStatus(StatusOrcamento status) {
-		this.status = status;
-	}
-
-	public List<ItemOrcamento> getItens() {
-		return itens;
-	}
-
-	public void setItens(List<ItemOrcamento> itens) {
-		this.itens = itens;
+	public void setSituacao(SituacaoOrcamento situacao) {
+		this.situacao = situacao;
 	}
 
 	public String getUuid() {
@@ -175,62 +150,18 @@ public class Orcamento implements Serializable {
 		this.uuid = uuid;
 	}
 
-	public LocalDate getDataEntrega() {
-		return dataEntrega;
-	}
-
-	public void setDataEntrega(LocalDate dataEntrega) {
-		this.dataEntrega = dataEntrega;
-	}
-
-	public LocalTime getHorarioEntrega() {
-		return horarioEntrega;
-	}
-
-	public void setHorarioEntrega(LocalTime horarioEntrega) {
-		this.horarioEntrega = horarioEntrega;
-	}
-
-	public boolean isNova() {
+	public boolean isNovo() {
 		return codigo == null;
 	}
-	
-	public void adicionarItens(List<ItemOrcamento> itens) {
-		this.itens = itens;
-		this.itens.forEach(i -> i.setOrcamento(this));
-	}
-	
-	public BigDecimal getValorTotalItens() {
-		return getItens().stream()
-				.map(ItemOrcamento::getValorTotal)
-				.reduce(BigDecimal::add)
-				.orElse(BigDecimal.ZERO);
-	}
-	
-	public void calcularValorTotal() {
-		this.valorTotal = calcularValorTotal(getValorTotalItens(), getValorFrete(), getValorDesconto());
-	}
-	
-	public Long getDiasCriacao() {
-		LocalDate inicio = dataCriacao != null ? dataCriacao.toLocalDate() : LocalDate.now();
-		return ChronoUnit.DAYS.between(inicio, LocalDate.now());
-	}
-	
+		
 	public boolean isSalvarPermitido() {
-		return !status.equals(StatusOrcamento.CANCELADO);
+		return !situacao.equals(SituacaoOrcamento.BLOQUEADO);
 	}
 	
 	public boolean isSalvarProibido() {
 		return !isSalvarPermitido();
 	}
 	
-	private BigDecimal calcularValorTotal(BigDecimal valorTotalItens, BigDecimal valorFrete, BigDecimal valorDesconto) {
-		BigDecimal valorTotal = valorTotalItens
-				.add(Optional.ofNullable(valorFrete).orElse(BigDecimal.ZERO))
-				.subtract(Optional.ofNullable(valorDesconto).orElse(BigDecimal.ZERO));
-		return valorTotal;
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;

@@ -87,15 +87,6 @@ public class ClassesController {
 		return mv;
 	}
 	
-/*	Esse método não funciona é porque existe o conflito de converters, que configuramos no WebConfig, 
- * ai nesse caso você precisa fazer a pesquisa mesmo no controller.  
- * @GetMapping("/{codigo}")
-	public ModelAndView editar(@PathVariable("codigo") Classe classe) {
-		ModelAndView mv = novo(classe);
-		mv.addObject(classe);
-		return mv;
-	}*/
-	
 	@GetMapping("/{codigo}")
 	public ModelAndView editar(@PathVariable Long codigo) {
 		Classe classe = classes.getOne(codigo);
@@ -113,5 +104,4 @@ public class ClassesController {
 		}
 		return ResponseEntity.ok().build();
 	}
-
 }

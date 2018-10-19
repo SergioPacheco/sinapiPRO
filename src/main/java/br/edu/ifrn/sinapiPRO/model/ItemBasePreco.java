@@ -25,12 +25,6 @@ public class ItemBasePreco implements Serializable {
 	@JoinColumn(name = "basePrecoID", nullable=false, insertable = false, updatable = false)
 	private BasePreco basePreco; 
 	
-	/*
-	 * Notice that the @ManyToOne association instructs Hibernate to ignore 
-	 * inserts and updates issued on this mapping since the basePrecoID is 
-	 * controlled by the @EmbeddedId.
-	 */
-	
 	@NotNull(message = "Valor é obrigatório")
 	private BigDecimal preco;
 	

@@ -21,8 +21,9 @@
 				
 				<div class="col-xs-2">
 					<div class="aw-page-header-controls">
-						<a class="btn  btn-default" th:href="@{/orcamentos/nova}">
-							<i class="glyphicon  glyphicon-plus-sign"></i> <span class="hidden-xs  hidden-sm">Novo orçamento</span>
+						<a class="btn  btn-default" th:href="@{/orcamentos/novo}">
+							<i class="glyphicon  glyphicon-plus-sign"></i> 
+							<span class="hidden-xs  hidden-sm">Novo orçamento</span>
 						</a>
 					</div>
 				</div>
@@ -35,55 +36,11 @@
 		<form method="GET" th:object="${orcamentoFilter}" th:action="@{/orcamentos}">
 		
 			<div class="row">
-				<div class="form-group  col-sm-6">
-					<label class="control-label" for="codigo">Código</label>
-					<input type="text" class="form-control" id="codigo" autofocus="autofocus" th:field="*{codigo}"/>
-				</div>
-				
-				<div class="form-group  col-sm-6">
-					<label for="status" class="control-label">Status</label>
-					<select id="status" class="form-control" th:field="*{status}">
-	                    <option value="">Todos os status</option>
-	                    <option th:each="status : ${todosStatus}" th:value="${status}" th:text="${status.descricao}"></option>
-	                </select>
+				<div class="form-group  col-sm-12">
+					<label class="control-label" for="nome">Descrição</label>
+					<input type="text" class="form-control" id="nome" th:field="*{nome}"/>
 				</div>
 			</div>
-			
-			<div class="row">
-				<div class="form-group  col-sm-6">
-					<label for="dataCriacaoInicial">Data de criação</label>
-					<div class="form-inline">
-						<input type="text" class="form-control  aw-form-control-inline-sm  js-date" id="dataCriacaoInicial" 
-							th:field="*{desde}" autocomplete="off"/>
-						<label for="dataCriacaoFinal" class="aw-form-label-between">até</label>
-						<input type="text" class="form-control  aw-form-control-inline-sm  js-date" id="dataCriacaoInicial" 
-							th:field="*{ate}" autocomplete="off"/>
-					</div>
-				</div>
-				
-				<div class="form-group  col-sm-6">
-					<label for="valorMinimo">Valor total</label>
-					<div class="form-inline">
-						<input type="text" class="form-control  aw-form-control-inline-sm  js-decimal" id="valorMinimo" th:field="*{valorMinimo}"/>
-						<label for="valorMaximo" class="aw-form-label-between">até</label>
-						<input type="text" class="form-control  aw-form-control-inline-sm  js-decimal" id="valorMaximo" th:field="*{valorMaximo}"/>
-					</div>
-				</div>
-			</div>
-			
-			<div class="row">
-				<div class="form-group  col-sm-6">
-					<label class="control-label" for="nomeCliente">Nome cliente</label>
-					<input type="text" class="form-control" id="nomeCliente" th:field="*{nomeCliente}"/>
-				</div>
-			
-				<div class="form-group  col-sm-6">
-					<label for="cpfOuCnpj" class="control-label">CPF/CNPJ</label>
-					<input type="text" class="form-control" id="cpfOuCnpj" th:field="*{cpfOuCnpjCliente}"/>
-				</div>
-				
-			</div>
-			
 			<button type="submit" class="btn  btn-primary">Pesquisar</button>
 		</form>
 		
@@ -92,13 +49,9 @@
 	            <thead>
 	            	<tr>
 	                	<th>Código</th>
-	                	<th>
-	                		<sinapiPRO:order page="${pagina}" field="c.nome" text="Cliente"/>
-	                	</th>
 	                	<th>Data de criação</th>
-	                	<th>Valor total</th>
-	                	<th>Vendedor</th>
-	                	<th>Status</th>
+	                	<th>Descricao</th>
+	                	<th>Situacao</th>
 	                 	<th class="table-col-acoes"></th>
 					</tr>
 				</thead>
@@ -106,11 +59,9 @@
 	            <tbody>
 					<tr th:each="orcamento : ${pagina.conteudo}">
 						<td th:text="${orcamento.codigo}"></td>
-						<td th:text="${orcamento.cliente.nome}"></td>
 						<td th:text="${{orcamento.dataCriacao}}"></td>
-						<td th:text="|R$ ${{orcamento.valorTotal}}|"></td>
-						<td th:text="${orcamento.usuario.nome}"></td>
-						<td th:text="${orcamento.status.descricao}"></td>
+						<td th:text="${orcamento.nome}"></td>
+						<td th:text="${orcamento.situacao}"></td>
 	                 	<td class="text-center">
 		   					<a class="btn  btn-link  btn-xs  js-tooltip" title="Editar" 
 		   							th:href="@{/orcamentos/{codigo}(codigo=${orcamento.codigo})}">
@@ -125,10 +76,8 @@
 	             </tbody>
 	         </table>
 		</div>
-		
 		<sinapiPRO:pagination page="${pagina}"/>
 	</div>
 </section>
-
 </body>
 </html>

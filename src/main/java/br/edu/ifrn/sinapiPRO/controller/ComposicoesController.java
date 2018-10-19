@@ -126,8 +126,8 @@ public class ComposicoesController {
 
 	@GetMapping
 	public ModelAndView pesquisar(ComposicaoFilter composicaoFilter,
-			           @PageableDefault(size = 5) Pageable pageable, 
-			                  HttpServletRequest httpServletRequest) {
+			                      @PageableDefault(size = 5) Pageable pageable, 
+			                      HttpServletRequest httpServletRequest) {
 		
 		ModelAndView mv = new ModelAndView("/composicao/PesquisaComposicoes");
 		mv.addObject("baseInsumos", baseInsumos.findAll());

@@ -22,6 +22,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
 import br.edu.ifrn.sinapiPRO.model.BasePreco;
+import br.edu.ifrn.sinapiPRO.model.Desoneracao;
 import br.edu.ifrn.sinapiPRO.repository.BaseInsumos;
 import br.edu.ifrn.sinapiPRO.repository.BasePrecos;
 import br.edu.ifrn.sinapiPRO.repository.Estados;
@@ -53,9 +54,10 @@ public class BasePrecosController  {
 	public ModelAndView nova(BasePreco basePreco) {
 		
 		ModelAndView mv = new ModelAndView("basePreco/CadastroBasePreco");
+		mv.addObject("oneracao", Desoneracao.values());
 		mv.addObject("estados", estados.findAll()); 
 		mv.addObject("baseInsumos", baseInsumos.findAll()); 
-		
+		 
 		return mv;
 	}
 	

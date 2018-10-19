@@ -40,9 +40,9 @@ sinapiPRO.DialogoExcluir = (function() {
 	}
 	
 	function onExcluidoSucesso() {
-		var urlAtual = window.location.href;
+		var urlAtual  = window.location.href;
 		var separador = urlAtual.indexOf('?') > -1 ? '&' : '?';
-		var novaUrl = urlAtual.indexOf('excluido') > -1 ? urlAtual : urlAtual + separador + 'excluido';
+		var novaUrl   = urlAtual.indexOf('excluido') > -1 ? urlAtual : urlAtual + separador + 'excluido';
 		
 		window.location = novaUrl;
 	}

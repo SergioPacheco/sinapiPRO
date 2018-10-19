@@ -23,7 +23,7 @@ public enum TipoPessoa {
 	private String documento;
 	private String mascara;
 	private Class<?> grupo;
-
+ 
 	TipoPessoa(String descricao, String documento, String mascara, Class<?> grupo) {
 		this.descricao = descricao;
 		this.documento = documento;

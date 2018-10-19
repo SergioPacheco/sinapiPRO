@@ -1,5 +1,6 @@
 package br.edu.ifrn.sinapiPRO.repository;
 
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,5 +22,13 @@ public interface ItemBasePrecoRepository extends JpaRepository<ItemBasePreco, Ba
 	// Optional<ItemBasePreco> findByBasePrecoAndCodigoInsumo(BasePreco basePreco, Long codigoInsumo);
 
 	 Page<ItemBasePreco> findByBaseKeyBasePrecoID(Long basePrecoID, Pageable pageable);
-	
+	 /*
+	 @Query("  SELECT YEAR(bp.data_referencia), MONTH(bp.data_referencia), it.preco "
+	 		+ "FROM item_base_preco it "
+	 		+ "INNER JOIN base_preco  bp ON bp.codigo = it.base_precoid "
+	 		+ "INNER JOIN base_insumo bi ON bi.codigo = bp.codigo_base_insumo "
+	 		+ "WHERE it.insumoid = :codigoInsumo")
+	 */
+	  
+	 
 }

@@ -2,55 +2,55 @@
 
 ## recursos 
 Deve-se permitir o cadastramento de recursos.
-Os recursos s„o a base da estrutura na construÁ„o do orÁamento de obra. Todos os serviÁos prestados em uma obra s„o compostos por outros serviÁos e/ou composiÁ„o de recursos. Um serviÁo de alvernaria por exemplo pode envolver composiÁıes tais como massa para alvenaria comum (areia + cimento + ·gua + m„o-de-obra), tijolo e m„o de obra para sua construÁ„o.
-Os recursos s„o divididos entre material, m„o-de-obra (direta e indireta) e equipamento.
+Os recursos s√£o a base da estrutura na constru√ß√£o do or√ßamento de obra. Todos os servi√ßos prestados em uma obra s√£o compostos por outros servi√ßos e/ou composi√ß√£o de recursos. Um servi√ßo de alvernaria por exemplo pode envolver composi√ß√µes tais como massa para alvenaria comum (areia + cimento + √°gua + m√£o-de-obra), tijolo e m√£o de obra para sua constru√ß√£o.
+Os recursos s√£o divididos entre material, m√£o-de-obra (direta e indireta) e equipamento.
 
-Algumas informaÁıes s„o comuns a todos os recursos tais como:
+Algumas informa√ß√µes s√£o comuns a todos os recursos tais como:
 * Codigo;
-* DescriÁ„o;
+* Descri√ß√£o;
 * Unidade; e
 * Valor/Unidade.
 
 ## material 
-O material È um dos recursos utilizados em uma obra. S„o expressos em unidades (kg, m3, m2, ml, etc) e tem seu valor estipulado por unidade. Um exemplo de material seria o prÛprio cimento citado anteriormente, ou a areia, ou a ·gua, ou cal, etc.
+O material √© um dos recursos utilizados em uma obra. S√£o expressos em unidades (kg, m3, m2, ml, etc) e tem seu valor estipulado por unidade. Um exemplo de material seria o pr√≥prio cimento citado anteriormente, ou a areia, ou a √°gua, ou cal, etc.
 
-## m„o-de-obra  
-A m„o de obra tem seu valor definido por H/H (hora/homem). Para a m„o-de-obra ainda temos a discriminaÁ„o do tipo de serviÁo prestado pois o valor pode variar de um tipo de serviÁo para outro.
-A m„o de obra ainda pode apresentar um custo por tempo extra de trabalho, que tambÈm È medido em H/H.
+## m√£o-de-obra  
+A m√£o de obra tem seu valor definido por H/H (hora/homem). Para a m√£o-de-obra ainda temos a discrimina√ß√£o do tipo de servi√ßo prestado pois o valor pode variar de um tipo de servi√ßo para outro.
+A m√£o de obra ainda pode apresentar um custo por tempo extra de trabalho, que tamb√©m √© medido em H/H.
 
 ## equipamento  
-Os equipamentos tambÈm tem seu custo estipulado por unidade, que neste caso È uma unidade temporal, defininda por hora, mÍs, semana, como um aluguel por hora ou por mÍs.
+Os equipamentos tamb√©m tem seu custo estipulado por unidade, que neste caso √© uma unidade temporal, defininda por hora, m√™s, semana, como um aluguel por hora ou por m√™s.
 
-O equipamento pode ser classificado como sendo um recurso do tipo interno ou externo. Sendo um recurso interno ele teria seu custo reduzido para somente o custo de seu funcionamento, j· o externo alÈm dos custos de funcionamento tambÈm estariam incluÌdos os custos de uso por unidade de tempo (aluguel).
+O equipamento pode ser classificado como sendo um recurso do tipo interno ou externo. Sendo um recurso interno ele teria seu custo reduzido para somente o custo de seu funcionamento, j√° o externo al√©m dos custos de funcionamento tamb√©m estariam inclu√≠dos os custos de uso por unidade de tempo (aluguel).
 
-## composiÁ„o  
-A composiÁ„o È a integraÁ„o de recursos e quisitos que em conjunto com outras composiÁıes representar„o um serviÁo.
-A composiÁ„o de serviÁos contÈm os seguintes componentes:
-* Recursos (material, m„o de obra, equipamento);
-* % de taxaÁ„o; 
-* % de tributaÁ„o;
+## composi√ß√£o  
+A composi√ß√£o √© a integra√ß√£o de recursos e quisitos que em conjunto com outras composiveis representar√£o um servi√ßo.
+A composi√ß√£o de servi√ßos cont√©m os seguintes componentes:
+* Recursos (material, m√£o de obra, equipamento);
+* % de taxa√ß√£o; 
+* % de tributa√ß√£o;
 * % de Perdas; e
-* % ConsideraÁıes;
+* % Considera√ß√µes;
 
-## serviÁo  
-O serviÁo È constituÌdo de composiÁıes e/ou serviÁos.
-Um serviÁo È a representaÁ„o do que ser· feito, e o mesmo j· inclui em si todos os recursos desprendidos e custos.
-Um serviÁo basicamente deve ser classificado por:
-* Categoria do serviÁo;
-* Subcategoria do serviÁo (diretamente ligada ‡ categoria) comumente clamado de cl„ na ·rea de engenharia;
-* FamÌlia (diretamente ligada ‡ subcategoria);
-* CÛdigo;
-* DescriÁ„o;
+## servi√ßo  
+O servi√ßo √© constitu√≠do de composi√ß√µes e/ou servi√ßos.
+Um servi√ßo √© a representa√ß√£o do que ser√° feito, e o mesmo j√° inclui em si todos os recursos desprendidos e custos.
+Um servi√ßo basicamente deve ser classificado por:
+* Categoria do servi√ßo;
+* Subcategoria do servi√ßo (diretamente ligada √† categoria) comumente clamado de cl√£ na √°rea de engenharia;
+* Fam√≠lia (diretamente ligada √† subcategoria);
+* C√≥digo;
+* Descri√ß√£o;
 
-## orÁamento  
-O orÁamento È feito em forma de projeto, sendo que os dados utilizados como base podem ser alterados para o projeto (mantendo-se os dados base para que outros projetos possam utilizar).
+## or√ßamento  
+O or√ßamento √© feito em forma de projeto, sendo que os dados utilizados como base podem ser alterados para o projeto (mantendo-se os dados base para que outros projetos possam utilizar).
 
-Poder· ser listado da forma "Curva ABCπ".
+Poder√° ser listado da forma "Curva ABC".
 
-## gloss·rio  
+## gloss√°rio  
 ### Curva ABC  
-A curva ABC È um orÁamento organizado de modo a destacar os itens - insumos, m„o de obra e equipamentos - que mais pesam no custo total de uma obra ou de um serviÁo. Assim, os elementos mais relevantes da tabela aparecem logo nas primeiras linhas, facilitando sua visualizaÁ„o e controle.
+A curva ABC √© um or√ßamento organizado de modo a destacar os itens - insumos, m√£o de obra e equipamentos - que mais pesam no custo total de uma obra ou de um servi√ßo. Assim, os elementos mais relevantes da tabela aparecem logo nas primeiras linhas, facilitando sua visualiza√ß√£o e controle.
 
-Neste tipo de apresentaÁ„o do orÁamento, a coluna mais importante È a que mostra o preÁo total dos itens descritos na tabela. Com base nesse critÈrio, os elementos s„o distribuÌdos em ordem decrescente - os valores maiores em cima e os menores embaixo.
+Neste tipo de apresenta√ß√£o do or√ßamento, a coluna mais importante √© a que mostra o pre√ßo total dos itens descritos na tabela. Com base nesse crit√©rio, os elementos s√£o distribu√≠dos em ordem decrescente - os valores maiores em cima e os menores embaixo.
 
-Com esse tipo de organizaÁ„o, o construtor consegue visualizar os materiais e serviÁos mais importantes caso precise reduzir os custos da obra. AlÈm disso, ela ajuda a dividir responsabilidades: o gerente da obra, mais experiente, deve acompanhar de perto a negociaÁ„o dos insumos e serviÁos mais caros do orÁamento. A negociaÁ„o e compra dos itens mais baratos da obra podem acontecer de forma menos rÌgorosa.
+Com esse tipo de organiza√ß√£o, o construtor consegue visualizar os materiais e servi√ßos mais importantes caso precise reduzir os custos da obra. Al√©m disso, ela ajuda a dividir responsabilidades: o gerente da obra, mais experiente, deve acompanhar de perto a negocia√ß√£o dos insumos e servi√ßos mais caros do or√ßamento. A negocia√ß√£o e compra dos itens mais baratos da obra podem acontecer de forma menos rigorosa.

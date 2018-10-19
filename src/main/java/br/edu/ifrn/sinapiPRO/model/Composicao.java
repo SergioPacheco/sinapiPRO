@@ -52,7 +52,7 @@ public class Composicao  {
 	private TipoComposicao tipoComposicao;
 	
 	@Enumerated(EnumType.STRING)
-	private StatusComposicao ativa = StatusComposicao.ATIVA;
+	private SituacaoComposicao ativa = SituacaoComposicao.ATIVA;
 			
 	@Transient
 	private String uuid;
@@ -132,11 +132,11 @@ public class Composicao  {
 		this.tipoComposicao = tipoComposicao;
 	}
 
-	public StatusComposicao getAtiva() {
+	public SituacaoComposicao getAtiva() {
 		return ativa;
 	}
 
-	public void setAtiva(StatusComposicao ativa) {
+	public void setAtiva(SituacaoComposicao ativa) {
 		this.ativa = ativa;
 	}
 
@@ -262,7 +262,7 @@ public class Composicao  {
 	}
 	
 	public boolean isSalvarPermitido() {
-		return !ativa.equals(StatusComposicao.CANCELADA);
+		return !ativa.equals(SituacaoComposicao.CANCELADA);
 	}
 	
 	public boolean isSalvarProibido() {

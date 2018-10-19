@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.edu.ifrn.sinapiPRO.model.BaseInsumo;
 import br.edu.ifrn.sinapiPRO.model.Classe;
 import br.edu.ifrn.sinapiPRO.repository.Classes;
 import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
@@ -22,8 +23,8 @@ public class CadastroClasseService {
 	@Transactional
 	public Classe salvar(Classe classe){
 		
-		Optional<Classe> classeOptional = classes.findByNomeIgnoreCase(classe.getNome());
-		if(classeOptional.isPresent()){
+		Optional<Classe> classeOptional = classes.findBySiglaIgnoreCase(classe.getNome());
+		if(classeOptional.isPresent() && classe.isNova()){
 			throw new NomeClasseJaCadastradaException("Nome do classe já cadastrado");
 		}
 		return classes.saveAndFlush(classe);
@@ -36,9 +37,10 @@ public class CadastroClasseService {
 			classes.flush();
 		} catch (PersistenceException e) {
 			
-			throw new ImpossivelExcluirEntidadeException("Impossível apagar classe. Já foi usado em alguma cerveja.");
+			throw new ImpossivelExcluirEntidadeException("Impossível apagar classe. Já foi usado em alguma composição.");
 
 		}
 	}
 
 }
+ 

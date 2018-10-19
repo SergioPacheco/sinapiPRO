@@ -65,14 +65,10 @@ public class ComposicoesImpl implements ComposicoesQueries {
 	}
 
 	private void adicionarFiltro(ComposicaoFilter filtro, Criteria criteria) {
+		
 		if (filtro != null) {
-			
-			if (!StringUtils.isEmpty(filtro.getCodigo())) {
-				criteria.add(Restrictions.eq("codigo", filtro.getCodigo()));
-			}
-					
 			if (!StringUtils.isEmpty(filtro.getDescricao())) {
-				criteria.add(Restrictions.ilike("descricao", filtro.getDescricao(), MatchMode.ANYWHERE));
+				criteria.add(Restrictions.ilike("nome", filtro.getDescricao(), MatchMode.ANYWHERE));
 			}
 
 			if (isClassePresente(filtro)) {

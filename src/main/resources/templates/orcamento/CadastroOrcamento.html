@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:th="http://www.thymeleaf.org"
-	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{layout/LayoutPadrao}"
-	xmlns:sinapiPRO="http://sinapiPRO.ifrn.edu.br"
-	xmlns:data="http://www.thymeleaf.org/extras/data">
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/LayoutPadrao}"
+	  xmlns:sinapiPRO="http://sinapiPRO.ifrn.edu.br"
+	  xmlns:data="http://www.thymeleaf.org/extras/data">
 
 <head>
-	<title>Cadastro do orçamento</title>
+	<title>Cadastro do Orçamento</title>
 	
 	<link rel="stylesheet" th:href="@{/stylesheets/vendors/easy-autocomplete.min.css}"/>
 	<link rel="stylesheet" th:href="@{/stylesheets/vendors/easy-autocomplete.themes.min.css}"/>
@@ -19,8 +19,10 @@
 		<div class="container-fluid">
 			<div class="row">
 				<div class="col-xs-10">
-					<h1 th:if="${orcamento.nova}" th:text="#{orcamento.cadastro.titulo}">Cadastro do Orçamento</h1>
-					<h1 th:unless="${orcamento.nova}" th:text="#{orcamento.edicao.titulo(${orcamento.codigo})}">Edição do orçamento nº </h1>
+					<h1 th:if="${orcamento.nova}"     
+					    th:text="#{orcamento.cadastro.titulo}">Cadastro do Orçamento</h1>
+					<h1 th:unless="${orcamento.nova}"
+					    th:text="#{orcamento.edicao.titulo(${orcamento.codigo})}">Edição do orçamento nº </h1>
 				</div>
 			</div>
 		</div>

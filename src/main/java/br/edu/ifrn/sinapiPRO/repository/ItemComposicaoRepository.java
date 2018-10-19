@@ -9,5 +9,4 @@ import br.edu.ifrn.sinapiPRO.model.ItemComposicao;
 public interface ItemComposicaoRepository extends JpaRepository<ItemComposicao, Long> {
 	
 	
-
 }

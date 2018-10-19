@@ -1,6 +1,7 @@
 package br.edu.ifrn.sinapiPRO.repository.helper.insumo;
 
 /*
+ * 
 private static List<Contact> fetchAllContacts(){
     //Open Session
     Session session = sessionFactory.openSession();
@@ -45,9 +46,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import br.edu.ifrn.sinapiPRO.dto.InsumoDTO;
+import br.edu.ifrn.sinapiPRO.dto.ItemBasePrecoDTO;
 import br.edu.ifrn.sinapiPRO.model.Insumo;
 import br.edu.ifrn.sinapiPRO.repository.filter.InsumoFilter;
 import br.edu.ifrn.sinapiPRO.repository.paginacao.PaginacaoUtil;
+import br.edu.ifrn.sinapiPRO.utils.Lib;
 
 public class InsumosImpl implements InsumosQueries {
 
@@ -68,16 +71,41 @@ public class InsumosImpl implements InsumosQueries {
 		
 		return new PageImpl<>(criteria.list(), pageable, total(filtro));
 	}
+	
+	/*orm.xml - native query */
+	@SuppressWarnings("unchecked")
+	@Override                     
+	public List<ItemBasePrecoDTO> listaPrecosPorInsumo(Long codigoInsumo) {
+		System.out.println("Pequisinado Insumo=" + codigoInsumo );	
+		
+	
+		ItemBasePrecoDTO it = new ItemBasePrecoDTO("9999/99", "99.999.99");
+		
+		List<ItemBasePrecoDTO> lista = manager
+						.createNamedQuery("Insumos.listaPrecos")
+						.getResultList();
+		
+		
+		lista.add(it); 
+		return lista;
+	}
 		
 	@Override
-	public List<InsumoDTO> porSkuOuDescricao(String skuOuDescricao) {
-		String jpql = "select new br.edu.ifrn.sinapiPRO.dto.InsumoDTO(codigo, sku, descricao, preco) "
-				    + "from Insumo where lower(sku) like lower(:skuOuDescricao) or lower(descricao) like lower(:skuOuDescricao)";
+	public List<InsumoDTO> porCodigoInsumoOuDescricao(String codigoInsumoOuDescricao) {
+		
+		String jpql = "select new br.edu.ifrn.sinapiPRO.dto.InsumoDTO"
+				    + "(codigo, codigoInsumo, descricao, unidade,  precoPadrao) "
+				    + "from Insumo"
+				    + "where codigoInsumo=:codigoInsumoOuDescricao or "
+				    + "lower(descricao) like lower(:codigoInsumoOuDescricao)";
+		
 		List<InsumoDTO> insumosFiltrados = manager.createQuery(jpql, InsumoDTO.class)
-					.setParameter("skuOuDescricao", skuOuDescricao + "%")
+					.setParameter("codigoInsumoOuDescricao", codigoInsumoOuDescricao + "%")
 					.getResultList();
+		
 		return insumosFiltrados;
 	}
+	
 	
 	/*
 	@Override
@@ -88,13 +116,16 @@ public class InsumosImpl implements InsumosQueries {
 	*/
 	
 	private Long total(InsumoFilter filtro) {
+		
 		Criteria criteria = manager.unwrap(Session.class).createCriteria(Insumo.class);
 		adicionarFiltro(filtro, criteria);
 		criteria.setProjection(Projections.rowCount());
 		return (Long) criteria.uniqueResult();
+	
 	}
 
 	private void adicionarFiltro(InsumoFilter filtro, Criteria criteria) {
+		
 		if (filtro != null) {
 			if(filtro.getCodigoInsumo()!=null){
 				criteria.add(Restrictions.eq("codigoInsumo", filtro.getCodigoInsumo()));

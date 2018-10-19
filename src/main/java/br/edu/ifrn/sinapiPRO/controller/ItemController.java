@@ -1,5 +1,5 @@
 package br.edu.ifrn.sinapiPRO.controller;
-
+/*
 import java.util.List;
 import java.util.UUID;
 
@@ -19,29 +19,24 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
-import br.edu.ifrn.sinapiPRO.controller.validator.OrcamentoValidator;
-import br.edu.ifrn.sinapiPRO.dto.OrcamentoMes;
-import br.edu.ifrn.sinapiPRO.dto.OrcamentoBase;
 import br.edu.ifrn.sinapiPRO.model.Composicao;
 import br.edu.ifrn.sinapiPRO.model.ItemOrcamento;
-import br.edu.ifrn.sinapiPRO.model.StatusOrcamento;
-import br.edu.ifrn.sinapiPRO.model.TipoPessoa;
 import br.edu.ifrn.sinapiPRO.model.Orcamento;
 import br.edu.ifrn.sinapiPRO.repository.Composicoes;
-import br.edu.ifrn.sinapiPRO.repository.Orcamentos;
+import br.edu.ifrn.sinapiPRO.repository.OrcamentoRepository;
 import br.edu.ifrn.sinapiPRO.repository.filter.OrcamentoFilter;
 import br.edu.ifrn.sinapiPRO.security.UsuarioSistema;
-import br.edu.ifrn.sinapiPRO.service.CadastroOrcamentoService;
+import br.edu.ifrn.sinapiPRO.service.OrcamentoService;
 import br.edu.ifrn.sinapiPRO.session.orcamento.TabelasItensOrcamentoSession;
-
+ 
 @Controller
-@RequestMapping("/orcamentos")
-public class OrcamentosController {
+@RequestMapping("/orcamentos/item")
+public class ItemController {
+	
 	
 	@Autowired
 	private Composicoes composicoes;
@@ -56,24 +51,27 @@ public class OrcamentosController {
 	private OrcamentoValidator orcamentoValidator;
 	
 	@Autowired
-	private Orcamentos orcamentos;
+	private OrcamentosRepository orcamentos;
 	
-	@GetMapping("/nova")
+	
+	@GetMapping("/novo")
 	public ModelAndView nova(Orcamento orcamento) {
 		ModelAndView mv = new ModelAndView("orcamento/CadastroOrcamento");
 		
 		setUuid(orcamento);
 		
 		mv.addObject("itens", orcamento.getItens());
-		mv.addObject("valorFrete", orcamento.getValorFrete());
-		mv.addObject("valorDesconto", orcamento.getValorDesconto());
 		mv.addObject("valorTotalItens", tabelaItens.getValorTotal(orcamento.getUuid()));
 		
 		return mv;
 	}
 	
-	@PostMapping(value = "/nova", params = "salvar")
-	public ModelAndView salvar(Orcamento orcamento, BindingResult result, RedirectAttributes attributes, @AuthenticationPrincipal UsuarioSistema usuarioSistema) {
+	@PostMapping(value = "/novo", params = "salvar")
+	public ModelAndView salvar(Orcamento orcamento, 
+			                BindingResult result, 
+			           RedirectAttributes attributes, 
+			      @AuthenticationPrincipal UsuarioSistema usuarioSistema) {
+		
 		validarOrcamento(orcamento, result);
 		if (result.hasErrors()) {
 			return nova(orcamento);
@@ -83,27 +81,33 @@ public class OrcamentosController {
 		
 		cadastroOrcamentoService.salvar(orcamento);
 		attributes.addFlashAttribute("mensagem", "Orcamento salvo com sucesso");
-		return new ModelAndView("redirect:/orcamentos/nova");
+		return new ModelAndView("redirect:/orcamentos/novo");
 	}
 
-	@PostMapping(value = "/nova", params = "emitir")
-	public ModelAndView emitir(Orcamento orcamento, BindingResult result, RedirectAttributes attributes, @AuthenticationPrincipal UsuarioSistema usuarioSistema) {
+	@PostMapping(value = "/novo", params = "efetivar")
+	public ModelAndView efetivar(Orcamento orcamento, 
+			               BindingResult result, 
+			          RedirectAttributes attributes, 
+			    @AuthenticationPrincipal UsuarioSistema usuarioSistema) {
+		
 		validarOrcamento(orcamento, result);
 		if (result.hasErrors()) {
 			return nova(orcamento);
 		}
 		
 		orcamento.setUsuario(usuarioSistema.getUsuario());
-		
-		cadastroOrcamentoService.emitir(orcamento);
+		cadastroOrcamentoService.concluir(orcamento);
 		attributes.addFlashAttribute("mensagem", "Orçamento emitido com sucesso");
+		
 		return new ModelAndView("redirect:/orcamentos/nova");
 	}
 	
 	@PostMapping("/item")
 	public ModelAndView adicionarItem(Long codigoComposicao, String uuid) {
+		
 		Composicao composicao = composicoes.getOne(codigoComposicao);
 		tabelaItens.adicionarItem(uuid, uuid, composicao, 1);
+		
 		return mvTabelaItensOrcamento(uuid);
 	}
 	
@@ -123,8 +127,9 @@ public class OrcamentosController {
 	public ModelAndView pesquisar(OrcamentoFilter orcamentoFilter,
 			@PageableDefault(size = 10) Pageable pageable, HttpServletRequest httpServletRequest) {
 		ModelAndView mv = new ModelAndView("orcamento/PesquisaOrcamentos");
-		mv.addObject("todosStatus", StatusOrcamento.values());
-		mv.addObject("tiposPessoa", TipoPessoa.values());
+		
+		// mv.addObject("todosStatus", SituacaoOrcamento.values());
+		// mv.addObject("tiposPessoa", TipoPessoa.values());
 		
 		PageWrapper<Orcamento> paginaWrapper = new PageWrapper<>(orcamentos.filtrar(orcamentoFilter, pageable)
 				, httpServletRequest);
@@ -161,16 +166,6 @@ public class OrcamentosController {
 		return new ModelAndView("redirect:/Orcamentos/" + orcamento.getCodigo());
 	}
 	
-	@GetMapping("/totalPorMes")
-	public @ResponseBody List<OrcamentoMes> listarTotalOrcamentoPorMes() {
-		return orcamentos.totalPorMes();
-	}
-	
-	@GetMapping("/porBase")
-	public @ResponseBody List<OrcamentoBase> orcamentosPorNacionalidade() {
-		return this.orcamentos.totalPorBase();
-	}
-	
 	private ModelAndView mvTabelaItensOrcamento(String uuid) {
 		ModelAndView mv = new ModelAndView("orcamento/TabelaItensOrcamento");
 		mv.addObject("itens", tabelaItens.getItens(uuid));
@@ -180,7 +175,6 @@ public class OrcamentosController {
 	
 	private void validarOrcamento(Orcamento orcamento, BindingResult result) {
 		orcamento.adicionarItens(tabelaItens.getItens(orcamento.getUuid()));
-		orcamento.calcularValorTotal();
 		
 		orcamentoValidator.validate(orcamento, result);
 	}
@@ -190,4 +184,6 @@ public class OrcamentosController {
 			orcamento.setUuid(UUID.randomUUID().toString());
 		}
 	}
+	
 }
+*/

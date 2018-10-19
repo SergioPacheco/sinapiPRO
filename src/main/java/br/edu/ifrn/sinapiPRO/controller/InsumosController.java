@@ -24,9 +24,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
 import br.edu.ifrn.sinapiPRO.dto.InsumoDTO;
+import br.edu.ifrn.sinapiPRO.dto.ItemBasePrecoDTO;
 import br.edu.ifrn.sinapiPRO.model.Insumo;
 import br.edu.ifrn.sinapiPRO.repository.BasePrecos;
 import br.edu.ifrn.sinapiPRO.repository.Insumos;
+import br.edu.ifrn.sinapiPRO.repository.ItemBasePrecoRepository;
 import br.edu.ifrn.sinapiPRO.repository.filter.InsumoFilter;
 import br.edu.ifrn.sinapiPRO.service.CadastroInsumoService;
 import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
@@ -44,6 +46,7 @@ public class InsumosController {
 	@Autowired
 	private BasePrecos basePrecosRepository;
 	
+		
 	@RequestMapping("/novo")
 	public ModelAndView novo(Insumo insumo) {
 		ModelAndView mv = new ModelAndView("insumo/CadastroInsumo");
@@ -62,23 +65,35 @@ public class InsumosController {
 		attributes.addFlashAttribute("mensagem", "Insumo salvo com sucesso!");
 		return new ModelAndView("redirect:/insumos/novo");
 	}
-	
+	 
 	@GetMapping
-	public ModelAndView pesquisar(InsumoFilter insumoFilter, BindingResult result
-			, @PageableDefault(size = 15) Pageable pageable, HttpServletRequest httpServletRequest) {
+	public ModelAndView pesquisar(InsumoFilter insumoFilter, 
+			                     BindingResult result, 
+			                     @PageableDefault(size = 10) Pageable pageable, 
+			                     HttpServletRequest httpServletRequest) {
+		
 		ModelAndView mv = new ModelAndView("insumo/PesquisaInsumos");
-		// mv.addObject("estados", estados.findAll());
-		// mv.addObject("bases", BaseInsumo.values());
 		
 		PageWrapper<Insumo> paginaWrapper = new PageWrapper<>(insumos.filtrar(insumoFilter, pageable), httpServletRequest);
 		mv.addObject("pagina", paginaWrapper);
 		return mv;
 	}
 	
-	@RequestMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody List<InsumoDTO> pesquisar(String skuOuDescricao) {
-		return insumos.porSkuOuDescricao(skuOuDescricao);
+	/* lista todos os precos SINAPI importados por Insumo*/
+	@RequestMapping(value = "/precos", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody List<ItemBasePrecoDTO> pesquisar(Long codigoInsumo) {
+		 
+		return insumos.listaPrecosPorInsumo(codigoInsumo);
 	}
+	
+	/*
+	@RequestMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody List<InsumoDTO> pesquisar(String codigoInsumoOuDescricao) {
+		
+		return insumos.porCodigoInsumoOuDescricao(codigoInsumoOuDescricao);
+	
+	}
+	*/
 	
 	@DeleteMapping("/{codigo}")
 	public @ResponseBody ResponseEntity<?> excluir(@PathVariable("codigo") Insumo insumo) {

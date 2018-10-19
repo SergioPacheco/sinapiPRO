@@ -1,13 +1,13 @@
 package br.edu.ifrn.sinapiPRO.model;
 
-public enum  StatusComposicao {
+public enum  SituacaoComposicao {
 
 	ATIVA("Ativa"), 
 	CANCELADA("Cancelada");
 
 	private String descricao;
 
-	StatusComposicao(String descricao) {
+	SituacaoComposicao(String descricao) {
 		this.descricao = descricao;
 	}
 

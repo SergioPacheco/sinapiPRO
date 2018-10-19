@@ -7,7 +7,6 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -35,10 +34,8 @@ import br.edu.ifrn.sinapiPRO.model.ItemComposicao;
 import br.edu.ifrn.sinapiPRO.model.TipoComposicao;
 import br.edu.ifrn.sinapiPRO.repository.BasePrecos;
 import br.edu.ifrn.sinapiPRO.repository.Classes;
-import br.edu.ifrn.sinapiPRO.repository.Composicoes;
 import br.edu.ifrn.sinapiPRO.repository.Insumos;
 import br.edu.ifrn.sinapiPRO.repository.ItemBasePrecoRepository;
-import br.edu.ifrn.sinapiPRO.repository.ItemComposicaoRepository;
 import br.edu.ifrn.sinapiPRO.repository.TipoComposicaoRepository;
 import br.edu.ifrn.sinapiPRO.service.CadastroComposicaoService;
 import br.edu.ifrn.sinapiPRO.service.CadastroInsumoService;
@@ -96,16 +93,13 @@ public class SinapiController {
 		String ano = Integer.toString(Lib.Year(df)); 
 		String mes = Lib.StrZero(Lib.Month(df), 2);
 		
-		String oneracao;  
-		if (basePreco.getDesonerado()) { 
-			oneracao = "Desonerado"; 	
-		} else oneracao = "NaoDesonerado"; 
+		// String oneracao = basePreco.getDesonerado().getDescricao(); 
+		String oneracao =	"Desonerado";	 
 		
-		 
-		//  /home/sergio/sinapi-download/RN/2018/01/Desonerado/SINAPI_Preco_Ref_Insumos_RN_201801_Desonerado.xls
+		// /home/sergio/sinapi-download/RN/2018/02/Desonerado/SINAPI_Preco_Ref_Insumos_RN_022018_Desonerado.XLS
+		// /home/sergio/sinapi-download/RN/2018/02/Desonerado/SINAPI_Preco_Ref_Insumos_RN_201802_Desonerado.XLS
 		
-		
-		String fileName = "/home/sergio/sinapi-download/"+uf+"/"+ano+"/"+mes+"/"+oneracao+"/SINAPI_Preco_Ref_Insumos_"+uf+"_"+ano+mes+"_"+oneracao+".xls";
+		String fileName = "/home/sergio/sinapi-download/"+uf+"/"+ano+"/"+mes+"/"+oneracao+"/SINAPI_Preco_Ref_Insumos_"+uf+"_"+mes+ano+"_"+oneracao+".XLS";
 		Double n = null; 
 		Long   l = 0L;
 		String s = null;
@@ -252,12 +246,6 @@ public class SinapiController {
 					// Salva preco  
 					
 					baseKey = new BaseKey(); 
-					
-					// System.out.println("BaseKey: base="+basePreco.getCodigo()+" Insumo="+insumo.getCodigoInsumo());
-					// System.out.println(baseKey!=null);	
-					// System.out.println(basePreco.getCodigo()!=null);
-					// System.out.println(insumo.getCodigoInsumo()!=null);
-					
 					baseKey.setBasePrecoID(basePreco.getCodigo());
 					baseKey.setInsumoID(insumo.getCodigoInsumo());
 					
@@ -327,13 +315,11 @@ public class SinapiController {
 		String ano = Integer.toString(Lib.Year(df)); 
 		String mes = Lib.StrZero(Lib.Month(df), 2);
 		
-		String oneracao;  
-		if (basePreco.getDesonerado()) { 
-			oneracao = "Onerado"; 	
-		} else oneracao = "Desonerado"; 
-			
-		///home/sergio/sinapi-download/RN/2018/01/Desonerado/SINAPI_Custo_Ref_Composicoes_Analitico_RN_201801_Desonerado.xls
-		///home/sergio/sinapi-download/RN/2018/01/desonerado/SINAPI_Custo_Ref_Composicoes_Analitico_RN_201801_Desonerado.xls
+		// String oneracao = basePreco.getDesonerado().getDescricao(); 
+		
+		String oneracao = "Desonerado";
+		 
+		
 	
 		String fileName = "/home/sergio/sinapi-download/"+uf+"/"+ano+"/"+mes+"/Desonerado/SINAPI_Custo_Ref_Composicoes_Analitico_"+uf+"_"+ano+mes+"_"+oneracao+".xls";
 		

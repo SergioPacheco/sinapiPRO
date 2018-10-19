@@ -4424,12 +4424,6 @@
 
 	}
 
-	function colarOrcamentoKeyUp(comp) {
-		// removido pois ocorrem problemas em determinadas versões do navegador
-		/*
-		 * if (document.getElementById('BotaoGravar').style.display != 'none') { if (comp.value != null && comp.value != '') { comp.blur(); document.getElementById('BotaoGravar').click(); } }
-		 */
-	}
 
 	function gridVerificaCtrl(e) {
 

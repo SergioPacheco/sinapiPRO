@@ -69,20 +69,25 @@
 				
 				<tbody>
 					<tr th:each="insumo : ${pagina.conteudo}">
-						 
+						 								 
 						<td class="text-center" th:text="${insumo.codigoInsumo}">1234</td>
 						<td class="text-center" th:text="${insumo.unidade}">KG</td>
 						<td class="text-right"  th:text="|R$ ${{insumo.precoPadrao}}|">R$ 8.00</td>
 						<td th:text="${insumo.descricao}">Pedreiro</td>
 						
 						<td class="text-center">
-							<a class="btn  btn-link  btn-xs  js-tooltip" 
+						    
+							<a class="btn  btn-link  btn-xs  js-tooltip js-precos-btn" 
 							   title="Preços" 
-							   href="#" data-toggle="modal" data-target="#modalListaPrecos"> 
+							   href="#" 
+							   data-toggle="modal" 
+							   data-target="#pesquisaRapidaPrecos" 							     
+							   data:codigo="${insumo.codigoInsumo}"> 
+							   
 							   <i class="glyphicon glyphicon-stats"></i>
 							</a>
 						
-							<a class="btn  btn-link  btn-xs  js-tooltip" 
+							<a class="btn  btn-link  btn-xs  js-tooltip " 
 							   title="Editar" 
 							   th:href="@{/insumos/{codigo}(codigo=${insumo.codigo})}"> 
 							   <i class="glyphicon glyphicon-pencil"></i>
@@ -109,52 +114,15 @@
 	</div>
 
 
-	<div class="modal fade" id="modalListaPrecos" tabindex="-1" role="dialog"  th:fragment="modal">
-		<div class="modal-dialog  modal-sm">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal">
-						<span aria-hidden="true">&times;</span>
-					</button>
-					<h4 class="modal-title">Histórico Preços</h4>
-				</div>
-				
-				<div class="modal-body">
-				
-					<div class="alert  alert-danger  alert-dismissible  hidden  js-mensagem-erro" role="alert">
-						<button type="button" class="close" data-dismiss="alert" ><span aria-hidden="true">&times;</span></button>
-						<div><i class="fa  fa-exclamation-circle"></i>Histórico sss Preços </div>
-					</div>
-				
-		 			<div class="table-responsive  bw-tabela-simples" style="margin-top: 15px">
-						<table class="table  table-hover">
-							<thead>
-								<tr>
-									<th class="col-sm-2">Tabela</th>
-									<th class="col-sm-2">Preço Unitário</th>
-								</tr>
-							</thead>
-									
-							<tbody>
-								<tr><td>01/2018</td><td>R$ 30,50</td> </tr>
-								<tr><td>02/2018</td><td>R$ 30,40</td> </tr>
-								<tr><td>03/2018</td><td>R$ 31,29</td> </tr>
-								<tr><td>04/2018</td><td>R$ 30,50</td> </tr>
-								<tr><td>05/2018</td><td>R$ 35,50</td> </tr>
-								<tr><td>06/2018</td><td>R$ 38,45</td> </tr>
-								<tr><td>07/2018</td><td>R$ 37,50</td> </tr>
-							</tbody>
-						</table>
-					</div>
-		
-				</div>
-			</div>
-		</div>
-	</div>
+	<th:block th:replace="insumo/PesquisaRapidaPrecos :: pesquisaRapidaPrecos"></th:block>
 
 </section>
 
-<script th:src="@{/javascripts/insumo.lista-precos.js}"></script>
+<th:block layout:fragment="javascript-extra">
+	<script th:src="@{/javascripts/vendors/jquery.easy-autocomplete.min.js}"></script>
+	<script th:src="@{/javascripts/vendors/handlebars.min.js}"></script>
+	<script th:src="@{/javascripts/preco/preco.pesquisa-rapida.js}"></script>
+</th:block>
 
 </body>
 </html>

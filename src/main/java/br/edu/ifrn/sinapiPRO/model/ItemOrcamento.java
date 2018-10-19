@@ -22,9 +22,17 @@ public class ItemOrcamento {
 	@GenericGenerator(name = "native", strategy = "native")
 	private Long codigo;
 
-	private String nivel;
+	private Integer sequencia; 
+	private Integer itemizacao; 
+	
+	private String nivel;                 
 	private String subNivel; 
 	private String tipo; 
+	
+	private String especie; 
+	
+	private String unidade; 
+	
 	private Integer quantidade;
 
 	@Column(name = "valor_unitario")
@@ -33,10 +41,19 @@ public class ItemOrcamento {
 	@ManyToOne
 	@JoinColumn(name = "codigo_composicao")
 	private Composicao composicao;
+	
+	@ManyToOne
+	@JoinColumn(name = "codigo_insumo")
+	private Insumo insumo;
 
 	@ManyToOne
 	@JoinColumn(name = "codigo_orcamento")
 	private Orcamento orcamento;
+	
+	@ManyToOne
+	@JoinColumn(name = "codigo_usario")
+	private Usuario usuario;
+	
 
 	public Long getCodigo() {
 		return codigo;

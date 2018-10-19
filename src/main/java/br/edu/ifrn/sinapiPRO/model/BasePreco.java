@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.time.LocalDate;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -11,7 +13,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.TableGenerator;
 
 import org.hibernate.annotations.GenericGenerator;
 
@@ -36,10 +37,13 @@ public class BasePreco implements Serializable {
 	@JoinColumn(name = "codigo_estado")
 	private Estado estado;
 	
-	private Boolean desonerado;
+	@Enumerated(EnumType.STRING)
+	private Desoneracao desonerado;
 	
 	private LocalDate dataReferencia;
-
+	
+	private LocalDate dataUltimaAtualizacao;
+ 
 	public Long getCodigo() {
 		return codigo;
 	}
@@ -72,11 +76,11 @@ public class BasePreco implements Serializable {
 		this.estado = estado;
 	}
 
-	public Boolean getDesonerado() {
+	public Desoneracao getDesonerado() {
 		return desonerado;
 	}
 
-	public void setDesonerado(Boolean desonerado) {
+	public void setDesonerado(Desoneracao desonerado) {
 		this.desonerado = desonerado;
 	}
 
@@ -86,6 +90,14 @@ public class BasePreco implements Serializable {
 
 	public void setDataReferencia(LocalDate dataReferencia) {
 		this.dataReferencia = dataReferencia;
+	}
+
+	public LocalDate getDataUltimaAtualizacao() {
+		return dataUltimaAtualizacao;
+	}
+
+	public void setDataUltimaAtualizacao(LocalDate dataUltimaAtualizacao) {
+		this.dataUltimaAtualizacao = dataUltimaAtualizacao;
 	}
 
 	public boolean isNova() {

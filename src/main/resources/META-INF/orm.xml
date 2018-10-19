@@ -5,6 +5,24 @@
 	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence/orm http://xmlns.jcp.org/xml/ns/persistence/orm_2_1.xsd"
 	version="2.1">
 	
+	<named-native-query name="Insumos.listaPrecos" result-set-mapping="listaPrecosMapping">
+		<query>
+		    SELECT date_format(bp.data_referencia, '%Y/%m') mes, MONTH(bp.data_referencia), CAST( it.preco AS CHAR) AS preco
+	 		  FROM item_base_preco it 
+	 		 INNER JOIN base_preco  bp ON bp.codigo = it.base_precoid 
+	 		 INNER JOIN base_insumo bi ON bi.codigo = bp.codigo_base_insumo 
+	 		 WHERE it.insumoID = 4757
+	    </query>
+	</named-native-query>
+	
+	<sql-result-set-mapping name="listaPrecosMapping">
+		<constructor-result target-class="br.edu.ifrn.sinapiPRO.dto.ItemBasePrecoDTO">
+			<column name="mes" class="java.lang.String"/>
+			<column name="preco" class="java.lang.String"/>
+		</constructor-result>
+	</sql-result-set-mapping>
+	
+	
 	<named-native-query name="Orcamentos.totalPorMes" result-set-mapping="totalPorMesMapping">
 		<query>
 		<!--  
@@ -19,6 +37,7 @@
 		-->	
 	    </query>
 	</named-native-query>
+	
 	
 	<named-native-query name="Orcamentos.porBase" result-set-mapping="porBaseMapping">
 		<query>
