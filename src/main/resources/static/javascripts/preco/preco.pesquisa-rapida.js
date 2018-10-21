@@ -23,14 +23,14 @@ sinapiPRO.PesquisaRapidaPreco = (function() {
 		
 		var botaoClicado = $(event.currentTarget);
 		var url = botaoClicado.data('url');
-		var codigo = botaoClicado.data('codigo');
-		console.log('CODIGO DO INSUMO', codigoInsumo);
+		var codigo = botaoClicado.data('love');
+		console.log('CODIGO DO INSUMO= ', codigo);
 		
 		$.ajax({
 			url: '/insumos/precos',
 			method: 'GET',
 			contentType: 'application/json',
-			data: { codigoInsumo: this.codigo }, 
+			data: { codigoInsumo: codigo }, 
 			success: onPesquisaConcluida.bind(this),
 			error: onErroPesquisa.bind(this)
 		});
@@ -39,10 +39,7 @@ sinapiPRO.PesquisaRapidaPreco = (function() {
 	function onPesquisaConcluida(resultado) {
 		
 		console.log('ahahahah', resultado);
-		swal('Oops!', resultado, 'error');
-		
 		this.mensagemErro.addClass('hidden');
-		
 		var html = this.template(resultado);
 		this.containerTabela.html(html);
 	} 

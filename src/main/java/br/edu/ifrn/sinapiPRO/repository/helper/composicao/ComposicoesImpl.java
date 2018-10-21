@@ -68,7 +68,7 @@ public class ComposicoesImpl implements ComposicoesQueries {
 		
 		if (filtro != null) {
 			if (!StringUtils.isEmpty(filtro.getDescricao())) {
-				criteria.add(Restrictions.ilike("nome", filtro.getDescricao(), MatchMode.ANYWHERE));
+				criteria.add(Restrictions.ilike("descricao", filtro.getDescricao(), MatchMode.ANYWHERE));
 			}
 
 			if (isClassePresente(filtro)) {
@@ -76,10 +76,6 @@ public class ComposicoesImpl implements ComposicoesQueries {
 			}
 			if (isTipoComposicaoPresente(filtro)) {
 				criteria.add(Restrictions.eq("tipoComposicao", filtro.getTipoComposicao() ));
-			}
-			
-			if (isBasePrecoPresente(filtro)) {
-				criteria.add(Restrictions.eq("basePreco", filtro.getBasePreco()));
 			}
 
 		}
@@ -91,10 +87,6 @@ public class ComposicoesImpl implements ComposicoesQueries {
 	
 	private boolean isClassePresente(ComposicaoFilter filtro) {
 		return filtro.getClasse() != null && filtro.getClasse().getCodigo() != null;
-	}
-
-	private boolean isBasePrecoPresente(ComposicaoFilter filtro) {
-		return filtro.getBasePreco() != null && filtro.getBasePreco().getCodigo() != null;
 	}
 
 	@Override

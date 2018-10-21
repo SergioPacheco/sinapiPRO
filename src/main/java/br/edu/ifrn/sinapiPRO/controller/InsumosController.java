@@ -26,12 +26,13 @@ import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
 import br.edu.ifrn.sinapiPRO.dto.InsumoDTO;
 import br.edu.ifrn.sinapiPRO.dto.ItemBasePrecoDTO;
 import br.edu.ifrn.sinapiPRO.model.Insumo;
+import br.edu.ifrn.sinapiPRO.repository.BaseInsumos;
 import br.edu.ifrn.sinapiPRO.repository.BasePrecos;
 import br.edu.ifrn.sinapiPRO.repository.Insumos;
-import br.edu.ifrn.sinapiPRO.repository.ItemBasePrecoRepository;
 import br.edu.ifrn.sinapiPRO.repository.filter.InsumoFilter;
 import br.edu.ifrn.sinapiPRO.service.CadastroInsumoService;
 import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
+import br.edu.ifrn.sinapiPRO.service.exception.ResourceNotFoundException;
 
 @Controller
 @RequestMapping("/insumos")
@@ -46,22 +47,34 @@ public class InsumosController {
 	@Autowired
 	private BasePrecos basePrecosRepository;
 	
+	@Autowired
+	private BaseInsumos baseInsumosRepository;
+	 
 		
 	@RequestMapping("/novo")
 	public ModelAndView novo(Insumo insumo) {
+		
 		ModelAndView mv = new ModelAndView("insumo/CadastroInsumo");
 		mv.addObject("basePrecos", basePrecosRepository.findAll());
-		// mv.addObject("estados", estados.findAll());
+		mv.addObject("baseInsumos", baseInsumosRepository.findAll());
 		return mv;
 	}
 	
 	@RequestMapping(value = { "/novo", "{\\d+}" }, method = RequestMethod.POST)
-	public ModelAndView salvar(@Valid Insumo insumo, BindingResult result, Model model, RedirectAttributes attributes) {
+	public ModelAndView salvar(@Valid Insumo insumo, 
+			                   BindingResult result, 
+			                   Model model, 
+			                   RedirectAttributes attributes) {
+		
 		if (result.hasErrors()) {
 			return novo(insumo);
 		}
-		
-		cadastroInsumoService.salvar(insumo);
+		try {
+			cadastroInsumoService.salvar(insumo);
+		} catch(ResourceNotFoundException e) {
+			result.rejectValue("nome",e.getMessage(), e.getMessage());
+			return novo(insumo);
+		}
 		attributes.addFlashAttribute("mensagem", "Insumo salvo com sucesso!");
 		return new ModelAndView("redirect:/insumos/novo");
 	}
@@ -73,7 +86,6 @@ public class InsumosController {
 			                     HttpServletRequest httpServletRequest) {
 		
 		ModelAndView mv = new ModelAndView("insumo/PesquisaInsumos");
-		
 		PageWrapper<Insumo> paginaWrapper = new PageWrapper<>(insumos.filtrar(insumoFilter, pageable), httpServletRequest);
 		mv.addObject("pagina", paginaWrapper);
 		return mv;
@@ -83,17 +95,20 @@ public class InsumosController {
 	@RequestMapping(value = "/precos", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody List<ItemBasePrecoDTO> pesquisar(Long codigoInsumo) {
 		 
-		return insumos.listaPrecosPorInsumo(codigoInsumo);
-	}
-	
-	/*
-	@RequestMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody List<InsumoDTO> pesquisar(String codigoInsumoOuDescricao) {
+		return insumos.listaBasePrecoPorInsumo(codigoInsumo);
+	 
 		
-		return insumos.porCodigoInsumoOuDescricao(codigoInsumoOuDescricao);
+		// return insumos.listaPrecosPorInsumo(codigoInsumo); // nativeQuery
+	}
+	
+	 
+	@RequestMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody List<InsumoDTO> pesquisar(String codigoOuDescricao) {
+		
+		return insumos.porCodigoOuDescricao(codigoOuDescricao);
 	
 	}
-	*/
+	 
 	
 	@DeleteMapping("/{codigo}")
 	public @ResponseBody ResponseEntity<?> excluir(@PathVariable("codigo") Insumo insumo) {

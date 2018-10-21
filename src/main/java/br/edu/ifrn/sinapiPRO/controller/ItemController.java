@@ -1,6 +1,7 @@
 package br.edu.ifrn.sinapiPRO.controller;
-/*
-import java.util.List;
+ 
+import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -8,7 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
@@ -24,160 +24,202 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
 import br.edu.ifrn.sinapiPRO.model.Composicao;
-import br.edu.ifrn.sinapiPRO.model.ItemOrcamento;
+import br.edu.ifrn.sinapiPRO.model.Etapa;
+import br.edu.ifrn.sinapiPRO.model.Insumo;
+import br.edu.ifrn.sinapiPRO.model.Item;
 import br.edu.ifrn.sinapiPRO.model.Orcamento;
 import br.edu.ifrn.sinapiPRO.repository.Composicoes;
-import br.edu.ifrn.sinapiPRO.repository.OrcamentoRepository;
-import br.edu.ifrn.sinapiPRO.repository.filter.OrcamentoFilter;
+import br.edu.ifrn.sinapiPRO.repository.Etapas;
+import br.edu.ifrn.sinapiPRO.repository.Insumos;
+import br.edu.ifrn.sinapiPRO.repository.ItemsRepository;
+import br.edu.ifrn.sinapiPRO.repository.OrcamentosRepository;
+import br.edu.ifrn.sinapiPRO.repository.filter.ItemFilter;
 import br.edu.ifrn.sinapiPRO.security.UsuarioSistema;
-import br.edu.ifrn.sinapiPRO.service.OrcamentoService;
+import br.edu.ifrn.sinapiPRO.service.ItemService;
 import br.edu.ifrn.sinapiPRO.session.orcamento.TabelasItensOrcamentoSession;
  
 @Controller
-@RequestMapping("/orcamentos/item")
+@RequestMapping("/item")
 public class ItemController {
 	
 	
 	@Autowired
-	private Composicoes composicoes;
+	private Etapas etapasRepository;
+	
+	@Autowired
+	private Composicoes composicoesRepository;
+	
+	@Autowired
+	private Insumos insumosRepository;
 	
 	@Autowired
 	private TabelasItensOrcamentoSession tabelaItens;
 	
 	@Autowired
-	private CadastroOrcamentoService cadastroOrcamentoService;
+	private ItemsRepository itemsRepository;
 	
 	@Autowired
-	private OrcamentoValidator orcamentoValidator;
+	private ItemService itemService;
+	
+	//@Autowired
+	//private OrcamentoValidator orcamentoValidator;
 	
 	@Autowired
-	private OrcamentosRepository orcamentos;
-	
+	private OrcamentosRepository orcamentosRepository;
 	
 	@GetMapping("/novo")
-	public ModelAndView nova(Orcamento orcamento) {
-		ModelAndView mv = new ModelAndView("orcamento/CadastroOrcamento");
+	public ModelAndView novo(Item item) {
+		ModelAndView mv = new ModelAndView("item/CadastroItem");
 		
-		setUuid(orcamento);
+		//setUuid(item);
 		
-		mv.addObject("itens", orcamento.getItens());
-		mv.addObject("valorTotalItens", tabelaItens.getValorTotal(orcamento.getUuid()));
+		//mv.addObject("itens", orcamento.getItens());
+		//mv.addObject("valorTotalItens", tabelaItens.getValorTotal(orcamento.getUuid()));
 		
 		return mv;
 	}
 	
 	@PostMapping(value = "/novo", params = "salvar")
-	public ModelAndView salvar(Orcamento orcamento, 
+	public ModelAndView salvar(Item item, 
 			                BindingResult result, 
 			           RedirectAttributes attributes, 
 			      @AuthenticationPrincipal UsuarioSistema usuarioSistema) {
 		
-		validarOrcamento(orcamento, result);
+		// validarOrcamento(orcamento, result);
+		
 		if (result.hasErrors()) {
-			return nova(orcamento);
+			return novo(item);
 		}
 		
-		orcamento.setUsuario(usuarioSistema.getUsuario());
+		// item.setUsuario(usuarioSistema.getUsuario());
 		
-		cadastroOrcamentoService.salvar(orcamento);
-		attributes.addFlashAttribute("mensagem", "Orcamento salvo com sucesso");
-		return new ModelAndView("redirect:/orcamentos/novo");
+		itemService.salvar(item);
+		attributes.addFlashAttribute("mensagem", "Item salvo com sucesso");
+		return new ModelAndView("redirect:/item/novo");
 	}
-
-	@PostMapping(value = "/novo", params = "efetivar")
-	public ModelAndView efetivar(Orcamento orcamento, 
-			               BindingResult result, 
-			          RedirectAttributes attributes, 
-			    @AuthenticationPrincipal UsuarioSistema usuarioSistema) {
 		
-		validarOrcamento(orcamento, result);
-		if (result.hasErrors()) {
-			return nova(orcamento);
+	@PostMapping("/etapa")
+	public ModelAndView adicionarEtapa(Long codigoEtapa, String uuid) {
+		
+		Etapa etapa = etapasRepository.findById(codigoEtapa).get();
+		tabelaItens.adicionarItem(uuid, etapa);
+		return mvTabelaItensOrcamento(uuid);
+	}
+	
+	@PostMapping("/insumo")
+	public ModelAndView adicionarInsumo(Long codigoEtapa, Long codigoInsumo, String uuid) {
+		
+		Insumo insumo = insumosRepository.findById(codigoInsumo).get();
+		Etapa etapa = etapasRepository.findById(codigoEtapa).get();
+		tabelaItens.adicionarItem(uuid, etapa, insumo, BigDecimal.ONE);
+		return mvTabelaItensOrcamento(uuid);
+	}
+	
+	@PostMapping("/composicao")
+	public ModelAndView adicionarComposicao(Long codigoEtapa, Long codigoComposicao, String uuid) {
+		
+		Composicao composicao = composicoesRepository.getOne(codigoComposicao);
+		Etapa etapa = etapasRepository.findById(codigoEtapa).get();
+		tabelaItens.adicionarItem(uuid, etapa, composicao, BigDecimal.ONE);
+		
+		return mvTabelaItensOrcamento(uuid);
+	}
+	
+	@PutMapping("/item/{etapa}/{tipo}/{codigoItem}")
+	public ModelAndView alterarQuantidadeItem(@PathVariable("etapa") Long codigoEtapa,	
+											  @PathVariable("tipo") String tipo,
+											  @PathVariable("codigoItem") Long codigoItem, String uuid, Integer quantidade) {
+		
+		// tabelaItens.alterarQuantidade(uuid, tipo, codigoEtapa, codigoItem, quantidade);  
+		
+		return mvTabelaItensOrcamento(uuid);
+	}
+	
+	@DeleteMapping("/item/{uuid}/{codigoItem}/{tipo}")
+	public ModelAndView excluirItem(@PathVariable("uuid") String uuid, 
+			                        @PathVariable("codigoItem") Long codigoItem, 
+			                        @PathVariable("tipo") String tipo) {
+	 
+		Etapa etapa = etapasRepository.findById(codigoItem).get();
+		if (tipo.equals("E")) {
+			tabelaItens.excluirItem(uuid, etapa);
+		} else {
+			if (tipo.equals("C")) {
+				Composicao composicao = composicoesRepository.getOne(codigoItem);
+				tabelaItens.excluirItem(uuid, etapa, composicao);
+			} else {
+				if (tipo.equals("I")) {
+					Insumo insumo = insumosRepository.findById(codigoItem).get();
+					tabelaItens.excluirItem(uuid, etapa, insumo);
+				}	
+			}
 		}
 		
-		orcamento.setUsuario(usuarioSistema.getUsuario());
-		cadastroOrcamentoService.concluir(orcamento);
-		attributes.addFlashAttribute("mensagem", "Orçamento emitido com sucesso");
-		
-		return new ModelAndView("redirect:/orcamentos/nova");
-	}
-	
-	@PostMapping("/item")
-	public ModelAndView adicionarItem(Long codigoComposicao, String uuid) {
-		
-		Composicao composicao = composicoes.getOne(codigoComposicao);
-		tabelaItens.adicionarItem(uuid, uuid, composicao, 1);
-		
 		return mvTabelaItensOrcamento(uuid);
 	}
 	
-	@PutMapping("/item/{codigoComposicao}")
-	public ModelAndView alterarQuantidadeItem(@PathVariable("codigoComposicao") Composicao composicao, String tipo, Integer quantidade, String uuid) {
-		tabelaItens.alterarCoeficiente(tipo, uuid, composicao, quantidade);  
-		return mvTabelaItensOrcamento(uuid);
-	}
-	
-	@DeleteMapping("/item/{uuid}/{codigoComposicao}")
-	public ModelAndView excluirItem(@PathVariable("codigoComposicao") Composicao composicao, @PathVariable String uuid) {
-		tabelaItens.excluirItem(uuid, composicao);
-		return mvTabelaItensOrcamento(uuid);
-	}
-	
-	@GetMapping
-	public ModelAndView pesquisar(OrcamentoFilter orcamentoFilter,
-			@PageableDefault(size = 10) Pageable pageable, HttpServletRequest httpServletRequest) {
-		ModelAndView mv = new ModelAndView("orcamento/PesquisaOrcamentos");
+	@GetMapping("{codigoOrcamento}")
+	public ModelAndView pesquisar(@PathVariable Long codigoOrcamento,
+			                      ItemFilter itemFilter, 
+							      Orcamento orcamento,
+			                      @PageableDefault(size = 20) Pageable pageable, 
+			                      HttpServletRequest httpServletRequest) {
+		ModelAndView mv = new ModelAndView("orcamento/PesquisaItem");
 		
-		// mv.addObject("todosStatus", SituacaoOrcamento.values());
-		// mv.addObject("tiposPessoa", TipoPessoa.values());
+		if (orcamento == null) {
+			Optional<Orcamento> orcamentoGET = orcamentosRepository.findById(codigoOrcamento);
+			if (orcamentoGET.isPresent()) { 
+				orcamento = orcamentoGET.get();
+			}
+		}
 		
-		PageWrapper<Orcamento> paginaWrapper = new PageWrapper<>(orcamentos.filtrar(orcamentoFilter, pageable)
-				, httpServletRequest);
+		mv.addObject("orcamentoHead", orcamento);
+	
+		PageWrapper<Item> paginaWrapper = new PageWrapper<>(itemsRepository.filtrar(itemFilter, pageable), httpServletRequest);
 		mv.addObject("pagina", paginaWrapper);
+		
 		return mv;
 	}
 	
-	@GetMapping("/{codigo}/{tipo}")
-	public ModelAndView editar(@PathVariable Long codigo, @PathVariable String tipo ) {
-		Orcamento orcamento = orcamentos.buscarComItens(codigo);
+	
+	@GetMapping("/editar/{codigo}")
+	public ModelAndView editar(@PathVariable Long codigo) {
 		
-		setUuid(orcamento);
+	 
+		Item itemEditar = itemsRepository.findById(codigo).get();
+		Orcamento orcamento = itemEditar.getOrcamento(); 
 		
-		for (ItemOrcamento item : orcamento.getItens()) {
-			tabelaItens.adicionarItem(tipo, orcamento.getUuid(), item.getComposicao(), item.getQuantidade());
-		}
+		// setUuid(orcamento);
 		
-		ModelAndView mv = nova(orcamento);
+		//List<Item> itens = itemsRepository.findAll
+		
+		//for (Item i : orcamento.getItens()) {
+		//	tabelaItens.adicionarItem(tipo, orcamento.getUuid(), item.getComposicao(), item.getQuantidade());
+		//}
+		
+		ModelAndView mv = novo(itemEditar);
+		
 		mv.addObject(orcamento);
 		return mv;
+		
 	}
 	
-	@PostMapping(value = "/nova", params = "cancelar")
-	public ModelAndView cancelar(Orcamento orcamento, BindingResult result, RedirectAttributes attributes, @AuthenticationPrincipal UsuarioSistema usuarioSistema) {
-		try {
-			cadastroOrcamentoService.cancelar(orcamento);
-		} catch (AccessDeniedException e) {
-			ModelAndView mv = new ModelAndView("error");
-			mv.addObject("status", 403);
-			return mv;
-		}
-		
-		attributes.addFlashAttribute("mensagem", "Orçamento cancelado com sucesso");
-		return new ModelAndView("redirect:/Orcamentos/" + orcamento.getCodigo());
-	}
 	
 	private ModelAndView mvTabelaItensOrcamento(String uuid) {
-		ModelAndView mv = new ModelAndView("orcamento/TabelaItensOrcamento");
+		
+		ModelAndView mv = new ModelAndView("item/TabelaItensOrcamento");
 		mv.addObject("itens", tabelaItens.getItens(uuid));
 		mv.addObject("valorTotal", tabelaItens.getValorTotal(uuid));
 		return mv;
 	}
 	
+	/*
 	private void validarOrcamento(Orcamento orcamento, BindingResult result) {
 		orcamento.adicionarItens(tabelaItens.getItens(orcamento.getUuid()));
 		
 		orcamentoValidator.validate(orcamento, result);
 	}
+	*/
 	
 	private void setUuid(Orcamento orcamento) {
 		if (StringUtils.isEmpty(orcamento.getUuid())) {
@@ -186,4 +228,4 @@ public class ItemController {
 	}
 	
 }
-*/
+

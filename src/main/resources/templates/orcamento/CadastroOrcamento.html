@@ -19,10 +19,16 @@
 		<div class="container-fluid">
 			<div class="row">
 				<div class="col-xs-10">
-					<h1 th:if="${orcamento.nova}"     
-					    th:text="#{orcamento.cadastro.titulo}">Cadastro do Orçamento</h1>
-					<h1 th:unless="${orcamento.nova}"
-					    th:text="#{orcamento.edicao.titulo(${orcamento.codigo})}">Edição do orçamento nº </h1>
+					<h1 th:if="${orcamento.novo}">Cadastro de insumo</h1>
+					<h1 th:unless="${orcamento.novo}" th:text="|Edição do Orcamento nº ${orcamento.codigo}|">Edição de Orçamento</h1>
+				</div>
+			
+				<div class="col-xs-2">
+					<div class="aw-page-header-controls">
+						<a class="btn  btn-default" th:href="@{/orcamentos}">
+							<i class="glyphicon  glyphicon-plus-sign"></i> <span class="hidden-xs  hidden-sm">PESQUISA</span>
+						</a>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -30,10 +36,10 @@
 	
 	<div class="container-fluid">
 		<form method="POST" 
-		      th:action="@{/orcamentos/novo}" 
 		      th:object="${orcamento}"  
 		      class="form-vertical  js-form-loading" 
-		      th:action="${orcamento.novo} ? @{/orcamento/novo} : @{/orcamento/{codigo}(codigo=${orcamento.codigo})}">
+		      th:action="${orcamento.novo} ? @{/orcamentos/novo} : @{/orcamentos/{codigo}(codigo=${orcamento.codigo})}">
+			
 			<sinapiPRO:message/>
 		
 			<input type="hidden" th:field="*{codigo}"/>
@@ -45,7 +51,7 @@
 			<div class="row">
 			     
 				<div class="form-group col-sm-12    bw-required" sinapiPRO:classforerror="nome">
-					<label for="nome" class="control-label">Nome</label>
+					<label for="nome" class="control-label">Obra</label>
 					<input id="nome" type="text" class="form-control" th:field="*{nome}" />
 				</div>	
 			</div>
@@ -68,7 +74,7 @@
 					<label for="baseInsumo">Base Insumos Padrão</label>
 					<select id="baseInsumo" class="form-control" th:field="*{baseInsumo}">
 	                    
-	                    <option value="">Selecione a Base de Insumos</option>
+	                    <option value="">Todas</option>
 	                    
 	                    <option th:each="baseInsumo : ${baseInsumos}" 
 	                            th:value="${baseInsumo.codigo}" 
@@ -80,7 +86,7 @@
 					<label for="basePreco">Base Preços Padrão</label>
 					<select id="basePreco" class="form-control" th:field="*{basePreco}">
 	                    
-	                    <option value="">Selecione a Base de Preços</option>
+	                    <option value="">Todas</option>
 	                    
 	                    <option th:each="basePreco : ${basePrecos}" 
 	                            th:value="${basePreco.codigo}" 
@@ -88,14 +94,15 @@
 	                </select>
 				</div>
 				
-			</div>
-			
-			<div class="row">
-				<div class="form-group  col-sm-6  bw-required" sinapiPRO:classforerror="cliente.codigo">
+				
+				<div class="form-group  col-sm-3  bw-required" sinapiPRO:classforerror="cliente.codigo">
 					<label class="control-label" for="nomeCliente">Cliente</label>
 					<div class="input-group">
-				      <input id="nomeCliente" type="text" readonly="readonly" class="form-control" th:field="*{cliente.nome}" 
-				      	placeholder="Clique na lupa para pesquisar o cliente"/>
+				      <input id="nomeCliente" 
+				             type="text" 
+				             readonly="readonly" 
+				             class="form-control" th:field="*{cliente.nome}" 
+				      	     placeholder="Clique na lupa para pesquisar o cliente"/>
 				      <input id="codigoCliente" type="hidden" th:field="*{cliente}"/>
 				      <span class="input-group-btn">
 					        <button class="btn  btn-default  js-tooltip" type="button" title="Pesquisa avançada"
@@ -105,46 +112,33 @@
 				      </span>
 				    </div>
 				</div>
+				
 			</div>
 			
 			<div class="row">
-				 <div class="col-sm-6  form-group bw-required" sinapiPRO:classforerror="descricao">
-					<label for="descricao" class="control-label">Descricao</label>
-					<textarea id="descricao" rows="4" class="form-control" th:field="*{descricao}"></textarea>
+				
+				<div class="col-sm-12  form-group bw-required" sinapiPRO:classforerror="nome">
+					<label for="nome" class="control-label">Descricao</label>
+					<textarea id="nome" rows="2" class="form-control" th:field="*{nome}"></textarea>
 				</div>
 			</div>
 			
-			<div class="row" style="clear: both" th:if="${orcamento.salvarPermitido}">
-				<div class="col-lg-12">
-					<div class="btn-group">
-					  <button type="submit" class="btn  btn-primary  js-submit-btn" data:acao="salvar">Salvar</button>
-					  <button type="button" class="btn  btn-primary  dropdown-toggle" data-toggle="dropdown">
-					    <span class="caret"></span>
-					  </button>
-					  
-					  <ul class="dropdown-menu">
-					    <li><a href="#" class="js-submit-btn" data:acao="emitir">Salvar e emitir</a></li>
-					    <li><a href="#" class="js-submit-btn" data:acao="enviarEmail">Salvar e enviar por e-mail</a></li>
-					  </ul>
-					</div>
-				
-					<button class="btn  btn-danger  js-submit-btn" data:acao="cancelar" th:unless="${orcamento.nova}">Cancelar</button>
-				</div>
+			<div class="form-group">
+				<button class="btn  btn-primary" type="submit">Salvar</button>
 			</div>
+			 
 		</form>
 	</div>
 	
 	<th:block th:replace="cliente/PesquisaRapidaClientes :: pesquisaRapidaClientes"></th:block>
 	<th:block th:replace="hbs/TemplateAutocompleteComposicao"></th:block>
+	
 </section>
 
 <th:block layout:fragment="javascript-extra">
 	<script th:src="@{/javascripts/vendors/handlebars.min.js}"></script>
 	<script th:src="@{/javascripts/cliente.pesquisa-rapida.js}"></script>
 	<script th:src="@{/javascripts/orcamento.botoes-submit.js}"></script>
-	<script>
-	
-	</script>
 </th:block>
 
 </html>

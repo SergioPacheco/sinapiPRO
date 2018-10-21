@@ -6,29 +6,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import br.edu.ifrn.sinapiPRO.model.Insumo;
-import br.edu.ifrn.sinapiPRO.repository.Insumos;
+import br.edu.ifrn.sinapiPRO.model.Item;
+import br.edu.ifrn.sinapiPRO.repository.ItemsRepository;
 import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
 
 @Service
-public class CadastroInsumoService {
-
+public class ItemService {
+	
 	@Autowired
-	private Insumos insumos;
+	private ItemsRepository itemRepository;
 	
 	@Transactional
-	public void salvar(Insumo insumo) {
-		insumos.save(insumo);
+	public void salvar(Item item){
+		itemRepository.save(item);
 	}
-	 
+	
 	@Transactional
-	public void excluir(Insumo insumo) {
+	public void excluir(Long codigo) {
 		try {
-			insumos.delete(insumo);
-			insumos.flush();
+			itemRepository.deleteById(codigo);  
+			itemRepository.flush();
 		} catch (PersistenceException e) {
-			throw new ImpossivelExcluirEntidadeException("Impossível apagar Insumo. Já foi usado em algum orçamento.");
+			
+			throw new ImpossivelExcluirEntidadeException("Impossível apagar o item do orçamento.");
+
 		}
 	}
-	 
 }

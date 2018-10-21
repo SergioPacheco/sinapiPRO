@@ -1,5 +1,6 @@
 package br.edu.ifrn.sinapiPRO.session.orcamento;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -8,7 +9,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.SessionScope;
 
 import br.edu.ifrn.sinapiPRO.model.Composicao;
-import br.edu.ifrn.sinapiPRO.model.ItemOrcamento;
+import br.edu.ifrn.sinapiPRO.model.Etapa;
+import br.edu.ifrn.sinapiPRO.model.Insumo;
+import br.edu.ifrn.sinapiPRO.model.Item;
 
 @SessionScope
 @Component
@@ -16,25 +19,57 @@ public class TabelasItensOrcamentoSession {
 
 	private Set<TabelaItensOrcamento> tabelas = new HashSet<>();
 
-	public void adicionarItem(String tipo, String uuid, Composicao composicao, int quantidade) {
+	public void adicionarItem(String uuid, Etapa etapa) {
 		
 		TabelaItensOrcamento tabela = buscarTabelaPorUuid(uuid);
-		tabela.adicionarItem(composicao, quantidade);
+		tabela.adicionarItem(etapa);
+		tabelas.add(tabela);
+	
+	}
+	public void adicionarItem(String uuid, Etapa etapa, Insumo insumo, BigDecimal quantidade) {
+		
+		TabelaItensOrcamento tabela = buscarTabelaPorUuid(uuid);
+		tabela.adicionarItem(etapa, insumo, quantidade);
+		tabelas.add(tabela);
+	
+	}
+	public void adicionarItem(String uuid, Etapa etapa, Composicao composicao, BigDecimal quantidade) {
+		
+		TabelaItensOrcamento tabela = buscarTabelaPorUuid(uuid);
+		tabela.adicionarItem(etapa, composicao, quantidade);
 		tabelas.add(tabela);
 	
 	}
 
-	public void alterarCoeficiente(String tipo, String uuid, Composicao composicao, Integer quantidade) {
+	public void alterarQuantidade(String uuid, Etapa etapa, Composicao composicao, BigDecimal quantidade) {
 		TabelaItensOrcamento tabela = buscarTabelaPorUuid(uuid);
-		tabela.alterarQuantidadeItens(composicao, quantidade);
+		tabela.alterarQuantidadeItens(etapa, composicao, quantidade);
+		 
+	}
+	
+	public void alterarQuantidade(String uuid, Etapa etapa, Insumo insumo, BigDecimal quantidade) {
+		TabelaItensOrcamento tabela = buscarTabelaPorUuid(uuid);
+		tabela.alterarQuantidadeItens(etapa, insumo, quantidade);
+		 
 	}
 
-	public void excluirItem(String uuid, Composicao composicao) {
+	
+	
+	public void excluirItem(String uuid, Etapa etapa) {
 		TabelaItensOrcamento tabela = buscarTabelaPorUuid(uuid);
-		tabela.excluirItem(composicao);
+		tabela.excluirItem(etapa);
 	}
-
-	public List<ItemOrcamento> getItens(String uuid) {
+	public void excluirItem(String uuid, Etapa etapa, Composicao composicao) {
+		TabelaItensOrcamento tabela = buscarTabelaPorUuid(uuid);
+		tabela.excluirItem(etapa, composicao);
+	}
+	public void excluirItem(String uuid, Etapa etapa, Insumo insumo) {
+		TabelaItensOrcamento tabela = buscarTabelaPorUuid(uuid);
+		tabela.excluirItem(etapa, insumo);
+	}
+	
+	
+	public List<Item> getItens(String uuid) {
 		return buscarTabelaPorUuid(uuid).getItens();
 	}
 	

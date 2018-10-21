@@ -1,5 +1,8 @@
 package br.edu.ifrn.sinapiPRO.repository.helper.insumo;
 
+
+import java.util.Collections;
+
 /*
  * 
 private static List<Contact> fetchAllContacts(){
@@ -73,39 +76,42 @@ public class InsumosImpl implements InsumosQueries {
 	}
 	
 	/*orm.xml - native query */
-	@SuppressWarnings("unchecked")
 	@Override                     
 	public List<ItemBasePrecoDTO> listaPrecosPorInsumo(Long codigoInsumo) {
-		System.out.println("Pequisinado Insumo=" + codigoInsumo );	
-		
 	
-		ItemBasePrecoDTO it = new ItemBasePrecoDTO("9999/99", "99.999.99");
-		
 		List<ItemBasePrecoDTO> lista = manager
-						.createNamedQuery("Insumos.listaPrecos")
+						.createNamedQuery("Insumos.listaPrecos", ItemBasePrecoDTO.class)
 						.getResultList();
-		
-		
-		lista.add(it); 
+		 
 		return lista;
+	}
+	
+	@Override                     
+	public List<ItemBasePrecoDTO> listaBasePrecoPorInsumo(Long codigoInsumo) {
+		
+		return manager.createQuery("select new br.edu.ifrn.sinapiPRO.dto.ItemBasePrecoDTO(anoMes, preco) "
+				+ "from ItemBasePreco as i where i.baseKey.insumoID =:codigo", ItemBasePrecoDTO.class)
+				.setParameter("codigo", codigoInsumo).getResultList();
 	}
 		
 	@Override
-	public List<InsumoDTO> porCodigoInsumoOuDescricao(String codigoInsumoOuDescricao) {
+	public List<InsumoDTO> porCodigoOuDescricao(String codigoOuDescricao) {
+			
+		Long codigo = 0L;
+		if (Lib.IsNumeric(codigoOuDescricao)) {
+			codigo = Long.valueOf(codigoOuDescricao);
+		}
 		
-		String jpql = "select new br.edu.ifrn.sinapiPRO.dto.InsumoDTO"
-				    + "(codigo, codigoInsumo, descricao, unidade,  precoPadrao) "
-				    + "from Insumo"
-				    + "where codigoInsumo=:codigoInsumoOuDescricao or "
-				    + "lower(descricao) like lower(:codigoInsumoOuDescricao)";
+		String jpql = "select new br.edu.ifrn.sinapiPRO.dto.InsumoDTO(codigo, codigoInsumo, descricao, unidade,  precoPadrao) "
+				    + "from Insumo where codigoInsumo=:codigo or lower(descricao) like lower(:codigoOuDescricao)";
 		
 		List<InsumoDTO> insumosFiltrados = manager.createQuery(jpql, InsumoDTO.class)
-					.setParameter("codigoInsumoOuDescricao", codigoInsumoOuDescricao + "%")
+					.setParameter("codigoInsumoOuDescricao", codigoOuDescricao + "%")
+					.setParameter("codigo", codigo)
 					.getResultList();
 		
-		return insumosFiltrados;
+		return  insumosFiltrados;
 	}
-	
 	
 	/*
 	@Override
@@ -113,6 +119,9 @@ public class InsumosImpl implements InsumosQueries {
 		String query = "select new br.edu.ifrn.sinapiPRO.dto.ValorItensEstoque(sum(valor * quantidadeEstoque), sum(quantidadeEstoque)) from Insumo";
 		return manager.createQuery(query, ValorItensEstoque.class).getSingleResult();
 	}
+	
+	String jpql = "select new com.algaworks.brewer.dto.CervejaDTO(codigo, sku, nome, origem, valor, foto) "
+				+ "from Cerveja where lower(sku) like lower(:skuOuNome) or lower(nome) like lower(:skuOuNome)";
 	*/
 	
 	private Long total(InsumoFilter filtro) {

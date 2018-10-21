@@ -49,7 +49,7 @@ public class BasePrecosController  {
 	
 	@Autowired
 	private Estados estados;
-	
+	 
 	@RequestMapping("/nova")
 	public ModelAndView nova(BasePreco basePreco) {
 		
@@ -126,12 +126,11 @@ public class BasePrecosController  {
 	 * @return
 	 */
 	@GetMapping("importaInsumo/{codigo}")
-	public @ResponseBody ResponseEntity<?>  importarInsumos(@PathVariable Long codigo) {
+	public ModelAndView  importarInsumos(@PathVariable Long codigo) {
 		
-	 
 		sinapiController.importaInsumos(codigo);
-		 
-		return ResponseEntity.ok().build();
+		
+		return new ModelAndView("redirect:/basePrecos/nova"); 
 	}
 	/**
 	 * 
@@ -139,11 +138,11 @@ public class BasePrecosController  {
 	 * @return
 	 */
 	@GetMapping("importaComposicao/{codigo}")
-	public @ResponseBody ResponseEntity<?>  importarComposicoes(@PathVariable Long codigo) {
-				 
+	public ModelAndView   importarComposicoes(@PathVariable Long codigo) {
+		
 		sinapiController.importaComposicoes(codigo);
 		 
-		return ResponseEntity.ok().build();
+		return new ModelAndView("redirect:/basePrecos/nova"); 
 	}
 		
 }

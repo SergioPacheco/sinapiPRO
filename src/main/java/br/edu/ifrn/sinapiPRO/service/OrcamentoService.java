@@ -1,7 +1,5 @@
 package br.edu.ifrn.sinapiPRO.service;
 
-import java.util.Optional;
-
 import javax.persistence.PersistenceException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,32 +9,27 @@ import org.springframework.transaction.annotation.Transactional;
 import br.edu.ifrn.sinapiPRO.model.Orcamento;
 import br.edu.ifrn.sinapiPRO.repository.OrcamentosRepository;
 import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
-import br.edu.ifrn.sinapiPRO.service.exception.NomeClasseJaCadastradaException;
 
 @Service
 public class OrcamentoService {
 	
 	@Autowired
-	private OrcamentosRepository orcamentoRepository;
+	private OrcamentosRepository orcamentosRepository;
 	
 	@Transactional
-	public Orcamento salvar(Orcamento orcamento){
+	public void salvar(Orcamento orcamento){
 		
-		Optional<Orcamento> orcaOptional = orcamentoRepository.findByNomeIgnoreCase(orcamento.getNome());
-		if(orcaOptional.isPresent() && orcamento.isNovo()){
-			throw new NomeClasseJaCadastradaException("Nome do classe já cadastrado");
-		}
-		return orcamentoRepository.saveAndFlush(orcamento);
+		orcamentosRepository.save(orcamento);
 	}
-
+ 
 	@Transactional
-	public void excluir(Long codigo) {
+	public void excluir(Orcamento orcamento) {
 		try {
-			orcamentoRepository.deleteById(codigo);
-			orcamentoRepository.flush();
+			orcamentosRepository.delete(orcamento);
+			orcamentosRepository.flush();
 		} catch (PersistenceException e) {
 			
-			throw new ImpossivelExcluirEntidadeException("Impossível apagar Orcamento. Já foi usado alguma composição.");
+			throw new ImpossivelExcluirEntidadeException("Impossível excluir Orcamento. Já foi usado alguma composição.");
 
 		}
 	}

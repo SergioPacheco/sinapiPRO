@@ -18,11 +18,11 @@
 				<div class="col-xs-10">
 					<h1 th:if="${composicao.nova}">Cadastro de Composições</h1>
 					<h1 th:unless="${composicao.nova}" 
-					    th:text="|Edição da composição ${composicao.codigo}|">Edição de composição</h1>
+					    th:text="|Edição da composição nº ${composicao.codigo}|">Edição de composição</h1>
 				</div>
 				 <div class="col-sm-2">
 					<div class="aw-page-header-controls">
-						<a class="btn  btn-default" th:href="@{/composicao}"> 
+						<a class="btn  btn-default" th:href="@{/composicoes}"> 
 						   <i class="glyphicon  glyphicon-plus-sign"></i> 
 						   <span class="hidden-xs  hidden-sm">Pesquisa</span>
 						</a>

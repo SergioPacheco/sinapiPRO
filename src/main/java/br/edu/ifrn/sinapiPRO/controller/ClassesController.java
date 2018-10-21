@@ -77,7 +77,7 @@ public class ClassesController {
 	
 	@GetMapping
 	public ModelAndView pesquisar(ClasseFilter classeFilter, BindingResult result
-			,@PageableDefault(size = 5) Pageable pageable, HttpServletRequest httpServletRequest){
+			,@PageableDefault(size = 15) Pageable pageable, HttpServletRequest httpServletRequest){
 		ModelAndView mv = new ModelAndView("classe/PesquisaClasses");
 		
 		PageWrapper<Classe> paginaWrapper = new PageWrapper<>(classes.filtrar(classeFilter, pageable)

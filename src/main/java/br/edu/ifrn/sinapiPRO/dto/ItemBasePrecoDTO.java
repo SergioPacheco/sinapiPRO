@@ -1,35 +1,34 @@
 package br.edu.ifrn.sinapiPRO.dto;
 
+import java.math.BigDecimal;
 
 public class ItemBasePrecoDTO {
 	
-	private String mes; 
-	private String preco; 
+	private String anoMes; 
+	private BigDecimal preco; 
 	
-	public ItemBasePrecoDTO() {
-	}
-	
+	public ItemBasePrecoDTO() {}
 
-	public ItemBasePrecoDTO(String mes, String preco) {
+	public ItemBasePrecoDTO(String anoMes, BigDecimal preco) {
 		super();
-		this.mes = mes;
+		this.anoMes = anoMes;
 		this.preco = preco;
 	}
 
 
-	public String getMes() {
-		return mes;
+	public String getAnoMes() {
+		return anoMes;
 	}
 
-	public void setMes(String mes) {
-		this.mes = mes;
+	public void setAnoMes(String anoMes) {
+		this.anoMes = anoMes;
 	}
 
-	public String getPreco() {
+	public BigDecimal getPreco() {
 		return preco;
 	}
 
-	public void setPreco(String preco) {
+	public void setPreco(BigDecimal preco) {
 		this.preco = preco;
 	}
 

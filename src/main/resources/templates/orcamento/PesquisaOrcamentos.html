@@ -33,7 +33,7 @@
 	
 	<div class="container-fluid">
 	
-		<form method="GET" th:object="${orcamentoFilter}" th:action="@{/orcamentos}">
+		<form method="GET" th:object="${orcamentoFilter}">
 		
 			<div class="row">
 				<div class="form-group  col-sm-12">
@@ -61,11 +61,25 @@
 						<td th:text="${orcamento.codigo}"></td>
 						<td th:text="${{orcamento.dataCriacao}}"></td>
 						<td th:text="${orcamento.nome}"></td>
-						<td th:text="${orcamento.situacao}"></td>
+						<td>
+							<th:block>
+								<span class="label  label-success"
+							          th:text="${orcamento.situacao}"> </span>
+							</th:block>
+						</td>
 	                 	<td class="text-center">
 		   					<a class="btn  btn-link  btn-xs  js-tooltip" title="Editar" 
-		   							th:href="@{/orcamentos/{codigo}(codigo=${orcamento.codigo})}">
-		   						<i class="glyphicon glyphicon-pencil"></i>
+		   					   th:href="@{/orcamentos/{codigo}(codigo=${orcamento.codigo})}">
+		   					   <i class="glyphicon glyphicon-pencil"></i>
+		   					</a>
+		   					<a class="btn  btn-link  btn-xs  js-tooltip  js-exclusao-btn" title="Excluir" 
+							   href="#" data:url="@{/orcamentos/{codigo}(codigo=${orcamento.codigo})}"
+							   data:objeto="${orcamento.nome}"> <i class="glyphicon glyphicon-remove"></i>
+							</a>
+		   					
+		   					<a class="btn  btn-link  btn-xs  js-tooltip" title="Acessar" 
+		   					   th:href="@{item/{codigoOrcamento}(codigoOrcamento=${orcamento.codigo})}">
+		   					   <i class="glyphicon glyphicon-th-list"></i>
 		   					</a>
 	                 	</td>
 	                </tr>

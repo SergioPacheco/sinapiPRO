@@ -142,7 +142,7 @@ public class ComposicoesController {
 	}
 	
 	/**
-	 * 
+	 * Edita a composição 
 	 * @param codigo - código da composição
 	 * @return
 	 */

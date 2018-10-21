@@ -77,7 +77,7 @@ public class SinapiController {
 		
 		//TODO: Fazer aqui o download do arquivo 
 		//TODO: Checar se o arquivo existe
-	
+	 
 	
 		if(!basePrecoRepository.existsById(codigo)) {
             throw new ResourceNotFoundException("Erro ao pesquisar Base Precos");
@@ -95,11 +95,14 @@ public class SinapiController {
 		
 		// String oneracao = basePreco.getDesonerado().getDescricao(); 
 		String oneracao =	"Desonerado";	 
-		
-		// /home/sergio/sinapi-download/RN/2018/02/Desonerado/SINAPI_Preco_Ref_Insumos_RN_022018_Desonerado.XLS
-		// /home/sergio/sinapi-download/RN/2018/02/Desonerado/SINAPI_Preco_Ref_Insumos_RN_201802_Desonerado.XLS
-		
-		String fileName = "/home/sergio/sinapi-download/"+uf+"/"+ano+"/"+mes+"/"+oneracao+"/SINAPI_Preco_Ref_Insumos_"+uf+"_"+mes+ano+"_"+oneracao+".XLS";
+		String fileName = "";
+		// /home/sergio/sinapi-download/RN/2018/01/Desonerado/SINAPI_Preco_Ref_Insumos_RN_201801_Desonerado.xls
+		// /home/sergio/sinapi-download/RN/2018/01/Desonerado/SINAPI_Preco_Ref_Insumos_RN_012018_Desonerado.XLS
+		if (mes.equals("01")) {
+			fileName = "/home/sergio/sinapi-download/"+uf+"/"+ano+"/"+mes+"/"+oneracao+"/SINAPI_Preco_Ref_Insumos_"+uf+"_"+ano+mes+"_"+oneracao+".xls";
+		} else {
+			fileName = "/home/sergio/sinapi-download/"+uf+"/"+ano+"/"+mes+"/"+oneracao+"/SINAPI_Preco_Ref_Insumos_"+uf+"_"+mes+ano+"_"+oneracao+".XLS";
+		}	
 		Double n = null; 
 		Long   l = 0L;
 		String s = null;
@@ -257,13 +260,15 @@ public class SinapiController {
 						novoItem.setBaseKey(baseKey);
 						novoItem.setPreco(insumo.getPrecoPadrao());
 						novoItem.setBasePreco(basePreco);
-						
+						novoItem.setAnoMes(ano+"/"+mes);
 						itemBasePrecoRepository.saveAndFlush(novoItem);
 												
 					} else { 
 						
 						ItemBasePreco editaItem = item.get();
 						editaItem.setPreco(insumo.getPrecoPadrao()); 
+					 
+						editaItem.setAnoMes(ano+"/"+mes);
 						itemBasePrecoRepository.saveAndFlush(editaItem);
 					
 					}
@@ -316,12 +321,13 @@ public class SinapiController {
 		String mes = Lib.StrZero(Lib.Month(df), 2);
 		
 		// String oneracao = basePreco.getDesonerado().getDescricao(); 
-		
 		String oneracao = "Desonerado";
-		 
-		
 	
-		String fileName = "/home/sergio/sinapi-download/"+uf+"/"+ano+"/"+mes+"/Desonerado/SINAPI_Custo_Ref_Composicoes_Analitico_"+uf+"_"+ano+mes+"_"+oneracao+".xls";
+		String fileName = "/home/sergio/sinapi-download/"+uf+"/"+ano+"/"+mes+"/Desonerado/SINAPI_Custo_Ref_Composicoes_Analitico_"+uf+"_"+mes+ano+"_"+oneracao+".XLS";
+		if (mes.equals("01")) {
+			fileName = "/home/sergio/sinapi-download/"+uf+"/"+ano+"/"+mes+"/Desonerado/SINAPI_Custo_Ref_Composicoes_Analitico_"+uf+"_"+ano+mes+"_"+oneracao+".xls";
+		}
+		
 		
 		Long L=0L;
 		String s = null;

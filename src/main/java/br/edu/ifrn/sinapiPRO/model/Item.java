@@ -15,29 +15,32 @@ import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name = "item_orcamento")
-public class ItemOrcamento {
+public class Item {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY, generator="native")
 	@GenericGenerator(name = "native", strategy = "native")
 	private Long codigo;
-
+	private String tipo;        /* C=Composicao I=Insumo E=Etapa */
+	
+	private String nivel;                  
+	private String subNivel; 
+	
 	private Integer sequencia; 
 	private Integer itemizacao; 
 	
-	private String nivel;                 
-	private String subNivel; 
-	private String tipo; 
 	
 	private String especie; 
-	
 	private String unidade; 
-	
-	private Integer quantidade;
+	private BigDecimal quantidade;
 
 	@Column(name = "valor_unitario")
 	private BigDecimal valorUnitario;
 
+	@ManyToOne
+	@JoinColumn(name = "codigo_etapa")
+	private Etapa etapa;
+	
 	@ManyToOne
 	@JoinColumn(name = "codigo_composicao")
 	private Composicao composicao;
@@ -59,6 +62,18 @@ public class ItemOrcamento {
 		return codigo;
 	}
 
+	public void setCodigo(Long codigo) {
+		this.codigo = codigo;
+	}
+
+	public String getTipo() {
+		return tipo;
+	}
+
+	public void setTipo(String tipo) {
+		this.tipo = tipo;
+	}
+
 	public String getNivel() {
 		return nivel;
 	}
@@ -75,23 +90,43 @@ public class ItemOrcamento {
 		this.subNivel = subNivel;
 	}
 
-	public String getTipo() {
-		return tipo;
+	public Integer getSequencia() {
+		return sequencia;
 	}
 
-	public void setTipo(String tipo) {
-		this.tipo = tipo;
+	public void setSequencia(Integer sequencia) {
+		this.sequencia = sequencia;
 	}
 
-	public void setCodigo(Long codigo) {
-		this.codigo = codigo;
+	public Integer getItemizacao() {
+		return itemizacao;
 	}
 
-	public Integer getQuantidade() {
+	public void setItemizacao(Integer itemizacao) {
+		this.itemizacao = itemizacao;
+	}
+
+	public String getEspecie() {
+		return especie;
+	}
+
+	public void setEspecie(String especie) {
+		this.especie = especie;
+	}
+
+	public String getUnidade() {
+		return unidade;
+	}
+
+	public void setUnidade(String unidade) {
+		this.unidade = unidade;
+	}
+
+	public BigDecimal getQuantidade() {
 		return quantidade;
 	}
 
-	public void setQuantidade(Integer quantidade) {
+	public void setQuantidade(BigDecimal quantidade) {
 		this.quantidade = quantidade;
 	}
 
@@ -102,6 +137,17 @@ public class ItemOrcamento {
 	public void setValorUnitario(BigDecimal valorUnitario) {
 		this.valorUnitario = valorUnitario;
 	}
+	
+	@Column(name = "valor_total")
+	private BigDecimal valorTotal = BigDecimal.ZERO;
+
+	public Etapa getEtapa() {
+		return etapa;
+	}
+
+	public void setEtapa(Etapa etapa) {
+		this.etapa = etapa;
+	}
 
 	public Composicao getComposicao() {
 		return composicao;
@@ -111,8 +157,12 @@ public class ItemOrcamento {
 		this.composicao = composicao;
 	}
 
-	public BigDecimal getValorTotal() {
-		return valorUnitario.multiply(new BigDecimal(quantidade));
+	public Insumo getInsumo() {
+		return insumo;
+	}
+
+	public void setInsumo(Insumo insumo) {
+		this.insumo = insumo;
 	}
 
 	public Orcamento getOrcamento() {
@@ -123,6 +173,32 @@ public class ItemOrcamento {
 		this.orcamento = orcamento;
 	}
 
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
+	}
+
+	public BigDecimal getValorTotal() {
+		return valorUnitario.multiply(quantidade);
+	}
+	
+	public BigDecimal getValorTotalBDI() {
+		return valorUnitario.multiply(quantidade).multiply(BigDecimal.valueOf(1.15));
+	}
+	public BigDecimal getValorMaterial() {
+		return composicao.getCustoMaterial();
+	}
+	public BigDecimal getValoMaoObral() {
+		return composicao.getCustoMaoObra();
+	}
+	public BigDecimal getValoEquipamentos() {
+		return composicao.getCustoMaoObra();
+	}
+		
+		
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -139,7 +215,7 @@ public class ItemOrcamento {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ItemOrcamento other = (ItemOrcamento) obj;
+		Item other = (Item) obj;
 		if (codigo == null) {
 			if (other.codigo != null)
 				return false;

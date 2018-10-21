@@ -95,7 +95,9 @@ public class UsuariosImpl implements UsuariosQueries {
 			}
 			
 			if (filtro.getGrupos() != null && !filtro.getGrupos().isEmpty()) {
+				
 				List<Criterion> subqueries = new ArrayList<>();
+				
 				for (Long codigoGrupo : filtro.getGrupos().stream().mapToLong(Grupo::getCodigo).toArray()) {
 					DetachedCriteria dc = DetachedCriteria.forClass(UsuarioGrupo.class);
 					dc.add(Restrictions.eq("id.grupo.codigo", codigoGrupo));

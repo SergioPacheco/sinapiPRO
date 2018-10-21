@@ -36,7 +36,7 @@
 			<!-- pesquisar pelo codigo tambem -->
 			<div class="row">
 				<div class="form-group  col-sm-6">
-					<label class="control-label" for="descricao">Código ou Descrição da composição</label>
+					<label class="control-label" for="descricao">Descrição da composição</label>
 					<input type="text" class="form-control" id="descricao" autofocus="autofocus" th:field="*{descricao}"/>
 				</div>
 			 
@@ -70,7 +70,6 @@
 	            <thead>
 	            	<tr>
 	            		<th class="table-composicoes-col-classe">Classe</th>
-	            		<th class="table-composicoes-col-subclasse">Sub-Classe</th>
 	                	<th class="table-composicoes-col-codigo">
 	                		<sinapiPRO:order page="${pagina}" field="codigo" text="Código"/>
 	                	</th>
@@ -84,8 +83,7 @@
 				
 	            <tbody>
 					<tr th:each="composicao : ${pagina.conteudo}">
-						<td class="text-center" th:text="${composicao.classe.sigla}"></td>
-						<td class="text-left" th:text="${composicao.tipoComposicao.nome}"></td>
+						<td class="text-center" th:text="${composicao.classe.nome}"></td>
 						<td class="text-center" th:text="${composicao.codigo}"></td>
 						<td class="text-left"   th:text="${composicao.descricao}"></td>
 						<td class="text-center" th:text="${composicao.unidade}"></td>

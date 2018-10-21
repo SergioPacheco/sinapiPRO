@@ -24,8 +24,9 @@ public class ItemBasePreco implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "basePrecoID", nullable=false, insertable = false, updatable = false)
 	private BasePreco basePreco; 
+		
+	private String anoMes;
 	
-	@NotNull(message = "Valor é obrigatório")
 	private BigDecimal preco;
 	
 	public BasePreco getBasePreco() {
@@ -42,6 +43,14 @@ public class ItemBasePreco implements Serializable {
 
 	public void setPreco(BigDecimal preco) {
 		this.preco = preco;
+	}
+	
+	public String getAnoMes() {
+		return anoMes;
+	}
+
+	public void setAnoMes(String anoMes) {
+		this.anoMes = anoMes;
 	}
 
 	public BaseKey getBaseKey() {
