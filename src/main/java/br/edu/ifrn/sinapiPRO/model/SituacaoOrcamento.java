@@ -4,7 +4,7 @@ public enum SituacaoOrcamento {
 
 	BLOQUEADO("Bloqueado"), 
 	EFETIVADO("Efetivado"), 
-	CONCLUIDO("Emitido"), 
+	CONCLUIDO("Concluido"), 
 	CANCELADO("Cancelado"),
 	ABERTO("Aberto");
 

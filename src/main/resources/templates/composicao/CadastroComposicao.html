@@ -23,7 +23,7 @@
 				 <div class="col-sm-2">
 					<div class="aw-page-header-controls">
 						<a class="btn  btn-default" th:href="@{/composicoes}"> 
-						   <i class="glyphicon  glyphicon-plus-sign"></i> 
+						   <i class="glyphicon  glyphicon-search"></i> 
 						   <span class="hidden-xs  hidden-sm">Pesquisa</span>
 						</a>
 					</div>
@@ -37,25 +37,25 @@
 		<form method="POST" 
 		      th:object="${composicao}" 
 		      class="js-formulario-principal"
-			  th:action="${composicao.nova} ? @{/composicao/nova} : @{/composicao/{codigo}(codigo=${composicao.codigo})}">
+			  th:action="${composicao.nova} ? @{/composicoes/nova} : @{/composicoes/{codigo}(codigo=${composicao.codigo})}">
 			
 			<sinapiPRO:message/>
 			
 			<div class="row">
 			
-				<div class="col-sm-12 form-group bw-required" sinapiPRO:classforerror="descricao">
+				<div class="col-sm-12 form-group sn-required" sinapiPRO:classforerror="descricao">
 					<label for="descricao" class="control-label">Descrição</label>
 					<textarea id="descricao" rows="2" class="form-control" th:field="*{descricao}"></textarea>
 				</div>	
 			</div>	
 				
 			<div class="row">	
-				<div class="col-sm-4 form-group bw-required" sinapiPRO:classforerror="unidade">
+				<div class="col-sm-4 form-group sn-required" sinapiPRO:classforerror="unidade">
 					<label for="unidade" class="control-label">Unidade</label>
 					<input id="unidade" type="text" class="form-control" th:field="*{unidade}" />
 				</div>
 				
-				<div class="col-sm-4  form-group  bw-required" sinapiPRO:classforerror="custoTotal">
+				<div class="col-sm-4  form-group  sn-required" sinapiPRO:classforerror="custoTotal">
 					<label for="custoTotal" class="control-label">Preço Padrão</label>
 					<div class="input-group">
 						<div class="input-group-addon">R$</div>
@@ -128,7 +128,7 @@
 			
 				<div class="tab-pane active" id="itens-composicao">
 					 
-					<div class="table-responsive  bw-tabela-simples">
+					<div class="table-responsive  sn-tabela-simples">
 						<table class="table  table-hover">
 				            <thead>
 				            	<tr>
@@ -144,12 +144,12 @@
 							
 				            <tbody>
 								<tr th:each="it : ${itens}">
-									<td th:text="${it.tipo}"></td>
-									<td th:text="${it.codigoItem}"></td>
-									<td th:text="${it.descricao}"></td>
-									<td th:text="${it.unidade}"></td>
-									<td th:text="|${{it.coeficiente}}|"></td>
-									<td th:text="|R$ ${{it.precoUnitario}}|"></td>
+									<td class="text-center" th:text="${it.tipo}"></td>
+									<td class="text-center" th:text="${it.codigoItem}"></td>
+									<td class="text-left" th:text="${it.descricao}"></td>
+									<td class="text-center" th:text="${it.unidade}"></td>
+									<td class="text-center" th:text="|${{it.coeficiente}}|"></td>
+									<td class="text-center" th:text="|R$ ${{it.precoUnitario}}|"></td>
 									
 				                 	<td class="text-center">
 				                 	    <a class="btn  btn-link  btn-xs  js-tooltip" 

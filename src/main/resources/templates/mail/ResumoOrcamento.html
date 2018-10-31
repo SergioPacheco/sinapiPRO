@@ -22,7 +22,7 @@
 					<img style="width: 40px" src="../../static/images/composicao-mock.png" th:src="|cid:foto-${item.composicao.codigo}|" th:if="${item.composicao.temFoto()}"/>
 				</td>
 				<td style="vertical-align: top; padding-bottom: 10px; padding-top: 10px">
-					<div style="display: block; font-weight: bold; font-size: 16px" th:text="${item.composicao.nome}">Bhrama Lata 350 ml</div>
+					<div style="display: block; font-weight: bold; font-size: 16px" th:text="${item.composicao.nome}">Pedreiro</div>
 					<div style="color: #8e8e8e" th:text="${item.composicao.base.descricao}">Nacional</div>
 					<div style="color: #8e8e8e" th:text="|${item.quantidade} x R$${#numbers.formatDecimal(item.valorUnitario, 1, 2)}|">1 x R$1,90</div>
 				</td>

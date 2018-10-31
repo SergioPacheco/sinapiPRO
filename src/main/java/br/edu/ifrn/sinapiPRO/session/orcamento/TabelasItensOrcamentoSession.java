@@ -23,13 +23,15 @@ public class TabelasItensOrcamentoSession {
 		
 		TabelaItensOrcamento tabela = buscarTabelaPorUuid(uuid);
 		tabela.adicionarItem(etapa);
+		tabela.Itemizar();
 		tabelas.add(tabela);
-	
+	 
 	}
 	public void adicionarItem(String uuid, Etapa etapa, Insumo insumo, BigDecimal quantidade) {
 		
 		TabelaItensOrcamento tabela = buscarTabelaPorUuid(uuid);
 		tabela.adicionarItem(etapa, insumo, quantidade);
+		tabela.Itemizar();
 		tabelas.add(tabela);
 	
 	}
@@ -37,6 +39,7 @@ public class TabelasItensOrcamentoSession {
 		
 		TabelaItensOrcamento tabela = buscarTabelaPorUuid(uuid);
 		tabela.adicionarItem(etapa, composicao, quantidade);
+		tabela.Itemizar();
 		tabelas.add(tabela);
 	
 	}
@@ -52,22 +55,21 @@ public class TabelasItensOrcamentoSession {
 		tabela.alterarQuantidadeItens(etapa, insumo, quantidade);
 		 
 	}
-
-	
 	
 	public void excluirItem(String uuid, Etapa etapa) {
 		TabelaItensOrcamento tabela = buscarTabelaPorUuid(uuid);
 		tabela.excluirItem(etapa);
 	}
+	
 	public void excluirItem(String uuid, Etapa etapa, Composicao composicao) {
 		TabelaItensOrcamento tabela = buscarTabelaPorUuid(uuid);
 		tabela.excluirItem(etapa, composicao);
 	}
+	
 	public void excluirItem(String uuid, Etapa etapa, Insumo insumo) {
 		TabelaItensOrcamento tabela = buscarTabelaPorUuid(uuid);
 		tabela.excluirItem(etapa, insumo);
 	}
-	
 	
 	public List<Item> getItens(String uuid) {
 		return buscarTabelaPorUuid(uuid).getItens();
@@ -75,6 +77,18 @@ public class TabelasItensOrcamentoSession {
 	
 	public Object getValorTotal(String uuid) {
 		return buscarTabelaPorUuid(uuid).getValorTotal();
+	}
+	
+	public Object getValorMaoObra(String uuid) {
+		return buscarTabelaPorUuid(uuid).getValorMaoObra();
+	}
+	
+	public Object getValorMaterial(String uuid) {
+		return buscarTabelaPorUuid(uuid).getValorMaterial();
+	}
+	
+	public Object getValorEquipamento(String uuid) {
+		return buscarTabelaPorUuid(uuid).getValorEquipamento();
 	}
 	
 	private TabelaItensOrcamento buscarTabelaPorUuid(String uuid) {

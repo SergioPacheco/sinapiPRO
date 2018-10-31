@@ -15,7 +15,7 @@ public interface ComposicoesQueries {
 	
 	public Composicao buscarComItens(Long codigo);
 	
-	public  List<ComposicaoDTO> porCodigoOuDescricao(String codigoOuDescricao); 
+	public  List<ComposicaoDTO> porCodigoOuNome(String codigoOuNome); 
 	
 	// public BigDecimal valorTotalNoAno();
 	// public BigDecimal valorTotalNoMes();

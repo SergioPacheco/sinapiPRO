@@ -17,12 +17,12 @@
 		
 			<div class="row">
 				
-				<div class="col-sm-10">
+				<div class="col-sm-8">
 					<h1 th:if="${basePreco.nova}">Cadastro de Base de Preços</h1>
 					<h1 th:unless="${basePreco.nova}" th:text="|Edição de ${basePreco.nome}|">Edição de Base de Preços</h1>
 				</div>
 				
-				<div class="col-sm-1">
+				<div class="col-sm-4">
 					<div class="aw-page-header-controls">
 					
 						<div th:if="${basePreco.nova}">	</div>
@@ -30,27 +30,22 @@
 						
 							<a class="btn  btn-default" th:href="@{/basePrecos/importaInsumo/{codigo}(codigo=${basePreco.codigo})}"> 
 					  		  	<i class="glyphicon  glyphicon-th-list"></i> 
-					   			<span class="hidden-xs  hidden-sm"> Base Preços</span>
+					   			<span class="hidden-xs  hidden-sm"> Importa Insumos</span>
 							 </a>
 							 <a class="btn  btn-default" th:href="@{/basePrecos/importaComposicao/{codigo}(codigo=${basePreco.codigo})}"> 
 					  		  	<i class="glyphicon  glyphicon-th-list"></i> 
-					   			<span class="hidden-xs  hidden-sm"> Catalogo</span>
+					   			<span class="hidden-xs  hidden-sm"> Importa Composições</span>
 							 </a>
+							 <a class="btn  btn-default" th:href="@{/basePrecos}"> 
+						   		<i class="glyphicon  glyphicon-plus-sign"></i> 
+						   		<span class="hidden-xs  hidden-sm">Pesquisa</span>
+							</a>
 						</div>
 						
 					</div>
 				 </div>
 				 	
-				 <div class="col-sm-1">
-					
-					<div class="aw-page-header-controls">
-						<a class="btn  btn-default" th:href="@{/basePrecos}"> 
-						   <i class="glyphicon  glyphicon-plus-sign"></i> 
-						   <span class="hidden-xs  hidden-sm">Pesquisa</span>
-						</a>
-					</div>
-					
-				</div>
+				  
 			
 			</div>
 		</div>
@@ -68,7 +63,7 @@
 			
 			<div class="row">
 			     
-				<div class="form-group col-sm-12    bw-required" sinapiPRO:classforerror="nome">
+				<div class="form-group col-sm-12    sn-required" sinapiPRO:classforerror="nome">
 					<label for="nome" class="control-label">Nome</label>
 					<input id="nome" type="text" class="form-control" th:field="*{nome}" />
 				</div>	

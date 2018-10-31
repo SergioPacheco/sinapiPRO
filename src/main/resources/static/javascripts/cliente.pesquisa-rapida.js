@@ -1,15 +1,15 @@
-sinapiPRO = sinapiPRO || {};
+SinapiPRO = SinapiPRO || {};
 
-sinapiPRO.PesquisaRapidaCliente = (function() {
+SinapiPRO.PesquisaRapidaCliente = (function() {
 	
 	function PesquisaRapidaCliente() {
 		this.pesquisaRapidaClientesModal = $('#pesquisaRapidaClientes');
-		this.nomeInput = $('#nomeClienteModal');
-		this.pesquisaRapidaBtn = $('.js-pesquisa-rapida-clientes-btn'); 
-		this.containerTabelaPesquisa = $('#containerTabelaPesquisaRapidaClientes');
-		this.htmlTabelaPesquisa = $('#tabela-pesquisa-rapida-cliente').html();
-		this.template = Handlebars.compile(this.htmlTabelaPesquisa);
-		this.mensagemErro = $('.js-mensagem-erro');
+		this.nomeInput                   = $('#nomeClienteModal');
+		this.pesquisaRapidaBtn           = $('.js-pesquisa-rapida-clientes-btn'); 
+		this.containerTabelaPesquisa     = $('#containerTabelaPesquisaRapidaClientes');
+		this.htmlTabelaPesquisa          = $('#tabela-pesquisa-rapida-cliente').html();
+		this.template                    = Handlebars.compile(this.htmlTabelaPesquisa);
+		this.mensagemErro                = $('.js-mensagem-erro');
 	}
 	
 	PesquisaRapidaCliente.prototype.iniciar = function() {
@@ -43,7 +43,7 @@ sinapiPRO.PesquisaRapidaCliente = (function() {
 		var html = this.template(resultado);
 		this.containerTabelaPesquisa.html(html);
 		
-		var tabelaClientePesquisaRapida = new sinapiPRO.TabelaClientePesquisaRapida(this.pesquisaRapidaClientesModal);
+		var tabelaClientePesquisaRapida = new SinapiPRO.TabelaClientePesquisaRapida(this.pesquisaRapidaClientesModal);
 		tabelaClientePesquisaRapida.iniciar();
 	} 
 	
@@ -55,7 +55,7 @@ sinapiPRO.PesquisaRapidaCliente = (function() {
 	
 }());
 
-sinapiPRO.TabelaClientePesquisaRapida = (function() {
+SinapiPRO.TabelaClientePesquisaRapida = (function() {
 	
 	function TabelaClientePesquisaRapida(modal) {
 		this.modalCliente = modal;
@@ -79,6 +79,6 @@ sinapiPRO.TabelaClientePesquisaRapida = (function() {
 }());
 
 $(function() {
-	var pesquisaRapidaCliente = new sinapiPRO.PesquisaRapidaCliente();
+	var pesquisaRapidaCliente = new SinapiPRO.PesquisaRapidaCliente();
 	pesquisaRapidaCliente.iniciar();
 });

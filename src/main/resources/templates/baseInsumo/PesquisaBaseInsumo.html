@@ -39,11 +39,11 @@
 			</div>
 			<button type="submit" class="btn btn-primary">Pesquisar</button>
 		</form>
-		<div class="table-responsive  bw-tabela-simples">
+		<div class="table-responsive  sn-tabela-simples">
 			<table class="table  table-hover">
 				<thead>
 					<tr>
-						<th class="table-baseInsumo-col-codigo">Código</th>
+						<th class="text-center">Código</th>
 						<th> <sinapiPRO:order page="${pagina}" field="nome" text="Nome"/> </th>
 						<th class="table-col-acoes"></th>
 					</tr>
@@ -51,7 +51,7 @@
 				
 				<tbody>
 					<tr th:each="baseInsumo : ${pagina.conteudo}">
-						<td class="text-left" th:text="${baseInsumo.codigo}">001</td>
+						<td class="text-center" th:text="${baseInsumo.codigo}">001</td>
 						<td th:text="${baseInsumo.nome}">Hidraulica</td>
 						<td class="text-center">
 							<a class="btn  btn-link  btn-xs  js-tooltip" title="Editar" 

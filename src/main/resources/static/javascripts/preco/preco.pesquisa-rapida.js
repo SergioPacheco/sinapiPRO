@@ -1,6 +1,6 @@
-sinapiPRO = sinapiPRO || {};
+SinapiPRO = SinapiPRO || {};
 
-sinapiPRO.PesquisaRapidaPreco = (function() {
+SinapiPRO.PesquisaRapidaPreco = (function() {
 	
 	function PesquisaRapidaPreco() {
 		this.precosBtn         = $('.js-precos-btn')
@@ -54,7 +54,7 @@ sinapiPRO.PesquisaRapidaPreco = (function() {
 
 
 $(function() {
-	var pesquisaRapidaPreco = new sinapiPRO.PesquisaRapidaPreco();
+	var pesquisaRapidaPreco = new SinapiPRO.PesquisaRapidaPreco();
 	pesquisaRapidaPreco.iniciar();
 });
 

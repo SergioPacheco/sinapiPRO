@@ -15,7 +15,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name = "item_orcamento")
-public class Item {
+public class Item  {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY, generator="native")
@@ -23,43 +23,63 @@ public class Item {
 	private Long codigo;
 	private String tipo;        /* C=Composicao I=Insumo E=Etapa */
 	
-	private String nivel;                  
-	private String subNivel; 
-	
-	private Integer sequencia; 
-	private Integer itemizacao; 
-	
-	
+	private Long codigoItem; 
+	private String itemizacao; 
 	private String especie; 
 	private String unidade; 
-	private BigDecimal quantidade;
+	private BigDecimal quantidade  = BigDecimal.ZERO;
 
 	@Column(name = "valor_unitario")
-	private BigDecimal valorUnitario;
+	private BigDecimal valorUnitario  = BigDecimal.ZERO;
+	
+	@Column(name = "valor_total")
+	private BigDecimal valorTotal = BigDecimal.ZERO;
+	
+	@Column(name = "valor_Mao_Obra")
+	private BigDecimal valorMaoObra = BigDecimal.ZERO;
+	
+	@Column(name = "valor_Material")
+	private BigDecimal valorMaterial = BigDecimal.ZERO;
+		
+	@Column(name = "valor_Equipamento")
+	private BigDecimal valorEquipamento = BigDecimal.ZERO;
 
 	@ManyToOne
-	@JoinColumn(name = "codigo_etapa")
+	@JoinColumn(name = "codigo_etapa", nullable=false)
 	private Etapa etapa;
 	
 	@ManyToOne
-	@JoinColumn(name = "codigo_composicao")
+	@JoinColumn(name = "codigo_composicao", nullable=true)
 	private Composicao composicao;
 	
 	@ManyToOne
-	@JoinColumn(name = "codigo_insumo")
+	@JoinColumn(name = "codigo_insumo", referencedColumnName = "codigoInsumo", nullable=true)
 	private Insumo insumo;
 
 	@ManyToOne
 	@JoinColumn(name = "codigo_orcamento")
 	private Orcamento orcamento;
 	
-	@ManyToOne
-	@JoinColumn(name = "codigo_usario")
-	private Usuario usuario;
-	
-
 	public Long getCodigo() {
 		return codigo;
+	}
+
+	public Long getCodigoItem() {
+		return codigoItem;
+	}
+	
+	public void setCodigoItem(Long codigoItem) {
+		this.codigoItem = codigoItem;
+	}
+
+	public void setValorMaoObra(BigDecimal valorMaoObra) {
+		this.valorMaoObra = valorMaoObra;
+	}
+	public void setValorMaterial(BigDecimal valorMaterial) {
+		this.valorMaterial = valorMaterial;
+	}
+	public void setValorEquipamento(BigDecimal valorEquipamento) {
+		this.valorEquipamento = valorEquipamento;
 	}
 
 	public void setCodigo(Long codigo) {
@@ -74,35 +94,11 @@ public class Item {
 		this.tipo = tipo;
 	}
 
-	public String getNivel() {
-		return nivel;
-	}
-
-	public void setNivel(String nivel) {
-		this.nivel = nivel;
-	}
-
-	public String getSubNivel() {
-		return subNivel;
-	}
-
-	public void setSubNivel(String subNivel) {
-		this.subNivel = subNivel;
-	}
-
-	public Integer getSequencia() {
-		return sequencia;
-	}
-
-	public void setSequencia(Integer sequencia) {
-		this.sequencia = sequencia;
-	}
-
-	public Integer getItemizacao() {
+	public String getItemizacao() {
 		return itemizacao;
 	}
 
-	public void setItemizacao(Integer itemizacao) {
+	public void setItemizacao(String itemizacao) {
 		this.itemizacao = itemizacao;
 	}
 
@@ -138,9 +134,6 @@ public class Item {
 		this.valorUnitario = valorUnitario;
 	}
 	
-	@Column(name = "valor_total")
-	private BigDecimal valorTotal = BigDecimal.ZERO;
-
 	public Etapa getEtapa() {
 		return etapa;
 	}
@@ -173,32 +166,47 @@ public class Item {
 		this.orcamento = orcamento;
 	}
 
-	public Usuario getUsuario() {
-		return usuario;
-	}
-
-	public void setUsuario(Usuario usuario) {
-		this.usuario = usuario;
-	}
-
 	public BigDecimal getValorTotal() {
 		return valorUnitario.multiply(quantidade);
 	}
 	
+	public BigDecimal getValorMaterial() {
+		if ("C".equals(this.tipo)) {
+			return composicao.getCustoMaterial();
+		} else { 
+			if ("I".equals(this.tipo)) {
+				return this.insumo.getPrecoPadrao();
+			}
+		}
+		return BigDecimal.ZERO;
+	}
+	
+	public BigDecimal getValorMaoObra() {
+		if ("C".equals(this.tipo)) {
+			return composicao.getCustoMaoObra();
+		} else { 
+			if ("I".equals(this.tipo)) {
+				return this.insumo.getPrecoPadrao();
+			}
+		}
+		return BigDecimal.ZERO;
+	}
+	
+	public BigDecimal getValorEquipamento() {
+		if ("C".equals(this.tipo)) {
+			return composicao.getCustoEquipamento();
+		} else { 
+			if ("I".equals(this.tipo)) {
+				return this.insumo.getPrecoPadrao();
+			}
+		}
+		return BigDecimal.ZERO;
+	}
+	
 	public BigDecimal getValorTotalBDI() {
 		return valorUnitario.multiply(quantidade).multiply(BigDecimal.valueOf(1.15));
-	}
-	public BigDecimal getValorMaterial() {
-		return composicao.getCustoMaterial();
-	}
-	public BigDecimal getValoMaoObral() {
-		return composicao.getCustoMaoObra();
-	}
-	public BigDecimal getValoEquipamentos() {
-		return composicao.getCustoMaoObra();
-	}
-		
-		
+	} 
+				
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -223,5 +231,10 @@ public class Item {
 			return false;
 		return true;
 	}
-
+	/*
+	@Override
+	public int compareTo(Item o) {
+		 return this.getEtapa().getCodigo().compareTo(((Item) o).getEtapa().getCodigo());
+	}
+	*/	
 }

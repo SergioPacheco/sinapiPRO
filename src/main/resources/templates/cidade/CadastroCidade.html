@@ -35,14 +35,14 @@
 			<sinapiPRO:message/>
 			<input type="hidden" th:field="*{codigo}"/>
 			<div class="row">
-				<div class="col-sm-4  form-group  bw-required" sinapiPRO:classforerror="estado">
+				<div class="col-sm-4  form-group  sn-required" sinapiPRO:classforerror="estado">
 					<label for="estado" class="control-label">Estado</label>
 					<select id="estado" class="form-control" th:field="*{estado}">
 						<option value="">Selecione o Estado</option>
 						<option th:each="estado : ${estados}" th:value="${estado.codigo}" th:text="${estado.nome}">Lista de Estados</option>
 					</select>
 				</div>
-				<div class="col-sm-8  form-group  bw-required" sinapiPRO:classforerror="nome">
+				<div class="col-sm-8  form-group  sn-required" sinapiPRO:classforerror="nome">
 					<label for="nome" class="control-label">Nome</label>
 					<input id="nome" type="text" class="form-control" autofocus="autofocus" th:field="*{nome}"/>
 				</div>	

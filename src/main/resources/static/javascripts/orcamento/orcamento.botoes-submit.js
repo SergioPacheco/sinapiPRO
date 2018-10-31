@@ -1,6 +1,6 @@
-sinapiPRO = sinapiPRO || {};
+SinapiPRO = SinapiPRO || {};
 
-sinapiPRO.BotaoSubmit = (function() {
+SinapiPRO.BotaoSubmit = (function() {
 	
 	function BotaoSubmit() {
 		this.submitBtn = $('.js-submit-btn');
@@ -30,7 +30,7 @@ sinapiPRO.BotaoSubmit = (function() {
 
 $(function() {
 	
-	var botaoSubmit = new sinapiPRO.BotaoSubmit();
+	var botaoSubmit = new SinapiPRO.BotaoSubmit();
 	botaoSubmit.iniciar();
 	
 });

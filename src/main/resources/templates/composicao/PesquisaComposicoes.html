@@ -16,7 +16,7 @@
 		<div class="container-fluid">
 			<div class="row">
 				<div class="col-xs-10">
-					<h1>Pesquisa de composições</h1>
+					<h1>Pesquisa de Composições</h1>
 				</div>
 				
 				<div class="col-xs-2">
@@ -35,7 +35,13 @@
 		
 			<!-- pesquisar pelo codigo tambem -->
 			<div class="row">
-				<div class="form-group  col-sm-6">
+			
+				<div class="form-group  col-sm-2">
+					<label class="control-label" for="codigoInsumo">Código da composição</label>
+					<input type="number" class="form-control" id="codigo" autofocus="autofocus" th:field="*{codigo}"/>
+				</div>
+			
+				<div class="form-group  col-sm-4">
 					<label class="control-label" for="descricao">Descrição da composição</label>
 					<input type="text" class="form-control" id="descricao" autofocus="autofocus" th:field="*{descricao}"/>
 				</div>
@@ -49,7 +55,7 @@
 				</div>
 				
 				<div class="form-group  col-sm-3">
-					<label for="tipoComposicao">Sub-Classe </label>
+					<label for="tipoComposicao">Grupo </label>
 					<select id="tipoComposicao" class="form-control" th:field="*{tipoComposicao}">
 	                    <option value="">Todos</option>
 	                    <option th:each="tipoCompo : ${tipoComposicao}" 
@@ -65,7 +71,7 @@
 
 		</form>
 		
-		<div class="table-responsive  bw-tabela-simples">
+		<div class="table-responsive  sn-tabela-simples">
 			<table class="table  table-hover">
 	            <thead>
 	            	<tr>
@@ -128,7 +134,7 @@
 				</div>
 				
 				<div class="modal-body">
-		 			<div class="table-responsive  bw-tabela-simples" style="margin-top: 15px">
+		 			<div class="table-responsive  sn-tabela-simples" style="margin-top: 15px">
 						<table class="table  table-hover">
 							<thead>
 								<tr>

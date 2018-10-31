@@ -2,13 +2,11 @@ package br.edu.ifrn.sinapiPRO.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -24,12 +22,14 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.validation.constraints.NotBlank;
 
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name = "orcamento")
+@DynamicUpdate
 public class Orcamento implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
@@ -39,6 +39,7 @@ public class Orcamento implements Serializable {
 	@GenericGenerator(name = "native", strategy = "native")
 	private Long codigo;
 	
+	@NotBlank(message = "Nome da obra é obrigatório")
 	private String nome;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -68,9 +69,27 @@ public class Orcamento implements Serializable {
 
 	@Enumerated(EnumType.STRING)
 	private SituacaoOrcamento situacao = SituacaoOrcamento.ABERTO;
+	
+	@OneToMany(mappedBy = "orcamento", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Item> itens = new ArrayList<>();
 
+	@Column(name = "valor_total")
+	private BigDecimal valorTotal = BigDecimal.ZERO;
+
+	@Column(name = "valor_mao_obra")
+	private BigDecimal valorMaoObra = BigDecimal.ZERO;
+	
+	@Column(name = "valor_materiais")
+	private BigDecimal valorMaterial = BigDecimal.ZERO;
+	
+	@Column(name = "valor_equipamentos")
+	private BigDecimal valorEquipamento = BigDecimal.ZERO;
+		
 	@Transient
 	private String uuid;
+	
+	@Transient
+	private Long etapaCheckBox;
 
 
 	public Long getCodigo() {
@@ -161,11 +180,15 @@ public class Orcamento implements Serializable {
 	public void setUuid(String uuid) {
 		this.uuid = uuid;
 	}
-
-	public boolean isNovo() {
-		return codigo == null;
+			
+	public Long getEtapaCheckBox() {
+		return etapaCheckBox;
 	}
-		
+
+	public void setEtapaCheckBox(Long etapaCheckBox) {
+		this.etapaCheckBox = etapaCheckBox;
+	}
+
 	public boolean isSalvarPermitido() {
 		return !situacao.equals(SituacaoOrcamento.BLOQUEADO);
 	}
@@ -173,6 +196,133 @@ public class Orcamento implements Serializable {
 	public boolean isSalvarProibido() {
 		return !isSalvarPermitido();
 	}
+			
+	public BigDecimal getValorTotal() {
+		return valorTotal;
+	}
+
+	public void setValorTotal(BigDecimal valorTotal) {
+		this.valorTotal = valorTotal;
+	}
+	
+
+	public List<Item> getItens() {
+		
+		Collections.sort(itens, new Comparator<Item>() {
+		        @Override public int compare(Item p1, Item p2) {
+		            return p1.getEtapa().getCodigo().intValue() - p2.getEtapa().getCodigo().intValue(); // Ascending
+		        }
+		});
+		Itemizar();
+		
+		return itens;
+	}
+
+	public void setItens(List<Item> itens) {
+		this.itens = itens;
+	}
+	
+	public void Itemizar() { 
+		
+		
+		/*
+		 * list.sort((o1, o2) -> {
+			    int cmp = o1.getGroup().compareTo(o2.getGroup());
+			    if (cmp == 0)
+			        cmp = Integer.compare(o1.getAge(), o2.getAge());
+			    if (cmp == 0)
+			        cmp = o1.getName().compareTo(o2.getName());
+			    return cmp;
+			});
+		 */
+
+	    Collections.sort(itens, new Comparator<Item>() {
+	        @Override public int compare(Item p1, Item p2) {
+	            return p1.getEtapa().getCodigo().intValue() - p2.getEtapa().getCodigo().intValue(); // Ascending
+	        }
+
+	    });
+		
+		Long aux =  0L;
+		Long sub = 1L; 
+		for (Item item : itens) {
+			if (item.getEtapa().getCodigo() == aux) { 
+			    if (item.getTipo().equals("E")) { 
+			    	item.setItemizacao(item.getEtapa().getCodigo()+".");
+			    } else { 
+			    	item.setItemizacao(item.getEtapa().getCodigo()+"."+sub+".");
+			    	sub++;
+			    }
+			  
+				continue; 
+			}
+		    aux = item.getEtapa().getCodigo();
+		    sub = 1L;
+		    if (item.getTipo().equals("E")) { 
+		    	item.setItemizacao(item.getEtapa().getCodigo()+".");
+		    } else { 
+		    	item.setItemizacao(item.getEtapa().getCodigo()+"."+sub+".");
+		    	sub++;
+		    }
+		} 
+		
+		Collections.sort(itens, (o1, o2) -> (o1.getItemizacao().compareTo(o2.getItemizacao())));
+		
+	}
+	
+	
+	public boolean isNovo() {
+		return codigo == null;
+	}
+	
+	public void adicionarItens(List<Item> itens) {
+		this.itens = itens;
+		this.itens.forEach(i -> i.setOrcamento(this));
+	}
+	
+	public BigDecimal getValorTotalItens() {
+		return getItens().stream()
+				.map(Item::getValorTotal)
+				.reduce(BigDecimal::add)
+				.orElse(BigDecimal.ZERO);
+	}
+	
+	public BigDecimal getValorMaoObra() {
+		return getItens().stream()
+				.map(Item::getValorMaoObra)
+				.reduce(BigDecimal::add)
+				.orElse(BigDecimal.ZERO);
+	}
+	
+	public BigDecimal getValorMaterial() {
+		return getItens().stream()
+				.map(Item::getValorMaterial)
+				.reduce(BigDecimal::add)
+				.orElse(BigDecimal.ZERO);
+	}
+	
+	public BigDecimal getValorEquipamento() {
+		return getItens().stream()
+				.map(Item::getValorEquipamento)
+				.reduce(BigDecimal::add)
+				.orElse(BigDecimal.ZERO);
+	}
+	
+	
+	public void calcularValorTotal() {
+		this.valorTotal = getValorTotalItens();
+	}
+	public void calcularValorMaoObra() {
+		this.valorMaoObra = getValorMaoObra();
+	}
+	public void calcularValorEquipamento() {
+		this.valorEquipamento = getValorEquipamento();
+	}
+	public void calcularValorMaterial() {
+		this.valorMaterial = getValorMaterial();
+	}
+	
+	
 	
 	@Override
 	public int hashCode() {

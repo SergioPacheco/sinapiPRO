@@ -1,0 +1,27 @@
+<script id="tabela-pesquisa-rapida-insumo" type="text/x-handlebars-template">
+<div class="table-responsive  sn-tabela-simples" style="margin-top: 15px">
+	<table class="table  table-hover">
+		<thead>
+			<tr>
+				<th class="col-sm-2">codigo</th>
+				<th class="col-sm-2">descrição</th>
+			</tr>
+		</thead>
+				
+		<tbody>
+			{{#if .}}
+				{{#each .}}
+					<tr data-codigo="{{codigo}}" data-descricao="{{descricao}}" class="js-insumo-pesquisa-rapida">
+						<td>{{codigo}}</td>
+						<td>{{descricao}}</td>
+ 					</tr>
+				{{/each}}
+			{{else}}
+				<tr>
+					<td colspan="2">Nenhum Insumo encontrado</td>
+				</tr>
+			{{/if}}
+		</tbody>
+	</table>
+</div>
+</script>

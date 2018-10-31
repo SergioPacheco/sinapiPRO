@@ -10,4 +10,6 @@ public interface OrcamentosRepositoryQueries {
 	
 	public Page<Orcamento> filtrar(OrcamentoFilter filtro, Pageable pageable);
 	
+	public Orcamento buscarComItens(Long codigo);
+	
 }

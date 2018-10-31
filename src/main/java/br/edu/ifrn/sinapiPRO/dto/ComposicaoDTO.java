@@ -5,16 +5,15 @@ import java.math.BigDecimal;
 public class ComposicaoDTO {
 
 	private Long codigo;
-	private Long codigoInsumo;
-	private String nome;
-	private String base;
-	private BigDecimal valor;
-
-	public ComposicaoDTO(Long codigo, Long codigoInsumo, String nome, BigDecimal valor) {
+	private String descricao;
+	private String unidade;
+	private BigDecimal custoTotal;
+	
+	public ComposicaoDTO(Long codigo, String descricao, String unidade, BigDecimal custoTotal) {
 		this.codigo = codigo;
-		this.codigoInsumo = codigoInsumo;
-		this.nome = nome;
-		this.valor = valor;
+		this.descricao = descricao;
+		this.unidade = unidade;
+		this.custoTotal = custoTotal;
 	}
 
 	public Long getCodigo() {
@@ -25,35 +24,29 @@ public class ComposicaoDTO {
 		this.codigo = codigo;
 	}
 
-	public Long getCodigoInsumo() {
-		return codigoInsumo;
+	public String getDescricao() {
+		return descricao;
 	}
 
-	public void setSku(Long codigoInsumo) {
-		this.codigoInsumo = codigoInsumo;
+	public void setDescricao(String descricao) {
+		this.descricao = descricao;
 	}
 
-	public String getNome() {
-		return nome;
+	public String getUnidade() {
+		return unidade;
 	}
 
-	public void setNome(String nome) {
-		this.nome = nome;
+	public void setUnidade(String unidade) {
+		this.unidade = unidade;
 	}
 
-	public String getBase() {
-		return base;
+	public BigDecimal getCustoTotal() {
+		return custoTotal;
 	}
 
-	public void setBase(String base) {
-		this.base = base;
+	public void setCustoTotal(BigDecimal valor) {
+		this.custoTotal = valor;
 	}
 
-	public BigDecimal getValor() {
-		return valor;
-	}
-
-	public void setValor(BigDecimal valor) {
-		this.valor = valor;
-	}
+	
 }

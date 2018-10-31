@@ -1,6 +1,6 @@
-sinapiPRO = sinapiPRO || {};
+SinapiPRO = SinapiPRO || {};
 
-sinapiPRO.MultiSelecao = (function() {
+SinapiPRO.MultiSelecao = (function() {
 	
 	function MultiSelecao() {
 		this.statusBtn = $('.js-status-btn');
@@ -61,6 +61,6 @@ sinapiPRO.MultiSelecao = (function() {
 }());
 
 $(function() {
-	var multiSelecao = new sinapiPRO.MultiSelecao();
+	var multiSelecao = new SinapiPRO.MultiSelecao();
 	multiSelecao.iniciar();
 });

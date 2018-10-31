@@ -1,6 +1,6 @@
-sinapiPRO = sinapiPRO || {};
+SinapiPRO = SinapiPRO || {};
 
-sinapiPRO.PesquisaRapidaBasePrecos = (function() {
+SinapiPRO.PesquisaRapidaBasePrecos = (function() {
 	
 	function PesquisaRapidaBasePreco() {
 		this.pesquisaRapidaBasePrecoModal = $('#pesquisaRapidaBasePrecos');
@@ -43,7 +43,7 @@ sinapiPRO.PesquisaRapidaBasePrecos = (function() {
 		var html = this.template(resultado);
 		this.containerTabelaPesquisa.html(html);
 		
-		var tabelaBasePrecoPesquisaRapida = new sinapiPRO.TabelaBasePrecoPesquisaRapida(this.pesquisaRapidaBasePrecosModal);
+		var tabelaBasePrecoPesquisaRapida = new SinapiPRO.TabelaBasePrecoPesquisaRapida(this.pesquisaRapidaBasePrecosModal);
 		tabelaBasePrecoPesquisaRapida.iniciar();
 	} 
 	
@@ -55,7 +55,7 @@ sinapiPRO.PesquisaRapidaBasePrecos = (function() {
 	
 }());
 
-sinapiPRO.TabelaBasePrecoPesquisaRapida = (function() {
+SinapiPRO.TabelaBasePrecoPesquisaRapida = (function() {
 	
 	function TabelaBasePrecoPesquisaRapida(modal) {
 		this.modalBasePreco = modal;
@@ -79,6 +79,6 @@ sinapiPRO.TabelaBasePrecoPesquisaRapida = (function() {
 }());
 
 $(function() {
-	var pesquisaRapidaBasePreco = new sinapiPRO.PesquisaRapidaBasePreco();
+	var pesquisaRapidaBasePreco = new SinapiPRO.PesquisaRapidaBasePreco();
 	pesquisaRapidaBasePreco.iniciar();
 });

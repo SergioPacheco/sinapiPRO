@@ -1,6 +1,6 @@
-var sinapiPRO = sinapiPRO || {};
+var SinapiPRO = SinapiPRO || {};
 
-sinapiPRO.MascaraCpfCnpj = (function() {
+SinapiPRO.MascaraCpfCnpj = (function() {
 	
 	function MascaraCpfCnpj() {
 		this.radioTipoPessoa = $('.js-radio-tipo-pessoa');
@@ -33,6 +33,6 @@ sinapiPRO.MascaraCpfCnpj = (function() {
 }());
 
 $(function() {
-	var mascaraCpfCnpj = new sinapiPRO.MascaraCpfCnpj();
+	var mascaraCpfCnpj = new SinapiPRO.MascaraCpfCnpj();
 	mascaraCpfCnpj.iniciar();
 });

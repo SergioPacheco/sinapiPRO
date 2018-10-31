@@ -1,6 +1,7 @@
 package br.edu.ifrn.sinapiPRO.controller;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -8,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
@@ -18,17 +20,18 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
+import br.edu.ifrn.sinapiPRO.dto.ComposicaoDTO;
 import br.edu.ifrn.sinapiPRO.model.Composicao;
 import br.edu.ifrn.sinapiPRO.model.ItemComposicao;
 import br.edu.ifrn.sinapiPRO.repository.BaseInsumos;
 import br.edu.ifrn.sinapiPRO.repository.BasePrecos;
 import br.edu.ifrn.sinapiPRO.repository.Classes;
 import br.edu.ifrn.sinapiPRO.repository.Composicoes;
-import br.edu.ifrn.sinapiPRO.repository.Insumos;
 import br.edu.ifrn.sinapiPRO.repository.TipoComposicaoRepository;
 import br.edu.ifrn.sinapiPRO.repository.filter.ComposicaoFilter;
 import br.edu.ifrn.sinapiPRO.security.UsuarioSistema;
@@ -46,9 +49,6 @@ public class ComposicoesController {
 	private Classes classes;
 	
 	@Autowired
-	private Insumos insumos;
-	
-	@Autowired
 	private TipoComposicaoRepository tipoComposicoes;
 	
 	@Autowired
@@ -63,13 +63,7 @@ public class ComposicoesController {
 	@Autowired
 	private CadastroComposicaoService cadastroComposicaoService;
 	
-	
 
-	/**
-	 * 
-	 * @param composicao
-	 * @return
-	 */
 	@GetMapping("/nova")
 	public ModelAndView nova(Composicao composicao) {
 		
@@ -141,11 +135,11 @@ public class ComposicoesController {
 		return mv;
 	}
 	
-	/**
-	 * Edita a composição 
-	 * @param codigo - código da composição
-	 * @return
-	 */
+	@RequestMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody List<ComposicaoDTO> pesquisar(String codigoOuNome) {
+		return composicoes.porCodigoOuNome(codigoOuNome);
+	}
+	
 	@GetMapping("/{codigo}")
 	public ModelAndView editar(@PathVariable Long codigo) {
 		
@@ -155,9 +149,9 @@ public class ComposicoesController {
 			
 			tabelaItensComposicao.adicionarItem( item.getTipo(),
 					                       composicao.getUuid(),
-					                            item.getCodigoItem(), 
-					                            item.getPrecoUnitario(),
-					                            item.getCoeficiente());
+					                             item.getCodigoItem(), 
+					                             item.getPrecoUnitario(),
+					                             item.getCoeficiente());
 		}
 		
 		ModelAndView mv = nova(composicao);

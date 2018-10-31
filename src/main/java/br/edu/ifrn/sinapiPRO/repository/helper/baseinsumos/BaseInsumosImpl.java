@@ -1,7 +1,5 @@
 package br.edu.ifrn.sinapiPRO.repository.helper.baseinsumos;
 
-import java.util.List;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -17,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import br.edu.ifrn.sinapiPRO.dto.ItemBasePrecoDTO;
 import br.edu.ifrn.sinapiPRO.model.BaseInsumo;
 import br.edu.ifrn.sinapiPRO.repository.filter.BaseInsumoFilter;
 import br.edu.ifrn.sinapiPRO.repository.helper.baseinsumos.BaseInsumosQueries;

@@ -23,7 +23,6 @@ function openAjax() {
 	return ajax;
 }
 
-// Chama a função para notificar sobre novo atendimento e chat
 function verificaNovoAttChat() {
 	verificaNovoAtt();
 }

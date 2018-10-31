@@ -1,6 +1,6 @@
-var sinapiPRO = sinapiPRO || {};
+var SinapiPRO = SinapiPRO || {};
 
-sinapiPRO.ComboEstado = (function() {
+SinapiPRO.ComboEstado = (function() {
 	
 	function ComboEstado() {
 		this.combo = $('#estado');
@@ -20,7 +20,7 @@ sinapiPRO.ComboEstado = (function() {
 	
 }());
 
-sinapiPRO.ComboCidade = (function() {
+SinapiPRO.ComboCidade = (function() {
 	
 	function ComboCidade(comboEstado) {
 		this.comboEstado = comboEstado;
@@ -93,10 +93,10 @@ sinapiPRO.ComboCidade = (function() {
 
 $(function() {
 	
-	var comboEstado = new sinapiPRO.ComboEstado();
+	var comboEstado = new SinapiPRO.ComboEstado();
 	comboEstado.iniciar();
 	
-	var comboCidade = new sinapiPRO.ComboCidade(comboEstado);
+	var comboCidade = new SinapiPRO.ComboCidade(comboEstado);
 	comboCidade.iniciar();
 	
 });

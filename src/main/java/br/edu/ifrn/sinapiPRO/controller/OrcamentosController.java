@@ -79,18 +79,6 @@ public class OrcamentosController {
 		
 		return new ModelAndView("redirect:/orcamentos/novo");
 	}
-	/*
-	@RequestMapping(method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE})
-	public @ResponseBody ResponseEntity<?> salvar(@RequestBody @Valid Orcamento orcamento, BindingResult result ){
-		
-		if(result.hasErrors()){
-			return ResponseEntity.badRequest().body(result.getFieldError("nome").getDefaultMessage());
-		}
-		
-		orcamento = orcamentoService.salvar(orcamento); 
-		return ResponseEntity.ok(orcamento);
-	}
-	*/
 	
 	@GetMapping
 	public ModelAndView pesquisar(OrcamentoFilter orcamentoFilter, 
@@ -112,7 +100,7 @@ public class OrcamentosController {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 		return ResponseEntity.ok().build();
-	}
+	} 
 	
 	@GetMapping("/{codigo}")
 	public ModelAndView editar(@PathVariable("codigo") Orcamento orcamento) {

@@ -64,9 +64,25 @@ public class ComposicoesImpl implements ComposicoesQueries {
 		return (Long) criteria.uniqueResult();
 	}
 
+	@Override
+	public List<ComposicaoDTO> porCodigoOuNome(String codigoOuNome) {
+		String jpql = "select new br.edu.ifrn.sinapiPRO.dto.ComposicaoDTO(codigo, descricao, unidade, custoTotal) "
+				    + "from Composicao where lower(descricao) like lower(:codigoOuNome)";
+		
+		List<ComposicaoDTO> composicoesFiltradas = manager
+										.createQuery(jpql, ComposicaoDTO.class)
+										.setParameter("codigoOuNome", codigoOuNome + "%")
+										.getResultList();
+		return composicoesFiltradas;
+	}
+	
 	private void adicionarFiltro(ComposicaoFilter filtro, Criteria criteria) {
 		
 		if (filtro != null) {
+			if(filtro.getCodigo()!=null){
+				criteria.add(Restrictions.eq("codigo", filtro.getCodigo()));
+			}
+			
 			if (!StringUtils.isEmpty(filtro.getDescricao())) {
 				criteria.add(Restrictions.ilike("descricao", filtro.getDescricao(), MatchMode.ANYWHERE));
 			}
@@ -89,10 +105,5 @@ public class ComposicoesImpl implements ComposicoesQueries {
 		return filtro.getClasse() != null && filtro.getClasse().getCodigo() != null;
 	}
 
-	@Override
-	public List<ComposicaoDTO> porCodigoOuDescricao(String codigoOuDescricao) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 	
 }

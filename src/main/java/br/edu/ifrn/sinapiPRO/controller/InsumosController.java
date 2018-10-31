@@ -97,15 +97,13 @@ public class InsumosController {
 		 
 		return insumos.listaBasePrecoPorInsumo(codigoInsumo);
 	 
-		
-		// return insumos.listaPrecosPorInsumo(codigoInsumo); // nativeQuery
 	}
 	
 	 
 	@RequestMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody List<InsumoDTO> pesquisar(String codigoOuDescricao) {
+	public @ResponseBody List<InsumoDTO> pesquisar(String codigoOuNome) {
 		
-		return insumos.porCodigoOuDescricao(codigoOuDescricao);
+		return insumos.porCodigoInsumoOuNome(codigoOuNome);
 	
 	}
 	 

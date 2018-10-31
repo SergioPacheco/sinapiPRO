@@ -1,6 +1,6 @@
-var sinapiPRO = sinapiPRO || {};
+var SinapiPRO = SinapiPRO || {};
 
-sinapiPRO.MaskMoney = (function() {
+SinapiPRO.MaskMoney = (function() {
 	
 	function MaskMoney() {
 		this.decimal = $('.js-decimal');
@@ -16,7 +16,7 @@ sinapiPRO.MaskMoney = (function() {
 	
 }());
 
-sinapiPRO.MaskPhoneNumber = (function() {
+SinapiPRO.MaskPhoneNumber = (function() {
 	
 	function MaskPhoneNumber() {
 		this.inputPhoneNumber = $('.js-phone-number');
@@ -40,7 +40,7 @@ sinapiPRO.MaskPhoneNumber = (function() {
 	
 }());
 
-sinapiPRO.MaskCep = (function() {
+SinapiPRO.MaskCep = (function() {
 	
 	function MaskCep() {
 		this.inputCep = $('.js-cep');
@@ -54,7 +54,7 @@ sinapiPRO.MaskCep = (function() {
 	
 }());
 
-sinapiPRO.MaskDate = (function() {
+SinapiPRO.MaskDate = (function() {
 	
 	function MaskDate() {
 		this.inputDate = $('.js-date');
@@ -73,7 +73,7 @@ sinapiPRO.MaskDate = (function() {
 	
 }());
 
-sinapiPRO.Security = (function() {
+SinapiPRO.Security = (function() {
 	
 	function Security() {
 		this.token = $('input[name=_csrf]').val();
@@ -92,28 +92,28 @@ sinapiPRO.Security = (function() {
 
 numeral.language('pt-br');
 
-sinapiPRO.formatarMoeda = function(valor) {
+SinapiPRO.formatarMoeda = function(valor) {
 	return numeral(valor).format('0,0.00');
 }
 
-sinapiPRO.recuperarValor = function(valorFormatado) {
+SinapiPRO.recuperarValor = function(valorFormatado) {
 	return numeral().unformat(valorFormatado);
 }
 
 $(function() {
-	var maskMoney = new sinapiPRO.MaskMoney();
+	var maskMoney = new SinapiPRO.MaskMoney();
 	maskMoney.enable();
 	
-	var maskPhoneNumber = new sinapiPRO.MaskPhoneNumber();
+	var maskPhoneNumber = new SinapiPRO.MaskPhoneNumber();
 	maskPhoneNumber.enable();
 	
-	var maskCep = new sinapiPRO.MaskCep();
+	var maskCep = new SinapiPRO.MaskCep();
 	maskCep.enable();
 	
-	var maskDate = new sinapiPRO.MaskDate();
+	var maskDate = new SinapiPRO.MaskDate();
 	maskDate.enable();
 	
-	var security = new sinapiPRO.Security();
+	var security = new SinapiPRO.Security();
 	security.enable();
 	
 });

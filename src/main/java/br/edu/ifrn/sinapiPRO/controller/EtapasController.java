@@ -1,5 +1,7 @@
 package br.edu.ifrn.sinapiPRO.controller;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -9,6 +11,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,7 +40,7 @@ public class EtapasController {
 	
 	@Autowired
 	private Etapas etapas;
-	
+
 	@RequestMapping("/nova")
 	public ModelAndView nova(Etapa etapa) {
 		return new ModelAndView("etapa/CadastroEtapa");
@@ -64,9 +67,6 @@ public class EtapasController {
 	@RequestMapping(method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE})
 	public @ResponseBody ResponseEntity<?> salvar(@RequestBody @Valid Etapa etapa, BindingResult result ){
 		
-		/*O ponto de "?" é porque não sabemos qual vai ser o retorno, tem hora que pode ser o 
-		 * badRequest ou um ok.*/
-		
 		if(result.hasErrors()){
 			return ResponseEntity.badRequest().body(result.getFieldError("nome").getDefaultMessage());
 		}
@@ -77,7 +77,7 @@ public class EtapasController {
 	
 	@GetMapping
 	public ModelAndView pesquisar(EtapaFilter etapaFilter, BindingResult result
-			,@PageableDefault(size = 5) Pageable pageable, HttpServletRequest httpServletRequest){
+			,@PageableDefault(size = 25) Pageable pageable, HttpServletRequest httpServletRequest){
 		ModelAndView mv = new ModelAndView("etapa/PesquisaEtapas");
 		
 		PageWrapper<Etapa> paginaWrapper = new PageWrapper<>(etapas.filtrar(etapaFilter, pageable)
@@ -87,14 +87,15 @@ public class EtapasController {
 		return mv;
 	}
 	
-/*	Esse método não funciona é porque existe o conflito de converters, que configuramos no WebConfig, 
- * ai nesse caso você precisa fazer a pesquisa mesmo no controller.  
- * @GetMapping("/{codigo}")
-	public ModelAndView editar(@PathVariable("codigo") Etapa etapa) {
-		ModelAndView mv = novo(etapa);
-		mv.addObject(etapa);
-		return mv;
-	}*/
+	@RequestMapping(consumes = { MediaType.APPLICATION_JSON_VALUE })
+	public @ResponseBody List<Etapa> pesquisar(String codigoOuNome) {
+		if (codigoOuNome.equals("***")) { 
+			return etapas.findAll();
+		} else {
+			return etapas.findByNomeStartingWithIgnoreCase(codigoOuNome);
+		}
+	}
+	
 	
 	@GetMapping("/{codigo}")
 	public ModelAndView editar(@PathVariable Long codigo) {

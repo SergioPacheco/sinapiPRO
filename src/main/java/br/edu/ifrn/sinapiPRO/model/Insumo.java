@@ -1,8 +1,11 @@
 package br.edu.ifrn.sinapiPRO.model;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -14,16 +17,18 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.NaturalId;
 
 @Entity
 @Table(name = "insumo")
-public class Insumo {
+public class Insumo implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO, generator="native")
 	@GenericGenerator(name = "native", strategy = "native")
 	private Long codigo;
 	
+	@NaturalId
 	@NotNull(message = "Codigo Insumo é obrigatório")
 	private Long codigoInsumo; 
 
@@ -39,7 +44,9 @@ public class Insumo {
 	private String unidade; 
 	
 	private BigDecimal precoPadrao;
- 	
+	
+	@Enumerated(EnumType.STRING)
+	private Especie especie;
 	
 	public Long getCodigo() {
 		return codigo;
@@ -87,6 +94,14 @@ public class Insumo {
 
 	public void setPrecoPadrao(BigDecimal precoPadrao) {
 		this.precoPadrao = precoPadrao;
+	}
+		
+	public Especie getEspecie() {
+		return especie;
+	}
+
+	public void setEspecie(Especie especie) {
+		this.especie = especie;
 	}
 
 	public boolean isNovo() {

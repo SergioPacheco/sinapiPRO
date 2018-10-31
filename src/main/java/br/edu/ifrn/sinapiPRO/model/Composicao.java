@@ -34,7 +34,7 @@ public class Composicao  {
 		    cascade = CascadeType.ALL, 
       orphanRemoval = true)
 	private List<ItemComposicao> itens = new ArrayList<>();
-
+ 
 	@ManyToOne 
 	@JoinColumn(name = "codigo_base_preco")
 	private BasePreco basePreco;

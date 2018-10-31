@@ -1,18 +1,14 @@
 package br.edu.ifrn.sinapiPRO.model;
 
-public enum EspecieInsumo {
+public enum Especie {
 
 	MATERIAL("Material"),
-	HORA_HOMEM("Hora Homem"),
-	SERVICO("Servico"),
-	VERBA("Verba"),
 	EQUIPAMENTO("Equipamento"),
-	MAO_DE_OBRA("Mao de Obra"), 
-	OUTROS("OUTROS");
+	MAO_DE_OBRA("Mão de Obra");
 	
 	private String descricao;
 	
-	EspecieInsumo(String descricao) {
+	Especie(String descricao) {
 		this.descricao = descricao;
 	}
 	 

@@ -1,6 +1,6 @@
-sinapiPRO = sinapiPRO || {};
+SinapiPRO = SinapiPRO || {};
 
-sinapiPRO.DialogoExcluir = (function() {
+SinapiPRO.DialogoExcluir = (function() {
 	
 	function DialogoExcluir() {
 		this.exclusaoBtn = $('.js-exclusao-btn')
@@ -57,6 +57,6 @@ sinapiPRO.DialogoExcluir = (function() {
 }());
 
 $(function() {
-	var dialogo = new sinapiPRO.DialogoExcluir();
+	var dialogo = new SinapiPRO.DialogoExcluir();
 	dialogo.iniciar();
 });
