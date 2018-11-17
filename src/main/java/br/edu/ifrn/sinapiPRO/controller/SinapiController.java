@@ -26,19 +26,20 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import br.edu.ifrn.sinapiPRO.model.BaseKey;
 import br.edu.ifrn.sinapiPRO.model.BasePreco;
-import br.edu.ifrn.sinapiPRO.model.Classe;
+import br.edu.ifrn.sinapiPRO.model.ClasseComposicao;
 import br.edu.ifrn.sinapiPRO.model.Composicao;
+import br.edu.ifrn.sinapiPRO.model.Especie;
 import br.edu.ifrn.sinapiPRO.model.Insumo;
 import br.edu.ifrn.sinapiPRO.model.ItemBasePreco;
 import br.edu.ifrn.sinapiPRO.model.ItemComposicao;
-import br.edu.ifrn.sinapiPRO.model.TipoComposicao;
+import br.edu.ifrn.sinapiPRO.model.GrupoComposicao;
 import br.edu.ifrn.sinapiPRO.repository.BasePrecos;
-import br.edu.ifrn.sinapiPRO.repository.Classes;
+import br.edu.ifrn.sinapiPRO.repository.ClassesRepository;
 import br.edu.ifrn.sinapiPRO.repository.Insumos;
 import br.edu.ifrn.sinapiPRO.repository.ItemBasePrecoRepository;
-import br.edu.ifrn.sinapiPRO.repository.TipoComposicaoRepository;
-import br.edu.ifrn.sinapiPRO.service.CadastroComposicaoService;
-import br.edu.ifrn.sinapiPRO.service.CadastroInsumoService;
+import br.edu.ifrn.sinapiPRO.repository.GrupoComposicaoRepository;
+import br.edu.ifrn.sinapiPRO.service.ComposicaoService;
+import br.edu.ifrn.sinapiPRO.service.InsumoService;
 import br.edu.ifrn.sinapiPRO.service.exception.ResourceNotFoundException;
 import br.edu.ifrn.sinapiPRO.utils.Lib;
 
@@ -50,7 +51,7 @@ public class SinapiController {
 	private Insumos insumoRepository;
 	
 	@Autowired
-	private CadastroInsumoService cadastroInsumoService;
+	private InsumoService cadastroInsumoService;
 	
 	@Autowired
 	private BasePrecos basePrecoRepository;
@@ -59,13 +60,13 @@ public class SinapiController {
 	private ItemBasePrecoRepository itemBasePrecoRepository;
 				
 	@Autowired  
-	private CadastroComposicaoService composicaoService;
+	private GrupoComposicaoRepository grupoComposicaoRepository;
 	
 	@Autowired  
-	private TipoComposicaoRepository tipoComposicaoRepository;
+	private ClassesRepository classesRepository;
 	
 	@Autowired  
-	private Classes classeRepository;
+	private ComposicaoService composicaoService;
 	
 	private Double valueNumeric; 
 	private String valueString;
@@ -205,13 +206,15 @@ public class SinapiController {
 					Optional<Insumo> insumoExistente = insumoRepository.findByCodigoInsumo(insumo.getCodigoInsumo());
 					
 					if(!insumoExistente.isPresent()){
-						// Novo Insumo
 						
+						// Novo Insumo
 						insumo.setBasePreco(basePreco);
 						if (insumo.getCodigoInsumo() !=null &&
 							insumo.getDescricao()    !=null &&
 							insumo.getUnidade()      !=null &&
-							insumo.getPrecoPadrao() !=null) {
+							insumo.getPrecoPadrao()  !=null) {
+							
+							insumo.setEspecie(defineEspecie(insumo.getUnidade(), insumo.getDescricao()) );
 							
 							cadastroInsumoService.salvar(insumo);
 							// insumoRepository.saveAndFlush(insumo);
@@ -222,6 +225,7 @@ public class SinapiController {
 							continue;
 						}
 					} else { 
+						
 						// Atualiza Insumo
 						if (insumo.getCodigoInsumo() !=null &&
 							insumo.getDescricao()    !=null &&
@@ -234,6 +238,8 @@ public class SinapiController {
 							insumoEdita.setDescricao(insumo.getDescricao());
 							insumoEdita.setPrecoPadrao(insumo.getPrecoPadrao());
 							insumoEdita.setBasePreco(basePreco);
+							
+							insumoEdita.setEspecie(defineEspecie(insumo.getUnidade(), insumo.getDescricao()) );
 							
 							cadastroInsumoService.salvar(insumoEdita);
 							// insumoRepository.saveAndFlush(insumo);
@@ -349,8 +355,8 @@ public class SinapiController {
 		
 		Composicao composicao = new Composicao(); 
 		ItemComposicao itemComposicao = new ItemComposicao(); 
-		Classe classe = new Classe();
-		TipoComposicao tipoComposicao = new TipoComposicao(); 
+		ClasseComposicao classe = new ClasseComposicao();
+		GrupoComposicao tipoComposicao = new GrupoComposicao(); 
 		List<ItemComposicao> itens = new ArrayList<>();
 		 
 		
@@ -468,32 +474,32 @@ public class SinapiController {
 								        //    throw new ResourceNotFoundException("Erro conversao"+campo6Atual+" "+L);
 								        // }
 										
-										Optional<Classe> classeExistente = classeRepository.findBySiglaIgnoreCase(campo1Atual);
+										Optional<ClasseComposicao> classeExistente = classesRepository.findBySiglaIgnoreCase(campo1Atual);
 										
 										if (classeExistente.isPresent()) {
-											composicao.setClasse(classeExistente.get()); 
+											composicao.setClasseComposicao(classeExistente.get()); 
 										} else { 
-											classe =new Classe();
+											classe =new ClasseComposicao();
 											classe.setNome(campo0Atual);
 											classe.setSigla(campo1Atual);
 											
-											classeRepository.save(classe);
-											composicao.setClasse(classeRepository.findBySiglaIgnoreCase(campo1Atual).get());
+											classesRepository.save(classe);
+											composicao.setClasseComposicao(classesRepository.findBySiglaIgnoreCase(campo1Atual).get());
 										}
 										
-										Optional<TipoComposicao> tipoExistente = tipoComposicaoRepository.findById( campo3Atual.longValue() );
+										Optional<GrupoComposicao> tipoExistente = grupoComposicaoRepository.findById( campo3Atual.longValue() );
 										
 										if (tipoExistente.isPresent()) {
-											composicao.setTipoComposicao(tipoExistente.get()); 
+											composicao.setGrupoComposicao(tipoExistente.get()); 
 										} else {
-											tipoComposicao =new TipoComposicao();
+											tipoComposicao =new GrupoComposicao();
 											tipoComposicao.setCodigo(campo3Atual.longValue() ); 
 											tipoComposicao.setNome(campo2Atual);
 											
-											tipoComposicaoRepository.save(tipoComposicao); 
+											grupoComposicaoRepository.save(tipoComposicao); 
 											
-											TipoComposicao novoTipo = tipoComposicaoRepository.findById( campo3Atual.longValue() ).get();
-											composicao.setTipoComposicao(novoTipo);
+											GrupoComposicao novoTipo = grupoComposicaoRepository.findById( campo3Atual.longValue() ).get();
+											composicao.setGrupoComposicao(novoTipo);
 										}
 										
 									}
@@ -533,32 +539,32 @@ public class SinapiController {
 								        //}
 																			
 											
-										Optional<Classe> classeExistente = classeRepository.findBySiglaIgnoreCase(campo1Atual);
+										Optional<ClasseComposicao> classeExistente = classesRepository.findBySiglaIgnoreCase(campo1Atual);
 										
 										if (classeExistente.isPresent()) {
-											composicao.setClasse(classeExistente.get()); 
+											composicao.setClasseComposicao(classeExistente.get()); 
 										} else { 
-											classe =new Classe();
+											classe =new ClasseComposicao();
 											classe.setNome(campo0Atual);
 											classe.setSigla(campo1Atual);
 											
-											classeRepository.save(classe);
-											composicao.setClasse(classeRepository.findBySiglaIgnoreCase(campo1Atual).get());
+											classesRepository.save(classe);
+											composicao.setClasseComposicao(classesRepository.findBySiglaIgnoreCase(campo1Atual).get());
 										}
 										
-										Optional<TipoComposicao> tipoExistente = tipoComposicaoRepository.findById( campo3Atual.longValue() );
+										Optional<GrupoComposicao> tipoExistente = grupoComposicaoRepository.findById( campo3Atual.longValue() );
 										
 										if (tipoExistente.isPresent()) {
-											composicao.setTipoComposicao(tipoExistente.get()); 
+											composicao.setGrupoComposicao(tipoExistente.get()); 
 										} else {
-											tipoComposicao =new TipoComposicao();
+											tipoComposicao =new GrupoComposicao();
 											tipoComposicao.setCodigo(campo3Atual.longValue() ); 
 											tipoComposicao.setNome(campo2Atual);
 											
-											tipoComposicaoRepository.save(tipoComposicao); 
+											grupoComposicaoRepository.save(tipoComposicao); 
 											
-											TipoComposicao novoTipo = tipoComposicaoRepository.findById( campo3Atual.longValue() ).get();
-											composicao.setTipoComposicao(novoTipo);
+											GrupoComposicao novoTipo = grupoComposicaoRepository.findById( campo3Atual.longValue() ).get();
+											composicao.setGrupoComposicao(novoTipo);
 										}
 									    
 									}
@@ -721,6 +727,22 @@ public class SinapiController {
         } 
         return new String(sb.toString());
     } 
+	
+	public static Especie defineEspecie(String unidade, String descricao){     
+        
+		if ("H".equals(unidade)) {
+			if (descricao.length() > 7) {
+				System.out.println(descricao.substring(0, 7)); 
+			    if ( "LOCACAO".equals( descricao.substring(0, 7) ) ) { 
+			    		
+			       return Especie.EQUIPAMENTO;	
+			    }
+	 	    }
+			return Especie.MAO_DE_OBRA;
+		}
+		return Especie.MATERIAL;
+    } 
+	
 	
     public static BigDecimal StrToBig (String numero, Integer decimais) {
         String casasDecimais = "";

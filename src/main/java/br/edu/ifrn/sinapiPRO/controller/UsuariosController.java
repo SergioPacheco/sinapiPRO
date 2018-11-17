@@ -24,7 +24,7 @@ import br.edu.ifrn.sinapiPRO.model.Usuario;
 import br.edu.ifrn.sinapiPRO.repository.Grupos;
 import br.edu.ifrn.sinapiPRO.repository.Usuarios;
 import br.edu.ifrn.sinapiPRO.repository.filter.UsuarioFilter;
-import br.edu.ifrn.sinapiPRO.service.CadastroUsuarioService;
+import br.edu.ifrn.sinapiPRO.service.UsuarioService;
 import br.edu.ifrn.sinapiPRO.service.StatusUsuario;
 import br.edu.ifrn.sinapiPRO.service.exception.EmailUsuarioJaCadastradoException;
 import br.edu.ifrn.sinapiPRO.service.exception.SenhaObrigatoriaUsuarioException;
@@ -34,7 +34,7 @@ import br.edu.ifrn.sinapiPRO.service.exception.SenhaObrigatoriaUsuarioException;
 public class UsuariosController {
 	
 	@Autowired
-	private CadastroUsuarioService cadastroUsuarioService;
+	private UsuarioService cadastroUsuarioService;
 
 	@Autowired
 	private Grupos grupos;

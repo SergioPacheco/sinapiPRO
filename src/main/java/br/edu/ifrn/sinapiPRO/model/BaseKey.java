@@ -3,17 +3,10 @@ package br.edu.ifrn.sinapiPRO.model;
 import java.io.Serializable;
 
 import javax.persistence.Embeddable;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.validation.constraints.NotNull;
-
 
 @Embeddable
 public class BaseKey implements Serializable {
 	 
-    /**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	
 	private Long basePrecoID;

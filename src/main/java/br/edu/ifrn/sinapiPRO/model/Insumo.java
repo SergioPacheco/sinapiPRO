@@ -23,6 +23,8 @@ import org.hibernate.annotations.NaturalId;
 @Table(name = "insumo")
 public class Insumo implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO, generator="native")
 	@GenericGenerator(name = "native", strategy = "native")

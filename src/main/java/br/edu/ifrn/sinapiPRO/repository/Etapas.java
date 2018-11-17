@@ -5,7 +5,6 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import br.edu.ifrn.sinapiPRO.model.Cliente;
 import br.edu.ifrn.sinapiPRO.model.Etapa;
 import br.edu.ifrn.sinapiPRO.repository.helper.etapa.EtapasQueries;
 

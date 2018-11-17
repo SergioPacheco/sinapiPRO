@@ -78,26 +78,24 @@
 			<div class="row">
 			
 				<div class="form-group  col-sm-4">
-					<label for="classe">Classe</label>
-					<select id="classe" class="form-control" th:field="*{classe}">
-	                    
-	                    <option value="">Selecione a Classe da Composição</option>
-	                    
-	                    <option th:each="cla : ${classes}" 
-	                            th:value="${cla.codigo}" 
-	                            th:text="${cla.nome}">SINAPI</option>
+					<label for="classeComposicao">Classe</label>
+					<select id="classeComposicao" class="form-control" th:field="*{classeComposicao}">
+	                    <option value="">Selecione a Classe</option>
+	                    <option th:each="classeComposicao : ${classesComposicao}" 
+	                            th:value="${classeComposicao.codigo}" 
+	                            th:text="${classeComposicao.nome}">HIDRAULICA</option>
 	                </select>
 				</div>
 				
 				<div class="form-group  col-sm-4">
-					<label for="tipoComposicao">Sub-Classe</label>
-					<select id="tipoComposicao" class="form-control" th:field="*{tipoComposicao}">
+					<label for="grupoComposicao">Grupo</label>
+					<select id="grupoComposicao" class="form-control" th:field="*{grupoComposicao}">
 	                    
-	                    <option value="">Selecione a Sub-Classe da Composição</option>
+	                    <option value="">Selecione um grupo da Composição</option>
 	                    
-	                    <option th:each="tipo : ${tipoComposicoes}" 
-	                            th:value="${tipo.codigo}" 
-	                            th:text="${tipo.nome}">SINAPI</option>
+	                    <option th:each="grupoComposicao : ${gruposComposicoes}" 
+	                            th:value="${grupoComposicao.codigo}" 
+	                            th:text="${grupoComposicao.nome}">SINAPI</option>
 	                </select>
 				</div>
 			

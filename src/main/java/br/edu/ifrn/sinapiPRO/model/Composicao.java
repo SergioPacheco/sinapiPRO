@@ -10,8 +10,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -44,12 +42,12 @@ public class Composicao  {
 	private BaseInsumo baseInsumo;
 	
 	@ManyToOne 
-	@JoinColumn(name = "codigo_classe")
-	private Classe classe;
+	@JoinColumn(name = "codigo_classe_composicao")
+	private ClasseComposicao classeComposicao;
 	
 	@ManyToOne 
-	@JoinColumn(name = "codigo_tipo")
-	private TipoComposicao tipoComposicao;
+	@JoinColumn(name = "codigo_grupo")
+	private GrupoComposicao grupoComposicao;
 	
 	@Enumerated(EnumType.STRING)
 	private SituacaoComposicao ativa = SituacaoComposicao.ATIVA;
@@ -116,20 +114,20 @@ public class Composicao  {
 		this.baseInsumo = baseInsumo;
 	}
 
-	public Classe getClasse() {
-		return classe;
+	public ClasseComposicao getClasseComposicao() {
+		return classeComposicao;
 	}
 
-	public void setClasse(Classe classe) {
-		this.classe = classe;
+	public void setClasseComposicao(ClasseComposicao classeComposicao) {
+		this.classeComposicao = classeComposicao;
 	}
 
-	public TipoComposicao getTipoComposicao() {
-		return tipoComposicao;
+	public GrupoComposicao getGrupoComposicao() {
+		return grupoComposicao;
 	}
 
-	public void setTipoComposicao(TipoComposicao tipoComposicao) {
-		this.tipoComposicao = tipoComposicao;
+	public void setGrupoComposicao(GrupoComposicao grupoComposicao) {
+		this.grupoComposicao = grupoComposicao;
 	}
 
 	public SituacaoComposicao getAtiva() {

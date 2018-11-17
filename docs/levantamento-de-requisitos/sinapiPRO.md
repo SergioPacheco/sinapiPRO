@@ -15,7 +15,7 @@ Para a realização de uma obra são necessários alguns passos:
 * Execução da obra.
 
 ## Esses passos chamamos de projeto de obra ou somente projeto.
-Um projeto é um esforço temporário empreendido para criar um produto, serviço ou resultado exclusivo. Os projetos e as operações diferem, principalmente, no fato de que os projetos são temporários e exclusivos, enquanto as operações são contínuas e repetitivas. (WIKIPEDIA)
+> Um projeto é um esforço temporário empreendido para criar um produto, serviço ou resultado exclusivo. Os projetos e as operações diferem, principalmente, no fato de que os projetos são  temporários e exclusivos, enquanto as operações são contínuas e repetitivas. (WIKIPEDIA)
 
 Focamos aqui a terminologia de projeto para a área de engenharia civil. Para a engenharia civil, uma obra ou reforma é considerada como um projeto.
 
@@ -36,11 +36,10 @@ Portanto, existem 3 tipos diferentes de orçamento:
 
 ### Orçamento de Estimativa
 Este é o orçamento impreciso, estimado, quando um cliente solicita um orçamento prévio para realização de um determinado serviço, sendo esse somente uma estimativa pois, neste momento, não há um projeto definido, não se conhecem todas as atividades necessárias para sua execução - somente atividades básicas e não complexas.
-Normalmente na fase de estimativa levam-se em conta projetos base para facilitar a recuperação de atividades padronizadas, sendo modificadas somente algumas atividades em particular ao projeto que se estima ou a quantidade do serviço para o projeto em questão. Além de utilizar projetos base, mais comumente são utilizados padrões de projetos (apostilas que determinam os elementos base de um determinado projeto). Nesses casos, o usuário que de-
-fine o projeto deverá seguir os padrões pré-estabelecidos para manter a conformidade de suas atividades.
+Normalmente na fase de estimativa levam-se em conta projetos base para facilitar a recuperação de atividades padronizadas, sendo modificadas somente algumas atividades em particular ao projeto que se estima ou a quantidade do serviço para o projeto em questão. Além de utilizar projetos base, mais comumente são utilizados padrões de projetos (apostilas que determinam os elementos base de um determinado projeto). Nesses casos, o usuário que define o projeto deverá seguir os padrões pré-estabelecidos para manter a conformidade de suas atividades.
 
 ### Orçamento de Venda
-Nesta fase, o orçamento é baseado em projeto bem definido pelo engenheiro, tendo suas atividades bem definidas, todos os custos diretos e indiretos de execução do projeto definidos. A obtenção do custo real é baseada na estruturação dos serviços e suas composições (veremos o que são composições mais adiante), determinadas pela quantidade de cada item para a execução do serviço.
+Nesta fase, o orçamento é baseado em projeto bem definido pelo engenheiro, tendo suas atividades bem definidas, todos os custos diretos e indiretos de execução do projeto definidos. A obtenção do custo real é baseada na estruturação dos serviços e suas composições, determinadas pela quantidade de cada item para a execução do serviço.
 A definição do custo é a somatória de todos os recursos desprendidos na execução do projeto (custos diretos) e de todos os custos indiretos envolvidos.
 Para o orçamento de venda, ainda constam os impostos e encargos sociais envolvidos e o lucro desejado com a execução do projeto (BDI).
 Esse é o orçamento que é utilizado para vender o projeto ao cliente. Após aprovado, o passo seguinte é acompanhar a execução do projeto com o orçamento de “execução”.
@@ -70,9 +69,9 @@ Com o grande número de serviços prestados em um projeto, surge a necessidade d
 
 # Serviço
 Serviço é uma atividade na qual a construtora está apta a realizar. Ex.:
-* Analise granulometrica sem sedimentacao;
-* Ensaio para determinacao do Indice Suporte California (CBR) - 3 pontos - obtido com energia Proctor Intermediario, atraves de, no minimo, 5 corpos de prova, conforme reco mendacao da NBR9895, NBR6457, NBR7182; ou
-* Alvenaria de tijolo macico (7x10x20)cm, com argamassa de cimento e saibro no traco 1:6, em paredes com vaos ou arestas, de meia vez (0,10m), ate 3m de altura, e medida pela area real.
+* Analise granulométrica sem sedimentacao;
+* Ensaio para determinacao do Indice Suporte California (CBR) - 3 pontos - obtido com energia Proctor Intermediario, através de, no mínimo, 5 corpos de prova, conforme reco mendação da NBR9895, NBR6457, NBR7182; ou
+* Alvenaria de tijolo maciço (7x10x20)cm, com argamassa de cimento e saibro no traco 1:6, em paredes com vãos ou arestas, de meia vez (0,10m), ate 3m de altura, e medida pela area real.
 
 `Inclusive alguns serviços como o uso de engenheiros da contrutora como se fosse uma consultoria.`
 
@@ -96,9 +95,9 @@ Composição é o nome que se dá à junção de recursos desprendidos em uma de
 |2.10.020| Pedreiro					  |	  H     |  1,00 | 
 |2.10.050| Servente 				  |	  H     |  1,00 |
 
-Para realizar determinado serviço serão necessários usar recursos estipulados e outros serviços. Essa listagem do `que` tem que ser feito para fazer um serviço se da o nome de composição. Ex., para fazer o recurso `Cobertura em telhas onduladas, sem amianto, com espessura de 4mm, fixadas por pregos, inclusive vedacao, exclusive o madeiramento, Vogatex ou similar.Fornecimento e colocacao.` será necessário usar os seguintes recursos:
+Para realizar determinado serviço serão necessários usar recursos estipulados e outros serviços. Essa listagem do `que` tem que ser feito para fazer um serviço se da o nome de composição. Ex., para fazer o recurso `Cobertura em telhas onduladas, sem amianto, com espessura de 4mm, fixadas por pregos, inclusive vedação, exclusive o madeiramento, Vogatex ou similar.Fornecimento e colocação.` será necessário usar os seguintes recursos:
 
-* 3% incidente sobre mao de obra direta com Encargos Sociais para cobrir despesas de EPI e ferramentas;
+* 3% incidente sobre mão de obra direta com Encargos Sociais para cobrir despesas de EPI e ferramentas;
 * Conjunto de vedacao para telha ondulada (arruela galvanizada com borracha) Prego com cabeca, de (18x30);
 * Telha ondulada sem amianto, com espessura de 4mm, medindo: (2,44x0,50)m, Vogatex ou similar;
 * Carpinteiro - forma de concreto;
@@ -178,7 +177,7 @@ O custo final do serviço que sofre incidência de tributos, seja diretamente ou
 # Benefícios
 Os benefícios são considerados os lucros com a execução do projeto. Normalmente é utili zado como a forma dos tributos, em unidades de %. Os benefícios são distribuídos por serviço, podendo ser lançado um % diretamente no projeto, sendo este refletido para todos os serviços do projeto, podendo ser ajustado serviço a serviço pelo responsável.
 
-`Ex.: Se um projeto tem n serviços e nele é lançado um valor de 40% de benefício, todos os n serviços terão incidência de +40% sobre seu valor. Assim o ajuste pode ser feito serviço por serviço, reduzindo a incidência em alguns e podendo aumentar a incidência em outros.`
+`Ex.: Se um projeto tem "n" serviços e nele é lançado um valor de 40% de benefício, todos os "n" serviços terão incidência de +40% sobre seu valor. Assim o ajuste pode ser feito serviço por serviço, reduzindo a incidência em alguns e podendo aumentar a incidência em outros.`
 
 
 # Região
@@ -222,10 +221,10 @@ O sistema deverá permitir:
 * Alterar o % de bonificação do serviço (% de lucro);
 * Cassificar o serviço em níveis de:
 	* Grupo;
-	* Gategoria.
+	* Classe.
 
 Um serviço deverá possuir:
-* Pertencer a uma família (respectivamente um clã e uma categoria);
+* Pertencer a uma classe;
 * Estar em um grupo (agrupamento de serviços);
 * Um código);
 * Uma descrição;
@@ -240,7 +239,7 @@ O sistema deverá permitir:
 O grupo deverá possuir:
 * Uma descrição.
 
-### Categoria
+### Classe
 O sistema deverá permitir:
 * Incluir/Alterar/Remover uma categoria; e
 * Associar/Desassociar uma classe uma categoria.
@@ -279,7 +278,7 @@ O sistema deverá permitir:
 * Associar/Desassociar tributos de um insumo.
 
 O insumo deverá possuir:
-* Tipo de insumo (material/mão de obra/equipamento);
+* Espécie de insumo (material/mão de obra/equipamento);
 * Tipo de unidade (l/m2/m3/kg/tl...etc);
 * Origem do insumo (próprio/terceiro);
 * Preço (diferenciado por fornecedor e região);
@@ -296,12 +295,13 @@ O sistema deverá permitir:
 O tipo de unidade deverá possuir:
 * Uma descrição.
 
-Tipo de Insumo
+## Espécie de Insumo
 O sistema deverá permitir:
-* Incluir/Alterar/Remover um tipo de insumo; e
-* Associar/Desassociar um tipo de insumo de um insumo.
-O tipo de insumo deverá possuir:
+* Incluir/Alterar/Remover a espécie de insumo; e
+* Associar/Desassociar a espécie de insumo de um insumo.
+A espécie de insumo deverá possuir:
 * Uma descrição.
+
 
 
 # Requisitos Não Funcionais 

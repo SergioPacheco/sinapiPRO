@@ -43,17 +43,17 @@
 			
 			<div class="row">
 							
-				<div class="col-sm-3  form-group  sn-required" sinapiPRO:classforerror="codigoInsumo">
-					<label for="codigoInsumo" class="control-label">Código do Insumo</label>
+				<div class="col-sm-2  form-group  sn-required" sinapiPRO:classforerror="codigoInsumo">
+					<label for="codigoInsumo" class="control-label">Código</label>
 					<input id="codigoInsumo" type="number" class="form-control" th:field="*{codigoInsumo}"/>
 				</div>
 		
-				<div class="col-sm-3  form-group  sn-required" sinapiPRO:classforerror="unidade">
+				<div class="col-sm-2  form-group  sn-required" sinapiPRO:classforerror="unidade">
 					<label for="unidade" class="control-label">UN</label>
 					<input id="unidade" type="text" class="form-control" th:field="*{unidade}"/>
 				</div>
 				
-				<div class="col-sm-3  form-group  sn-required" sinapiPRO:classforerror="precoPadrao">
+				<div class="col-sm-2  form-group  sn-required" sinapiPRO:classforerror="precoPadrao">
 					<label for="precoPadrao" class="control-label">Preço Padrão</label>
 					<div class="input-group">
 						<div class="input-group-addon">R$</div>
@@ -61,7 +61,15 @@
 					</div>
 				</div>
 				
-				<div class="col-sm-3 form-group">
+				<div class="col-sm-2  form-group  bw-required" sinapiPRO:classforerror="especie">
+					<label for="especie" class="control-label">Espécie</label>
+					<select id="sabor" class="form-control" th:field="*{especie}">
+						<option value="">Selecione a espécie</option>
+						<option th:each="especie : ${especies}" th:value="${especie}" th:text="${especie.descricao}">Materiais</option>
+					</select>
+				</div>
+				
+				<div class="col-sm-4 form-group">
 					<label for="basePreco">Base Preços Padrão</label>
 					<select id="basePreco" class="form-control" th:field="*{basePreco}">
 	                   <option value="">Selecione a Base de Preços</option>

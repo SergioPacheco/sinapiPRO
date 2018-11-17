@@ -47,24 +47,23 @@
 				</div>
 			 
 				<div class="form-group  col-sm-3">
-					<label for="classe">Classe</label>
-					<select id="classe" class="form-control" th:field="*{classe}">
+					<label for="classeComposicao">Classe</label>
+					<select id="classeComposicao" class="form-control" th:field="*{classeComposicao}">
 	                    <option value="">Todas Classes</option>
-	                    <option th:each="classe : ${classes}" th:value="${classe.codigo}" th:text="${classe.nome}">Hidraulica</option>
+	                    <option th:each="classeComposicao : ${classesComposicoes}" 
+	                            th:value="${classeComposicao.codigo}" th:text="${classeComposicao.nome}">Hidraulica</option>
 	                </select>
 				</div>
 				
 				<div class="form-group  col-sm-3">
-					<label for="tipoComposicao">Grupo </label>
-					<select id="tipoComposicao" class="form-control" th:field="*{tipoComposicao}">
+					<label for="grupoComposicao">Grupo </label>
+					<select id="grupoComposicao" class="form-control" th:field="*{grupoComposicao}">
 	                    <option value="">Todos</option>
-	                    <option th:each="tipoCompo : ${tipoComposicao}" 
-	                    	       th:value="${tipoCompo.codigo}" 
-	                    	       th:text="${tipoCompo.nome}">SINAPI</option>
+	                    <option th:each="grupoComposicao : ${gruposComposicoes}" 
+	                    	       th:value="${grupoComposicao.codigo}" 
+	                    	       th:text="${grupoComposicao.nome}">Hidraulica</option>
 	                </select>
 				</div>
-				
-				
 			</div>
 			
 			<button type="submit" class="btn  btn-primary">Pesquisar</button>
@@ -89,7 +88,7 @@
 				
 	            <tbody>
 					<tr th:each="composicao : ${pagina.conteudo}">
-						<td class="text-center" th:text="${composicao.classe.nome}"></td>
+						<td class="text-center" th:text="${composicao.classeComposicao.sigla}"></td>
 						<td class="text-center" th:text="${composicao.codigo}"></td>
 						<td class="text-left"   th:text="${composicao.descricao}"></td>
 						<td class="text-center" th:text="${composicao.unidade}"></td>
@@ -159,9 +158,6 @@
 			</div>
 		</div>
 	</div>
-	
-	
-	
 	
 </section>
 

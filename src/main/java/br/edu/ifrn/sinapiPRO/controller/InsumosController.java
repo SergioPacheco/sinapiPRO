@@ -25,12 +25,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
 import br.edu.ifrn.sinapiPRO.dto.InsumoDTO;
 import br.edu.ifrn.sinapiPRO.dto.ItemBasePrecoDTO;
+import br.edu.ifrn.sinapiPRO.model.Especie;
 import br.edu.ifrn.sinapiPRO.model.Insumo;
 import br.edu.ifrn.sinapiPRO.repository.BaseInsumos;
 import br.edu.ifrn.sinapiPRO.repository.BasePrecos;
 import br.edu.ifrn.sinapiPRO.repository.Insumos;
 import br.edu.ifrn.sinapiPRO.repository.filter.InsumoFilter;
-import br.edu.ifrn.sinapiPRO.service.CadastroInsumoService;
+import br.edu.ifrn.sinapiPRO.service.InsumoService;
 import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
 import br.edu.ifrn.sinapiPRO.service.exception.ResourceNotFoundException;
 
@@ -39,7 +40,7 @@ import br.edu.ifrn.sinapiPRO.service.exception.ResourceNotFoundException;
 public class InsumosController {
 		
 	@Autowired
-	private CadastroInsumoService cadastroInsumoService;
+	private InsumoService cadastroInsumoService;
 		 
 	@Autowired
 	private Insumos insumos;
@@ -57,6 +58,7 @@ public class InsumosController {
 		ModelAndView mv = new ModelAndView("insumo/CadastroInsumo");
 		mv.addObject("basePrecos", basePrecosRepository.findAll());
 		mv.addObject("baseInsumos", baseInsumosRepository.findAll());
+		mv.addObject("especies", Especie.values());
 		return mv;
 	}
 	
@@ -82,7 +84,7 @@ public class InsumosController {
 	@GetMapping
 	public ModelAndView pesquisar(InsumoFilter insumoFilter, 
 			                     BindingResult result, 
-			                     @PageableDefault(size = 10) Pageable pageable, 
+			                     @PageableDefault(size = 30) Pageable pageable, 
 			                     HttpServletRequest httpServletRequest) {
 		
 		ModelAndView mv = new ModelAndView("insumo/PesquisaInsumos");
@@ -98,7 +100,6 @@ public class InsumosController {
 		return insumos.listaBasePrecoPorInsumo(codigoInsumo);
 	 
 	}
-	
 	 
 	@RequestMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody List<InsumoDTO> pesquisar(String codigoOuNome) {
@@ -106,7 +107,6 @@ public class InsumosController {
 		return insumos.porCodigoInsumoOuNome(codigoOuNome);
 	
 	}
-	 
 	
 	@DeleteMapping("/{codigo}")
 	public @ResponseBody ResponseEntity<?> excluir(@PathVariable("codigo") Insumo insumo) {

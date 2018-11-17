@@ -29,7 +29,7 @@ import br.edu.ifrn.sinapiPRO.model.Cidade;
 import br.edu.ifrn.sinapiPRO.repository.Cidades;
 import br.edu.ifrn.sinapiPRO.repository.Estados;
 import br.edu.ifrn.sinapiPRO.repository.filter.CidadeFilter;
-import br.edu.ifrn.sinapiPRO.service.CadastroCidadeService;
+import br.edu.ifrn.sinapiPRO.service.CidadeService;
 import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
 import br.edu.ifrn.sinapiPRO.service.exception.NomeCidadeJaCadastradaException;
 
@@ -44,7 +44,7 @@ public class CidadesController {
 	private Estados estados;
 	
 	@Autowired
-	private CadastroCidadeService cadastroCidadeService;
+	private CidadeService cadastroCidadeService;
 	
 	@RequestMapping("/nova")
 	public ModelAndView nova(Cidade cidade) { 

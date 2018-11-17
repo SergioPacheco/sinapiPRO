@@ -87,23 +87,21 @@ public class ComposicoesImpl implements ComposicoesQueries {
 				criteria.add(Restrictions.ilike("descricao", filtro.getDescricao(), MatchMode.ANYWHERE));
 			}
 
-			if (isClassePresente(filtro)) {
-				criteria.add(Restrictions.eq("classe", filtro.getClasse()));
+			if (isClasseComposicaoPresente(filtro)) {
+				criteria.add(Restrictions.eq("classeComposicao", filtro.getClasseComposicao()));
 			}
-			if (isTipoComposicaoPresente(filtro)) {
-				criteria.add(Restrictions.eq("tipoComposicao", filtro.getTipoComposicao() ));
+			if (isGrupoComposicaoPresente(filtro)) {
+				criteria.add(Restrictions.eq("grupoComposicao", filtro.getGrupoComposicao() ));
 			}
 
 		}
 	}
 	
-	private boolean isTipoComposicaoPresente(ComposicaoFilter filtro) {
-		return filtro.getTipoComposicao() != null && filtro.getTipoComposicao().getCodigo() != null;
+	private boolean isGrupoComposicaoPresente(ComposicaoFilter filtro) {
+		return filtro.getGrupoComposicao() != null && filtro.getGrupoComposicao().getCodigo() != null;
 	}
 	
-	private boolean isClassePresente(ComposicaoFilter filtro) {
-		return filtro.getClasse() != null && filtro.getClasse().getCodigo() != null;
+	private boolean isClasseComposicaoPresente(ComposicaoFilter filtro) {
+		return filtro.getClasseComposicao() != null && filtro.getClasseComposicao().getCodigo() != null;
 	}
-
-	
 }

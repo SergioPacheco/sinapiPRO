@@ -24,7 +24,7 @@ import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
 import br.edu.ifrn.sinapiPRO.model.BaseInsumo;
 import br.edu.ifrn.sinapiPRO.repository.BaseInsumos;
 import br.edu.ifrn.sinapiPRO.repository.filter.BaseInsumoFilter;
-import br.edu.ifrn.sinapiPRO.service.CadastroBaseInsumoService;
+import br.edu.ifrn.sinapiPRO.service.BaseInsumoService;
 import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
 import br.edu.ifrn.sinapiPRO.service.exception.NomeBaseInsumoJaCadastradaException;
 
@@ -33,7 +33,7 @@ import br.edu.ifrn.sinapiPRO.service.exception.NomeBaseInsumoJaCadastradaExcepti
 public class BaseInsumosController {
 
 	@Autowired
-	private CadastroBaseInsumoService cadastroBaseInsumoService;
+	private BaseInsumoService cadastroBaseInsumoService;
 	
 	@Autowired
 	private BaseInsumos baseInsumos;

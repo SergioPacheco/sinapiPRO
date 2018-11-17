@@ -38,7 +38,7 @@ public class BasePreco implements Serializable {
 	private Estado estado;
 	
 	@Enumerated(EnumType.STRING)
-	private Desoneracao desonerado;
+	private Desoneracao desoneracao;
 	
 	private LocalDate dataReferencia;
 	
@@ -76,12 +76,12 @@ public class BasePreco implements Serializable {
 		this.estado = estado;
 	}
 
-	public Desoneracao getDesonerado() {
-		return desonerado;
+ 	public Desoneracao getDesoneracao() {
+		return desoneracao;
 	}
 
-	public void setDesonerado(Desoneracao desonerado) {
-		this.desonerado = desonerado;
+	public void setDesoneracao(Desoneracao desoneracao) {
+		this.desoneracao = desoneracao;
 	}
 
 	public LocalDate getDataReferencia() {

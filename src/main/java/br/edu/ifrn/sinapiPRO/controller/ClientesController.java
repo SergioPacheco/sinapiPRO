@@ -29,7 +29,7 @@ import br.edu.ifrn.sinapiPRO.model.TipoPessoa;
 import br.edu.ifrn.sinapiPRO.repository.Clientes;
 import br.edu.ifrn.sinapiPRO.repository.Estados;
 import br.edu.ifrn.sinapiPRO.repository.filter.ClienteFilter;
-import br.edu.ifrn.sinapiPRO.service.CadastroClienteService;
+import br.edu.ifrn.sinapiPRO.service.ClienteService;
 import br.edu.ifrn.sinapiPRO.service.exception.CpfCnpjClienteJaCadastradoException;
 import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
 
@@ -41,7 +41,7 @@ public class ClientesController {
 	private Estados estados;
 	
 	@Autowired
-	private CadastroClienteService cadastroClienteService;
+	private ClienteService cadastroClienteService;
 	
 	@Autowired
 	private Clientes clientes;

@@ -44,9 +44,14 @@ public class ComposicaoDTO {
 		return custoTotal;
 	}
 
-	public void setCustoTotal(BigDecimal valor) {
-		this.custoTotal = valor;
+	public void setCustoTotal(BigDecimal custoTotal) {
+		this.custoTotal = custoTotal;
 	}
-
 	
+
+
+
 }
+
+
+

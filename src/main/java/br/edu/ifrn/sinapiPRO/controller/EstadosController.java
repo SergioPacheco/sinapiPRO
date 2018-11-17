@@ -22,7 +22,7 @@ import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
 import br.edu.ifrn.sinapiPRO.model.Estado;
 import br.edu.ifrn.sinapiPRO.repository.Estados;
 import br.edu.ifrn.sinapiPRO.repository.filter.EstadoFilter;
-import br.edu.ifrn.sinapiPRO.service.CadastroEstadoService;
+import br.edu.ifrn.sinapiPRO.service.EstadoService;
 import br.edu.ifrn.sinapiPRO.service.exception.NomeEstadoJaCadastradoException;
 
 @Controller
@@ -30,7 +30,7 @@ import br.edu.ifrn.sinapiPRO.service.exception.NomeEstadoJaCadastradoException;
 public class EstadosController {
 
 	@Autowired
-	private CadastroEstadoService cadastroEstadoService;
+	private EstadoService cadastroEstadoService;
 	
 	@Autowired
 	private Estados estados;

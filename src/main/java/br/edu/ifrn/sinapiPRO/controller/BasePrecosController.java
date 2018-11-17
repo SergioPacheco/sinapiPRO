@@ -27,7 +27,7 @@ import br.edu.ifrn.sinapiPRO.repository.BaseInsumos;
 import br.edu.ifrn.sinapiPRO.repository.BasePrecos;
 import br.edu.ifrn.sinapiPRO.repository.Estados;
 import br.edu.ifrn.sinapiPRO.repository.filter.BasePrecoFilter;
-import br.edu.ifrn.sinapiPRO.service.CadastroBasePrecoService;
+import br.edu.ifrn.sinapiPRO.service.BasePrecoService;
 import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
 import br.edu.ifrn.sinapiPRO.service.exception.NomeBasePrecoJaCadastradaException;
 
@@ -36,7 +36,7 @@ import br.edu.ifrn.sinapiPRO.service.exception.NomeBasePrecoJaCadastradaExceptio
 public class BasePrecosController  {
 
 	@Autowired
-	private CadastroBasePrecoService cadastroBasePrecoService;
+	private BasePrecoService cadastroBasePrecoService;
 	
 	@Autowired
 	private SinapiController sinapiController;
@@ -54,7 +54,7 @@ public class BasePrecosController  {
 	public ModelAndView nova(BasePreco basePreco) {
 		
 		ModelAndView mv = new ModelAndView("basePreco/CadastroBasePreco");
-		mv.addObject("oneracao", Desoneracao.values());
+		mv.addObject("desoneracoes", Desoneracao.values());
 		mv.addObject("estados", estados.findAll()); 
 		mv.addObject("baseInsumos", baseInsumos.findAll()); 
 		 

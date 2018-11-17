@@ -1,7 +1,5 @@
 package br.edu.ifrn.sinapiPRO.repository.helper.baseinsumos;
 
-import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

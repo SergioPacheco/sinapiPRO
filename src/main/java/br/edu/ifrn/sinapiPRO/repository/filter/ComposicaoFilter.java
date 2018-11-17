@@ -1,15 +1,15 @@
 package br.edu.ifrn.sinapiPRO.repository.filter;
 
 import br.edu.ifrn.sinapiPRO.model.BasePreco;
-import br.edu.ifrn.sinapiPRO.model.Classe;
-import br.edu.ifrn.sinapiPRO.model.TipoComposicao;
+import br.edu.ifrn.sinapiPRO.model.ClasseComposicao;
+import br.edu.ifrn.sinapiPRO.model.GrupoComposicao;
 
 public class ComposicaoFilter {
 
 	private Long codigo;
 	private BasePreco basePreco;
-	private Classe classe;
-	private TipoComposicao tipoComposicao;
+	private ClasseComposicao classeComposicao;
+	private GrupoComposicao grupoComposicao;
 	private String descricao;
 	
 	public Long getCodigo() {
@@ -24,17 +24,17 @@ public class ComposicaoFilter {
 	public void setBasePreco(BasePreco basePreco) {
 		this.basePreco = basePreco;
 	}
-	public Classe getClasse() {
-		return classe;
+	public ClasseComposicao getClasseComposicao() {
+		return classeComposicao;
 	}
-	public void setClasse(Classe classe) {
-		this.classe = classe;
+	public void setClasseComposicao(ClasseComposicao classeComposicao) {
+		this.classeComposicao = classeComposicao;
 	}
-	public TipoComposicao getTipoComposicao() {
-		return tipoComposicao;
+	public GrupoComposicao getGrupoComposicao() {
+		return grupoComposicao;
 	}
-	public void setTipoComposicao(TipoComposicao tipoComposicao) {
-		this.tipoComposicao = tipoComposicao;
+	public void setGrupoComposicao(GrupoComposicao grupoComposicao) {
+		this.grupoComposicao = grupoComposicao;
 	}
 	public String getDescricao() {
 		return descricao;

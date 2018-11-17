@@ -11,7 +11,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +26,7 @@ import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
 import br.edu.ifrn.sinapiPRO.model.Etapa;
 import br.edu.ifrn.sinapiPRO.repository.Etapas;
 import br.edu.ifrn.sinapiPRO.repository.filter.EtapaFilter;
-import br.edu.ifrn.sinapiPRO.service.CadastroEtapaService;
+import br.edu.ifrn.sinapiPRO.service.EtapaService;
 import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
 import br.edu.ifrn.sinapiPRO.service.exception.NomeEtapaJaCadastradaException;
 
@@ -36,7 +35,7 @@ import br.edu.ifrn.sinapiPRO.service.exception.NomeEtapaJaCadastradaException;
 public class EtapasController {
 
 	@Autowired
-	private CadastroEtapaService cadastroEtapaService;
+	private EtapaService cadastroEtapaService;
 	
 	@Autowired
 	private Etapas etapas;

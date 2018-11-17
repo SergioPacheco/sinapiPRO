@@ -30,12 +30,12 @@ import br.edu.ifrn.sinapiPRO.model.Composicao;
 import br.edu.ifrn.sinapiPRO.model.ItemComposicao;
 import br.edu.ifrn.sinapiPRO.repository.BaseInsumos;
 import br.edu.ifrn.sinapiPRO.repository.BasePrecos;
-import br.edu.ifrn.sinapiPRO.repository.Classes;
+import br.edu.ifrn.sinapiPRO.repository.ClassesRepository;
 import br.edu.ifrn.sinapiPRO.repository.Composicoes;
-import br.edu.ifrn.sinapiPRO.repository.TipoComposicaoRepository;
+import br.edu.ifrn.sinapiPRO.repository.GrupoComposicaoRepository;
 import br.edu.ifrn.sinapiPRO.repository.filter.ComposicaoFilter;
 import br.edu.ifrn.sinapiPRO.security.UsuarioSistema;
-import br.edu.ifrn.sinapiPRO.service.CadastroComposicaoService;
+import br.edu.ifrn.sinapiPRO.service.ComposicaoService;
 import br.edu.ifrn.sinapiPRO.session.composicao.TabelaItensComposicaoSession;
 
 @Controller
@@ -46,22 +46,22 @@ public class ComposicoesController {
 	private Composicoes composicoes;
 	
 	@Autowired
-	private Classes classes;
+	private ClassesRepository classesRepository;
 	
 	@Autowired
-	private TipoComposicaoRepository tipoComposicoes;
+	private GrupoComposicaoRepository grupoComposicoes;
 	
 	@Autowired
-	private BaseInsumos baseInsumos;
+	private BaseInsumos baseInsumosRepository;
 	
 	@Autowired
-	private BasePrecos basePrecos;
+	private BasePrecos basePrecosRepository;
 	
 	@Autowired 
 	private TabelaItensComposicaoSession tabelaItensComposicao; 
 	
 	@Autowired
-	private CadastroComposicaoService cadastroComposicaoService;
+	private ComposicaoService cadastroComposicaoService;
 	
 
 	@GetMapping("/nova")
@@ -71,10 +71,10 @@ public class ComposicoesController {
 		
 		setUuid(composicao);
 		
-		mv.addObject("basePrecos", basePrecos.findAll());
-		mv.addObject("baseInsumos", baseInsumos.findAll());
-		mv.addObject("classes", classes.findAll());
-		mv.addObject("tipoComposicoes", tipoComposicoes.findAll());
+		mv.addObject("basePrecos", basePrecosRepository.findAll());
+		mv.addObject("baseInsumos", baseInsumosRepository.findAll());
+		mv.addObject("classesComposicoes", classesRepository.findAll());
+		mv.addObject("gruposComposicoes", grupoComposicoes.findAll());
 		mv.addObject("itens", composicao.getItens());
 		mv.addObject("valorTotal", tabelaItensComposicao.getValorTotal(composicao.getUuid()));
 		
@@ -124,10 +124,10 @@ public class ComposicoesController {
 			                      HttpServletRequest httpServletRequest) {
 		
 		ModelAndView mv = new ModelAndView("/composicao/PesquisaComposicoes");
-		mv.addObject("baseInsumos", baseInsumos.findAll());
-		mv.addObject("basePrecos", basePrecos.findAll());
-		mv.addObject("classes", classes.findAll());
-		mv.addObject("tipoComposicao", tipoComposicoes.findAll());
+		mv.addObject("baseInsumos", baseInsumosRepository.findAll());
+		mv.addObject("basePrecos", basePrecosRepository.findAll());
+		mv.addObject("classesComposicoes", classesRepository.findAll());
+		mv.addObject("gruposComposicoes", grupoComposicoes.findAll());
 		
 		PageWrapper<Composicao> paginaWrapper = new PageWrapper<>(composicoes.filtrar(composicaoFilter, pageable)
 				, httpServletRequest);

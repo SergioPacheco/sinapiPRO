@@ -8,7 +8,6 @@ import org.springframework.data.domain.Pageable;
 import br.edu.ifrn.sinapiPRO.dto.InsumoDTO;
 import br.edu.ifrn.sinapiPRO.dto.ItemBasePrecoDTO;
 import br.edu.ifrn.sinapiPRO.model.Insumo;
-import br.edu.ifrn.sinapiPRO.model.ItemBasePreco;
 import br.edu.ifrn.sinapiPRO.repository.filter.InsumoFilter;
 
 public interface InsumosQueries {
