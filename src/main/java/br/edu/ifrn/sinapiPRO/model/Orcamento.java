@@ -73,6 +73,7 @@ public class Orcamento implements Serializable {
 	@OneToMany(mappedBy = "orcamento", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Item> itens = new ArrayList<>();
 
+		
 	@Column(name = "valor_total")
 	private BigDecimal valorTotal = BigDecimal.ZERO;
 
@@ -84,7 +85,22 @@ public class Orcamento implements Serializable {
 	
 	@Column(name = "valor_equipamentos")
 	private BigDecimal valorEquipamento = BigDecimal.ZERO;
+	
+	@Column(name = "bdi_mao_obra")
+	private BigDecimal BdiMaoObra = BigDecimal.ZERO;
 		
+	@Column(name = "bdi_insumos")
+	private BigDecimal BdiInsumos = BigDecimal.ZERO;
+	
+	@Column(name = "bdi_materiais")
+	private BigDecimal BdiMateriais = BigDecimal.ZERO;
+	
+	@Column(name = "leis_sociais")
+	private BigDecimal LeisSociais = BigDecimal.ZERO;
+	
+	@Column(name = "taxa_administracao")
+	private BigDecimal TaxaAdministracao = BigDecimal.ZERO;
+			
 	@Transient
 	private String uuid;
 	
@@ -205,6 +221,45 @@ public class Orcamento implements Serializable {
 		this.valorTotal = valorTotal;
 	}
 	
+	public BigDecimal getBdiMaoObra() {
+		return BdiMaoObra;
+	}
+
+	public void setBdiMaoObra(BigDecimal bdiMaoObra) {
+		BdiMaoObra = bdiMaoObra;
+	}
+
+	public BigDecimal getBdiInsumos() {
+		return BdiInsumos;
+	}
+
+	public void setBdiInsumos(BigDecimal bdiInsumos) {
+		BdiInsumos = bdiInsumos;
+	}
+
+	public BigDecimal getBdiMateriais() {
+		return BdiMateriais;
+	}
+
+	public void setBdiMateriais(BigDecimal bdiMateriais) {
+		BdiMateriais = bdiMateriais;
+	}
+
+	public BigDecimal getLeisSociais() {
+		return LeisSociais;
+	}
+
+	public void setLeisSociais(BigDecimal leisSociais) {
+		LeisSociais = leisSociais;
+	}
+
+	public BigDecimal getTaxaAdministracao() {
+		return TaxaAdministracao;
+	}
+
+	public void setTaxaAdministracao(BigDecimal taxaAdministracao) {
+		TaxaAdministracao = taxaAdministracao;
+	}
 
 	public List<Item> getItens() {
 		

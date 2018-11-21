@@ -175,10 +175,32 @@ Os tributos incidem sobre os insumos (que compõem os serviços) e sobre os serv
 O custo final do serviço que sofre incidência de tributos, seja diretamente ou indiretamente através de algum insumo, terá seu valor embutido no custo final do serviço. Se um serviço que tem custo de R$40,00 o m2 sofre incidência direta de 3% de ICMS, passaria a ter seu custo final de R$41,20. O mesmo acontece com serviços que tem incidência indireta de tributos porém, nesse caso, o % de tributação irá incidir diretamente sobre o valor do insumo e não do serviço como um todo.
 
 # Benefícios
-Os benefícios são considerados os lucros com a execução do projeto. Normalmente é utili zado como a forma dos tributos, em unidades de %. Os benefícios são distribuídos por serviço, podendo ser lançado um % diretamente no projeto, sendo este refletido para todos os serviços do projeto, podendo ser ajustado serviço a serviço pelo responsável.
+Os benefícios são considerados os lucros com a execução do projeto. Normalmente é utilizado como a forma dos tributos, em unidades de %. Os benefícios são distribuídos por serviço, podendo ser lançado um % diretamente no projeto, sendo este refletido para todos os serviços do projeto, podendo ser ajustado serviço a serviço pelo responsável.
 
 `Ex.: Se um projeto tem "n" serviços e nele é lançado um valor de 40% de benefício, todos os "n" serviços terão incidência de +40% sobre seu valor. Assim o ajuste pode ser feito serviço por serviço, reduzindo a incidência em alguns e podendo aumentar a incidência em outros.`
 
+## Forma de aplicação das taxas
+
+OBS: A aplicação das taxas se dá pelo efeito cascata como pode ser visto no exemplo abaixo:
+
+- 100.000,00 Valor do orçamento
+- 12 % de leis sociais
+- 30% de BDI
+- 10% de Taxa de administração
+
+
+- 100.000,00 x 12% = 112.000,00
+- 112.000,00 x 30% = 145.600,00
+- 145.600,00 x 10% = 14.560,00 = 160.160,00
+
+
+- 12 % de leis sociais = 12.000,00
+- 30% de BDI = 33.600,00
+- 10% de Taxa de administração 14.560,00
+
+Valor total do orçamento com Leis sociais , BDI,s e Taxa de administração = 160.160,00
+
+Somente serão aplicadas Leis Sociais no insumos que são da espécie Mão de Obra. Caso o preenchimento seja aplicado pela linha Todas Espécies, somente a coluna L. Soc. % da espécie Mão-de-Obra serão preenchidas. As demais espécies terão esta coluna indisponível para edição
 
 # Região
 Todos os custos relacionados ao projeto devem ser identificados por região, tendo em vista que os preços de mão de obra, materiais e equipamentos variam de acordo com a região em que o projeto está sendo executado.
