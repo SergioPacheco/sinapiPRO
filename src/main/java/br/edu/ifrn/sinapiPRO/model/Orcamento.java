@@ -73,7 +73,6 @@ public class Orcamento implements Serializable {
 	@OneToMany(mappedBy = "orcamento", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Item> itens = new ArrayList<>();
 
-		
 	@Column(name = "valor_total")
 	private BigDecimal valorTotal = BigDecimal.ZERO;
 
