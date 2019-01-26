@@ -111,5 +111,27 @@ xxxxxxxxx xxxxxx xxxxxxxxx xxxxxxx 9,999  R$999,99   R$999,99
 
 
 
+RESUMO ORÇAMENTO 
+------------------
+
+TOTAL DO ORÇAMENTO: 	
+BDI: 
+	BDI Insumo: 		      R$ 999.999.999,99 
+	BDI Serviço:		      R$ 999.999.999,99
+	BDI Terceiro: 		    R$ 999.999.999,99
+	BDI Ferramenta: 	    R$ 999.999.999,99 
+Taxa de Administração:  R$ 999.999.999,99
+Leis Sociais:           R$ 999.999.999,99 
+Total                   R$ 999.999.999,99 
+
+ESPECIE 
+
+Descrição                   Valor            BDI        Tax,Adm        Lei.Soc          Total
+        
+1 - Material        R$ 999.999,99  R$ 999.999,99  R$ 999.999,99  R$ 999.999,99  R$ 999.999,99 
+2 - Mão de Obra     R$ 999.999,99  R$ 999.999,99  R$ 999.999,99  R$ 999.999,99  R$ 999.999,99 
+3 - Equipamentos    R$ 999.999,99  R$ 999.999,99  R$ 999.999,99  R$ 999.999,99  R$ 999.999,99 
+
+
 
 

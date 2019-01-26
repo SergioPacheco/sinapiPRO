@@ -88,8 +88,8 @@ public class Orcamento implements Serializable {
 	@Column(name = "bdi_mao_obra")
 	private BigDecimal BdiMaoObra = BigDecimal.ZERO;
 		
-	@Column(name = "bdi_insumos")
-	private BigDecimal BdiInsumos = BigDecimal.ZERO;
+	@Column(name = "bdi_equipamentos")
+	private BigDecimal BdiEquipamentos = BigDecimal.ZERO;
 	
 	@Column(name = "bdi_materiais")
 	private BigDecimal BdiMateriais = BigDecimal.ZERO;
@@ -228,12 +228,12 @@ public class Orcamento implements Serializable {
 		BdiMaoObra = bdiMaoObra;
 	}
 
-	public BigDecimal getBdiInsumos() {
-		return BdiInsumos;
+	public BigDecimal getBdiEquipamentos() {
+		return BdiEquipamentos;
 	}
 
-	public void setBdiInsumos(BigDecimal bdiInsumos) {
-		BdiInsumos = bdiInsumos;
+	public void setBdiEquipamentos(BigDecimal bdiEquipamentos) {
+		BdiEquipamentos = bdiEquipamentos;
 	}
 
 	public BigDecimal getBdiMateriais() {

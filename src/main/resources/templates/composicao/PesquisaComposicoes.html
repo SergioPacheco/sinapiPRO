@@ -37,19 +37,19 @@
 			<div class="row">
 			
 				<div class="form-group  col-sm-2">
-					<label class="control-label" for="codigoInsumo">Código da composição</label>
+					<label class="control-label" for="codigoInsumo">Código</label>
 					<input type="number" class="form-control" id="codigo" autofocus="autofocus" th:field="*{codigo}"/>
 				</div>
 			
 				<div class="form-group  col-sm-4">
-					<label class="control-label" for="descricao">Descrição da composição</label>
+					<label class="control-label" for="descricao">Descrição</label>
 					<input type="text" class="form-control" id="descricao" autofocus="autofocus" th:field="*{descricao}"/>
 				</div>
 			 
 				<div class="form-group  col-sm-3">
 					<label for="classeComposicao">Classe</label>
 					<select id="classeComposicao" class="form-control" th:field="*{classeComposicao}">
-	                    <option value="">Todas Classes</option>
+	                    <option value="">Todas</option>
 	                    <option th:each="classeComposicao : ${classesComposicoes}" 
 	                            th:value="${classeComposicao.codigo}" th:text="${classeComposicao.nome}">Hidraulica</option>
 	                </select>

@@ -34,7 +34,6 @@ public class CidadesImpl implements CidadesQueries{
 	@Override
 	@Transactional(readOnly = true)
 	public Page<Cidade> filtrar(CidadeFilter filtro, Pageable pageable) {
-		@SuppressWarnings("deprecation")
 		Criteria criteria = manager.unwrap(Session.class).createCriteria(Cidade.class);
 		paginacaoUtil.preparar(criteria, pageable);
 		adicionarFiltro(filtro, criteria);

@@ -4,8 +4,8 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{layout/LayoutPadrao}">
 
-<head>
-	<title>Relatório - Orçamentos Emitidos</title>
+<head> 
+	<title>Relatório - Orçamentos Emitidos</title> 
 </head>
 
 <section layout:fragment="conteudo">
@@ -19,20 +19,15 @@
 	</div>
 	
 	<div class="container-fluid">
-		<form method="POST" th:object="${periodoRelatorio}" th:action="@{/relatorios/orcamentosEmitidos}">
+		<form method="POST" 
+		      th:object="${periodoRelatorio}" 
+		      th:action="@{/relatorios/orcamentosEmitidos}">
+			
 			<th:block th:include="fragments/MensagensErroValidacao"></th:block>
 			
+			
 			<div class="row">
-				<div class="form-group  col-sm-12">
-					<label for="dataInicio">Data de criação</label>
-					<div class="form-inline">
-						<input type="text" class="form-control  aw-form-control-inline-sm  js-date" 
-							id="dataInicio" th:field="*{dataInicio}" autocomplete="off"/>
-						<label for="a" class="aw-form-label-between">a</label>
-						<input type="text" class="form-control  aw-form-control-inline-sm  js-date" 
-							id="dataFim" th:field="*{dataFim}" autocomplete="off"/>
-					</div>
-				</div>
+				 
 			</div>
 				
 			<button type="submit" class="btn  btn-primary">Emitir</button>
