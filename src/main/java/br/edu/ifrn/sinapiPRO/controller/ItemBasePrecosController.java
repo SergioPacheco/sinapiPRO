@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import br.edu.ifrn.sinapiPRO.model.BaseKey;
+import br.edu.ifrn.sinapiPRO.model.BasePrecoId;
 import br.edu.ifrn.sinapiPRO.model.ItemBasePreco;
 import br.edu.ifrn.sinapiPRO.repository.BasePrecos;
 import br.edu.ifrn.sinapiPRO.repository.ItemBasePrecoRepository;
@@ -63,7 +63,7 @@ public class ItemBasePrecosController {
             throw new ResourceNotFoundException("Erro ao pesquisar item");
         }
         
-        BaseKey baseKey = new BaseKey(codigoBase, codigoInsumo);
+        BasePrecoId baseKey = new BasePrecoId(codigoBase, codigoInsumo);
         
         return itemBasePrecoRepository.findById(baseKey).map(itemBasePreco -> {
         	
@@ -83,7 +83,7 @@ public class ItemBasePrecosController {
             throw new ResourceNotFoundException("Item não encontrado");
         }
 
-        BaseKey baseKey = new BaseKey(codigoBase, codigoInsumo);
+        BasePrecoId baseKey = new BasePrecoId(codigoBase, codigoInsumo);
         
         return itemBasePrecoRepository.findById(baseKey).map(item -> {
              itemBasePrecoRepository.delete(item);

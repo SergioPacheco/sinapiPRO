@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import br.edu.ifrn.sinapiPRO.model.BaseKey;
+import br.edu.ifrn.sinapiPRO.model.BasePrecoId;
 import br.edu.ifrn.sinapiPRO.model.BasePreco;
 import br.edu.ifrn.sinapiPRO.model.ClasseComposicao;
 import br.edu.ifrn.sinapiPRO.model.Composicao;
@@ -85,7 +85,7 @@ public class SinapiController {
         }
 		
 		BasePreco basePreco = basePrecoRepository.findById(codigo).get();
-		BaseKey baseKey = new BaseKey(); 
+		BasePrecoId baseKey = new BasePrecoId(); 
 		
 		String uf = basePreco.getEstado().getSigla();
 	
@@ -254,7 +254,7 @@ public class SinapiController {
 					
 					// Salva preco  
 					
-					baseKey = new BaseKey(); 
+					baseKey = new BasePrecoId(); 
 					baseKey.setBasePrecoID(basePreco.getCodigo());
 					baseKey.setInsumoID(insumo.getCodigoInsumo());
 					

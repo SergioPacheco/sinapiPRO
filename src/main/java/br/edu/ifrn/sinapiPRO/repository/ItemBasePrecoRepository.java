@@ -6,11 +6,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import br.edu.ifrn.sinapiPRO.model.BaseKey;
+import br.edu.ifrn.sinapiPRO.model.BasePrecoId;
 import br.edu.ifrn.sinapiPRO.model.ItemBasePreco;
 
 @Repository
-public interface ItemBasePrecoRepository extends JpaRepository<ItemBasePreco, BaseKey> {
+public interface ItemBasePrecoRepository extends JpaRepository<ItemBasePreco, BasePrecoId> {
 	
 	
 	//@Query(value = "SELECT * FROM item_base_preco i ORDER BY codigo_base_insumo \n-- #pageable \n", 
