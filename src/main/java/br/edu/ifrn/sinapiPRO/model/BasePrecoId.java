@@ -5,17 +5,17 @@ import java.io.Serializable;
 import javax.persistence.Embeddable;
 
 @Embeddable
-public class BaseKey implements Serializable {
+public class BasePrecoId implements Serializable {
 	 
 	private static final long serialVersionUID = 1L;
 	
 	private Long basePrecoID;
 	private Long insumoID; 
 	
-	public BaseKey() {
+	public BasePrecoId() {
 	}
 
-	public BaseKey(Long basePrecoID, Long insumoID) {
+	public BasePrecoId(Long basePrecoID, Long insumoID) {
 		this.basePrecoID = basePrecoID;
 		this.insumoID = insumoID;
 	}
@@ -53,7 +53,7 @@ public class BaseKey implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		BaseKey other = (BaseKey) obj;
+		BasePrecoId other = (BasePrecoId) obj;
 		if (basePrecoID == null) {
 			if (other.basePrecoID != null)
 				return false;

@@ -17,7 +17,7 @@ public class ItemBasePreco implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@EmbeddedId
-	private BaseKey baseKey; // {basePrecoID, codigoInsumoID}
+	private BasePrecoId baseKey; // {basePrecoID, codigoInsumoID}
 	 
 	@ManyToOne
 	@JoinColumn(name = "basePrecoID", nullable=false, insertable = false, updatable = false)
@@ -51,11 +51,11 @@ public class ItemBasePreco implements Serializable {
 		this.anoMes = anoMes;
 	}
 
-	public BaseKey getBaseKey() {
+	public BasePrecoId getBaseKey() {
 		return baseKey;
 	}
 
-	public void setBaseKey(BaseKey baseKey) {
+	public void setBaseKey(BasePrecoId baseKey) {
 		this.baseKey = baseKey;
 	}
 	
