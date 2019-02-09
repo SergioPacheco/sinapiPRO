@@ -21,7 +21,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
-import br.edu.ifrn.sinapiPRO.model.ClasseComposicao;
+import br.edu.ifrn.sinapiPRO.model.ComposicaoClasse;
 import br.edu.ifrn.sinapiPRO.repository.ClassesRepository;
 import br.edu.ifrn.sinapiPRO.repository.filter.ClasseComposicaoFilter;
 import br.edu.ifrn.sinapiPRO.service.ClasseComposicaoService;
@@ -39,22 +39,22 @@ public class ClassesComposicaoController {
 	private ClassesRepository classesRepository;
 	
 	@RequestMapping("/nova")
-	public ModelAndView nova(ClasseComposicao classe) {
+	public ModelAndView nova(ComposicaoClasse classe) {
 		return new ModelAndView("classeComposicao/CadastroClasseComposicao");
 	}
 	
 	@RequestMapping(value = { "/nova", "{\\d+}" }, method = RequestMethod.POST)
-	public ModelAndView cadastrar(@Valid ClasseComposicao classeComposicao, BindingResult result, 
+	public ModelAndView cadastrar(@Valid ComposicaoClasse composicaoClasse, BindingResult result, 
 			RedirectAttributes attributes){
 		if (result.hasErrors()) {
-			return nova(classeComposicao);
+			return nova(composicaoClasse);
 		}
 		
 		try{
-			classeComposicaoService.salvar(classeComposicao);
+			classeComposicaoService.salvar(composicaoClasse);
 		} catch(NomeClasseJaCadastradaException e){
 			result.rejectValue("nome",e.getMessage(), e.getMessage());
-			return nova(classeComposicao);
+			return nova(composicaoClasse);
 		}
 		attributes.addFlashAttribute("mensagem", "Classe salva com sucesso!");
 		
@@ -62,14 +62,14 @@ public class ClassesComposicaoController {
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE})
-	public @ResponseBody ResponseEntity<?> salvar(@RequestBody @Valid ClasseComposicao classeComposicao, BindingResult result ){
+	public @ResponseBody ResponseEntity<?> salvar(@RequestBody @Valid ComposicaoClasse composicaoClasse, BindingResult result ){
 		
 		if(result.hasErrors()){
 			return ResponseEntity.badRequest().body(result.getFieldError("nome").getDefaultMessage());
 		}
 		
-		classeComposicao = classeComposicaoService.salvar(classeComposicao); 
-		return ResponseEntity.ok(classeComposicao);
+		composicaoClasse = classeComposicaoService.salvar(composicaoClasse); 
+		return ResponseEntity.ok(composicaoClasse);
 	}
 	
 	@GetMapping
@@ -77,7 +77,7 @@ public class ClassesComposicaoController {
 			,@PageableDefault(size = 15) Pageable pageable, HttpServletRequest httpServletRequest){
 		ModelAndView mv = new ModelAndView("classeComposicao/PesquisaClassesComposicao");
 		
-		PageWrapper<ClasseComposicao> paginaWrapper = new PageWrapper<>(classesRepository.filtrar(classeFilter, pageable)
+		PageWrapper<ComposicaoClasse> paginaWrapper = new PageWrapper<>(classesRepository.filtrar(classeFilter, pageable)
 				, httpServletRequest);
 		
 		mv.addObject("pagina" , paginaWrapper);
@@ -86,9 +86,9 @@ public class ClassesComposicaoController {
 	
 	@GetMapping("/{codigo}")
 	public ModelAndView editar(@PathVariable Long codigo) {
-		ClasseComposicao classeComposicao = classesRepository.getOne(codigo);
-		ModelAndView mv = nova(classeComposicao);
-		mv.addObject(classeComposicao);
+		ComposicaoClasse composicaoClasse = classesRepository.getOne(codigo);
+		ModelAndView mv = nova(composicaoClasse);
+		mv.addObject(composicaoClasse);
 		return mv;
 	}
 	

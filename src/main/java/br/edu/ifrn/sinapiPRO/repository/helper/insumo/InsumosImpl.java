@@ -72,17 +72,6 @@ public class InsumosImpl implements InsumosQueries {
 		return new PageImpl<>(criteria.list(), pageable, total(filtro));
 	}
 	
-	/*orm.xml - native query */
-	@Override                     
-	public List<ItemBasePrecoDTO> listaPrecosPorInsumo(Long codigoInsumo) {
-	
-		List<ItemBasePrecoDTO> lista = manager
-						.createNamedQuery("Insumos.listaPrecos", ItemBasePrecoDTO.class)
-						.getResultList();
-		 
-		return lista;
-	}
-	
 	@Override                     
 	public List<ItemBasePrecoDTO> listaBasePrecoPorInsumo(Long codigoInsumo) {
 		
@@ -92,7 +81,7 @@ public class InsumosImpl implements InsumosQueries {
 	}
 		
 	@Override
-	public List<InsumoDTO> porCodigoInsumoOuNome(String codigoOuNome) {
+	public List<InsumoDTO> porCodigoInsumoOuNome(Long codigoBaseInsumo, String codigoOuNome) {
 			
 		Long codigoInsumo = 0L;
 		if (Lib.IsNumeric(codigoOuNome)) {
@@ -100,10 +89,13 @@ public class InsumosImpl implements InsumosQueries {
 		}
 		
 		String jpql = "select new br.edu.ifrn.sinapiPRO.dto.InsumoDTO(codigoInsumo, descricao, unidade,  precoPadrao) "
-				    + "from Insumo where codigoInsumo=:codigoInsumo or lower(descricao) like lower(:codigoOuNome)";
+				    + "from Insumo where InsumoID.codigo_base_insumo=:codigoBaseInsumo and"
+				    + "                  InsumoID.codigo_Insumo:=codigoInsumo          or "
+				    + "                  lower(descricao) like lower(:codigoOuNome)";
 		
 		List<InsumoDTO> insumosFiltrados = manager.createQuery(jpql, InsumoDTO.class)
 					.setParameter("codigoOuNome", codigoOuNome + "%")
+					.setParameter("codigoBaseInsumo", codigoBaseInsumo)
 					.setParameter("codigoInsumo", codigoInsumo)
 					.getResultList();
 		
@@ -129,5 +121,11 @@ public class InsumosImpl implements InsumosQueries {
 				criteria.add(Restrictions.ilike("descricao", filtro.getDescricao(), MatchMode.ANYWHERE));
 			}
 		}
+	}
+
+	@Override
+	public List<ItemBasePrecoDTO> listaPrecosPorInsumo(Long codigoInsumo) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

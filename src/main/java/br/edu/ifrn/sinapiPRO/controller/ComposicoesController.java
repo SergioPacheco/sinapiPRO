@@ -27,9 +27,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
 import br.edu.ifrn.sinapiPRO.dto.ComposicaoDTO;
 import br.edu.ifrn.sinapiPRO.model.Composicao;
-import br.edu.ifrn.sinapiPRO.model.ItemComposicao;
-import br.edu.ifrn.sinapiPRO.repository.BaseInsumos;
-import br.edu.ifrn.sinapiPRO.repository.BasePrecos;
+import br.edu.ifrn.sinapiPRO.model.ComposicaoItem;
+import br.edu.ifrn.sinapiPRO.repository.BaseInsumosRepository;
+import br.edu.ifrn.sinapiPRO.repository.BasePrecosRepository;
 import br.edu.ifrn.sinapiPRO.repository.ClassesRepository;
 import br.edu.ifrn.sinapiPRO.repository.Composicoes;
 import br.edu.ifrn.sinapiPRO.repository.GrupoComposicaoRepository;
@@ -52,10 +52,10 @@ public class ComposicoesController {
 	private GrupoComposicaoRepository grupoComposicoes;
 	
 	@Autowired
-	private BaseInsumos baseInsumosRepository;
+	private BaseInsumosRepository baseInsumosRepository;
 	
 	@Autowired
-	private BasePrecos basePrecosRepository;
+	private BasePrecosRepository basePrecosRepository;
 	
 	@Autowired 
 	private TabelaItensComposicaoSession tabelaItensComposicao; 
@@ -145,7 +145,7 @@ public class ComposicoesController {
 		
 		Composicao composicao = composicoes.buscarComItens(codigo);
 		setUuid(composicao);
-		for (ItemComposicao	item : composicao.getItens() ) {
+		for (ComposicaoItem	item : composicao.getItens() ) {
 			
 			tabelaItensComposicao.adicionarItem( item.getTipo(),
 					                       composicao.getUuid(),

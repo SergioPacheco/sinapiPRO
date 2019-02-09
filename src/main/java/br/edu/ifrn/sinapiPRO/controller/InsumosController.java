@@ -27,8 +27,8 @@ import br.edu.ifrn.sinapiPRO.dto.InsumoDTO;
 import br.edu.ifrn.sinapiPRO.dto.ItemBasePrecoDTO;
 import br.edu.ifrn.sinapiPRO.model.Especie;
 import br.edu.ifrn.sinapiPRO.model.Insumo;
-import br.edu.ifrn.sinapiPRO.repository.BaseInsumos;
-import br.edu.ifrn.sinapiPRO.repository.BasePrecos;
+import br.edu.ifrn.sinapiPRO.repository.BaseInsumosRepository;
+import br.edu.ifrn.sinapiPRO.repository.BasePrecosRepository;
 import br.edu.ifrn.sinapiPRO.repository.Insumos;
 import br.edu.ifrn.sinapiPRO.repository.filter.InsumoFilter;
 import br.edu.ifrn.sinapiPRO.service.InsumoService;
@@ -46,10 +46,10 @@ public class InsumosController {
 	private Insumos insumos;
 	
 	@Autowired
-	private BasePrecos basePrecosRepository;
+	private BasePrecosRepository basePrecosRepository;
 	
 	@Autowired
-	private BaseInsumos baseInsumosRepository;
+	private BaseInsumosRepository baseInsumosRepository;
 	 
 		
 	@RequestMapping("/novo")
@@ -93,7 +93,9 @@ public class InsumosController {
 		return mv;
 	}
 	
-	/* lista todos os precos SINAPI importados por Insumo*/
+	/* 
+	 * Lista todos os precos SINAPI importados por Insumo
+	 */
 	@RequestMapping(value = "/precos", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody List<ItemBasePrecoDTO> pesquisar(Long codigoInsumo) {
 		 
@@ -102,13 +104,13 @@ public class InsumosController {
 	}
 	 
 	@RequestMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody List<InsumoDTO> pesquisar(String codigoOuNome) {
+	public @ResponseBody List<InsumoDTO> pesquisar(Long codigoBaseInsumo, String codigoOuNome) {
 		
-		return insumos.porCodigoInsumoOuNome(codigoOuNome);
+		return insumos.porCodigoInsumoOuNome(codigoBaseInsumo, codigoOuNome);
 	
 	}
 	
-	@DeleteMapping("/{codigo}")
+	@DeleteMapping("/{insumoId}")
 	public @ResponseBody ResponseEntity<?> excluir(@PathVariable("codigo") Insumo insumo) {
 		try {
 			cadastroInsumoService.excluir(insumo);
@@ -118,8 +120,8 @@ public class InsumosController {
 		return ResponseEntity.ok().build();
 	}
 	
-	@GetMapping("/{codigo}")
-	public ModelAndView editar(@PathVariable("codigo") Insumo insumo) {
+	@GetMapping("/{insumoID}")
+	public ModelAndView editar(@PathVariable("insumoID") Insumo insumo) {
 		ModelAndView mv = novo(insumo);
 		mv.addObject(insumo);
 		return mv;

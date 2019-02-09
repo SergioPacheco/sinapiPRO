@@ -11,12 +11,12 @@ import org.springframework.web.context.annotation.SessionScope;
 import br.edu.ifrn.sinapiPRO.model.Composicao;
 import br.edu.ifrn.sinapiPRO.model.Etapa;
 import br.edu.ifrn.sinapiPRO.model.Insumo;
-import br.edu.ifrn.sinapiPRO.model.Item;
+import br.edu.ifrn.sinapiPRO.model.OrcamentoItem;
 
 @SessionScope
 @Component
 public class TabelasItensOrcamentoSession {
-
+/*
 	private Set<TabelaItensOrcamento> tabelas = new HashSet<>();
 
 	public void adicionarItem(String uuid, Etapa etapa) {
@@ -71,7 +71,7 @@ public class TabelasItensOrcamentoSession {
 		tabela.excluirItem(etapa, insumo);
 	}
 	
-	public List<Item> getItens(String uuid) {
+	public List<OrcamentoItem> getItens(String uuid) {
 		return buscarTabelaPorUuid(uuid).getItens();
 	}
 	
@@ -99,5 +99,5 @@ public class TabelasItensOrcamentoSession {
 		return tabela;
 	}
 
-	
+	*/
 }

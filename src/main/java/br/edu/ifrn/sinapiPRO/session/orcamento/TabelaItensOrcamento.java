@@ -11,18 +11,19 @@ import java.util.stream.IntStream;
 import br.edu.ifrn.sinapiPRO.model.Composicao;
 import br.edu.ifrn.sinapiPRO.model.Etapa;
 import br.edu.ifrn.sinapiPRO.model.Insumo;
-import br.edu.ifrn.sinapiPRO.model.Item;
+import br.edu.ifrn.sinapiPRO.model.OrcamentoItem;
 
 class TabelaItensOrcamento {
 
+	/*
 	private String uuid;
-	private List<Item> itens = new ArrayList<>();
+	private List<OrcamentoItem> itens = new ArrayList<>();
 	
 	public void Itemizar() { 
 		
-		 /* ordenar por etapa */ 
-		 Collections.sort(itens, new Comparator<Item>() {
-		        @Override public int compare(Item p1, Item p2) {
+	 
+		 Collections.sort(itens, new Comparator<OrcamentoItem>() {
+		        @Override public int compare(OrcamentoItem p1, OrcamentoItem p2) {
 		            return p1.getEtapa().getCodigo().intValue() - p2.getEtapa().getCodigo().intValue(); // Ascending
 		        }
 
@@ -30,26 +31,26 @@ class TabelaItensOrcamento {
 		
 		Long aux =  0L;
 		Long sub = 1L; 
-		for (Item item : itens) {
-			if (item.getEtapa().getCodigo() == aux) { 
-			    if (item.getTipo().equals("E")) { 
-			    	item.setItemizacao(item.getEtapa().getCodigo()+".");
+		for (OrcamentoItem orcamentoItem : itens) {
+			if (orcamentoItem.getEtapa().getCodigo() == aux) { 
+			    if (orcamentoItem.getTipo().equals("E")) { 
+			    	orcamentoItem.setItemizacao(orcamentoItem.getEtapa().getCodigo()+".");
 			    } else { 
-			    	item.setItemizacao(item.getEtapa().getCodigo()+"."+sub+".");
+			    	orcamentoItem.setItemizacao(orcamentoItem.getEtapa().getCodigo()+"."+sub+".");
 			    	 sub++;
 			    }
 				continue; 
 			}
-		    aux = item.getEtapa().getCodigo();
+		    aux = orcamentoItem.getEtapa().getCodigo();
 		    sub = 1L;
-		    if (item.getTipo().equals("E")) { 
-		    	item.setItemizacao(item.getEtapa().getCodigo()+".");
+		    if (orcamentoItem.getTipo().equals("E")) { 
+		    	orcamentoItem.setItemizacao(orcamentoItem.getEtapa().getCodigo()+".");
 		    } else { 
-		    	item.setItemizacao(item.getEtapa().getCodigo()+"."+sub+".");
+		    	orcamentoItem.setItemizacao(orcamentoItem.getEtapa().getCodigo()+"."+sub+".");
 		    	sub++;
 		    }
 		} 
-		/* Ordena Itemizacao */
+		 
 		Collections.sort(itens, (o1, o2) -> (o1.getItemizacao().compareTo(o2.getItemizacao())));
 		
 	}
@@ -61,28 +62,28 @@ class TabelaItensOrcamento {
 	 
 	public BigDecimal getValorTotal() {
 		return itens.stream()
-				.map(Item::getValorTotal)
+				.map(OrcamentoItem::getValorTotal)
 				.reduce(BigDecimal::add)
 				.orElse(BigDecimal.ZERO);
 	}
 	
 	public BigDecimal getValorMaoObra() {
 		return itens.stream()
-				.map(Item::getValorMaoObra)
+				.map(OrcamentoItem::getValorMaoObra)
 				.reduce(BigDecimal::add)
 				.orElse(BigDecimal.ZERO);
 	}
 	
 	public BigDecimal getValorMaterial() {
 		return itens.stream()
-				.map(Item::getValorMaterial)
+				.map(OrcamentoItem::getValorMaterial)
 				.reduce(BigDecimal::add)
 				.orElse(BigDecimal.ZERO);
 	}
 	
 	public BigDecimal getValorEquipamento() {
 		return itens.stream()
-				.map(Item::getValorEquipamento)
+				.map(OrcamentoItem::getValorEquipamento)
 				.reduce(BigDecimal::add)
 				.orElse(BigDecimal.ZERO);
 	}
@@ -90,12 +91,12 @@ class TabelaItensOrcamento {
 	
 	public void adicionarItem(Etapa etapa) {
 		
-		Optional<Item> itemEtapaOptional = itens.stream()
+		Optional<OrcamentoItem> itemEtapaOptional = itens.stream()
 				 								.filter(i -> i.getEtapa()  != null )
 											    .filter(i -> i.getEtapa().equals(etapa) )
 											    .findAny();
 		
-		Item itemEtapaOrcamento = null;
+		OrcamentoItem itemEtapaOrcamento = null;
 		if (itemEtapaOptional.isPresent()) {
 			
 			System.out.println();
@@ -105,7 +106,7 @@ class TabelaItensOrcamento {
 			// TODO: Calcular subtotais {servico, material, equipamento}
 			
 		} else {
-			itemEtapaOrcamento = new Item();
+			itemEtapaOrcamento = new OrcamentoItem();
 			itemEtapaOrcamento.setTipo("E");
 			itemEtapaOrcamento.setEtapa(etapa);
 			itemEtapaOrcamento.setItemizacao(etapa.getCodigo().toString()+".");
@@ -118,20 +119,20 @@ class TabelaItensOrcamento {
 	}
 	public void adicionarItem(Etapa etapa, Composicao composicao, BigDecimal quantidade) {
 		
-		Optional<Item> itemComposicaoOptional = itens.stream()
+		Optional<OrcamentoItem> itemComposicaoOptional = itens.stream()
 											 .filter(i -> i.getEtapa()      != null )
 											 .filter(i -> i.getComposicao() != null )
 											 .filter(i -> i.getComposicao().equals(composicao) && i.getEtapa().equals(etapa))
 											 .findAny();
 		
-		Item composicaoOrcamento = null;
+		OrcamentoItem composicaoOrcamento = null;
 		if (itemComposicaoOptional.isPresent()) {
 			composicaoOrcamento = itemComposicaoOptional.get();
 			
 			// TODO: Calcular subtotais  [mao de obra] [materiais ] [equipamentos]
 		} else {
 			
-			composicaoOrcamento = new Item();
+			composicaoOrcamento = new OrcamentoItem();
 			composicaoOrcamento.setTipo("C");
 			composicaoOrcamento.setEtapa(etapa);
 			composicaoOrcamento.setComposicao(composicao);
@@ -150,18 +151,18 @@ class TabelaItensOrcamento {
 	
 	public void adicionarItem(Etapa etapa, Insumo insumo, BigDecimal quantidade) {
 		
-		Optional<Item> itemInsumoOptional = itens.stream() 
+		Optional<OrcamentoItem> itemInsumoOptional = itens.stream() 
 									   .filter(i -> i.getEtapa()  != null )
 									   .filter(i -> i.getInsumo() != null )
 									   .filter(i -> i.getInsumo().equals(insumo) && i.getEtapa().equals(etapa)  )
 									   .findAny();
-		Item insumoOrcamento = null;
+		OrcamentoItem insumoOrcamento = null;
 		if (itemInsumoOptional.isPresent()) {
 			insumoOrcamento = itemInsumoOptional.get();
 			
 			// TODO: Calcular subtotais  [mao de obra] [materiais ] [equipamentos]
 		} else {
-			insumoOrcamento = new Item();
+			insumoOrcamento = new OrcamentoItem();
 			insumoOrcamento.setTipo("I");
 			insumoOrcamento.setEtapa(etapa);
 			insumoOrcamento.setInsumo(insumo);
@@ -176,7 +177,7 @@ class TabelaItensOrcamento {
 	}
 	
 	public void alterarQuantidadeItens(Etapa etapa, Composicao composicao, BigDecimal quantidade) {
-		Optional<Item> itemOrcamento = buscarItemPorComposicao(etapa, composicao);
+		Optional<OrcamentoItem> itemOrcamento = buscarItemPorComposicao(etapa, composicao);
 		
 		if (!itemOrcamento.isPresent()) {
 			System.out.println("Item não encontrado: etapa="+etapa.getCodigo() + " composicao=" + composicao.getCodigo() );
@@ -188,10 +189,10 @@ class TabelaItensOrcamento {
 	}
 	
 	public void alterarQuantidadeItens(Etapa etapa, Insumo insumo, BigDecimal quantidade) {
-		Optional<Item> itemOrcamento = buscarItemPorInsumo(etapa, insumo);
+		Optional<OrcamentoItem> itemOrcamento = buscarItemPorInsumo(etapa, insumo);
 		
 		if (!itemOrcamento.isPresent()) {
-			System.out.println("Item não encontrado: etapa="+etapa.getCodigo() + " insumo=" + insumo.getCodigo() );
+			System.out.println("Item não encontrado: etapa="+etapa.getCodigo() + " insumo=" + insumo.getCodigoInsumo() );
 		} else {
 			itemOrcamento.get().setQuantidade(quantidade);
 		}
@@ -225,17 +226,17 @@ class TabelaItensOrcamento {
 		return itens.size();
 	}
 
-	public List<Item> getItens() {
+	public List<OrcamentoItem> getItens() {
 		return itens;
 	}
-	private Optional<Item> buscarItemPorComposicao(Etapa etapa, Composicao composicao) {
+	private Optional<OrcamentoItem> buscarItemPorComposicao(Etapa etapa, Composicao composicao) {
 		return itens.stream()
 				.filter(i -> i.getComposicao() != null )
 				.filter(i -> i.getEtapa()      != null )
 				.filter(i -> i.getComposicao().equals(composicao) && i.getEtapa().equals(etapa) )
 				.findAny();
 	}
-	private Optional<Item> buscarItemPorInsumo(Etapa etapa, Insumo insumo) {
+	private Optional<OrcamentoItem> buscarItemPorInsumo(Etapa etapa, Insumo insumo) {
 		return itens.stream()
 				.filter(i -> i.getInsumo() != null )
 				.filter(i -> i.getEtapa()  != null )
@@ -271,5 +272,5 @@ class TabelaItensOrcamento {
 			return false;
 		return true;
 	}
-	
+	*/ 
 }

@@ -26,7 +26,8 @@ import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
 import br.edu.ifrn.sinapiPRO.model.Composicao;
 import br.edu.ifrn.sinapiPRO.model.Etapa;
 import br.edu.ifrn.sinapiPRO.model.Insumo;
-import br.edu.ifrn.sinapiPRO.model.Item;
+import br.edu.ifrn.sinapiPRO.model.InsumoID;
+import br.edu.ifrn.sinapiPRO.model.OrcamentoItem;
 import br.edu.ifrn.sinapiPRO.model.Orcamento;
 import br.edu.ifrn.sinapiPRO.repository.Composicoes;
 import br.edu.ifrn.sinapiPRO.repository.Etapas;
@@ -40,8 +41,8 @@ import br.edu.ifrn.sinapiPRO.utils.Lib;
  
 @Controller
 @RequestMapping("/item")
-public class ItemController {
-	 
+public class OrcamentoItemController {
+/*	 
 	@Autowired private Etapas etapasRepository;
 	@Autowired private Composicoes composicoesRepository;
 	@Autowired private Insumos insumosRepository;
@@ -112,7 +113,10 @@ public class ItemController {
 		
 		Etapa etapa = pesquisaEtapa(codigoEtapa);
 		
-		Optional<Insumo> insumoOptional = insumosRepository.findByCodigoInsumo(codigoInsumo);
+		InsumoID insumoID = new InsumoID(); 
+		insumoID.setCodigoInsumo(codigoInsumo);
+		Optional<Insumo> insumoOptional = insumosRepository.findById(insumoID);
+		
 		if (insumoOptional.isPresent()) {
 			tabelaItens.adicionarItem(uuid, etapa, insumoOptional.get(), BigDecimal.ONE);
 		} else {
@@ -138,7 +142,11 @@ public class ItemController {
 		} else {
 			if (tipo.equals("I")) {
 				System.out.println("ALTERAR QUANTIDADE - insumo="+codigoItem+" etapa="+codigoEtapa);
-				Insumo insumo = insumosRepository.getOne(codigoItem);
+				
+				InsumoID insumoID = new InsumoID(); 
+				insumoID.setCodigoInsumo(codigoItem);
+				
+				Insumo insumo = insumosRepository.getOne(insumoID);
 				tabelaItens.alterarQuantidade(uuid, etapa, insumo, quantidade);
 			} 
 		}
@@ -161,7 +169,10 @@ public class ItemController {
 				tabelaItens.excluirItem(uuid, etapa, composicao);
 			} else {
 				if (tipo.equals("I")) {
-					Insumo insumo = insumosRepository.findById(codigoItem).get();
+					
+					InsumoID insumoID = new InsumoID(); 
+					insumoID.setCodigoInsumo(codigoItem);
+					Insumo insumo = insumosRepository.getOne(insumoID);
 					tabelaItens.excluirItem(uuid, etapa, insumo);
 				}	
 			}
@@ -195,16 +206,16 @@ public class ItemController {
 		setUuid(orcamento);
 		
 		
-		for (Item item : orcamento.getItens()) {
+		for (OrcamentoItem orcamentoItem : orcamento.getItens()) {
 			
-			if (item.getTipo().equals("C")) {
-			   tabelaItens.adicionarItem(orcamento.getUuid(), item.getEtapa(), item.getComposicao(), item.getQuantidade());
+			if (orcamentoItem.getTipo().equals("C")) {
+			   tabelaItens.adicionarItem(orcamento.getUuid(), orcamentoItem.getEtapa(), orcamentoItem.getComposicao(), orcamentoItem.getQuantidade());
 			} else {
-				if (item.getTipo().equals("I")) {
-					tabelaItens.adicionarItem(orcamento.getUuid(), item.getEtapa(),	item.getInsumo(), item.getQuantidade());
+				if (orcamentoItem.getTipo().equals("I")) {
+					tabelaItens.adicionarItem(orcamento.getUuid(), orcamentoItem.getEtapa(),	orcamentoItem.getInsumo(), orcamentoItem.getQuantidade());
 				} else {
-					if (item.getTipo().equals("E")) {
-						tabelaItens.adicionarItem(orcamento.getUuid(), item.getEtapa());
+					if (orcamentoItem.getTipo().equals("E")) {
+						tabelaItens.adicionarItem(orcamento.getUuid(), orcamentoItem.getEtapa());
 					}
 				}
 			}
@@ -262,5 +273,6 @@ public class ItemController {
 		
 		return etapa;
 	}
+	*/
 }
 

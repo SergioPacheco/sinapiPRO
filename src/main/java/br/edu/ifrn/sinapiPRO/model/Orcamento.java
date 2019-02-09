@@ -71,7 +71,7 @@ public class Orcamento implements Serializable {
 	private SituacaoOrcamento situacao = SituacaoOrcamento.ABERTO;
 	
 	@OneToMany(mappedBy = "orcamento", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Item> itens = new ArrayList<>();
+	private List<OrcamentoItem> itens = new ArrayList<>();
 
 	@Column(name = "valor_total")
 	private BigDecimal valorTotal = BigDecimal.ZERO;
@@ -260,19 +260,20 @@ public class Orcamento implements Serializable {
 		TaxaAdministracao = taxaAdministracao;
 	}
 
-	public List<Item> getItens() {
-		
-		Collections.sort(itens, new Comparator<Item>() {
-		        @Override public int compare(Item p1, Item p2) {
+	public List<OrcamentoItem> getItens() {
+		/*
+		Collections.sort(itens, new Comparator<OrcamentoItem>() {
+		        @Override public int compare(OrcamentoItem p1, OrcamentoItem p2) {
 		            return p1.getEtapa().getCodigo().intValue() - p2.getEtapa().getCodigo().intValue(); // Ascending
 		        }
 		});
 		Itemizar();
+		*/
 		
 		return itens;
 	}
 
-	public void setItens(List<Item> itens) {
+	public void setItens(List<OrcamentoItem> itens) {
 		this.itens = itens;
 	}
 	
@@ -290,35 +291,37 @@ public class Orcamento implements Serializable {
 			});
 		 */
 
-	    Collections.sort(itens, new Comparator<Item>() {
-	        @Override public int compare(Item p1, Item p2) {
+		/*
+	    Collections.sort(itens, new Comparator<OrcamentoItem>() {
+	        @Override public int compare(OrcamentoItem p1, OrcamentoItem p2) {
 	            return p1.getEtapa().getCodigo().intValue() - p2.getEtapa().getCodigo().intValue(); // Ascending
 	        }
 
 	    });
 		
-		Long aux =  0L;
+		Long aux = 0L;
 		Long sub = 1L; 
-		for (Item item : itens) {
-			if (item.getEtapa().getCodigo() == aux) { 
-			    if (item.getTipo().equals("E")) { 
-			    	item.setItemizacao(item.getEtapa().getCodigo()+".");
+		for (OrcamentoItem orcamentoItem : itens) {
+			if (orcamentoItem.getEtapa().getCodigo() == aux) { 
+			    if (orcamentoItem.getTipo().equals("E")) { 
+			    	orcamentoItem.setItemizacao(orcamentoItem.getEtapa().getCodigo()+".");
 			    } else { 
-			    	item.setItemizacao(item.getEtapa().getCodigo()+"."+sub+".");
+			    	orcamentoItem.setItemizacao(orcamentoItem.getEtapa().getCodigo()+"."+sub+".");
 			    	sub++;
 			    }
 			  
 				continue; 
 			}
-		    aux = item.getEtapa().getCodigo();
+		    aux = orcamentoItem.getEtapa().getCodigo();
 		    sub = 1L;
-		    if (item.getTipo().equals("E")) { 
-		    	item.setItemizacao(item.getEtapa().getCodigo()+".");
+		    if (orcamentoItem.getTipo().equals("E")) { 
+		    	orcamentoItem.setItemizacao(orcamentoItem.getEtapa().getCodigo()+".");
 		    } else { 
-		    	item.setItemizacao(item.getEtapa().getCodigo()+"."+sub+".");
+		    	orcamentoItem.setItemizacao(orcamentoItem.getEtapa().getCodigo()+"."+sub+".");
 		    	sub++;
 		    }
 		} 
+		*/
 		
 		Collections.sort(itens, (o1, o2) -> (o1.getItemizacao().compareTo(o2.getItemizacao())));
 		
@@ -329,38 +332,40 @@ public class Orcamento implements Serializable {
 		return codigo == null;
 	}
 	
-	public void adicionarItens(List<Item> itens) {
+	public void adicionarItens(List<OrcamentoItem> itens) {
 		this.itens = itens;
 		this.itens.forEach(i -> i.setOrcamento(this));
 	}
 	
 	public BigDecimal getValorTotalItens() {
 		return getItens().stream()
-				.map(Item::getValorTotal)
+				.map(OrcamentoItem::getValorTotal)
 				.reduce(BigDecimal::add)
 				.orElse(BigDecimal.ZERO);
 	}
 	
+	/*
 	public BigDecimal getValorMaoObra() {
 		return getItens().stream()
-				.map(Item::getValorMaoObra)
+				.map(OrcamentoItem::getValorMaoObra)
 				.reduce(BigDecimal::add)
 				.orElse(BigDecimal.ZERO);
 	}
 	
 	public BigDecimal getValorMaterial() {
 		return getItens().stream()
-				.map(Item::getValorMaterial)
+				.map(OrcamentoItem::getValorMaterial)
 				.reduce(BigDecimal::add)
 				.orElse(BigDecimal.ZERO);
 	}
 	
 	public BigDecimal getValorEquipamento() {
 		return getItens().stream()
-				.map(Item::getValorEquipamento)
+				.map(OrcamentoItem::getValorEquipamento)
 				.reduce(BigDecimal::add)
 				.orElse(BigDecimal.ZERO);
 	}
+	
 	
 	
 	public void calcularValorTotal() {
@@ -376,7 +381,7 @@ public class Orcamento implements Serializable {
 		this.valorMaterial = getValorMaterial();
 	}
 	
-	
+	*/
 	
 	@Override
 	public int hashCode() {

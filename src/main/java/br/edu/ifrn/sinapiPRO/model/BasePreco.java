@@ -2,6 +2,7 @@ package br.edu.ifrn.sinapiPRO.model;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -12,11 +13,12 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
 
-@Entity(name = "BasePreco")
+@Entity
 @Table(name = "base_preco")
 public class BasePreco implements Serializable {
 
@@ -36,6 +38,10 @@ public class BasePreco implements Serializable {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "codigo_estado")
 	private Estado estado;
+	
+	@OneToMany 
+	private Set<BasePrecoItem> itens;
+	
 	
 	@Enumerated(EnumType.STRING)
 	private Desoneracao desoneracao;

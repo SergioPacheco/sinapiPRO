@@ -9,7 +9,7 @@ import br.edu.ifrn.sinapiPRO.model.BaseInsumo;
 import br.edu.ifrn.sinapiPRO.repository.helper.baseinsumos.BaseInsumosQueries;
 
 @Repository
-public interface BaseInsumos extends JpaRepository<BaseInsumo, Long>, BaseInsumosQueries {
+public interface BaseInsumosRepository extends JpaRepository<BaseInsumo, Long>, BaseInsumosQueries {
 
 	public Optional<BaseInsumo> findByNomeIgnoreCase(String nome);
 

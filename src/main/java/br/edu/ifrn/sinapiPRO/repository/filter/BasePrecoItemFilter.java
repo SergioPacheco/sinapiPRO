@@ -2,7 +2,7 @@ package br.edu.ifrn.sinapiPRO.repository.filter;
 
 import br.edu.ifrn.sinapiPRO.model.BasePreco;
 
-public class ItemBasePrecoFilter {
+public class BasePrecoItemFilter {
 	
 	private BasePreco basePreco; 
 	private Long codigoInsumo;

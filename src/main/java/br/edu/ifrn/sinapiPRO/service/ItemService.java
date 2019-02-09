@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import br.edu.ifrn.sinapiPRO.model.Item;
+import br.edu.ifrn.sinapiPRO.model.OrcamentoItem;
 import br.edu.ifrn.sinapiPRO.repository.ItemsRepository;
 import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
 
@@ -17,8 +17,8 @@ public class ItemService {
 	private ItemsRepository itemRepository;
 	
 	@Transactional
-	public void salvar(Item item){
-		itemRepository.save(item);
+	public void salvar(OrcamentoItem orcamentoItem){
+		itemRepository.save(orcamentoItem);
 	}
 	
 	@Transactional

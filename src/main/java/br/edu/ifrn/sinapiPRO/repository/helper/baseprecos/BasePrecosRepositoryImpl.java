@@ -18,11 +18,11 @@ import org.springframework.util.StringUtils;
 
 import br.edu.ifrn.sinapiPRO.model.BasePreco;
 import br.edu.ifrn.sinapiPRO.repository.filter.BasePrecoFilter;
-import br.edu.ifrn.sinapiPRO.repository.helper.baseprecos.BasePrecosQueries;
+import br.edu.ifrn.sinapiPRO.repository.helper.baseprecos.BasePrecosRepositoryQueries;
 
 import br.edu.ifrn.sinapiPRO.repository.paginacao.PaginacaoUtil;
 
-public class BasePrecosImpl implements BasePrecosQueries {
+public class BasePrecosRepositoryImpl implements BasePrecosRepositoryQueries {
 
 	@PersistenceContext
 	private EntityManager manager;

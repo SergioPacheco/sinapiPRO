@@ -23,8 +23,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
 import br.edu.ifrn.sinapiPRO.model.BasePreco;
 import br.edu.ifrn.sinapiPRO.model.Desoneracao;
-import br.edu.ifrn.sinapiPRO.repository.BaseInsumos;
-import br.edu.ifrn.sinapiPRO.repository.BasePrecos;
+import br.edu.ifrn.sinapiPRO.repository.BaseInsumosRepository;
+import br.edu.ifrn.sinapiPRO.repository.BasePrecosRepository;
 import br.edu.ifrn.sinapiPRO.repository.Estados;
 import br.edu.ifrn.sinapiPRO.repository.filter.BasePrecoFilter;
 import br.edu.ifrn.sinapiPRO.service.BasePrecoService;
@@ -42,10 +42,10 @@ public class BasePrecosController  {
 	private SinapiController sinapiController;
 	
 	@Autowired
-	private BasePrecos basePrecos;
+	private BasePrecosRepository basePrecosRepository;
 	
 	@Autowired
-	private BaseInsumos baseInsumos;
+	private BaseInsumosRepository baseInsumosRepository;
 	
 	@Autowired
 	private Estados estados;
@@ -56,7 +56,7 @@ public class BasePrecosController  {
 		ModelAndView mv = new ModelAndView("basePreco/CadastroBasePreco");
 		mv.addObject("desoneracoes", Desoneracao.values());
 		mv.addObject("estados", estados.findAll()); 
-		mv.addObject("baseInsumos", baseInsumos.findAll()); 
+		mv.addObject("baseInsumos", baseInsumosRepository.findAll()); 
 		 
 		return mv;
 	}
@@ -94,7 +94,7 @@ public class BasePrecosController  {
 			,@PageableDefault(size = 5) Pageable pageable, HttpServletRequest httpServletRequest){
 		ModelAndView mv = new ModelAndView("basePreco/PesquisaBasePreco");
 		
-		PageWrapper<BasePreco> paginaWrapper = new PageWrapper<>(basePrecos.filtrar(basePrecoFilter, pageable)
+		PageWrapper<BasePreco> paginaWrapper = new PageWrapper<>(basePrecosRepository.filtrar(basePrecoFilter, pageable)
 				, httpServletRequest);
 		
 		mv.addObject("pagina" , paginaWrapper);
@@ -103,7 +103,7 @@ public class BasePrecosController  {
 	
 	@GetMapping("/{codigo}")
 	public ModelAndView editar(@PathVariable Long codigo) {
-		BasePreco basePreco = basePrecos.getOne(codigo);
+		BasePreco basePreco = basePrecosRepository.getOne(codigo);
 		ModelAndView mv = nova(basePreco);
 		mv.addObject(basePreco);
 		return mv;

@@ -3,39 +3,29 @@ package br.edu.ifrn.sinapiPRO.model;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.NaturalId;
 
 @Entity
 @Table(name = "insumo")
 public class Insumo implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-
-	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO, generator="native")
-	@GenericGenerator(name = "native", strategy = "native")
-	private Long codigo;
 	
-	@NaturalId
-	@NotNull(message = "Codigo Insumo é obrigatório")
-	private Long codigoInsumo; 
-
+	@EmbeddedId
+	private InsumoID insumoID;           // {baseInsumo, codigo_insumo}
+	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "codigo_base_preco")
+	@JoinColumn(name = "codigo_base_preco", referencedColumnName = "codigo")
 	private BasePreco basePreco;
 	
 	@Size(max = 400)
@@ -49,23 +39,20 @@ public class Insumo implements Serializable {
 	
 	@Enumerated(EnumType.STRING)
 	private Especie especie;
+		
+		
+	public InsumoID getInsumoId() {
+		return insumoID;
+	}
+
+	public void setInsumoId(InsumoID insumoId) {
+		this.insumoID = insumoId;
+	}
 	
-	public Long getCodigo() {
-		return codigo;
+	public Long getCodigoInsumo() { 
+		return this.insumoID.getCodigoInsumo();
 	}
-
-	public void setCodigo(Long codigo) {
-		this.codigo = codigo;
-	}
-
-	public Long getCodigoInsumo() {
-		return codigoInsumo;
-	}
-
-	public void setCodigoInsumo(Long codigoInsumo) {
-		this.codigoInsumo = codigoInsumo;
-	}
-
+	
 	public BasePreco getBasePreco() {
 		return basePreco;
 	}
@@ -107,14 +94,14 @@ public class Insumo implements Serializable {
 	}
 
 	public boolean isNovo() {
-		return codigo == null;
+		return insumoID == null;
 	}
 	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((codigo == null) ? 0 : codigo.hashCode());
+		result = prime * result + ((insumoID == null) ? 0 : insumoID.hashCode());
 		return result;
 	}
 	@Override
@@ -126,10 +113,10 @@ public class Insumo implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Insumo other = (Insumo) obj;
-		if (codigo == null) {
-			if (other.codigo != null)
+		if (insumoID == null) {
+			if (other.insumoID != null)
 				return false;
-		} else if (!codigo.equals(other.codigo))
+		} else if (!insumoID.equals(other.insumoID))
 			return false;
 		return true;
 	}

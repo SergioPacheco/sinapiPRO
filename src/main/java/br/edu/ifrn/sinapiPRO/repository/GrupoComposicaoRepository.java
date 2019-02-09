@@ -5,11 +5,11 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import br.edu.ifrn.sinapiPRO.model.GrupoComposicao;
+import br.edu.ifrn.sinapiPRO.model.ComposicaoGrupo;
 
 @Repository
-public interface GrupoComposicaoRepository extends JpaRepository<GrupoComposicao, Long> {
+public interface GrupoComposicaoRepository extends JpaRepository<ComposicaoGrupo, Long> {
 
-	public Optional<GrupoComposicao> findByNomeIgnoreCase(String nome);
+	public Optional<ComposicaoGrupo> findByNomeIgnoreCase(String nome);
 	 
 }

@@ -22,7 +22,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
 import br.edu.ifrn.sinapiPRO.model.BaseInsumo;
-import br.edu.ifrn.sinapiPRO.repository.BaseInsumos;
+import br.edu.ifrn.sinapiPRO.repository.BaseInsumosRepository;
 import br.edu.ifrn.sinapiPRO.repository.filter.BaseInsumoFilter;
 import br.edu.ifrn.sinapiPRO.service.BaseInsumoService;
 import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
@@ -36,7 +36,7 @@ public class BaseInsumosController {
 	private BaseInsumoService cadastroBaseInsumoService;
 	
 	@Autowired
-	private BaseInsumos baseInsumos;
+	private BaseInsumosRepository baseInsumosRepository;
 	
 	@RequestMapping("/nova")
 	public ModelAndView nova(BaseInsumo baseInsumo) {
@@ -78,7 +78,7 @@ public class BaseInsumosController {
 			,@PageableDefault(size = 5) Pageable pageable, HttpServletRequest httpServletRequest){
 		ModelAndView mv = new ModelAndView("baseInsumo/PesquisaBaseInsumo");
 		
-		PageWrapper<BaseInsumo> paginaWrapper = new PageWrapper<>(baseInsumos.filtrar(baseInsumoFilter, pageable)
+		PageWrapper<BaseInsumo> paginaWrapper = new PageWrapper<>(baseInsumosRepository.filtrar(baseInsumoFilter, pageable)
 				, httpServletRequest);
 		
 		mv.addObject("pagina" , paginaWrapper);
@@ -87,7 +87,7 @@ public class BaseInsumosController {
 	
 	@GetMapping("/{codigo}")
 	public ModelAndView editar(@PathVariable Long codigo) {
-		BaseInsumo baseInsumo = baseInsumos.getOne(codigo);
+		BaseInsumo baseInsumo = baseInsumosRepository.getOne(codigo);
 		ModelAndView mv = nova(baseInsumo);
 		mv.addObject(baseInsumo);
 		return mv;

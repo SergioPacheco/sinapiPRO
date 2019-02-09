@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
-import br.edu.ifrn.sinapiPRO.model.ItemComposicao;
+import br.edu.ifrn.sinapiPRO.model.ComposicaoItem;
 
 class TabelaItensComposicao {
 
 	private String uuid;
-	private List<ItemComposicao> itens = new ArrayList<>();
+	private List<ComposicaoItem> itens = new ArrayList<>();
 	
 	public TabelaItensComposicao(String uuid) {
 		this.uuid = uuid;
@@ -21,37 +21,37 @@ class TabelaItensComposicao {
 		
 		return itens
 					.stream()
-					.map(ItemComposicao::getValorTotal)
+					.map(ComposicaoItem::getValorTotal)
 					.reduce(BigDecimal::add)
 					.orElse(BigDecimal.ZERO);
 	}
 	
 	public void adicionarItem(String tipo, Long codigoItem, BigDecimal precoUnitario, BigDecimal coeficiente) {
 		
-		Optional<ItemComposicao> itemExistente = buscarItem(codigoItem);
+		Optional<ComposicaoItem> itemExistente = buscarItem(codigoItem);
 		
-		ItemComposicao itemComposicao = null;
+		ComposicaoItem composicaoItem = null;
 		
 		if (itemExistente.isPresent()) {
-			itemComposicao = itemExistente.get();
+			composicaoItem = itemExistente.get();
 		} else {
-		    itemComposicao = new ItemComposicao();
-			itemComposicao.setTipo(tipo);
-			itemComposicao.setCodigoItem(codigoItem);
-			itemComposicao.setCoeficiente(coeficiente);
-			itemComposicao.setPrecoUnitario(precoUnitario);
+		    composicaoItem = new ComposicaoItem();
+			composicaoItem.setTipo(tipo);
+			composicaoItem.setCodigoItem(codigoItem);
+			composicaoItem.setCoeficiente(coeficiente);
+			composicaoItem.setPrecoUnitario(precoUnitario);
 			
 			// Buscar preco {basePreco -> codigoIusmo -> itemBasePreco }
 			
 			// itemComposicao.setPrecoUnitario(insumo.getPrecoPadrao());
-			itens.add(0, itemComposicao);
+			itens.add(0, composicaoItem);
 		}
 	}
 	
 	public void alterarCoeficiente(Long codigoItem, BigDecimal coeficiente) {
 		
-		ItemComposicao itemComposicao = buscarItem(codigoItem).get();
-		itemComposicao.setCoeficiente(coeficiente);
+		ComposicaoItem composicaoItem = buscarItem(codigoItem).get();
+		composicaoItem.setCoeficiente(coeficiente);
 	}
 	
 	public void excluirItem(Long codigoItem) {
@@ -65,11 +65,11 @@ class TabelaItensComposicao {
 		return itens.size();
 	}
 
-	public List<ItemComposicao> getItens() {
+	public List<ComposicaoItem> getItens() {
 		return itens;
 	}
 	
-	private Optional<ItemComposicao> buscarItem(Long codigoItem) {
+	private Optional<ComposicaoItem> buscarItem(Long codigoItem) {
 		
 		return itens.stream()
 				.filter(i -> i.getCodigoItem().equals(codigoItem))

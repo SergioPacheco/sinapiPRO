@@ -1,11 +1,13 @@
 package br.edu.ifrn.sinapiPRO.model;
 
 import java.io.Serializable;
+import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -22,6 +24,9 @@ public class BaseInsumo implements Serializable {
 	private Long codigo;
 	private String nome;
 
+	@OneToMany
+	private Set<Insumo> insumos;
+	
 	public Long getCodigo() {
 		return codigo;
 	}
@@ -35,11 +40,17 @@ public class BaseInsumo implements Serializable {
 	public void setNome(String nome) {
 		this.nome = nome;
 	}
-	
+			
+	public Set<Insumo> getInsumos() {
+		return insumos;
+	}
+	public void setInsumos(Set<Insumo> insumos) {
+		this.insumos = insumos;
+	}
 	public boolean isNova() {
 		return codigo == null;
 	}
-	
+			
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -63,6 +74,5 @@ public class BaseInsumo implements Serializable {
 			return false;
 		return true;
 	} 
-	
 	
 }

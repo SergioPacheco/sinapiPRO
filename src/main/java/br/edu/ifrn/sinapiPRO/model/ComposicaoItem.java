@@ -16,7 +16,7 @@ import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "item_composicao")
-public class ItemComposicao {
+public class ComposicaoItem {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -159,7 +159,7 @@ public class ItemComposicao {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ItemComposicao other = (ItemComposicao) obj;
+		ComposicaoItem other = (ComposicaoItem) obj;
 		if (codigoItem == null) {
 			if (other.codigoItem != null)
 				return false;

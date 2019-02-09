@@ -21,8 +21,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
 import br.edu.ifrn.sinapiPRO.model.Orcamento;
-import br.edu.ifrn.sinapiPRO.repository.BaseInsumos;
-import br.edu.ifrn.sinapiPRO.repository.BasePrecos;
+import br.edu.ifrn.sinapiPRO.repository.BaseInsumosRepository;
+import br.edu.ifrn.sinapiPRO.repository.BasePrecosRepository;
 import br.edu.ifrn.sinapiPRO.repository.Estados;
 import br.edu.ifrn.sinapiPRO.repository.OrcamentosRepository;
 import br.edu.ifrn.sinapiPRO.repository.filter.OrcamentoFilter;
@@ -44,18 +44,18 @@ public class OrcamentosController {
 	private Estados estados;
 	
 	@Autowired
-	private BasePrecos basePrecos;
+	private BasePrecosRepository basePrecosRepository;
 	
 	@Autowired
-	private BaseInsumos baseInsumos;
+	private BaseInsumosRepository baseInsumosRepository;
 	
 	@RequestMapping("/novo")
 	public ModelAndView novo(Orcamento orcamento) {
 		
 		ModelAndView mv = new ModelAndView("orcamento/CadastroOrcamento");
 		mv.addObject("estados", estados.findAll());
-		mv.addObject("basePrecos", basePrecos.findAll());
-		mv.addObject("baseInsumos", baseInsumos.findAll());
+		mv.addObject("basePrecos", basePrecosRepository.findAll());
+		mv.addObject("baseInsumos", baseInsumosRepository.findAll());
 		return mv;
 	}
 	

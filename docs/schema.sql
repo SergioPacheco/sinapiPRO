@@ -2,7 +2,7 @@ USE sinapiPRO;
 
 -- Base de Precos 
 
-CREATE TABLE base_precos (
+CREATE TABLE base_preco (
     codigo BIGINT NOT NULL AUTO_INCREMENT,
 	estado VARCHAR(2) NOT NULL, 
     ano_mes VARCHAR(6) NOT NULL, 
@@ -11,7 +11,7 @@ CREATE TABLE base_precos (
     
 );
 
-CREATE TABLE item_base_precos ( 
+CREATE TABLE base_precos_item ( 
 	codigo_base_fk BIGINT NOT NULL, 
 	estado VARCHAR(2) NOT NULL, 
 	ano_mes VARCHAR(6) NOT NULL, 

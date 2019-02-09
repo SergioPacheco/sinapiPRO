@@ -13,7 +13,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
-import br.edu.ifrn.sinapiPRO.model.Item;
+import br.edu.ifrn.sinapiPRO.model.OrcamentoItem;
 import br.edu.ifrn.sinapiPRO.repository.filter.ItemFilter;
 import br.edu.ifrn.sinapiPRO.repository.paginacao.PaginacaoUtil;
 
@@ -28,9 +28,9 @@ public class ItemsRepositoryImpl implements ItemsRepositoryQueries {
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
 	@Override
-	public Page<Item> filtrar(ItemFilter filtro, Pageable pageable) {
+	public Page<OrcamentoItem> filtrar(ItemFilter filtro, Pageable pageable) {
 		 
-		Criteria criteria = manager.unwrap(Session.class).createCriteria(Item.class);
+		Criteria criteria = manager.unwrap(Session.class).createCriteria(OrcamentoItem.class);
 		paginacaoUtil.preparar(criteria, pageable);
 		adicionarFiltro(filtro, criteria);
 		
@@ -41,7 +41,7 @@ public class ItemsRepositoryImpl implements ItemsRepositoryQueries {
 	private Long total(ItemFilter filtro) {
 		@SuppressWarnings("deprecation")
 		
-		Criteria criteria = manager.unwrap(Session.class).createCriteria(Item.class);
+		Criteria criteria = manager.unwrap(Session.class).createCriteria(OrcamentoItem.class);
 		adicionarFiltro(filtro, criteria);
 		criteria.setProjection(Projections.rowCount());
 		

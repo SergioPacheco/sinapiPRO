@@ -1,4 +1,4 @@
-package br.edu.ifrn.sinapiPRO.repository.helper.itembaseprecos;
+package br.edu.ifrn.sinapiPRO.repository.helper.baseprecositem;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -14,11 +14,11 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
-import br.edu.ifrn.sinapiPRO.model.ItemBasePreco;
-import br.edu.ifrn.sinapiPRO.repository.filter.ItemBasePrecoFilter;
+import br.edu.ifrn.sinapiPRO.model.BasePrecoItem;
+import br.edu.ifrn.sinapiPRO.repository.filter.BasePrecoItemFilter;
 import br.edu.ifrn.sinapiPRO.repository.paginacao.PaginacaoUtil;
 
-public class ItemBasePrecosImpl implements ItemBasePrecosQueries {
+public class BasePrecosItemRepositoryImpl implements BasePrecosItemRepositoryQueries {
 
 	@PersistenceContext
 	private EntityManager manager;
@@ -29,10 +29,10 @@ public class ItemBasePrecosImpl implements ItemBasePrecosQueries {
 	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly = true)
-	public Page<ItemBasePreco> filtrar(ItemBasePrecoFilter filtro, Pageable pageable) {
+	public Page<BasePrecoItem> filtrar(BasePrecoItemFilter filtro, Pageable pageable) {
 		
 		@SuppressWarnings("deprecation")
-		Criteria criteria = manager.unwrap(Session.class).createCriteria(ItemBasePreco.class);
+		Criteria criteria = manager.unwrap(Session.class).createCriteria(BasePrecoItem.class);
 		paginacaoUtil.preparar(criteria, pageable);
 		adicionarFiltro(filtro, criteria);
 		return new PageImpl<>(criteria.list(), pageable, total(filtro));
@@ -43,25 +43,25 @@ public class ItemBasePrecosImpl implements ItemBasePrecosQueries {
 	 */
 	@Override
 	@Transactional(readOnly = true)	
-	public ItemBasePreco buscarComBasePreco(Long codigoItem) {
+	public BasePrecoItem buscarComBasePreco(Long codigoItem) {
 		@SuppressWarnings("deprecation")
-		Criteria criteria = manager.unwrap(Session.class).createCriteria(ItemBasePreco.class);
+		Criteria criteria = manager.unwrap(Session.class).createCriteria(BasePrecoItem.class);
 		criteria.createAlias("basePreco", "b", JoinType.LEFT_OUTER_JOIN);
 		criteria.add(Restrictions.eq("codigo", codigoItem));
 		criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);			
-		return (ItemBasePreco) criteria.uniqueResult();
+		return (BasePrecoItem) criteria.uniqueResult();
 	}
 	
-	private Long total(ItemBasePrecoFilter filtro) {
+	private Long total(BasePrecoItemFilter filtro) {
 		
 		@SuppressWarnings("deprecation")
-		Criteria criteria = manager.unwrap(Session.class).createCriteria(ItemBasePreco.class);
+		Criteria criteria = manager.unwrap(Session.class).createCriteria(BasePrecoItem.class);
 		adicionarFiltro(filtro, criteria);
 		criteria.setProjection(Projections.rowCount());
 		return (Long) criteria.uniqueResult();
 	}
 
-	private void adicionarFiltro(ItemBasePrecoFilter filtro, Criteria criteria) {
+	private void adicionarFiltro(BasePrecoItemFilter filtro, Criteria criteria) {
 		if(filtro != null){
 			if (filtro.getCodigoInsumo() != null) {
 				criteria.add(Restrictions.eq("codigInsumo", filtro.getCodigoInsumo()));

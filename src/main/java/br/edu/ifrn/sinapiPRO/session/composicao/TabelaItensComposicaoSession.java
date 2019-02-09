@@ -8,7 +8,7 @@ import java.util.Set;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.SessionScope;
 
-import br.edu.ifrn.sinapiPRO.model.ItemComposicao;
+import br.edu.ifrn.sinapiPRO.model.ComposicaoItem;
 
 @SessionScope
 @Component
@@ -34,7 +34,7 @@ public class TabelaItensComposicaoSession {
 		tabela.excluirItem(codigoItem);
 	}
 
-	public List<ItemComposicao> getItens(String uuid) {
+	public List<ComposicaoItem> getItens(String uuid) {
 		return buscarTabelaPorUuid(uuid).getItens();
 	}
 	

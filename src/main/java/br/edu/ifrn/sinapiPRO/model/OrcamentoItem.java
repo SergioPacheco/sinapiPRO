@@ -14,20 +14,25 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "item_orcamento")
-public class Item  {
+@Table(name = "orcamento_item")
+public class OrcamentoItem  {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY, generator="native")
 	@GenericGenerator(name = "native", strategy = "native")
 	private Long codigo;
-	private String tipo;        /* C=Composicao I=Insumo E=Etapa */
 	
 	private Long codigoItem; 
+	private String tipo;         /* C=Composicao I=Insumo E=Etapa */
+	private String descricao; 
 	private String itemizacao; 
 	private String especie; 
 	private String unidade; 
 	private BigDecimal quantidade  = BigDecimal.ZERO;
+	
+	@ManyToOne
+	@JoinColumn(name = "codigo_orcamento")
+	private Orcamento orcamento;
 
 	@Column(name = "valor_unitario")
 	private BigDecimal valorUnitario  = BigDecimal.ZERO;
@@ -43,7 +48,8 @@ public class Item  {
 		
 	@Column(name = "valor_Equipamento")
 	private BigDecimal valorEquipamento = BigDecimal.ZERO;
-
+	
+/*
 	@ManyToOne
 	@JoinColumn(name = "codigo_etapa", nullable=false)
 	private Etapa etapa;
@@ -56,10 +62,8 @@ public class Item  {
 	@JoinColumn(name = "codigo_insumo", referencedColumnName = "codigoInsumo", nullable=true)
 	private Insumo insumo;
 
-	@ManyToOne
-	@JoinColumn(name = "codigo_orcamento")
-	private Orcamento orcamento;
-	
+*/
+		
 	public Long getCodigo() {
 		return codigo;
 	}
@@ -101,6 +105,14 @@ public class Item  {
 	public void setItemizacao(String itemizacao) {
 		this.itemizacao = itemizacao;
 	}
+	
+	public String getDescricao() {
+		return descricao;
+	}
+
+	public void setDescricao(String descricao) {
+		this.descricao = descricao;
+	}
 
 	public String getEspecie() {
 		return especie;
@@ -133,31 +145,7 @@ public class Item  {
 	public void setValorUnitario(BigDecimal valorUnitario) {
 		this.valorUnitario = valorUnitario;
 	}
-	
-	public Etapa getEtapa() {
-		return etapa;
-	}
-
-	public void setEtapa(Etapa etapa) {
-		this.etapa = etapa;
-	}
-
-	public Composicao getComposicao() {
-		return composicao;
-	}
-
-	public void setComposicao(Composicao composicao) {
-		this.composicao = composicao;
-	}
-
-	public Insumo getInsumo() {
-		return insumo;
-	}
-
-	public void setInsumo(Insumo insumo) {
-		this.insumo = insumo;
-	}
-
+		
 	public Orcamento getOrcamento() {
 		return orcamento;
 	}
@@ -169,6 +157,8 @@ public class Item  {
 	public BigDecimal getValorTotal() {
 		return valorUnitario.multiply(quantidade);
 	}
+	
+	/*
 	
 	public BigDecimal getValorMaterial() {
 		if ("C".equals(this.tipo)) {
@@ -207,6 +197,8 @@ public class Item  {
 		return valorUnitario.multiply(quantidade).multiply(BigDecimal.valueOf(1.15));
 	} 
 				
+	*/	
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -223,7 +215,7 @@ public class Item  {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Item other = (Item) obj;
+		OrcamentoItem other = (OrcamentoItem) obj;
 		if (codigo == null) {
 			if (other.codigo != null)
 				return false;

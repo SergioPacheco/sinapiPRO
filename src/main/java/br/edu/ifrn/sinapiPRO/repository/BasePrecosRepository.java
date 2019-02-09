@@ -6,10 +6,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import br.edu.ifrn.sinapiPRO.model.BasePreco;
-import br.edu.ifrn.sinapiPRO.repository.helper.baseprecos.BasePrecosQueries;
+import br.edu.ifrn.sinapiPRO.repository.helper.baseprecos.BasePrecosRepositoryQueries;
 
 @Repository
-public interface BasePrecos extends JpaRepository<BasePreco, Long>, BasePrecosQueries {
+public interface BasePrecosRepository extends JpaRepository<BasePreco, Long>, BasePrecosRepositoryQueries {
 
 	public Optional<BasePreco> findByNomeIgnoreCase(String nome);
  

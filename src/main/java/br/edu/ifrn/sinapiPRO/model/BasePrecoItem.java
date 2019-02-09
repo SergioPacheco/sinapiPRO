@@ -1,4 +1,3 @@
-
 package br.edu.ifrn.sinapiPRO.model;
 
 import java.io.Serializable;
@@ -8,31 +7,34 @@ import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
 import javax.persistence.Table;
 
-@Entity(name = "ItemBasePreco")
-@Table(name = "item_base_preco")
-public class ItemBasePreco implements Serializable {
+@Entity 
+@Table(name = "base_preco_item")
+public class BasePrecoItem implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	@EmbeddedId
-	private BasePrecoId baseKey; // {basePrecoID, codigoInsumoID}
-	 
-	@ManyToOne
-	@JoinColumn(name = "basePrecoID", nullable=false, insertable = false, updatable = false)
-	private BasePreco basePreco; 
-		
+	private BasePrecoItemID basePrecoItemID; // {codigoBasePreco, CodigoInsumo}
+	 		
+	@MapsId("codigo_base_preco_PK")          //referencia a propriedade BasePrecoItemID
+    @JoinColumn(name = "codigo_base_preco", referencedColumnName = "codigo")
+    @ManyToOne
+    private BasePreco basePreco;
+	
+	
 	private String anoMes;
 	
 	private BigDecimal preco;
 	
-	public BasePreco getBasePreco() {
-		return basePreco;
+	public BasePrecoItemID getBasePrecoItemID() {
+		return basePrecoItemID;
 	}
 
-	public void setBasePreco(BasePreco basePreco) {
-		this.basePreco = basePreco;
+	public void setBasePrecoItemID(BasePrecoItemID basePrecoItemID) {
+		this.basePrecoItemID = basePrecoItemID;
 	}
 
 	public BigDecimal getPreco() {
@@ -50,13 +52,4 @@ public class ItemBasePreco implements Serializable {
 	public void setAnoMes(String anoMes) {
 		this.anoMes = anoMes;
 	}
-
-	public BasePrecoId getBaseKey() {
-		return baseKey;
-	}
-
-	public void setBaseKey(BasePrecoId baseKey) {
-		this.baseKey = baseKey;
-	}
-	
 }

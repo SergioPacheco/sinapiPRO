@@ -31,7 +31,7 @@ public class Composicao  {
 	@OneToMany(mappedBy = "composicao", 
 		    cascade = CascadeType.ALL, 
       orphanRemoval = true)
-	private List<ItemComposicao> itens = new ArrayList<>();
+	private List<ComposicaoItem> itens = new ArrayList<>();
  
 	@ManyToOne 
 	@JoinColumn(name = "codigo_base_preco")
@@ -43,11 +43,11 @@ public class Composicao  {
 	
 	@ManyToOne 
 	@JoinColumn(name = "codigo_classe_composicao")
-	private ClasseComposicao classeComposicao;
+	private ComposicaoClasse composicaoClasse;
 	
 	@ManyToOne 
 	@JoinColumn(name = "codigo_grupo")
-	private GrupoComposicao grupoComposicao;
+	private ComposicaoGrupo composicaoGrupo;
 	
 	@Enumerated(EnumType.STRING)
 	private SituacaoComposicao ativa = SituacaoComposicao.ATIVA;
@@ -114,20 +114,20 @@ public class Composicao  {
 		this.baseInsumo = baseInsumo;
 	}
 
-	public ClasseComposicao getClasseComposicao() {
-		return classeComposicao;
+	public ComposicaoClasse getClasseComposicao() {
+		return composicaoClasse;
 	}
 
-	public void setClasseComposicao(ClasseComposicao classeComposicao) {
-		this.classeComposicao = classeComposicao;
+	public void setClasseComposicao(ComposicaoClasse composicaoClasse) {
+		this.composicaoClasse = composicaoClasse;
 	}
 
-	public GrupoComposicao getGrupoComposicao() {
-		return grupoComposicao;
+	public ComposicaoGrupo getGrupoComposicao() {
+		return composicaoGrupo;
 	}
 
-	public void setGrupoComposicao(GrupoComposicao grupoComposicao) {
-		this.grupoComposicao = grupoComposicao;
+	public void setGrupoComposicao(ComposicaoGrupo composicaoGrupo) {
+		this.composicaoGrupo = composicaoGrupo;
 	}
 
 	public SituacaoComposicao getAtiva() {
@@ -138,11 +138,11 @@ public class Composicao  {
 		this.ativa = ativa;
 	}
 
-	public List<ItemComposicao> getItens() {
+	public List<ComposicaoItem> getItens() {
 		return itens;
 	}
 
-	public void setItens(List<ItemComposicao> itens) {
+	public void setItens(List<ComposicaoItem> itens) {
 		this.itens = itens;
 	}
 
@@ -243,7 +243,7 @@ public class Composicao  {
 	}
 
 
-	public void adicionarItens(List<ItemComposicao> itens) {
+	public void adicionarItens(List<ComposicaoItem> itens) {
 		this.itens = itens;
 		this.itens.forEach(i -> i.setComposicao(this));
 	}
@@ -254,7 +254,7 @@ public class Composicao  {
 	
 	public BigDecimal getValorTotalItens(){
 		return getItens().stream()
-				.map(ItemComposicao::getValorTotal)
+				.map(ComposicaoItem::getValorTotal)
 				.reduce(BigDecimal::add)
 				.orElse(BigDecimal.ZERO);
 	}

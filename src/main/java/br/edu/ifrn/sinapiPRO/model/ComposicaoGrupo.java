@@ -3,38 +3,25 @@ package br.edu.ifrn.sinapiPRO.model;
 import java.io.Serializable;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.GenericGenerator;
-
 @Entity
-@Table(name = "classe_composicao")
-public class ClasseComposicao implements Serializable {
+@Table(name = "grupo_composicao")
+public class ComposicaoGrupo implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-
+	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY, generator="native")
-	@GenericGenerator(name = "native", strategy = "native")
 	private Long codigo;
 	
-	private String sigla;
 	private String nome;
-			
+	
 	public Long getCodigo() {
 		return codigo;
 	}
 	public void setCodigo(Long codigo) {
 		this.codigo = codigo;
-	}
-	public String getSigla() {
-		return sigla;
-	}
-	public void setSigla(String sigla) {
-		this.sigla = sigla;
 	}
 	public String getNome() {
 		return nome;
@@ -42,11 +29,6 @@ public class ClasseComposicao implements Serializable {
 	public void setNome(String nome) {
 		this.nome = nome;
 	}
-	
-	public boolean isNova() {
-		return codigo == null;
-	}
-	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -62,7 +44,7 @@ public class ClasseComposicao implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ClasseComposicao other = (ClasseComposicao) obj;
+		ComposicaoGrupo other = (ComposicaoGrupo) obj;
 		if (codigo == null) {
 			if (other.codigo != null)
 				return false;
