@@ -7,25 +7,25 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.edu.ifrn.sinapiPRO.model.OrcamentoItem;
-import br.edu.ifrn.sinapiPRO.repository.ItemsRepository;
+import br.edu.ifrn.sinapiPRO.repository.OrcamentoItemsRepository;
 import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
 
 @Service
-public class ItemService {
+public class OrcamentoItemService {
 	
 	@Autowired
-	private ItemsRepository itemRepository;
+	private OrcamentoItemsRepository OrcamentoItemRepository;
 	
 	@Transactional
 	public void salvar(OrcamentoItem orcamentoItem){
-		itemRepository.save(orcamentoItem);
+		OrcamentoItemRepository.save(orcamentoItem);
 	}
 	
 	@Transactional
 	public void excluir(Long codigo) {
 		try {
-			itemRepository.deleteById(codigo);  
-			itemRepository.flush();
+			OrcamentoItemRepository.deleteById(codigo);  
+			OrcamentoItemRepository.flush();
 		} catch (PersistenceException e) {
 			
 			throw new ImpossivelExcluirEntidadeException("Impossível apagar o item do orçamento.");

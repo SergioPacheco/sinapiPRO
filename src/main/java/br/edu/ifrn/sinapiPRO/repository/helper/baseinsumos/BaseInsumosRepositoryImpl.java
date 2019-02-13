@@ -17,11 +17,11 @@ import org.springframework.util.StringUtils;
 
 import br.edu.ifrn.sinapiPRO.model.BaseInsumo;
 import br.edu.ifrn.sinapiPRO.repository.filter.BaseInsumoFilter;
-import br.edu.ifrn.sinapiPRO.repository.helper.baseinsumos.BaseInsumosQueries;
+import br.edu.ifrn.sinapiPRO.repository.helper.baseinsumos.BaseInsumosRepositoryQueries;
 
 import br.edu.ifrn.sinapiPRO.repository.paginacao.PaginacaoUtil;
 
-public class BaseInsumosImpl implements BaseInsumosQueries {
+public class BaseInsumosRepositoryImpl implements BaseInsumosRepositoryQueries {
 
 	@PersistenceContext
 	private EntityManager manager;

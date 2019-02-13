@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import br.edu.ifrn.sinapiPRO.model.ComposicaoItem;
 
 @Repository
-public interface ItemComposicaoRepository extends JpaRepository<ComposicaoItem, Long> {
+public interface ComposicaoItemRepository extends JpaRepository<ComposicaoItem, Long> {
 	
 	
 }

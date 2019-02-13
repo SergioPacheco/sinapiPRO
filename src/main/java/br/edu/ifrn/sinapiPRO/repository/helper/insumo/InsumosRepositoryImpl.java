@@ -46,13 +46,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import br.edu.ifrn.sinapiPRO.dto.InsumoDTO;
-import br.edu.ifrn.sinapiPRO.dto.ItemBasePrecoDTO;
+import br.edu.ifrn.sinapiPRO.dto.BasePrecoItemDTO;
 import br.edu.ifrn.sinapiPRO.model.Insumo;
 import br.edu.ifrn.sinapiPRO.repository.filter.InsumoFilter;
 import br.edu.ifrn.sinapiPRO.repository.paginacao.PaginacaoUtil;
 import br.edu.ifrn.sinapiPRO.utils.Lib;
 
-public class InsumosImpl implements InsumosQueries {
+public class InsumosRepositoryImpl implements InsumosRepositoryQueries {
 
 	@PersistenceContext
 	private EntityManager manager;
@@ -72,36 +72,36 @@ public class InsumosImpl implements InsumosQueries {
 		return new PageImpl<>(criteria.list(), pageable, total(filtro));
 	}
 	
+	/**
+	 *   pesquisa todas as bases de preços cadastradas para o insumo informado
+	 */
 	@Override                     
-	public List<ItemBasePrecoDTO> listaBasePrecoPorInsumo(Long codigoInsumo) {
+	public List<BasePrecoItemDTO> listaBasePrecoPorInsumo(Long codigoInsumo) {
 		
-		return manager.createQuery("select new br.edu.ifrn.sinapiPRO.dto.ItemBasePrecoDTO(anoMes, preco) "
-				+ "from ItemBasePreco as i where i.baseKey.insumoID =:codigo", ItemBasePrecoDTO.class)
-				.setParameter("codigo", codigoInsumo).getResultList();
+		return manager
+				.createQuery(
+				  "select new br.edu.ifrn.sinapiPRO.dto.BasePrecoItemDTO(b.basePreco.baseInsumo.nome as nomeBase, b.anoMes, b.preco) "
+				+ "  from BasePrecoItem b "
+				+ " where b.codigoInsumo    =:codigo", BasePrecoItemDTO.class)
+				.setParameter("codigo", codigoInsumo)
+				.getResultList();
 	}
 		
 	@Override
-	public List<InsumoDTO> porCodigoInsumoOuNome(Long codigoBaseInsumo, String codigoOuNome) {
-			
-		Long codigoInsumo = 0L;
-		if (Lib.IsNumeric(codigoOuNome)) {
-			codigoInsumo = Long.valueOf(codigoOuNome);
-		}
-		
-		String jpql = "select new br.edu.ifrn.sinapiPRO.dto.InsumoDTO(codigoInsumo, descricao, unidade,  precoPadrao) "
-				    + "from Insumo where InsumoID.codigo_base_insumo=:codigoBaseInsumo and"
-				    + "                  InsumoID.codigo_Insumo:=codigoInsumo          or "
-				    + "                  lower(descricao) like lower(:codigoOuNome)";
-		
-		List<InsumoDTO> insumosFiltrados = manager.createQuery(jpql, InsumoDTO.class)
-					.setParameter("codigoOuNome", codigoOuNome + "%")
+	public List<InsumoDTO> porDescricao(Long codigoBaseInsumo, String descricao) {
+				
+		return manager 
+				.createQuery(
+					  "select new br.edu.ifrn.sinapiPRO.dto.InsumoDTO(i.codigoInsumo, b.nome as nomeBaseInsumo, i.descricao, i.unidade,  i.precoPadrao) "
+				    + "  from Insumo as i"
+					+ " right join BaseInsumo b" 		  
+				    + " where b.codigo:= codigoBaseInsumo and"
+				    + "       lower(i.descricao) like lower(:descricao)", InsumoDTO.class)
+					.setParameter("descricao", descricao + "%")
 					.setParameter("codigoBaseInsumo", codigoBaseInsumo)
-					.setParameter("codigoInsumo", codigoInsumo)
 					.getResultList();
-		
-		return  insumosFiltrados;
 	}
-	
+		
 	private Long total(InsumoFilter filtro) {
 		
 		Criteria criteria = manager.unwrap(Session.class).createCriteria(Insumo.class);
@@ -112,19 +112,29 @@ public class InsumosImpl implements InsumosQueries {
 	}
 
 	private void adicionarFiltro(InsumoFilter filtro, Criteria criteria) {
-		
+		criteria.createAlias("baseInsumo", "b");
 		if (filtro != null) {
-			if(filtro.getCodigoInsumo()!=null){
+			if (filtro.getCodigoInsumo() != null) {
 				criteria.add(Restrictions.eq("codigoInsumo", filtro.getCodigoInsumo()));
+			}
+			if (filtro.getEspecie() != null) {
+				criteria.add(Restrictions.eq("especie", filtro.getEspecie()));
 			}
 			if (!StringUtils.isEmpty(filtro.getDescricao())) {
 				criteria.add(Restrictions.ilike("descricao", filtro.getDescricao(), MatchMode.ANYWHERE));
 			}
+			if (isBaseInsumoPresente(filtro)) {
+				criteria.add(Restrictions.eq("b.codigo", filtro.getBaseInsumo().getCodigo()));
+			}
 		}
 	}
 
+	private boolean isBaseInsumoPresente(InsumoFilter filtro) {
+		return filtro.getBaseInsumo() != null && filtro.getBaseInsumo().getCodigo() != null;
+	}
+	
 	@Override
-	public List<ItemBasePrecoDTO> listaPrecosPorInsumo(Long codigoInsumo) {
+	public List<BasePrecoItemDTO> listaPrecosPorInsumo(Long codigoInsumo) {
 		// TODO Auto-generated method stub
 		return null;
 	}

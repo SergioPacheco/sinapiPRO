@@ -1,7 +1,7 @@
 package br.edu.ifrn.sinapiPRO.model;
 
 import java.io.Serializable;
-import java.util.Set;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -24,9 +24,6 @@ public class BaseInsumo implements Serializable {
 	private Long codigo;
 	private String nome;
 
-	@OneToMany
-	private Set<Insumo> insumos;
-	
 	public Long getCodigo() {
 		return codigo;
 	}
@@ -41,12 +38,6 @@ public class BaseInsumo implements Serializable {
 		this.nome = nome;
 	}
 			
-	public Set<Insumo> getInsumos() {
-		return insumos;
-	}
-	public void setInsumos(Set<Insumo> insumos) {
-		this.insumos = insumos;
-	}
 	public boolean isNova() {
 		return codigo == null;
 	}

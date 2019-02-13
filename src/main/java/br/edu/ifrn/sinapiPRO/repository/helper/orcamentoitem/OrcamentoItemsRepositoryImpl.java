@@ -1,4 +1,4 @@
-package br.edu.ifrn.sinapiPRO.repository.helper.item;
+package br.edu.ifrn.sinapiPRO.repository.helper.orcamentoitem;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -14,10 +14,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.edu.ifrn.sinapiPRO.model.OrcamentoItem;
-import br.edu.ifrn.sinapiPRO.repository.filter.ItemFilter;
+import br.edu.ifrn.sinapiPRO.repository.filter.OrcamentoItemFilter;
 import br.edu.ifrn.sinapiPRO.repository.paginacao.PaginacaoUtil;
 
-public class ItemsRepositoryImpl implements ItemsRepositoryQueries {
+public class OrcamentoItemsRepositoryImpl implements OrcamentoItemsRepositoryQueries {
  
 	@PersistenceContext
 	private EntityManager manager;
@@ -28,7 +28,7 @@ public class ItemsRepositoryImpl implements ItemsRepositoryQueries {
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
 	@Override
-	public Page<OrcamentoItem> filtrar(ItemFilter filtro, Pageable pageable) {
+	public Page<OrcamentoItem> filtrar(OrcamentoItemFilter filtro, Pageable pageable) {
 		 
 		Criteria criteria = manager.unwrap(Session.class).createCriteria(OrcamentoItem.class);
 		paginacaoUtil.preparar(criteria, pageable);
@@ -38,7 +38,7 @@ public class ItemsRepositoryImpl implements ItemsRepositoryQueries {
 	}
 	
  
-	private Long total(ItemFilter filtro) {
+	private Long total(OrcamentoItemFilter filtro) {
 		@SuppressWarnings("deprecation")
 		
 		Criteria criteria = manager.unwrap(Session.class).createCriteria(OrcamentoItem.class);
@@ -48,7 +48,7 @@ public class ItemsRepositoryImpl implements ItemsRepositoryQueries {
 		return (Long) criteria.uniqueResult();
 	}
 	
-	private void adicionarFiltro(ItemFilter filtro, Criteria criteria) {
+	private void adicionarFiltro(OrcamentoItemFilter filtro, Criteria criteria) {
 		
 		if (filtro != null) {
 			 

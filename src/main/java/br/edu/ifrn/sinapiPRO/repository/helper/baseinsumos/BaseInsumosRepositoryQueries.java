@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 import br.edu.ifrn.sinapiPRO.model.BaseInsumo;
 import br.edu.ifrn.sinapiPRO.repository.filter.BaseInsumoFilter;
 
-public interface BaseInsumosQueries {
+public interface BaseInsumosRepositoryQueries {
 	
 	public Page<BaseInsumo> filtrar(BaseInsumoFilter filtro, Pageable pageable);
 	

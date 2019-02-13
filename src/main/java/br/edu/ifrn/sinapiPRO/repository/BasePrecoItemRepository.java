@@ -1,35 +1,20 @@
 package br.edu.ifrn.sinapiPRO.repository;
 
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import br.edu.ifrn.sinapiPRO.model.BasePreco;
 import br.edu.ifrn.sinapiPRO.model.BasePrecoItem;
-import br.edu.ifrn.sinapiPRO.model.BasePrecoItemID;
 
 @Repository
-public interface BasePrecoItemRepository extends JpaRepository<BasePrecoItem, BasePrecoItemID> {
+public interface BasePrecoItemRepository extends JpaRepository<BasePrecoItem, Long> {
 
-	// Page<BasePrecoItem> findByCodigo_Base_Preco(Long codigoBasePreco, Pageable pageable);
-
+	public Optional<BasePrecoItem> findByBasePrecoAndCodigoInsumo(BasePreco basePreco, Long codigoInsumo);
+	
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

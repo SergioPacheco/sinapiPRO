@@ -1,10 +1,10 @@
 package br.edu.ifrn.sinapiPRO.repository.filter;
 
-public class ItemFilter {
+public class OrcamentoItemFilter {
 	
 	private String tipo;
 
-	public ItemFilter(String tipo) {
+	public OrcamentoItemFilter(String tipo) {
 		super();
 		this.tipo = tipo;
 	}

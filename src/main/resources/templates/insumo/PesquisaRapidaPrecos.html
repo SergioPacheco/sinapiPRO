@@ -34,7 +34,36 @@
    		</div>
  	</div>
  	
- 	<th:block th:replace="hbs/TabelaPesquisaRapidaPrecos"></th:block>
+ 	<!-- <th:block th:replace="hbs/TabelaPesquisaRapidaPrecos"></th:block> --> 
+ 	
+	<script id="tabela-pesquisa-rapida-preco" type="text/x-handlebars-template">
+	<div class="table-responsive  sn-tabela-simples" style="margin-top: 15px">
+		<table class="table  table-hover">
+			<thead>
+				<tr>
+					<th class="col-sm-2">Referência</th>
+					<th class="col-sm-2">Preco</th>
+				</tr>
+			</thead>
+				
+			<tbody>
+				{{#if .}}
+					{{#each .}}
+						<tr data-anoMes="{{anoMes}}" data-preco="{{preco}}" class="js-preco-pesquisa-rapida">
+							<td>{{anoMes}}</td>
+							<td>{{preco}}</td>
+ 						</tr>
+					{{/each}}
+				{{else}}
+					<tr>
+						<td colspan="2">Nenhuma Base Preço encontrada</td>
+					</tr>
+				{{/if}}
+			</tbody>
+		</table>
+	</div>
+</script>
+ 	
  	
 </div>
 	

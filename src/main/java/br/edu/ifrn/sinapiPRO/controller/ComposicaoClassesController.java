@@ -30,7 +30,7 @@ import br.edu.ifrn.sinapiPRO.service.exception.NomeClasseJaCadastradaException;
 
 @Controller
 @RequestMapping("/classesComposicao")
-public class ClassesComposicaoController {
+public class ComposicaoClassesController {
 
 	@Autowired
 	private ClasseComposicaoService classeComposicaoService;

@@ -2,7 +2,7 @@ package br.edu.ifrn.sinapiPRO.dto;
 
 import java.math.BigDecimal;
 
-public class ItemComposicaoDTO {
+public class ComposicaoItemDTO {
 
 	private Long codigo;
 	private Long codigoInsumo;

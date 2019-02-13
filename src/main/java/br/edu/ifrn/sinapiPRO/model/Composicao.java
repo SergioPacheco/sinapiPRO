@@ -10,27 +10,42 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.DynamicUpdate;
 
-@Entity
-@Table(name = "composicao")
+import br.edu.ifrn.sinapiPRO.utils.Lib;
+
+@Entity(name = "Composicao")
+@Table(name = "composicao", 
+	   uniqueConstraints = {@UniqueConstraint(columnNames = {"codigo_composicao", "codigo_base_insumo"})})
 @DynamicUpdate
 public class Composicao  {
 	
 	@Id
-	private Long codigo;   // codigo da composicao  
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long codigo;
 	
-	@OneToMany(mappedBy = "composicao", 
-		    cascade = CascadeType.ALL, 
-      orphanRemoval = true)
+	@NotNull(message = "O código da composição é obrigatório")
+	@Column(name = "codigo_composicao")
+	private Long codigoComposicao;   
+	  
+	@NotNull(message = "A base de insumo é obrigatória")
+	@ManyToOne
+	@JoinColumn(name = "codigo_base_insumo")
+    private BaseInsumo  baseInsumo;
+	
+	@OneToMany(mappedBy = "composicao", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ComposicaoItem> itens = new ArrayList<>();
  
 	@ManyToOne 
@@ -38,23 +53,16 @@ public class Composicao  {
 	private BasePreco basePreco;
 	
 	@ManyToOne 
-	@JoinColumn(name = "codigo_base_insumo")
-	private BaseInsumo baseInsumo;
-	
-	@ManyToOne 
-	@JoinColumn(name = "codigo_classe_composicao")
+	@JoinColumn(name = "codigo_composicao_classe")
 	private ComposicaoClasse composicaoClasse;
 	
 	@ManyToOne 
-	@JoinColumn(name = "codigo_grupo")
+	@JoinColumn(name = "codigo_composicao_grupo")
 	private ComposicaoGrupo composicaoGrupo;
 	
 	@Enumerated(EnumType.STRING)
 	private SituacaoComposicao ativa = SituacaoComposicao.ATIVA;
 			
-	@Transient
-	private String uuid;
-	
 	@Size(max = 400)
 	@Column(name = "descricao")
 	private String descricao; 
@@ -74,7 +82,7 @@ public class Composicao  {
 	@Column(name = "custo_mao_obra", precision=15, scale=2)
 	private BigDecimal custoMaoObra; 
 	
-	@Column(name = "perce_mao_obra", precision=10, scale=7)
+	@Column(name = "perc_mao_obra", precision=10, scale=7)
 	private BigDecimal percMaoObra;
 
 	@Column(name = "custo_material", precision=15, scale=2)
@@ -89,7 +97,12 @@ public class Composicao  {
 	@Column(name = "perc_equipamento",  precision=10, scale=7)
 	private BigDecimal percEquipamento;
 	
-		
+	@Transient
+	private String uuid;
+	
+	@Transient
+	public boolean sinapi;
+	
 	public Long getCodigo() {
 		return codigo;
 	}
@@ -98,12 +111,12 @@ public class Composicao  {
 		this.codigo = codigo;
 	}
 
-	public BasePreco getBasePreco() {
-		return basePreco;
+	public Long getCodigoComposicao() {
+		return codigoComposicao;
 	}
 
-	public void setBasePreco(BasePreco basePreco) {
-		this.basePreco = basePreco;
+	public void setCodigoComposicao(Long codigoComposicao) {
+		this.codigoComposicao = codigoComposicao;
 	}
 
 	public BaseInsumo getBaseInsumo() {
@@ -114,19 +127,35 @@ public class Composicao  {
 		this.baseInsumo = baseInsumo;
 	}
 
-	public ComposicaoClasse getClasseComposicao() {
+	public List<ComposicaoItem> getItens() {
+		return itens;
+	}
+
+	public void setItens(List<ComposicaoItem> itens) {
+		this.itens = itens;
+	}
+
+	public BasePreco getBasePreco() {
+		return basePreco;
+	}
+
+	public void setBasePreco(BasePreco basePreco) {
+		this.basePreco = basePreco;
+	}
+
+	public ComposicaoClasse getComposicaoClasse() {
 		return composicaoClasse;
 	}
 
-	public void setClasseComposicao(ComposicaoClasse composicaoClasse) {
+	public void setComposicaoClasse(ComposicaoClasse composicaoClasse) {
 		this.composicaoClasse = composicaoClasse;
 	}
 
-	public ComposicaoGrupo getGrupoComposicao() {
+	public ComposicaoGrupo getComposicaoGrupo() {
 		return composicaoGrupo;
 	}
 
-	public void setGrupoComposicao(ComposicaoGrupo composicaoGrupo) {
+	public void setComposicaoGrupo(ComposicaoGrupo composicaoGrupo) {
 		this.composicaoGrupo = composicaoGrupo;
 	}
 
@@ -136,22 +165,6 @@ public class Composicao  {
 
 	public void setAtiva(SituacaoComposicao ativa) {
 		this.ativa = ativa;
-	}
-
-	public List<ComposicaoItem> getItens() {
-		return itens;
-	}
-
-	public void setItens(List<ComposicaoItem> itens) {
-		this.itens = itens;
-	}
-
-	public String getUuid() {
-		return uuid;
-	}
-
-	public void setUuid(String uuid) {
-		this.uuid = uuid;
 	}
 
 	public String getDescricao() {
@@ -242,14 +255,17 @@ public class Composicao  {
 		this.percEquipamento = percEquipamento;
 	}
 
+	public String getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
 
 	public void adicionarItens(List<ComposicaoItem> itens) {
 		this.itens = itens;
 		this.itens.forEach(i -> i.setComposicao(this));
-	}
-	
-	public boolean isNova() {
-		return codigo == null;
 	}
 	
 	public BigDecimal getValorTotalItens(){
@@ -276,6 +292,21 @@ public class Composicao  {
 		return valorTotal;
 	}
 
+	public boolean isNova() { 
+		return this.codigo == null;
+	}
+		
+	public void setSinapi(boolean sinapi) {
+		this.sinapi = sinapi;
+	}
+
+	public boolean getSinapi() {
+		if (baseInsumo.getNome() == null) {
+			return false;
+		}
+		return "SINAPI".equals(Lib.Trim(baseInsumo.getNome())); 
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

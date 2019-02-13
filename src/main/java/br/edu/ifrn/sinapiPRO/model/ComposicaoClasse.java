@@ -11,14 +11,13 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "classe_composicao")
+@Table(name = "composicao_classe")
 public class ComposicaoClasse implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY, generator="native")
-	@GenericGenerator(name = "native", strategy = "native")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long codigo;
 	
 	private String sigla;

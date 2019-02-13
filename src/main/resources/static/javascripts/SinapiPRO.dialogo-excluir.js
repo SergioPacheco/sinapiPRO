@@ -48,7 +48,7 @@ SinapiPRO.DialogoExcluir = (function() {
 	}
 	
 	function onErroExcluir(e) {
-		console.log('ahahahah', e.responseText);
+		console.log('bolocks', e.responseText);
 		swal('Oops!', e.responseText, 'error');
 	}
 	

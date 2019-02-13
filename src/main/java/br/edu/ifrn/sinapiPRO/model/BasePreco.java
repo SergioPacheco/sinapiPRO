@@ -39,10 +39,6 @@ public class BasePreco implements Serializable {
 	@JoinColumn(name = "codigo_estado")
 	private Estado estado;
 	
-	@OneToMany 
-	private Set<BasePrecoItem> itens;
-	
-	
 	@Enumerated(EnumType.STRING)
 	private Desoneracao desoneracao;
 	

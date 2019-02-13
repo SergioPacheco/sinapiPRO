@@ -7,11 +7,11 @@
 	
 <head>
 	<title>Cadastro de Insumo</title>
+	<link rel="stylesheet" type="text/css" th:href="@{/stylesheets/vendors/bootstrap-switch.min.css}"/>
 </head>
 
 <body>
 <section layout:fragment="conteudo">
-
 	<div class="page-header">
 		<div class="container-fluid">
 			<div class="row">
@@ -23,7 +23,8 @@
 				<div class="col-xs-2">
 					<div class="aw-page-header-controls">
 						<a class="btn  btn-default" th:href="@{/insumos}">
-							<i class="glyphicon  glyphicon-plus-sign"></i> <span class="hidden-xs  hidden-sm">PESQUISA</span>
+							<i class="glyphicon  glyphicon-plus-sign"></i> 
+							<span class="hidden-xs  hidden-sm">PESQUISA</span>
 						</a>
 					</div>
 				</div>
@@ -35,41 +36,26 @@
 
 		<form method="POST" 
 		      th:object="${insumo}" 
-		      class="form-vertical  js-form-loading" 
-			  th:action="${insumo.novo} ? @{/insumos/novo} : @{/insumos/{codigo}(codigo=${insumo.codigo})}">
+		      class="form-vertical  js-formulario-insumo" 
+			  th:action="@{/insumos/novo}">
+			
 			<sinapiPRO:message/>
 			
-			<input type="hidden" th:field="*{codigo}"/>   
+			<input type="hidden" th:field="*{codigo}"/>
 			
 			<div class="row">
-							
-				<div class="col-sm-2  form-group  sn-required" sinapiPRO:classforerror="codigoInsumo">
+				<div class="form-group col-sm-2  sn-required" >
 					<label for="codigoInsumo" class="control-label">Código</label>
-					<input id="codigoInsumo" type="number" class="form-control" th:field="*{codigoInsumo}"/>
-				</div>
-		
-				<div class="col-sm-2  form-group  sn-required" sinapiPRO:classforerror="unidade">
-					<label for="unidade" class="control-label">UN</label>
-					<input id="unidade" type="text" class="form-control" th:field="*{unidade}"/>
-				</div>
-				
-				<div class="col-sm-2  form-group  sn-required" sinapiPRO:classforerror="precoPadrao">
-					<label for="precoPadrao" class="control-label">Preço Padrão</label>
-					<div class="input-group">
-						<div class="input-group-addon">R$</div>
-						<input id="precoPadrao" type="text" class="form-control  js-decimal" th:field="*{precoPadrao}"/>
-					</div>
-				</div>
-				
-				<div class="col-sm-2  form-group  bw-required" sinapiPRO:classforerror="especie">
-					<label for="especie" class="control-label">Espécie</label>
-					<select id="sabor" class="form-control" th:field="*{especie}">
-						<option value="">Selecione a espécie</option>
-						<option th:each="especie : ${especies}" th:value="${especie}" th:text="${especie.descricao}">Materiais</option>
-					</select>
-				</div>
-				
-				<div class="col-sm-4 form-group">
+				    <input id="codigoInsumo" type="number" class="form-control" th:field="*{codigoInsumo}"/>
+				</div>			
+				<div class="form-group col-sm-5 sn-required" sinapiPRO:classforerror="baseInsumo" >
+					<label class="control-label" for="baseInsumo">Base de Insumos</label>
+					<select id="baseInsumo" class="form-control" th:field="*{baseInsumo}">
+	                    <option value="">Todas</option>
+	                    <option th:each="base : ${baseInsumos}" th:text="${base.nome}" th:value="${base.codigo}"></option>
+	                </select>
+				</div>			
+				<div class="col-sm-5 form-group">
 					<label for="basePreco">Base Preços Padrão</label>
 					<select id="basePreco" class="form-control" th:field="*{basePreco}">
 	                   <option value="">Selecione a Base de Preços</option>
@@ -78,7 +64,29 @@
 	                           th:text="${basePreco.nome}">SINAPI</option>
                 	</select>
 				</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-sm-2  form-group  sn-required" sinapiPRO:classforerror="unidade">
+					<label for="unidade" class="control-label">UN</label>
+					<input id="unidade" type="text" class="form-control" th:field="*{unidade}"/>
+				</div>
 				
+				<div class="col-sm-5  form-group  sn-required" sinapiPRO:classforerror="especie">
+					<label for="especie" class="control-label">Espécie</label>
+					<select id="sabor" class="form-control" th:field="*{especie}">
+						<option value="">Selecione a espécie</option>
+						<option th:each="especie : ${especies}" th:value="${especie}" th:text="${especie.descricao}">Materiais</option>
+					</select>
+				</div>
+				
+				<div class="col-sm-5 form-group">
+					<label for="precoPadrao" class="control-label">Preço Padrão</label>
+					<div class="input-group">
+						<div class="input-group-addon">R$</div>
+						<input id="precoPadrao" type="text" class="form-control  js-decimal" th:field="*{precoPadrao}"/>
+					</div>
+				</div>
 			</div>
 			
 			<div class="row">
@@ -87,12 +95,35 @@
 					<textarea id="descricao" rows="4" class="form-control" th:field="*{descricao}"></textarea>
 				</div>
 			</div>
-				
 									
 			<div class="form-group">
-				<button class="btn  btn-primary" type="submit">Salvar</button>
+			
+				<div class="btn-group">  
+					<div th:if="${insumo.novo}">	
+					    <button type="submit" 
+					            class="btn  btn-lg btn-primary  js-submit-btn" 
+					            data:acao="salvar">Salvar</button>
+						
+					</div>
+					<div th:unless="${insumo.novo}">
+						<div th:if="${insumo.sinapi}">	
+						     <button type="submit" 
+						             class="btn btn-lg btn-success  js-submit-btn" 
+						             data:acao="copiar"
+						             data-toggle="tooltip" 
+						             data-placement="top" 
+						             title="Escolha acima a Base de Insumo">Copiar</button>
+						</div>
+						<div th:unless="${insumo.sinapi}"> 
+						    <button type="submit" 
+						            class="btn  btn-lg btn-primary  js-submit-btn" 
+						            data:acao="salvar">Salvar</button>
+						</div>
+					</div>
+				</div>	
+				
 			</div>
-	
+			
 		</form>
 	</div>
 	
@@ -101,6 +132,7 @@
 <th:block layout:fragment="javascript-extra">
 	<script th:src="@{/javascripts/vendors/uikit.min.js}"></script>
 	<script th:src="@{/javascripts/vendors/handlebars.min.js}"></script>
+	<script th:src="@{/javascripts/insumo/insumo.botoes-submit.js}"></script>
 	
 </th:block>
 	

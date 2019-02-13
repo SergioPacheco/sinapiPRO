@@ -31,8 +31,10 @@
 		</div>
 		
 		<div class="container-fluid">
-			<form method="POST" th:object="${classeComposicao}" class="form-vertical  js-form-loading"
-				th:action="${classeComposicao.nova} ? @{/classesComposicao/nova} : @{/classesComposicao/{codigo}(codigo=${classeComposicao.codigo})}">
+			<form method="POST" 
+			      th:object="${classeComposicao}" 
+			      class="form-vertical  js-form-loading"
+				  th:action="${classeComposicao.nova} ? @{/classesComposicao/nova} : @{/classesComposicao/{codigo}(codigo=${classeComposicao.codigo})}">
 				
 				<sinapiPRO:message/>
 				

@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import br.edu.ifrn.sinapiPRO.model.BasePreco;
 import br.edu.ifrn.sinapiPRO.model.BasePrecoItem;
-import br.edu.ifrn.sinapiPRO.model.BasePrecoItemID;
 import br.edu.ifrn.sinapiPRO.repository.BasePrecosRepository;
 import br.edu.ifrn.sinapiPRO.repository.BasePrecoItemRepository;
 import br.edu.ifrn.sinapiPRO.service.exception.ResourceNotFoundException;

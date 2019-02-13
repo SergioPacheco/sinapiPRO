@@ -91,7 +91,7 @@ public class BasePrecosController  {
 	
 	@GetMapping
 	public ModelAndView pesquisar(BasePrecoFilter basePrecoFilter, BindingResult result
-			,@PageableDefault(size = 5) Pageable pageable, HttpServletRequest httpServletRequest){
+			,@PageableDefault(size = 10) Pageable pageable, HttpServletRequest httpServletRequest){
 		ModelAndView mv = new ModelAndView("basePreco/PesquisaBasePreco");
 		
 		PageWrapper<BasePreco> paginaWrapper = new PageWrapper<>(basePrecosRepository.filtrar(basePrecoFilter, pageable)
@@ -120,27 +120,20 @@ public class BasePrecosController  {
 		return ResponseEntity.ok().build();
 	}
 	
-	/**
-	 * 
-	 * @param codigo - código da base de preços
-	 * @return
-	 */
 	@GetMapping("importaInsumo/{codigo}")
 	public ModelAndView  importarInsumos(@PathVariable Long codigo) {
 		
-		sinapiController.importaInsumos(codigo);
+		sinapiController.importaInsumos(codigo, "O");
+		sinapiController.importaInsumos(codigo, "D");
 		
 		return new ModelAndView("redirect:/basePrecos/nova"); 
 	}
-	/**
-	 * 
-	 * @param codigo - Código da base preços
-	 * @return
-	 */
+
 	@GetMapping("importaComposicao/{codigo}")
 	public ModelAndView   importarComposicoes(@PathVariable Long codigo) {
 		
-		sinapiController.importaComposicoes(codigo);
+		sinapiController.importaComposicoes(codigo, "O");
+		sinapiController.importaComposicoes(codigo, "D");
 		 
 		return new ModelAndView("redirect:/basePrecos/nova"); 
 	}

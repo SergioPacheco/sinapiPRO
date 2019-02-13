@@ -27,20 +27,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import br.edu.ifrn.sinapiPRO.model.BaseInsumo;
 import br.edu.ifrn.sinapiPRO.model.BasePreco;
 import br.edu.ifrn.sinapiPRO.model.BasePrecoItem;
-import br.edu.ifrn.sinapiPRO.model.BasePrecoItemID;
 import br.edu.ifrn.sinapiPRO.model.Composicao;
 import br.edu.ifrn.sinapiPRO.model.ComposicaoClasse;
 import br.edu.ifrn.sinapiPRO.model.ComposicaoGrupo;
 import br.edu.ifrn.sinapiPRO.model.ComposicaoItem;
 import br.edu.ifrn.sinapiPRO.model.Especie;
 import br.edu.ifrn.sinapiPRO.model.Insumo;
-import br.edu.ifrn.sinapiPRO.model.InsumoID;
 import br.edu.ifrn.sinapiPRO.repository.BaseInsumosRepository;
 import br.edu.ifrn.sinapiPRO.repository.BasePrecoItemRepository;
 import br.edu.ifrn.sinapiPRO.repository.BasePrecosRepository;
 import br.edu.ifrn.sinapiPRO.repository.ClassesRepository;
 import br.edu.ifrn.sinapiPRO.repository.GrupoComposicaoRepository;
-import br.edu.ifrn.sinapiPRO.repository.Insumos;
+import br.edu.ifrn.sinapiPRO.repository.InsumosRepository;
 import br.edu.ifrn.sinapiPRO.service.ComposicaoService;
 import br.edu.ifrn.sinapiPRO.service.InsumoService;
 import br.edu.ifrn.sinapiPRO.service.exception.ResourceNotFoundException;
@@ -51,7 +49,7 @@ import br.edu.ifrn.sinapiPRO.utils.Lib;
 public class SinapiController {
 	
 	@Autowired  
-	private Insumos insumoRepository;
+	private InsumosRepository insumoRepository;
 	
 	@Autowired
 	private InsumoService cadastroInsumoService;
@@ -78,31 +76,32 @@ public class SinapiController {
 	private String valueString;
 	private List<ComposicaoItem> itens = new ArrayList<>();
 
-	@GetMapping(path="/insumo/{codigoBasePreco}")  
-	public @ResponseBody String importaInsumos (@PathVariable Long codigoBasePreco) {
+	/**
+	 * 
+	 * @param codigo   - codigo da base de Preço 
+	 * @param onerado  - D-Desonerado O-Onerado(Não Desonerado) 
+	 * @return
+	 */
+	@GetMapping(path="/insumo/{codigo}/{onerado}")  
+	public @ResponseBody String importaInsumos (@PathVariable Long codigo, @PathVariable String onerado) {
 		
 		//TODO: Fazer aqui o download do arquivo e unzip
 		//TODO: Checar se o arquivo existe
 	
+		Long codigoBasePreco = codigo;
+		
 		if(!basePrecoRepository.existsById(codigoBasePreco)) {
             throw new ResourceNotFoundException("Erro ao pesquisar Base Precos");
         }
 		
 		BasePreco basePreco = basePrecoRepository.findById(codigoBasePreco).get();
-		
-		BasePrecoItemID basePrecoItemID = new BasePrecoItemID(); 
-		basePrecoItemID.setCodigoBasePreco(codigoBasePreco); 
-				
-		// 
-		
+
 		if(!baseInsumoRepository.existsById(basePreco.getBaseInsumo().getCodigo())) {
             throw new ResourceNotFoundException("Erro ao pesquisar Base Insumos");
         }
 		
-		BaseInsumo baseInsumo = baseInsumoRepository.findById(basePreco.getBaseInsumo().getCodigo()).get();
-		
-		InsumoID insumoID = new InsumoID(baseInsumo.getCodigo(), 0L); 
-		
+		Long codigoBaseInsumo = basePreco.getBaseInsumo().getCodigo(); 
+		BaseInsumo baseInsumo = baseInsumoRepository.findById(codigoBaseInsumo).get();
 		
 		String uf = basePreco.getEstado().getSigla();
 	
@@ -110,16 +109,18 @@ public class SinapiController {
 		String ano = Integer.toString(Lib.Year(df)); 
 		String mes = Lib.StrZero(Lib.Month(df), 2);
 		
-		// String oneracao = basePreco.getDesonerado().getDescricao(); 
-		String oneracao = "Desonerado";	 
+		String oneracao = "Desonerado";
+		
+		if ("O".equals(onerado)) { 
+			oneracao = "NaoDesonerado";
+		}
 		String fileName = "";
+		
+		// TODO: renomear a extensão dos arquivos para caixa baixa
+		
 		// /home/sergio/sinapi-download/RN/2018/01/Desonerado/SINAPI_Preco_Ref_Insumos_RN_201801_Desonerado.xls
 		// /home/sergio/sinapi-download/RN/2018/01/Desonerado/SINAPI_Preco_Ref_Insumos_RN_012018_Desonerado.XLS
-		if (mes.equals("01")) {
-			fileName = "src/main/resources/sinapi-download/"+uf+"/"+ano+"/"+mes+"/"+oneracao+"/SINAPI_Preco_Ref_Insumos_"+uf+"_"+ano+mes+"_"+oneracao+".xls";
-		} else {
-			fileName = "src/main/resources/sinapi-download/"+uf+"/"+ano+"/"+mes+"/"+oneracao+"/SINAPI_Preco_Ref_Insumos_"+uf+"_"+mes+ano+"_"+oneracao+".XLS";
-		}	
+		fileName = "src/main/resources/sinapi-download/"+uf+"/"+ano+"/"+mes+"/"+oneracao+"/SINAPI_Preco_Ref_Insumos_"+uf+"_"+ano+mes+"_"+oneracao+".xls";
 		Double n = null; 
 		Long   l = 0L;
 		String s = null;
@@ -195,9 +196,7 @@ public class SinapiController {
 							
 							switch (cell.getColumnIndex()) {
 								case 0:
-									insumoID.setCodigoInsumo( Lib.Round(valueNumeric,0).longValue());
-									insumo.setInsumoId(insumoID);
-									// insumo.setCodigoInsumo( Lib.Round(valueNumeric,0).longValue() ); 
+									insumo.setCodigoInsumo( Lib.Round(valueNumeric,0).longValue());
 									break;
 								case 1:
 									insumo.setDescricao(valueString.trim()); 
@@ -221,69 +220,80 @@ public class SinapiController {
 						continue;
 					}
 					
-					Optional<Insumo> insumoExistente = insumoRepository.findById(insumoID);
+					// ok ... então vamos persistir 
 					
-					if(!insumoExistente.isPresent()){
+					Optional<Insumo> insumoExistente = insumoRepository.findByBaseInsumoAndCodigoInsumo(baseInsumo, insumo.getCodigoInsumo()); 
+					
+					if(!insumoExistente.isPresent()) {
 						
 						// Novo Insumo
-						insumo.setBasePreco(basePreco);
+						 
 						if (insumo.getCodigoInsumo() !=null &&
 							insumo.getDescricao()    !=null &&
 							insumo.getUnidade()      !=null &&
 							insumo.getPrecoPadrao()  !=null) {
 							
 							insumo.setEspecie(defineEspecie(insumo.getUnidade(), insumo.getDescricao()) );
-							
+							insumo.setBaseInsumo(baseInsumo);
+							insumo.setBasePreco(basePreco);
 							cadastroInsumoService.salvar(insumo);
-							// insumoRepository.saveAndFlush(insumo);
-							// System.out.println("Novo Insumo "+insumo.getDescricao());
+							
 						} else {
-							// System.out.println("insumo NOVO NULLO");
+							
 							insumo=null;
+							
 							continue;
 						}
 					} else { 
 						
 						// Atualiza Insumo
+						
 						if (insumo.getCodigoInsumo() !=null &&
 							insumo.getDescricao()    !=null &&
 							insumo.getUnidade()      !=null &&
-							insumo.getPrecoPadrao()!=null) {
+							insumo.getPrecoPadrao()  !=null) {
 							
 							Insumo insumoEdita = insumoExistente.get(); 
 							
 							insumoEdita.setUnidade(insumo.getUnidade());
 							insumoEdita.setDescricao(insumo.getDescricao());
 							insumoEdita.setPrecoPadrao(insumo.getPrecoPadrao());
-							insumoEdita.setBasePreco(basePreco);
-							
+							insumoEdita.setEspecie(insumo.getEspecie());
 							insumoEdita.setEspecie(defineEspecie(insumo.getUnidade(), insumo.getDescricao()) );
-							
 							cadastroInsumoService.salvar(insumoEdita);
-							// insumoRepository.saveAndFlush(insumo);
+							
 							System.out.println("Atualiza Insumo "+insumoEdita.getCodigoInsumo());
+							
 						} else {
-							System.out.println("insumo ATUALIZA NULLO");
+
 							insumo=null;
+							
 							continue;
 						}
 							
 					}
 					
-					// Salva preco  
-					
-				 
+					// Salva o Item da Base de Preço  
 					 
-					basePrecoItemID.setCodigoInsumo(insumo.getCodigoInsumo());
+					System.out.println();
 					
-					Optional<BasePrecoItem> item = basePrecoItemRepository.findById(basePrecoItemID);
+					Optional<BasePrecoItem> item = basePrecoItemRepository
+							.findByBasePrecoAndCodigoInsumo(basePreco, insumo.getCodigoInsumo() );
 					
 					if(!item.isPresent()){
 						
 						BasePrecoItem novoItem = new BasePrecoItem();
-						novoItem.setBasePrecoItemID(basePrecoItemID);
-						novoItem.setPreco(insumo.getPrecoPadrao());
+						
+						novoItem.setBasePreco(basePreco);
+						novoItem.setCodigoInsumo(insumo.getCodigoInsumo());
+						if ("D".equals(onerado)) {
+							novoItem.setPreco(insumo.getPrecoPadrao());	
+						} else {
+							novoItem.setPrecoOnerado(insumo.getPrecoPadrao());	
+						}
+						
 						novoItem.setAnoMes(ano+"/"+mes);
+
 						basePrecoItemRepository.saveAndFlush(novoItem);
 												
 					} else { 
@@ -296,7 +306,6 @@ public class SinapiController {
 					
 					}
 					
-					basePrecoItemID = null; 
 					insumo = null; 
 					
 					
@@ -321,11 +330,12 @@ public class SinapiController {
 	
 	/**
 	 * 
-	 * @param codigo - codigo da base de preços 
+	 * @param codigo   - codigo da base de Preço 
+	 * @param onerado  - D-Desonerado O-Onerado(Não Desonerado) 
 	 * @return
 	 */
-	@GetMapping(path="/composicao/{codigo}")
-	public @ResponseBody String importaComposicoes(@PathVariable Long codigo) {
+	@GetMapping(path="/composicao/{codigo}/{onerado}")  
+	public @ResponseBody String importaComposicoes(@PathVariable Long codigo, @PathVariable String onerado) {
 		
 		// TODO: Importar o Arquivo zip e descompactar no diretorio  da aplicação 
 
@@ -335,22 +345,17 @@ public class SinapiController {
             throw new ResourceNotFoundException("Erro ao pesquisar Base Precos");
         }
 				
-				
 		String uf = basePreco.getEstado().getSigla();
-	
 		Date df = Lib.asDate(basePreco.getDataReferencia());
-		
 		String ano = Integer.toString(Lib.Year(df)); 
 		String mes = Lib.StrZero(Lib.Month(df), 2);
-		
-		// String oneracao = basePreco.getDesonerado().getDescricao(); 
 		String oneracao = "Desonerado";
-	
-		String fileName = "src/main/resources/sinapi-download/"+uf+"/"+ano+"/"+mes+"/Desonerado/SINAPI_Custo_Ref_Composicoes_Analitico_"+uf+"_"+mes+ano+"_"+oneracao+".XLS";
-		if (mes.equals("01")) {
-			fileName = "src/main/resources/sinapi-download/"+uf+"/"+ano+"/"+mes+"/Desonerado/SINAPI_Custo_Ref_Composicoes_Analitico_"+uf+"_"+ano+mes+"_"+oneracao+".xls";
-		}
 		
+		if ("O".equals(onerado)) { 
+			oneracao = "NaoDesonerado";
+		}
+
+		String fileName = "src/main/resources/sinapi-download/"+uf+"/"+ano+"/"+mes+"/Desonerado/SINAPI_Custo_Ref_Composicoes_Analitico_"+uf+"_"+mes+ano+"_"+oneracao+".xls";
 		
 		Long L=0L;
 		String s = null;
@@ -439,11 +444,9 @@ public class SinapiController {
 							}
 							
 							System.out.println("CELL col=" + cell.getColumnIndex() + " VALUE="+ value);
-							
 							 
 							s=Lib.RTrim(s);
 							s=Lib.LTrim(s);
-															
 							 
 							switch (cell.getColumnIndex()) {
 							
@@ -485,29 +488,24 @@ public class SinapiController {
 										composicao.setCodigo(L);
 										
 										System.out.println("primeira vez. compo ="+composicao.getCodigo());
-										//
-										
-										//if( !campo6Atual.equals(L.toString() ))  {
-								        //    throw new ResourceNotFoundException("Erro conversao"+campo6Atual+" "+L);
-								        // }
 										
 										Optional<ComposicaoClasse> classeExistente = classesRepository.findBySiglaIgnoreCase(campo1Atual);
 										
 										if (classeExistente.isPresent()) {
-											composicao.setClasseComposicao(classeExistente.get()); 
+											composicao.setComposicaoClasse(classeExistente.get()); 
 										} else { 
 											classe =new ComposicaoClasse();
 											classe.setNome(campo0Atual);
 											classe.setSigla(campo1Atual);
 											
 											classesRepository.save(classe);
-											composicao.setClasseComposicao(classesRepository.findBySiglaIgnoreCase(campo1Atual).get());
+											composicao.setComposicaoClasse(classesRepository.findBySiglaIgnoreCase(campo1Atual).get());
 										}
 										
 										Optional<ComposicaoGrupo> tipoExistente = grupoComposicaoRepository.findById( campo3Atual.longValue() );
 										
 										if (tipoExistente.isPresent()) {
-											composicao.setGrupoComposicao(tipoExistente.get()); 
+											composicao.setComposicaoGrupo(tipoExistente.get()); 
 										} else {
 											tipoComposicao =new ComposicaoGrupo();
 											tipoComposicao.setCodigo(campo3Atual.longValue() ); 
@@ -516,7 +514,7 @@ public class SinapiController {
 											grupoComposicaoRepository.save(tipoComposicao); 
 											
 											ComposicaoGrupo novoTipo = grupoComposicaoRepository.findById( campo3Atual.longValue() ).get();
-											composicao.setGrupoComposicao(novoTipo);
+											composicao.setComposicaoGrupo(novoTipo);
 										}
 										
 									}
@@ -559,20 +557,20 @@ public class SinapiController {
 										Optional<ComposicaoClasse> classeExistente = classesRepository.findBySiglaIgnoreCase(campo1Atual);
 										
 										if (classeExistente.isPresent()) {
-											composicao.setClasseComposicao(classeExistente.get()); 
+											composicao.setComposicaoClasse(classeExistente.get()); 
 										} else { 
 											classe =new ComposicaoClasse();
 											classe.setNome(campo0Atual);
 											classe.setSigla(campo1Atual);
 											
 											classesRepository.save(classe);
-											composicao.setClasseComposicao(classesRepository.findBySiglaIgnoreCase(campo1Atual).get());
+											composicao.setComposicaoClasse(classesRepository.findBySiglaIgnoreCase(campo1Atual).get());
 										}
 										
 										Optional<ComposicaoGrupo> tipoExistente = grupoComposicaoRepository.findById( campo3Atual.longValue() );
 										
 										if (tipoExistente.isPresent()) {
-											composicao.setGrupoComposicao(tipoExistente.get()); 
+											composicao.setComposicaoGrupo(tipoExistente.get()); 
 										} else {
 											tipoComposicao =new ComposicaoGrupo();
 											tipoComposicao.setCodigo(campo3Atual.longValue() ); 
@@ -581,7 +579,7 @@ public class SinapiController {
 											grupoComposicaoRepository.save(tipoComposicao); 
 											
 											ComposicaoGrupo novoTipo = grupoComposicaoRepository.findById( campo3Atual.longValue() ).get();
-											composicao.setGrupoComposicao(novoTipo);
+											composicao.setComposicaoGrupo(novoTipo);
 										}
 									    
 									}
@@ -693,8 +691,6 @@ public class SinapiController {
 									if (!Lib.Empty(s)) {
 										composicao.setPercEquipamento(StrToBig(s, 7));
 									}	
-																	
-									
 									
 									break;
 									
@@ -747,7 +743,7 @@ public class SinapiController {
 	
 	public static Especie defineEspecie(String unidade, String descricao){     
         
-		if ("H".equals(unidade)) {
+		if ("H".equals(unidade) || "MES".equals(unidade)) {
 			if (descricao.length() > 7) {
 				System.out.println(descricao.substring(0, 7)); 
 			    if ( "LOCACAO".equals( descricao.substring(0, 7) ) ) { 
@@ -759,7 +755,6 @@ public class SinapiController {
 		}
 		return Especie.MATERIAL;
     } 
-	
 	
     public static BigDecimal StrToBig (String numero, Integer decimais) {
         String casasDecimais = "";

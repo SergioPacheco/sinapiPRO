@@ -32,30 +32,30 @@
 		<form method="GET" th:object="${insumoFilter}">
 		
 			<div class="row">
-				<div class="form-group  col-sm-6">
+				<div class="form-group  col-sm-4">
 					<label class="control-label" for="baseInsumo">Base de Insumos</label>
 					<select id="baseInsumo" class="form-control" th:field="*{baseInsumo}">
-	                    <option value="">Todos</option>
+	                    <option value="">Todas</option>
 	                    <option th:each="base : ${baseInsumos}" th:text="${base.nome}" th:value="${base.codigo}"></option>
 	                </select>
 				</div>
 				
-				<div class="form-group  col-sm-6">
-					<label class="control-label" for="especie">Especie</label> 
+				<div class="form-group  col-sm-4">
+					<label class="control-label" for="codigoInsumo">Código Insumo</label>
+					<input type="number" class="form-control" id="codigoInsumo" autofocus="autofocus" th:field="*{codigoInsumo}"/>
+				</div>
+				
+				<div class="form-group  col-sm-4">
+					<label class="control-label" for="especie">Espécie</label> 
 					<select id="especie" class="form-control" th:field="*{especie}">
-	                    <option value="">Todos</option>
+	                    <option value="">Todas</option>
 	                    <option th:each="especie : ${especies}" th:value="${especie}" th:text="${especie.descricao}"></option>
 	                </select>
 				</div>
 			</div>
 			
 			<div class="row">
-				<div class="form-group  col-sm-6">
-					<label class="control-label" for="codigoInsumo">Código Insumo</label>
-					<input type="number" class="form-control" id="codigoInsumo" autofocus="autofocus" th:field="*{codigoInsumo}"/>
-				</div>
-			 
-				<div class="form-group  col-sm-6">
+				<div class="form-group  col-sm-12">
 					<label class="control-label text-lef" for="descricao">Descrição</label>
 					<input type="text" class="form-control" id="descricao" autofocus="autofocus" th:field="*{descricao}"/>
 				</div>
@@ -78,7 +78,10 @@
 						<th class="table-insumos-col-codigo">
 							<sinapiPRO:order page="${pagina}" field="codigoInsumo" text="Código"/>
 						</th>
-						<th class="table-insumos-col-unidade">Unidade</th>
+						<th class="table-insumos-col-unidade">Base</th>
+						<th class="table-insumos-col-unidade">
+							<sinapiPRO:order page="${pagina}" field="unidade" text="UN"/>
+						</th>
 						<th class="table-insumos-col-preco">Preço Padrão</th>
 						<th class="table-insumos-col-descricao">
 							<sinapiPRO:order page="${pagina}" field="descricao" text="Descrição"/>
@@ -92,7 +95,8 @@
 					<tr th:each="insumo : ${pagina.conteudo}">
 						 								 
 						<td class="text-center" th:text="${insumo.codigoInsumo}">1234</td>
-						<td class="text-center" th:text="${insumo.unidade}">KG</td>
+						<td class="text-center" th:text="${insumo.baseInsumo.nome}">SINAPI</td>
+						<td class="text-center" th:text="${insumo.unidade}">H</td>
 						<td class="text-right"  th:text="|R$ ${{insumo.precoPadrao}}|">R$ 8.00</td>
 						<td class="text-left"   th:text="${insumo.descricao}">Pedreiro</td>
 						
@@ -104,19 +108,19 @@
 							   data-toggle="modal" 
 							   data-target="#pesquisaRapidaPrecos" 							     
 							   data:love="${insumo.codigoInsumo}"> 
-							   
 							   <i class="glyphicon glyphicon-stats"></i>
 							</a>
 						
 							<a class="btn  btn-link  btn-xs  js-tooltip " 
 							   title="Editar" 
-							   th:href="@{/insumos/{insumoID}(insumoID=${insumo.insumoID})}"> 
+							   th:href="@{/insumos/{codigo}(codigo=${insumo.codigo})}"> 
 							   <i class="glyphicon glyphicon-pencil"></i>
 							</a>
 							
 							<a class="btn  btn-link  btn-xs  js-tooltip  js-exclusao-btn" 
-							   title="Excluir" href="#" 
-							   data:url="@{/insumos/{insumoID}(insumoID=${insumo.insumoID})}"
+							   title="Excluir" 
+							   href="#" 
+							   data:url="@{/insumos/{codigo}(codigo=${insumo.codigo})}"
 							   data:objeto="${insumo.descricao}">
 							   <i class="glyphicon glyphicon-remove"></i>
 							</a>
@@ -135,7 +139,71 @@
 	</div>
 
 
-	<th:block th:replace="insumo/PesquisaRapidaPrecos :: pesquisaRapidaPrecos"></th:block>
+	<!--  <th:block th:replace="insumo/PesquisaRapidaPrecos :: pesquisaRapidaPrecos"></th:block> --> 
+	
+	<div th:fragment="pesquisaRapidaPrecos"
+     id="pesquisaRapidaPrecos" 
+	 class="modal  fade" 
+     tabindex="-1" 
+     role="dialog" >
+     
+ 	<div class="modal-dialog">
+   		<div class="modal-content">
+   		
+   			<div class="modal-header">
+       			<button type="button" class="close" data-dismiss="modal"> <i>&times;</i></button>
+        		<h1 class="modal-title">Histórico de Preços</h1>
+      		</div>
+      		
+   			<div class="modal-body">
+   			
+   				<div class="alert  alert-danger  alert-dismissible  hidden  js-mensagem-erro" 
+   				     role="alert">
+					<button type="button" 
+					        class="close" 
+					        data-dismiss="alert" >
+					        <span aria-hidden="true">&times;</span>
+					</button>
+					<div><i class="fa  fa-exclamation-circle"></i>Erro na Pesquisa</div>
+				</div>
+   			
+		        <div id="containerTabelaPesquisaRapidaPrecos">  </div>
+		        
+     		</div>
+   		</div>
+ 	</div>
+ 	
+	<script id="tabela-pesquisa-rapida-preco" type="text/x-handlebars-template">
+	<div class="table-responsive  sn-tabela-simples" style="margin-top: 15px">
+		<table class="table  table-hover">
+			<thead>
+				<tr>
+                    <th class="col-sm-2">Base</th>
+					<th class="col-sm-2">Referência</th>
+					<th class="col-sm-2">Preço</th>
+				</tr>
+			</thead>
+				
+			<tbody>
+				{{#if .}}
+					{{#each .}}
+						<tr data-nomeBase="{{nomeBase}}" data-anoMes="{{anoMes}}" data-preco="{{preco}}" class="js-preco-pesquisa-rapida">
+							<td>{{nomeBase}}</td>
+							<td>{{anoMes}}</td>
+							<td>{{preco}}</td>
+ 						</tr>
+					{{/each}}
+				{{else}}
+					<tr>
+						<td colspan="2">Nenhuma Base Preço encontrada</td>
+					</tr>
+				{{/if}}
+			</tbody>
+		</table>
+	</div>
+	</script>
+	
+	
 
 </section>
 

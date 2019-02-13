@@ -13,9 +13,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
-
 @Entity
-@Table(name = "item_composicao")
+@Table(name = "composicao_item")
 public class ComposicaoItem {
 
 	@Id
@@ -50,6 +49,8 @@ public class ComposicaoItem {
 	
 	@Column(precision=15, scale=2)
 	private BigDecimal custoTotal;
+
+	
 	
 	public Long getCodigo() {
 		return codigo;

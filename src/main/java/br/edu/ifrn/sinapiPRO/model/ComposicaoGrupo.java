@@ -7,7 +7,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "grupo_composicao")
+@Table(name = "composicao_grupo")
 public class ComposicaoGrupo implements Serializable {
 
 	private static final long serialVersionUID = 1L;

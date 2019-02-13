@@ -2,19 +2,28 @@ package br.edu.ifrn.sinapiPRO.dto;
 
 import java.math.BigDecimal;
 
-public class ItemBasePrecoDTO {
+public class BasePrecoItemDTO {
 	
+	private String nomeBase; 
 	private String anoMes; 
 	private BigDecimal preco; 
 	
-	public ItemBasePrecoDTO() {}
+	public BasePrecoItemDTO() {}
 
-	public ItemBasePrecoDTO(String anoMes, BigDecimal preco) {
+	public BasePrecoItemDTO(String nomeBase, String anoMes, BigDecimal preco) {
 		super();
+		this.nomeBase = nomeBase; 
 		this.anoMes = anoMes;
 		this.preco = preco;
 	}
 
+	public String getNomeBase() {
+		return nomeBase;
+	}
+
+	public void setNomeBase(String nomeBase) {
+		this.nomeBase = nomeBase;
+	}
 
 	public String getAnoMes() {
 		return anoMes;

@@ -30,7 +30,7 @@ SinapiPRO.PesquisaRapidaPreco = (function() {
 			url: '/insumos/precos',
 			method: 'GET',
 			contentType: 'application/json',
-			data: { codigoInsumo: codigo }, 
+			data: { codigoInsumo: codigo}, 
 			success: onPesquisaConcluida.bind(this),
 			error: onErroPesquisa.bind(this)
 		});
