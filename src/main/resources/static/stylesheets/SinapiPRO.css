@@ -73,7 +73,7 @@
 .table-item-composicao-col-codigo-item {width: 40px; text-align: center;}
 .table-item-composicao-col-descricao   {width: 300px; text-align:left;}
 .table-item-composicao-col-unidade     {width: 40px; text-align: center;}
-.table-item-composicao-col-coeficiente {width: 40px; text-align: center;}
+.table-item-composicao-col-coeficiente {width: 10px; text-align: center;}
 .table-item-composicao-col-valor       {width: 40px; text-align: center;} 
 
 /* Colunas - Itens da Orçamento */ 
@@ -200,9 +200,10 @@
 .sn-tabela-item__coluna {padding: 0 10px;}
 .sn-tabela-item__coluna--foto {float: left; width: 60px; text-align: center; }
 .sn-tabela-item__coluna--valores {padding-right: 0px;}
-.sn-tabela-item__coluna--detalhes, .sn-tabela-item__coluna--valores {margin-left: 60px;}
+.sn-tabela-item__coluna--detalhes  {margin-left: 10px;}
+.sn-tabela-item__coluna--valores {margin-left: 60px;}
 .sn-tabela-item-descricao {font-weight: 500; font-size: 1.1em; display: block; }
-.sn-tabela-item-unidade { color: #aaa; display: block; 	font-weight: 200;}
+.sn-tabela-item-unidade { font-weight: 500; font-size: 1.1em; display: block}
 .sn-tabela-item-campo-coeficiente {width: 30px; text-align: right;}
 .sn-tabela-item-valor-pequeno {font-weight: 300; font-size: 1em; }
 .sn-tabela-item-valor-medio {font-weight: 300; font-size: 1.3em;}

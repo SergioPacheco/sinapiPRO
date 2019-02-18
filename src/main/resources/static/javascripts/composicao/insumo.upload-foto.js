@@ -1,17 +1,17 @@
-var sinapiPRO = sinapiPRO || {};
+var SinapiPRO = SinapiPRO || {};
 
-sinapiPRO.UploadFoto = (function() {
+SinapiPRO.UploadFoto = (function() {
 	
 	function UploadFoto() {
-		this.inputNomeFoto = $('input[name=foto]');
+		this.inputNomeFoto    = $('input[name=foto]');
 		this.inputContentType = $('input[name=contentType]');
-		this.novaFoto = $('input[name=novaFoto]');
-		this.inputUrlFoto = $('input[name=urlFoto]');
+		this.novaFoto         = $('input[name=novaFoto]');
+		this.inputUrlFoto     = $('input[name=urlFoto]');
 		
-		this.htmlFotoComposicaoTemplate = $('#foto-composicao').html();
-		this.template = Handlebars.compile(this.htmlFotoComposicaoTemplate);
+		this.htmlFotoInsumoTemplate = $('#foto-insumo').html();
+		this.template = Handlebars.compile(this.htmlFotoInsumoTemplate);
 		
-		this.containerFotoComposicao = $('.js-container-foto-composicao');
+		this.containerFotoInsumo = $('.js-container-foto-insumo');
 		
 		this.uploadDrop = $('#upload-drop');
 		this.imgLoading = $('.js-img-loading');
@@ -22,7 +22,7 @@ sinapiPRO.UploadFoto = (function() {
 			type: 'json',
 			filelimit: 1,
 			allow: '*.(jpg|jpeg|png)',
-			action: this.containerFotoComposicao.data('url-fotos'),
+			action: this.containerFotoInsumo.data('url-fotos'),
 			complete: onUploadCompleto.bind(this),
 			beforeSend: adicionarCsrfToken,
 			loadstart: onLoadStart.bind(this)
@@ -56,14 +56,14 @@ sinapiPRO.UploadFoto = (function() {
 		
 		this.uploadDrop.addClass('hidden');
 		
-		var htmlFotoComposicao = this.template({url: resposta.url});
-		this.containerFotoComposicao.append(htmlFotoComposicao);
+		var htmlFotoInsumo = this.template({url: resposta.url});
+		this.containerFotoInsumo.append(htmlFotoComposicao);
 		
 		$('.js-remove-foto').on('click', onRemoverFoto.bind(this));
 	}
 	
 	function onRemoverFoto() {
-		$('.js-foto-composicao').remove();
+		$('.js-foto-insumo').remove();
 		this.uploadDrop.removeClass('hidden');
 		this.inputNomeFoto.val('');
 		this.inputContentType.val('');
@@ -81,6 +81,6 @@ sinapiPRO.UploadFoto = (function() {
 })();
 
 $(function() {
-	var uploadFoto = new sinapiPRO.UploadFoto();
+	var uploadFoto = new SinapiPRO.UploadFoto();
 	uploadFoto.iniciar();
 });

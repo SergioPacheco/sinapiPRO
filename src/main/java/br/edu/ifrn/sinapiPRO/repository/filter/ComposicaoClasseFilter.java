@@ -1,6 +1,6 @@
 package br.edu.ifrn.sinapiPRO.repository.filter;
 
-public class ClasseComposicaoFilter {
+public class ComposicaoClasseFilter {
 
 	private String nome;
 

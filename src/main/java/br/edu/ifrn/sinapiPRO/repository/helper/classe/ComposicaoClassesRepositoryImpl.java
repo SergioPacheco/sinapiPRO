@@ -16,12 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import br.edu.ifrn.sinapiPRO.model.ComposicaoClasse;
-import br.edu.ifrn.sinapiPRO.repository.filter.ClasseComposicaoFilter;
-import br.edu.ifrn.sinapiPRO.repository.helper.classe.ClassesRepositoryQueries;
+import br.edu.ifrn.sinapiPRO.repository.filter.ComposicaoClasseFilter;
+import br.edu.ifrn.sinapiPRO.repository.helper.classe.ComposicaoClassesRepositoryQueries;
 
 import br.edu.ifrn.sinapiPRO.repository.paginacao.PaginacaoUtil;
 
-public class ClassesRepositoryImpl implements ClassesRepositoryQueries {
+public class ComposicaoClassesRepositoryImpl implements ComposicaoClassesRepositoryQueries {
 
 	@PersistenceContext
 	private EntityManager manager;
@@ -32,21 +32,21 @@ public class ClassesRepositoryImpl implements ClassesRepositoryQueries {
 	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly = true)
-	public Page<ComposicaoClasse> filtrar(ClasseComposicaoFilter filtro, Pageable pageable) {
+	public Page<ComposicaoClasse> filtrar(ComposicaoClasseFilter filtro, Pageable pageable) {
 		Criteria criteria = manager.unwrap(Session.class).createCriteria(ComposicaoClasse.class);
 		paginacaoUtil.preparar(criteria, pageable);
 		adicionarFiltro(filtro, criteria);
 		return new PageImpl<>(criteria.list(), pageable, total(filtro));
 	}
 
-	private Long total(ClasseComposicaoFilter filtro) {
+	private Long total(ComposicaoClasseFilter filtro) {
 		Criteria criteria = manager.unwrap(Session.class).createCriteria(ComposicaoClasse.class);
 		adicionarFiltro(filtro, criteria);
 		criteria.setProjection(Projections.rowCount());
 		return (Long) criteria.uniqueResult();
 	}
 
-	private void adicionarFiltro(ClasseComposicaoFilter filtro, Criteria criteria) {
+	private void adicionarFiltro(ComposicaoClasseFilter filtro, Criteria criteria) {
 		if(filtro != null){
 
 			if (!StringUtils.isEmpty(filtro.getNome())) {

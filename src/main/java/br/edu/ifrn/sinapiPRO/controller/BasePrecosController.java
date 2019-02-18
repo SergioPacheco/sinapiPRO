@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,6 +28,7 @@ import br.edu.ifrn.sinapiPRO.repository.BaseInsumosRepository;
 import br.edu.ifrn.sinapiPRO.repository.BasePrecosRepository;
 import br.edu.ifrn.sinapiPRO.repository.Estados;
 import br.edu.ifrn.sinapiPRO.repository.filter.BasePrecoFilter;
+import br.edu.ifrn.sinapiPRO.security.UsuarioSistema;
 import br.edu.ifrn.sinapiPRO.service.BasePrecoService;
 import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
 import br.edu.ifrn.sinapiPRO.service.exception.NomeBasePrecoJaCadastradaException;
@@ -120,21 +122,29 @@ public class BasePrecosController  {
 		return ResponseEntity.ok().build();
 	}
 	
+	/**
+	 *  Importa base de insumos sinapi. O-Onerado D-Desonerado  
+	 * 
+	 * @param codigo  
+	 * @return
+	 */
 	@GetMapping("importaInsumo/{codigo}")
-	public ModelAndView  importarInsumos(@PathVariable Long codigo) {
+	public ModelAndView  importarInsumos(@PathVariable Long codigo, @AuthenticationPrincipal UsuarioSistema usuarioSistema) {
 		
-		sinapiController.importaInsumos(codigo, "O");
-		sinapiController.importaInsumos(codigo, "D");
+		//sinapiController.importaInsumos(codigo, "O", usuarioSistema); 
+		sinapiController.importaInsumos(codigo, "D", usuarioSistema); 
 		
 		return new ModelAndView("redirect:/basePrecos/nova"); 
 	}
 
 	@GetMapping("importaComposicao/{codigo}")
-	public ModelAndView   importarComposicoes(@PathVariable Long codigo) {
+	public ModelAndView   importarComposicoes(@PathVariable Long codigo, @AuthenticationPrincipal UsuarioSistema usuarioSistema) {
 		
-		sinapiController.importaComposicoes(codigo, "O");
-		sinapiController.importaComposicoes(codigo, "D");
-		 
+		// sinapiController.importaComposicoes(codigo, "O");
+		sinapiController.importaComposicoes(codigo, "D", usuarioSistema);
+		
+		// sinapiController.novosInsumos(codigo, usuarioSistema);
+		
 		return new ModelAndView("redirect:/basePrecos/nova"); 
 	}
 		

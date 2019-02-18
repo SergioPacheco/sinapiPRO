@@ -1,40 +1,55 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:th="http://www.thymeleaf.org"
-	xmlns:data="http://www.thymeleaf.org/extras/data">
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" 
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:data="http://www.thymeleaf.org/extras/data">
 
-<div class="sn-tabela-item  js-tabela-item" 
+<div class="table-responsive  sn-tabela-simples">
+	<table class="table  table-hover">
+		<thead>
+			<tr>
+				<th class="table-item-composicao-col-codigo-item">Código</th>
+		        <th class="table-item-compopsicao-col-descricao">Descrição</th>
+		        <th class="table-item-composicao-col-unidade">Un</th>
+		        <th class="table-item-composicao-col-coeficiente">Coeficiente</th>
+		        <th class="table-item-composicao-col-valor">Preço</th>
+		        <th class="table-item-composicao-col-valor">Total</th>
+		        <th class="table-item-col-acoes"></th> 
+			</tr>
+		</thead>
+		<tbody>
+		<tr class="js-tabela-item" 
+	 		th:each="item : ${itens}" 
+	 		data:valor-total="${valorTotal}">
 
-     th:each="item : ${itens}" data:valor-total="${valorTotal}">
+			<td class="text-center" th:text="${item.codigoItem}">98121</td>
+			<td class="text-left"   th:text="${item.descricao}">CIMENTO CPII 32</td>
+			<td class="text-center" th:text="${item.unidade}">KG</td>
+			<td class="text-center"> 
+				<input type="number" 
+			           maxlength="3" 
+				       class="js-tabela-insumo-coeficiente-item" 
+				       th:value="${item.coeficiente}" 
+				       data:codigo-insumo="${item.compo ? item.composicao.codigo : item.insumo.codigo}"/>
+			</td> 	
+			<td class="text-right" th:text="|R$${item.precoUnitario}">R$ 1,40</td>
+			<td class="text-right" th:text="|R$${item.valorTotal}">R$ 1,40</td>	
 
-	<div class="sn-tabela-item__coluna  sn-tabela-item__coluna--detalhes">
-	
-		<span class="label label-default"      th:text="${item.codigoItem}">45623</span>
-		<span class="sn-tabela-item-descricao" th:text="${item.descricaoItem}">Pedreiro</span> 
-		<span class="sn-tabela-item-unidade"   th:text="${item.unidade}">KG</span>
-		
-	</div>
-
-	<div class="sn-tabela-item__coluna  sn-tabela-item__coluna--valores">
-		<div class="sn-tabela-item-valor-pequeno">
-		
-			<input type="text" maxlength="3"
-				class="sn-tabela-item-campo-coeficiente  js-tabela-item-coeficiente"
-				th:value="${item.coeficiente}"
-				data:codigo-insumo="${item.codigoItem}"/> 
-				<span>x	R$[[${{item.precoUnitario}}]]</span>
-		</div>
-		<div class="sn-tabela-item-valor-medio">R$[[${{item.valorTotal}}]]</div>
-	</div>
-	<div class="sn-tabela-item__painel-exclusao">
-		<span class="sn-tabela-item__titulo-exclusao">Excluir este item	da venda?</span>
-		<button type="button" 
-		        class="btn  btn-danger  js-exclusao-item-btn"
-				data:codigo-insumo="${item.codigoItem}">Sim, excluir!</button>
-	</div>
+			<td class="text-center">
+				<a class="btn  btn-link  btn-xs  js-tooltip  js-exclusao-item-btn" 
+				   title="Excluir" 
+				   href="#" 
+				   data:codigo-insumo="${item.compo ? item.composicao.codigo : item.insumo.codigo}}">
+				   <i class="glyphicon glyphicon-remove"></i>
+				</a>
+			</td>
+		</tr>	
+		<tr th:if="${itens.empty}">
+			<td colspan="7">
+			<i class="glyphicon  glyphicon-cubes"></i> 
+			<span>Você ainda não adicionou nenhum insumo.</span>
+		</tr>	
+		</tbody>	
+	</table>
 </div>
-<div class="sn-tabela-insumo__vazio" th:if="${itens.empty}">
-	<i class="glyphicon  glyphicon-shopping-cart"></i> 
-	<span>Você ainda não adicionou nenhum insumo.</span>
-</div>
+
 </html>

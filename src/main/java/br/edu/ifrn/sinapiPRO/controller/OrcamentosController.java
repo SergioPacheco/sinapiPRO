@@ -75,7 +75,7 @@ public class OrcamentosController {
 		}
 		attributes.addFlashAttribute("mensagem", "Orcamento salvo com sucesso!");
 		
-		return new ModelAndView("redirect:/orcamentos/novo");
+		return new ModelAndView("redirect:/orcamentos/"+orcamento.getCodigo());
 	}
 	
 	@GetMapping

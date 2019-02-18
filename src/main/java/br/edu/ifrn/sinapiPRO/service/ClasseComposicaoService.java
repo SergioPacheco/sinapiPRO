@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.edu.ifrn.sinapiPRO.model.ComposicaoClasse;
-import br.edu.ifrn.sinapiPRO.repository.ClassesRepository;
+import br.edu.ifrn.sinapiPRO.repository.ComposicaoClassesRepository;
 import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
 import br.edu.ifrn.sinapiPRO.service.exception.NomeClasseJaCadastradaException;
 
@@ -17,7 +17,7 @@ import br.edu.ifrn.sinapiPRO.service.exception.NomeClasseJaCadastradaException;
 public class ClasseComposicaoService {
 	
 	@Autowired
-	private ClassesRepository classes;
+	private ComposicaoClassesRepository classes;
 	
 	@Transactional
 	public ComposicaoClasse salvar(ComposicaoClasse classe){

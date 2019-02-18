@@ -13,36 +13,35 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
-@Entity
+@Entity(name = "ComposicaoItem")
 @Table(name = "composicao_item")
 public class ComposicaoItem {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long codigo;
-	
-	private Long codigoItem; 
-
+	private Long codigoItem;     // codigo composiçao ou insumo 
 	private String tipo;         // {COMPOSICAO, INSUMO}
 	
-	@Size(max = 400)
-	private String descricaoItem; 
-	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "codigo_composicao")
-	private Composicao composicao;
+	@JoinColumn(name = "codigo_composicao_pai", referencedColumnName="codigo")
+	private Composicao composicaoPai;
 	
 	@ManyToOne
-	@JoinColumn(name = "codigo_base_preco")
-	private BasePreco basePreco;
+	@JoinColumn(name = "codigo_insumo")
+	private Insumo insumo;
 	
+	@ManyToOne
+	@JoinColumn(name = "codigo_composicao")
+	private Composicao composicao;
+		
 	@Size(max = 400)
 	private String descricao; 
 	
 	private String unidade; 
 	
-	@Column(precision=15, scale=2)
-	private BigDecimal coeficiente; // Quantidade usada
+	@Column(precision=15, scale=7)
+	private BigDecimal coeficiente; 
 	
 	@Column(precision=15, scale=2)
 	private BigDecimal precoUnitario; 
@@ -51,13 +50,20 @@ public class ComposicaoItem {
 	private BigDecimal custoTotal;
 
 	
-	
 	public Long getCodigo() {
 		return codigo;
 	}
 
 	public void setCodigo(Long codigo) {
 		this.codigo = codigo;
+	}
+
+	public String getTipo() {
+		return tipo;
+	}
+
+	public void setTipo(String tipo) {
+		this.tipo = tipo;
 	}
 
 	public Long getCodigoItem() {
@@ -68,12 +74,12 @@ public class ComposicaoItem {
 		this.codigoItem = codigoItem;
 	}
 
-	public BasePreco getBasePreco() {
-		return basePreco;
+	public Composicao getComposicaoPai() {
+		return composicaoPai;
 	}
 
-	public void setBasePreco(BasePreco basePreco) {
-		this.basePreco = basePreco;
+	public void setComposicaoPai(Composicao composicaoPai) {
+		this.composicaoPai = composicaoPai;
 	}
 
 	public Composicao getComposicao() {
@@ -83,21 +89,13 @@ public class ComposicaoItem {
 	public void setComposicao(Composicao composicao) {
 		this.composicao = composicao;
 	}
-
-	public String getTipo() {
-		return tipo;
-	}
-
-	public void setTipo(String tipo) {
-		this.tipo = tipo;
-	}
 	
-	public String getDescricaoItem() {
-		return descricaoItem;
+	public Insumo getInsumo() {
+		return insumo;
 	}
 
-	public void setDescricaoItem(String descricaoItem) {
-		this.descricaoItem = descricaoItem;
+	public void setInsumo(Insumo insumo) {
+		this.insumo = insumo;
 	}
 
 	public String getDescricao() {
@@ -139,16 +137,24 @@ public class ComposicaoItem {
 	public void setCustoTotal(BigDecimal custoTotal) {
 		this.custoTotal = custoTotal;
 	}
-	
+
 	public BigDecimal getValorTotal(){
 		return precoUnitario.multiply(coeficiente);
 	}
-
+	 
+	public boolean isNova() { 
+		return this.codigo == null;
+	}
+	
+	public boolean isCompo() {
+		return "COMPOSICAO".equals(this.tipo);
+	}
+		
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((codigoItem == null) ? 0 : codigoItem.hashCode());
+		result = prime * result + ((codigo == null) ? 0 : codigo.hashCode());
 		return result;
 	}
 
@@ -161,14 +167,12 @@ public class ComposicaoItem {
 		if (getClass() != obj.getClass())
 			return false;
 		ComposicaoItem other = (ComposicaoItem) obj;
-		if (codigoItem == null) {
-			if (other.codigoItem != null)
+		if (codigo == null) {
+			if (other.codigo != null)
 				return false;
-		} else if (!codigoItem.equals(other.codigoItem))
+		} else if (!codigo.equals(other.codigo))
 			return false;
 		return true;
 	}
-
-	
 	
 }	

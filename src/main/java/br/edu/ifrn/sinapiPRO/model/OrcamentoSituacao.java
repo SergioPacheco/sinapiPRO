@@ -1,6 +1,6 @@
 package br.edu.ifrn.sinapiPRO.model;
 
-public enum SituacaoOrcamento {
+public enum OrcamentoSituacao {
 
 	BLOQUEADO("Bloqueado"), 
 	EFETIVADO("Efetivado"), 
@@ -10,7 +10,7 @@ public enum SituacaoOrcamento {
 
 	private String descricao;
 
-	SituacaoOrcamento(String descricao) {
+	OrcamentoSituacao(String descricao) {
 		this.descricao = descricao;
 	}
 

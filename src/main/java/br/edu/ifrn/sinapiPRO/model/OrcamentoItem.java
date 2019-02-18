@@ -21,8 +21,6 @@ public class OrcamentoItem  {
 	@GeneratedValue(strategy = GenerationType.IDENTITY, generator="native")
 	@GenericGenerator(name = "native", strategy = "native")
 	private Long codigo;
-	
-	private Long codigoItem; 
 	private String tipo;         /* C=Composicao I=Insumo E=Etapa */
 	private String descricao; 
 	private String itemizacao; 
@@ -49,31 +47,9 @@ public class OrcamentoItem  {
 	@Column(name = "valor_Equipamento")
 	private BigDecimal valorEquipamento = BigDecimal.ZERO;
 	
-/*
-	@ManyToOne
-	@JoinColumn(name = "codigo_etapa", nullable=false)
-	private Etapa etapa;
-	
-	@ManyToOne
-	@JoinColumn(name = "codigo_composicao", nullable=true)
-	private Composicao composicao;
-	
-	@ManyToOne
-	@JoinColumn(name = "codigo_insumo", referencedColumnName = "codigoInsumo", nullable=true)
-	private Insumo insumo;
 
-*/
-		
 	public Long getCodigo() {
 		return codigo;
-	}
-
-	public Long getCodigoItem() {
-		return codigoItem;
-	}
-	
-	public void setCodigoItem(Long codigoItem) {
-		this.codigoItem = codigoItem;
 	}
 
 	public void setValorMaoObra(BigDecimal valorMaoObra) {

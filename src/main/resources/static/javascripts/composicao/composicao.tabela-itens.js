@@ -1,13 +1,14 @@
-sinapiPRO.TabelaItens = (function(){
+SinapiPRO.TabelaItens = (function(){
 	
 	function TabelaItens(autocomplete){
-		this.autocomplete = autocomplete;
-		this.tabelaInsumosContainer = $('.js-tabela-itens-container');
+		this.autocomplete = autocomplete;  
+		this.tabelaInsumosContainer = $('.js-tabela-insumos-container');
 		this.uuid = $('#uuid').val();
 		this.emitter = $({});
 		this.on = this.emitter.on.bind(this.emitter);
 	}
 	
+	// Chamado por composicao.autocomplete-itnes.js ao selecionar item
 	TabelaItens.prototype.iniciar = function(){
 		this.autocomplete.on('item-selecionado', onItemSelecionado.bind(this));
 		bindQuantidade.call(this);
@@ -23,7 +24,7 @@ sinapiPRO.TabelaItens = (function(){
 			url: 'item',
 			method: 'POST',
 			data: {
-				codigoInsumos: item.codigo,
+				codigo: item.codigo,
 				uuid: this.uuid
 			}
 		});
@@ -43,21 +44,22 @@ sinapiPRO.TabelaItens = (function(){
 	}
 	
 	function onQuantidadeItemAlterado(evento){
-		var input = $(evento.target);
-		var quantidade = input.val();
 		
-		if(quantidade <= 0){
+		var input = $(evento.target);
+		var coeficiente = input.val();
+		
+		var codigoInsumo = input.data('codigo-insumo');
+		
+		if (coeficiente <= 0) {
 			input.val(1);
-			quantidade =1;
+			coeficiente = 1;
 		}
 		
-		var codigoItem = input.data('codigo-item');
-		
 		var resposta = $.ajax({
-			url: 'item/' + codigoItem,
+			url: 'item/' + codigoInsumo,
 			method: 'PUT',
 			data: {
-				quantidade: quantidade,
+				coeficiente: coeficiente,
 				uuid: this.uuid
 			}
 		});
@@ -70,7 +72,8 @@ sinapiPRO.TabelaItens = (function(){
 	}
 	
 	function onExclusaoItemClick(evento){
-		var codigoInsumo = $(evento.target).data('codigo-item');
+		
+		var codigoItem = $(evento.target).data('codigo-insumo');
 		var resposta = $.ajax({
 					url: 'item/' + this.uuid + '/' + codigoItem,
 					method: 'DELETE'
@@ -80,7 +83,7 @@ sinapiPRO.TabelaItens = (function(){
 	}
 	
 	function bindQuantidade(){
-		var quantidadeItemInput = $('.js-tabela-item-coeficiente');
+		var quantidadeItemInput = $('.js-tabela-insumo-coeficiente-item');
 		quantidadeItemInput.on('change', onQuantidadeItemAlterado.bind(this));
 		quantidadeItemInput.maskNumber({ integer: true, thousands: ''});
 	}

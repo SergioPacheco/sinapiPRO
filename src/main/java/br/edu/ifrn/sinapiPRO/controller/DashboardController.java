@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import br.edu.ifrn.sinapiPRO.repository.Clientes;
-import br.edu.ifrn.sinapiPRO.repository.Composicoes;
+import br.edu.ifrn.sinapiPRO.repository.ComposicaoRepository;
 import br.edu.ifrn.sinapiPRO.repository.InsumosRepository;
 import br.edu.ifrn.sinapiPRO.repository.OrcamentosRepository;
 
@@ -21,7 +21,7 @@ public class DashboardController {
 	private InsumosRepository insumosRepository;
 	
 	@Autowired
-	private Composicoes composicoesRepository;
+	private ComposicaoRepository composicoesRepository;
 	
 	@Autowired
 	private Clientes clientesRepository;

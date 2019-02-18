@@ -14,7 +14,7 @@ public interface InsumosRepositoryQueries {
 
 	public Page<Insumo> filtrar(InsumoFilter filtro, Pageable pageable);
 	
-	public List<InsumoDTO> porDescricao(Long baseInsumo, String nome);
+	public List<InsumoDTO> porDescricao(String nome);
 	
 	public List<BasePrecoItemDTO> listaPrecosPorInsumo(Long codigoInsumo);
 	

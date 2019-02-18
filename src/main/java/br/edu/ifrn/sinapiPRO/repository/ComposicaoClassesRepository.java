@@ -5,10 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import br.edu.ifrn.sinapiPRO.model.ComposicaoClasse;
-import br.edu.ifrn.sinapiPRO.repository.helper.classe.ClassesRepositoryQueries;
+import br.edu.ifrn.sinapiPRO.repository.helper.classe.ComposicaoClassesRepositoryQueries;
 
 @Repository
-public interface ClassesRepository extends JpaRepository<ComposicaoClasse, Long>, ClassesRepositoryQueries {
+public interface ComposicaoClassesRepository extends JpaRepository<ComposicaoClasse, Long>, ComposicaoClassesRepositoryQueries {
 
 	public Optional<ComposicaoClasse> findByNomeIgnoreCase(String nome);
 	public Optional<ComposicaoClasse> findBySiglaIgnoreCase(String sigla);

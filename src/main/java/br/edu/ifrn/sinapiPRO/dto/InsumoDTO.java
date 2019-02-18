@@ -4,23 +4,30 @@ import java.math.BigDecimal;
 
 public class InsumoDTO {
 
+	private Long codigo; 
 	private Long codigoInsumo;
-	private String nomeBaseInsumo; 
 	private String descricao;
 	private String unidade; 
 	private BigDecimal precoPadrao;
 	
-	public InsumoDTO(	Long codigoInsumo, 
-				        String nomeBaseInsumo,
+	public InsumoDTO(	Long codigo,
+					    Long codigoInsumo, 
 						String descricao,  
 						String unidade,
 						BigDecimal precoPadrao) {
 		super();
+		this.codigo = codigo;
 		this.codigoInsumo = codigoInsumo;
-		this.nomeBaseInsumo = nomeBaseInsumo; 
 		this.descricao = descricao;
 		this.unidade = unidade;
 		this.precoPadrao = precoPadrao;
+	}
+	public Long getCodigo() {
+		return codigo;
+	}
+
+	public void setCodigo(Long codigo) {
+		this.codigo = codigo;
 	}
 
 	public Long getCodigoInsumo() {
@@ -30,15 +37,7 @@ public class InsumoDTO {
 	public void setCodigoInsumo(Long codigo) {
 		this.codigoInsumo = codigo;
 	}
-	
-	public String getNomeBaseInsumo() {
-		return nomeBaseInsumo;
-	}
-
-	public void setNomeBaseInsumo(String nomeBaseInsumo) {
-		this.nomeBaseInsumo = nomeBaseInsumo;
-	}
-
+		
 	public String getDescricao() {
 		return descricao;
 	}

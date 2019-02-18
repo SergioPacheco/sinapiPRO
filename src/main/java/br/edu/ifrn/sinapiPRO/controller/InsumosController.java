@@ -78,36 +78,6 @@ public class InsumosController {
 		return mv;
 	}
 	
-	/*
-	@RequestMapping(value = { "/novo", "{\\d+}" }, method = RequestMethod.POST)
-	public ModelAndView salvar(@Valid Insumo insumo, 
-			                   BindingResult result, 
-			                   Model model, 
-			                   RedirectAttributes attributes,
-			                   @AuthenticationPrincipal UsuarioSistema usuarioSistema) {
-		
-		if (result.hasErrors()) {
-			return novo(insumo);
-		}
-		
-		insumo.setUsuario(usuarioSistema.getUsuario());
-		
-		try {
-			
-			if (insumo.isSinapi()) {
-				attributes.addFlashAttribute("mensagem", "Proibido alterar dados da tabela base SINAPI");
-				return new ModelAndView("redirect:/insumos/novo");
-			}
-			insumoService.salvar(insumo);
-		} catch(ResourceNotFoundException e) {
-			result.rejectValue("nome",e.getMessage(), e.getMessage());
-			return novo(insumo);
-		}
-		attributes.addFlashAttribute("mensagem", "Insumo salvo com sucesso!");
-		return new ModelAndView("redirect:/insumos/novo");
-	} 
-	*/
-	
 	@PostMapping(value = "/novo", params = "salvar")
 	public ModelAndView salvar(Insumo insumo, 
 			                   BindingResult result, 
@@ -115,26 +85,27 @@ public class InsumosController {
 			                   @AuthenticationPrincipal UsuarioSistema usuarioSistema) {
 		
 		// validarInsumo(insumo, result);
-		
 		if (result.hasErrors()) {
 			return novo(insumo);
 		}
-		
 		insumo.setUsuario(usuarioSistema.getUsuario());
-		
 		try {
 			
-			if (insumo.isSinapi()) {
-				attributes.addFlashAttribute("mensagem", "Proibido alterar dados da tabela base SINAPI");
-				return new ModelAndView("redirect:/insumos/novo");
+			if (!insumo.isNovo()) {
+				if (insumo.isSinapi()) {
+					attributes.addFlashAttribute("mensagem", "Proibido alterar dados da tabela base SINAPI");
+					return new ModelAndView("redirect:/insumos/novo");
+				}
 			}
+			
 			insumoService.salvar(insumo);
 		} catch(ResourceNotFoundException e) {
 			result.rejectValue("nome",e.getMessage(), e.getMessage());
 			return novo(insumo);
 		}
 		attributes.addFlashAttribute("mensagem", "Insumo salvo com sucesso!");
-		return new ModelAndView("redirect:/insumos/novo");
+		
+		return new ModelAndView("redirect:/insumos/"+insumo.getCodigo());
 	}
 	
 	/**
@@ -214,9 +185,9 @@ public class InsumosController {
 	 * @return
 	 */
 	@RequestMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody List<InsumoDTO> pesquisar(Long codigoBaseInsumo, String descricao) {
+	public @ResponseBody List<InsumoDTO> pesquisar(String porDescricao) {
 		
-		return insumosRepository.porDescricao(codigoBaseInsumo, descricao);
+		return insumosRepository.porDescricao(porDescricao);
 	
 	}
 	

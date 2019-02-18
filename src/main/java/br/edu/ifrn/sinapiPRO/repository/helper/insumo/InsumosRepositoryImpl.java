@@ -1,32 +1,6 @@
 package br.edu.ifrn.sinapiPRO.repository.helper.insumo;
 
-/*
- * 
-private static List<Contact> fetchAllContacts(){
-    //Open Session
-    Session session = sessionFactory.openSession();
 
-    // Deprecated Way
-    // Criteria criteria = session.createCriteria(Contact.class);
-    // List<Contacts> contacts = criteria.list();  
-
-    //Get Criteria Builder
-    CriteriaBuilder builder = session.getCriteriaBuilder();
-
-    //Create Criteria
-    CriteriaQuery<Contact> criteria = builder.createQuery(Contact.class);
-    Root<Contact> contactRoot = criteria.from(Contact.class);
-    criteria.select(contactRoot);
-
-    //Use criteria to query with session to fetch all contacts
-    List<Contact> contacts = session.createQuery(criteria).getResultList();
-
-    //Close session
-    session.close();
-
-    return contacts;
-}
-*/
 
 import java.util.List;
 
@@ -86,22 +60,20 @@ public class InsumosRepositoryImpl implements InsumosRepositoryQueries {
 				.setParameter("codigo", codigoInsumo)
 				.getResultList();
 	}
-		
+	 
+	 
 	@Override
-	public List<InsumoDTO> porDescricao(Long codigoBaseInsumo, String descricao) {
+	public List<InsumoDTO> porDescricao(String descricao) {
 				
 		return manager 
 				.createQuery(
-					  "select new br.edu.ifrn.sinapiPRO.dto.InsumoDTO(i.codigoInsumo, b.nome as nomeBaseInsumo, i.descricao, i.unidade,  i.precoPadrao) "
-				    + "  from Insumo as i"
-					+ " right join BaseInsumo b" 		  
-				    + " where b.codigo:= codigoBaseInsumo and"
-				    + "       lower(i.descricao) like lower(:descricao)", InsumoDTO.class)
+					  "select new br.edu.ifrn.sinapiPRO.dto.InsumoDTO(codigo, codigoInsumo, descricao, unidade,  precoPadrao) "
+				    + "  from Insumo where lower(descricao) like lower(:descricao)", InsumoDTO.class)
 					.setParameter("descricao", descricao + "%")
-					.setParameter("codigoBaseInsumo", codigoBaseInsumo)
 					.getResultList();
 	}
-		
+	 
+	
 	private Long total(InsumoFilter filtro) {
 		
 		Criteria criteria = manager.unwrap(Session.class).createCriteria(Insumo.class);
@@ -139,3 +111,33 @@ public class InsumosRepositoryImpl implements InsumosRepositoryQueries {
 		return null;
 	}
 }
+
+
+/* Criteria Builder 
+ * 
+private static List<Contact> fetchAllContacts(){
+    //Open Session
+    Session session = sessionFactory.openSession();
+
+    // Deprecated Way
+    // Criteria criteria = session.createCriteria(Contact.class);
+    // List<Contacts> contacts = criteria.list();  
+
+    //Get Criteria Builder
+    CriteriaBuilder builder = session.getCriteriaBuilder();
+
+    //Create Criteria
+    CriteriaQuery<Contact> criteria = builder.createQuery(Contact.class);
+    Root<Contact> contactRoot = criteria.from(Contact.class);
+    criteria.select(contactRoot);
+
+    //Use criteria to query with session to fetch all contacts
+    List<Contact> contacts = session.createQuery(criteria).getResultList();
+
+    //Close session
+    session.close();
+
+    return contacts;
+}
+*/
+

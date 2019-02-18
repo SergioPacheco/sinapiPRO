@@ -43,7 +43,7 @@
 			<table class="table  table-hover">
 				<thead>
 					<tr>
-						<th class="table-classes-col-codigo">Código</th>
+						<th class="table-classes-col-codigo text-center">Código</th>
 						<th> <sinapiPRO:order page="${pagina}" field="nome" text="Nome"/> </th>
 						<th class="table-col-acoes"></th>
 					</tr>
@@ -51,7 +51,7 @@
 				
 				<tbody>
 					<tr th:each="basePreco : ${pagina.conteudo}">
-						<td class="text-left" th:text="${basePreco.codigo}">001</td>
+						<td class="text-center" th:text="${basePreco.codigo}">001</td>
 						<td th:text="${basePreco.nome}">Sinapi_RN_2018_01</td>
 						<td class="text-center">
 							<a class="btn  btn-link  btn-xs  js-tooltip" title="Editar" 

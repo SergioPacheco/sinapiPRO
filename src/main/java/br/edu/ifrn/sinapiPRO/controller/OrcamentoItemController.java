@@ -28,7 +28,7 @@ import br.edu.ifrn.sinapiPRO.model.Etapa;
 import br.edu.ifrn.sinapiPRO.model.Insumo;
 import br.edu.ifrn.sinapiPRO.model.OrcamentoItem;
 import br.edu.ifrn.sinapiPRO.model.Orcamento;
-import br.edu.ifrn.sinapiPRO.repository.Composicoes;
+import br.edu.ifrn.sinapiPRO.repository.ComposicaoRepository;
 import br.edu.ifrn.sinapiPRO.repository.Etapas;
 import br.edu.ifrn.sinapiPRO.repository.InsumosRepository;
 import br.edu.ifrn.sinapiPRO.repository.OrcamentosRepository;

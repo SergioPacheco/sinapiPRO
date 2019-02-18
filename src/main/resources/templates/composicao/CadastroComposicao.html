@@ -18,13 +18,13 @@
 				<div class="col-xs-10">
 					<h1 th:if="${composicao.nova}">Cadastro de Composições</h1>
 					<h1 th:unless="${composicao.nova}" 
-					    th:text="|Edição da composição nº ${composicao.codigo}|">Edição de composição</h1>
+					    th:text="|Edição da composição nº ${composicao.codigoComposicao}|">Edição de composição</h1>
 				</div>
 				 <div class="col-sm-2">
 					<div class="aw-page-header-controls">
 						<a class="btn  btn-default" th:href="@{/composicoes}"> 
 						   <i class="glyphicon  glyphicon-search"></i> 
-						   <span class="hidden-xs  hidden-sm">Pesquisa</span>
+						   <span class="hidden-xs  hidden-sm">PESQUISA</span>
 						</a>
 					</div>
 				</div>
@@ -36,35 +36,24 @@
 	
 		<form method="POST" 
 		      th:object="${composicao}" 
-		      class="js-formulario-principal"
-			  th:action="${composicao.nova} ? @{/composicoes/nova} : @{/composicoes/{codigo}(codigo=${composicao.codigo})}">
+		      class="js-formulario-composicao"
+			  th:action="@{/composicoes/nova}">
 			
 			<sinapiPRO:message/>
 			
+			<input type="hidden" id="uuid" th:field="*{uuid}"/>
+			<input type="hidden" th:field="*{codigo}"/>
+			<input type="hidden" th:field="*{usuario}"/>
+			
 			<div class="row">
 			
-				<div class="col-sm-12 form-group sn-required" sinapiPRO:classforerror="descricao">
-					<label for="descricao" class="control-label">Descrição</label>
-					<textarea id="descricao" rows="2" class="form-control" th:field="*{descricao}"></textarea>
+				<div class="form-group col-sm-3  sn-required" sinapiPRO:classforerror="codigoComposicao" >
+					<label for="codigoComposicao" class="control-label">Código</label>
+				    <input id="codigoComposicao" type="number" class="form-control" th:field="*{codigoComposicao}"/>
 				</div>	
-			</div>	
 				
-			<div class="row">	
-				<div class="col-sm-4 form-group sn-required" sinapiPRO:classforerror="unidade">
-					<label for="unidade" class="control-label">Unidade</label>
-					<input id="unidade" type="text" class="form-control" th:field="*{unidade}" />
-				</div>
-				
-				<div class="col-sm-4  form-group  sn-required" sinapiPRO:classforerror="custoTotal">
-					<label for="custoTotal" class="control-label">Preço Padrão</label>
-					<div class="input-group">
-						<div class="input-group-addon">R$</div>
-						<input id="custoTotal" type="text" class="form-control  js-decimal" th:field="*{custoTotal}"/>
-					</div>
-				</div>
-				
-				<div class="form-group  col-sm-4">
-					<label for="baseInsumo">Base Insumos Padrão</label>
+				<div class="form-group  col-sm-3 sn-required">
+					<label for="baseInsumo">Base Insumos</label>
 					<select id="baseInsumo" class="form-control" th:field="*{baseInsumo}">
 	                    <option value="">Selecione a Base de Insumos</option>
 	                    <option th:each="baseInsumo : ${baseInsumos}" 
@@ -72,36 +61,9 @@
 	                            th:text="${baseInsumo.nome}">SINAPI</option>
 	                </select>
 	       		</div>  
-			</div>
-			
-						
-			<div class="row">
-			
-				<div class="form-group  col-sm-4">
-					<label for="classeComposicao">Classe</label>
-					<select id="classeComposicao" class="form-control" th:field="*{classeComposicao}">
-	                    <option value="">Selecione a Classe</option>
-	                    <option th:each="classeComposicao : ${classesComposicao}" 
-	                            th:value="${classeComposicao.codigo}" 
-	                            th:text="${classeComposicao.nome}">HIDRAULICA</option>
-	                </select>
-				</div>
-				
-				<div class="form-group  col-sm-4">
-					<label for="grupoComposicao">Grupo</label>
-					<select id="grupoComposicao" class="form-control" th:field="*{grupoComposicao}">
-	                    
-	                    <option value="">Selecione um grupo da Composição</option>
-	                    
-	                    <option th:each="grupoComposicao : ${gruposComposicoes}" 
-	                            th:value="${grupoComposicao.codigo}" 
-	                            th:text="${grupoComposicao.nome}">SINAPI</option>
-	                </select>
-				</div>
-			
-				
-                <div class="form-group  col-sm-4">
-					<label for="basePreco">Base Preços Padrão</label>
+	       		
+	       		<div class="form-group col-sm-3 " sinapiPRO:classforerror="basePreco">
+					<label for="basePreco">Base Preçoso</label>
 					<select id="basePreco" class="form-control" th:field="*{basePreco}">
 	                   <option value="">Selecione a Base de Preços</option>
 	                   <option th:each="basePreco : ${basePrecos}" 
@@ -109,80 +71,154 @@
 	                           th:text="${basePreco.nome}">SINAPI</option>
                 	</select>
 				</div>
+				<div class="form-group  col-sm-3">
+					<label for="dataCriacao" class="control-label" >Data Criação</label>
+					<input id="dataCriacao"class="form-control"  type="text"  th:field="*{dataCriacao}" disabled/>
+				</div>
+			</div>	
+				
+			<div class="row">	
+				<div class="form-group  col-sm-3">
+					<label for="composicaoClasse">Classe</label>
+					<select id="composicaoClasse" class="form-control" th:field="*{composicaoClasse}">
+	                    <option value="">Selecione a Classe</option>
+	                    <option th:each="composicaoClasse : ${composicaoClasses}" 
+	                            th:value="${composicaoClasse.codigo}" 
+	                            th:text="${composicaoClasse.nome}">HIDRAULICA</option>
+	                </select>
+				</div>
+				
+				<div class="form-group  col-sm-3">
+					<label for="composicaoGrupo">Grupo</label>
+					<select id="composicaoGrupo" class="form-control" th:field="*{composicaoGrupo}">
+	                    
+	                    <option value="">Todos</option>
+	                    <option th:each="composicaoGrupo : ${composicaoGrupos}" 
+	                            th:value="${composicaoGrupo.codigo}" 
+	                            th:text="${composicaoGrupo.nome}">SINAPI</option>
+	                </select>
+				</div>
+			
+				 
+				<div class="form-group col-sm-3 sn-required" sinapiPRO:classforerror="unidade">
+					<label for="unidade" class="control-label">Unidade</label>
+					<input id="unidade" type="text" class="form-control" th:field="*{unidade}" />
+				</div>
+				 
+				<div class="form-group col-sm-3">
+					<label for="custoTotal" class="control-label">Preço Padrão</label>
+					<div class="input-group">
+						<div class="input-group-addon">R$</div>
+						<input id="custoTotal" type="text" class="form-control  js-decimal" th:field="*{custoTotal}"/>
+					</div>
+				</div>
+				
+				
 			</div>
-				
-				
+			
+			<div class="row">	
+				<div class="col-sm-12 form-group sn-required" sinapiPRO:classforerror="descricao">
+					<label for="descricao" class="control-label">Descrição</label>
+					<textarea id="descricao" rows="2" class="form-control" th:field="*{descricao}"></textarea>
+				</div>	
+			</div>
 				
 			<div class="row">
 				<div class="form-group  col-lg-12">
-					<ul class="nav nav-tabs  js-abas-composicao">
-					  <li role="presentation" class="active"> <a href="#itens-composicao">Itens e Coeficientes</a></li>
-					  <li role="presentation"><a href="#historico">Histórico de Preços</a></li>
+					<ul class="nav nav-tabs  js-abas-insumos">
+					  <li role="presentation" class="active"><a href="#insumos">Insumos</a></li>
+					  <li role="presentation"><a href="#composicoes">Composições</a></li>
 					</ul>
 				</div>
 			</div>
 			
 			<div class="tab-content">
-			
-				<div class="tab-pane active" id="itens-composicao">
-					 
-					<div class="table-responsive  sn-tabela-simples">
-						<table class="table  table-hover">
-				            <thead>
-				            	<tr>
-				            		<th class="table-item-composicao-col-tipo">Tipo</th>
-				                	<th class="table-item-composicao-col-codigo-item">Código</th>
-				                	<th class="table-item-composicao-col-descricao">Descricao</th>
-				                	<th class="table-item-composicao-col-unidade">Unidade</th>
-				                	<th class="table-item-composicao-col-coeficiente">Coeficiente</th>
-				                	<th class="table-item-composicao-col-valor">Vl.Unitário</th>
-				                 	<th class="table-col-acoes"></th>
-								</tr>
-							</thead>
-							
-				            <tbody>
-								<tr th:each="it : ${itens}">
-									<td class="text-center" th:text="${it.tipo}"></td>
-									<td class="text-center" th:text="${it.codigoItem}"></td>
-									<td class="text-left" th:text="${it.descricao}"></td>
-									<td class="text-center" th:text="${it.unidade}"></td>
-									<td class="text-center" th:text="|${{it.coeficiente}}|"></td>
-									<td class="text-center" th:text="|R$ ${{it.precoUnitario}}|"></td>
-									
-				                 	<td class="text-center">
-				                 	    <a class="btn  btn-link  btn-xs  js-tooltip" 
-										   title="Preços" 
-										   href="#" data-toggle="modal" data-target="#modalListaPrecos"> 
-										   <i class="glyphicon glyphicon-stats"></i>
-										</a>
-					   				
-				                 	</td>
-				                </tr>
-				             </tbody>
-			         	</table>
+				<div class="tab-pane active" id="insumos">
+
+					<div class="row">
+						<div class="form-group  col-lg-12">
+							<input type="text" 
+							       class="form-control  js-codigo-descricao-insumo-input" id="insumo" 
+								   placeholder="Pesquise e adicione o insumo pelo cogio ou nome" 
+								   autofocus="autofocus" 
+								   data:url="@{/insumos}" 
+								   data:base="1"
+								   th:disabled="${composicao.salvarProibido}"/>
+						</div>
+					</div>
+					
+					<div class="sn-tabela-insumos  js-tabela-insumos-container" 
+					     data:valor="${valorTotalItens}">
+					     
+					      <th:block th:replace="composicao/TabelaItensComposicao"/>
+					     
+					</div>
+					
+				</div>
+				
+				<div class="tab-pane" id="composicao">
+					<div class="row">
+						<h1> INCLUSAO DE COMPOSIÇÕES  </h1>>
+					</div>
+					<div class="row">
+						<h1>TOTAIS </h1>>
 					</div>
 				</div>
 				
-				<div class="tab-pane" id="historico">
-				
-					<div class="row">
-						<div class="form-group  col-sm-3">
-								HISTÓRICO PREÇOS
-						</div>
-						
-						<div class="form-group  col-sm-3">
-						
-						</div>
+			</div> <!-- fim tab-content -->
+			
+			<div class="row" style="clear: both" th:if="${composicao.salvarPermitido}">
+				<div class="col-lg-12">
+					<div class="btn-group">
+					  <button type="submit" class="btn  btn-primary  js-submit-btn" data:acao="salvar">Salvar</button>
+					  <button type="button" class="btn  btn-primary  dropdown-toggle" data-toggle="dropdown">
+					    <span class="caret"></span>
+					  </button>
+					  
+					  <ul class="dropdown-menu">
+					    <li><a href="#" class="js-submit-btn" data:acao="copiar">Copiar</a></li>
+					    <li><a href="#" class="js-submit-btn" data:acao="desativar">Salvar e enviar por e-mail</a></li>
+					  </ul>
 					</div>
-				 
+				
+					<button class="btn  btn-danger  js-submit-btn" data:acao="cancelar" th:unless="${composicao.nova}">Cancelar</button>
 				</div>
 			</div>
-					
-			<button class="btn  btn-primary" type="submit">Salvar</button>
 			
 		</form>
 	</div>
 
+	<script id="template-autocomplete-insumo" type="text/x-handlebars-template">
+		<div class="table-responsive  sn-tabela-simples"> 
+			<table class="table table-hover">
+				<td class="table-item-composicao-col-codigo-item">{{codigo}}</td>
+				<td class="table-item-composicao-col-codigo-item">{{codigoItem}}</td>
+				<td class="table-item-composicao-col-unidade">    {{unidade}}</td>
+				<td class="table-item-composicao-col-descricao">  {{descricao}}</td>
+				<td class="table-item-composicao-col-valor">   R$ {{valorFormatado}} </td>
+			</table>
+		</div>
+	</script>
+	
 </section>
+
+<th:block layout:fragment="javascript-extra">
+	<script th:src="@{/javascripts/vendors/jquery.easy-autocomplete.min.js}"></script>
+	<script th:src="@{/javascripts/vendors/handlebars.min.js}"></script>
+	<script th:src="@{/javascripts/composicao/composicao.autocomplete-itens.js}"></script>
+	<script th:src="@{/javascripts/composicao/composicao.tabela-itens.js}"></script>
+	<script th:src="@{/javascripts/composicao/composicao.js}"></script>
+	<script th:src="@{/javascripts/composicao/composicao.botoes-submit.js}"></script>
+	<script>
+		$(function() {
+			$('.js-abas-insumos a').click(function (e) {
+				e.preventDefault();
+				$(this).tab('show');
+			});
+		});
+	</script>
+</th:block>
  
 </html>
+
+

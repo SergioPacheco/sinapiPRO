@@ -7,13 +7,14 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 
 import br.edu.ifrn.sinapiPRO.model.ComposicaoItem;
+import br.edu.ifrn.sinapiPRO.model.Insumo;
 
-class TabelaItensComposicao {
+public class TabelaComposicaoItem {
 
 	private String uuid;
 	private List<ComposicaoItem> itens = new ArrayList<>();
 	
-	public TabelaItensComposicao(String uuid) {
+	public TabelaComposicaoItem(String uuid) {
 		this.uuid = uuid;
 	}
 
@@ -26,42 +27,43 @@ class TabelaItensComposicao {
 					.orElse(BigDecimal.ZERO);
 	}
 	
-	public void adicionarItem(String tipo, Long codigoItem, BigDecimal precoUnitario, BigDecimal coeficiente) {
+	public void adicionarItem(Insumo insumo, BigDecimal coeficiente) {
 		
-		Optional<ComposicaoItem> itemExistente = buscarItem(codigoItem);
+		Optional<ComposicaoItem> itemExistente = buscarItemPorInsumo(insumo);
 		
 		ComposicaoItem composicaoItem = null;
 		
 		if (itemExistente.isPresent()) {
 			composicaoItem = itemExistente.get();
+			composicaoItem.setCoeficiente(composicaoItem.getCoeficiente().add(coeficiente));
 		} else {
 		    composicaoItem = new ComposicaoItem();
-			composicaoItem.setTipo(tipo);
-			composicaoItem.setCodigoItem(codigoItem);
+			composicaoItem.setInsumo(insumo);
+			composicaoItem.setCodigoItem(insumo.getCodigoInsumo());
+			composicaoItem.setUnidade(insumo.getUnidade());
+			composicaoItem.setDescricao(insumo.getDescricao());
+			composicaoItem.setTipo("INSUMO");
+			composicaoItem.setPrecoUnitario(insumo.getPrecoPadrao());
 			composicaoItem.setCoeficiente(coeficiente);
-			composicaoItem.setPrecoUnitario(precoUnitario);
-			
-			// Buscar preco {basePreco -> codigoIusmo -> itemBasePreco }
-			
-			// itemComposicao.setPrecoUnitario(insumo.getPrecoPadrao());
 			itens.add(0, composicaoItem);
 		}
 	}
 	
-	public void alterarCoeficiente(Long codigoItem, BigDecimal coeficiente) {
+	public void alterarCoeficiente(Insumo insumo, BigDecimal coeficiente) {
 		
-		ComposicaoItem composicaoItem = buscarItem(codigoItem).get();
+		ComposicaoItem composicaoItem = buscarItemPorInsumo(insumo).get();
 		composicaoItem.setCoeficiente(coeficiente);
 	}
 	
-	public void excluirItem(Long codigoItem) {
+	public void excluirItem(Insumo insumo) {
 		int indice = IntStream.range(0, itens.size())
-				.filter(i -> itens.get(i).getCodigoItem().equals(codigoItem))
+				.filter(i -> itens.get(i).getInsumo().equals(insumo))
 				.findAny().getAsInt();
 		itens.remove(indice);
 	}
 	
-	public int quantidadeItens() {
+	
+	public int total() {
 		return itens.size();
 	}
 
@@ -69,13 +71,13 @@ class TabelaItensComposicao {
 		return itens;
 	}
 	
-	private Optional<ComposicaoItem> buscarItem(Long codigoItem) {
+	public Optional<ComposicaoItem> buscarItemPorInsumo(Insumo insumo) {
 		
 		return itens.stream()
-				.filter(i -> i.getCodigoItem().equals(codigoItem))
+				.filter(i -> i.getInsumo().equals(insumo))
 				.findAny();
 	}
-
+	
 	public String getUuid() {
 		return uuid;
 	}
@@ -96,7 +98,7 @@ class TabelaItensComposicao {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		TabelaItensComposicao other = (TabelaItensComposicao) obj;
+		TabelaComposicaoItem other = (TabelaComposicaoItem) obj;
 		if (uuid == null) {
 			if (other.uuid != null)
 				return false;

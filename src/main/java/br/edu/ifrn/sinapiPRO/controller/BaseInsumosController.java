@@ -33,7 +33,7 @@ import br.edu.ifrn.sinapiPRO.service.exception.NomeBaseInsumoJaCadastradaExcepti
 public class BaseInsumosController {
 
 	@Autowired
-	private BaseInsumoService cadastroBaseInsumoService;
+	private BaseInsumoService baseInsumoService;
 	
 	@Autowired
 	private BaseInsumosRepository baseInsumosRepository;
@@ -52,7 +52,7 @@ public class BaseInsumosController {
 		}
 		
 		try{
-			cadastroBaseInsumoService.salvar(baseInsumo);
+			baseInsumoService.salvar(baseInsumo);
 		} catch(NomeBaseInsumoJaCadastradaException e){
 			result.rejectValue("nome",e.getMessage(), e.getMessage());
 			return nova(baseInsumo);
@@ -69,7 +69,7 @@ public class BaseInsumosController {
 			return ResponseEntity.badRequest().body(result.getFieldError("nome").getDefaultMessage());
 		}
 		
-		baseInsumo = cadastroBaseInsumoService.salvar(baseInsumo); 
+		baseInsumo = baseInsumoService.salvar(baseInsumo); 
 		return ResponseEntity.ok(baseInsumo);
 	}
 	
@@ -96,7 +96,7 @@ public class BaseInsumosController {
 	@DeleteMapping("/{codigo}")
 	public @ResponseBody ResponseEntity<?> excluir(@PathVariable("codigo") Long codigo) {
 		try {
-			cadastroBaseInsumoService.excluir(codigo);
+			baseInsumoService.excluir(codigo);
 		} catch (ImpossivelExcluirEntidadeException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}

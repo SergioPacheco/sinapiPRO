@@ -68,7 +68,7 @@ public class Orcamento implements Serializable {
 	private Usuario usuario;
 
 	@Enumerated(EnumType.STRING)
-	private SituacaoOrcamento situacao = SituacaoOrcamento.ABERTO;
+	private OrcamentoSituacao situacao = OrcamentoSituacao.ABERTO;
 	
 	@OneToMany(mappedBy = "orcamento", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<OrcamentoItem> itens = new ArrayList<>();
@@ -180,11 +180,11 @@ public class Orcamento implements Serializable {
 		this.usuario = usuario;
 	}
 
-	public SituacaoOrcamento getSituacao() {
+	public OrcamentoSituacao getSituacao() {
 		return situacao;
 	}
 
-	public void setSituacao(SituacaoOrcamento situacao) {
+	public void setSituacao(OrcamentoSituacao situacao) {
 		this.situacao = situacao;
 	}
 
@@ -205,7 +205,7 @@ public class Orcamento implements Serializable {
 	}
 
 	public boolean isSalvarPermitido() {
-		return !situacao.equals(SituacaoOrcamento.BLOQUEADO);
+		return !situacao.equals(OrcamentoSituacao.BLOQUEADO);
 	}
 	
 	public boolean isSalvarProibido() {

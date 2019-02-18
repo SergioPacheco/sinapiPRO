@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import br.edu.ifrn.sinapiPRO.model.ComposicaoGrupo;
 
 @Repository
-public interface GrupoComposicaoRepository extends JpaRepository<ComposicaoGrupo, Long> {
+public interface ComposicaoGruposRepository extends JpaRepository<ComposicaoGrupo, Long> {
 
 	public Optional<ComposicaoGrupo> findByNomeIgnoreCase(String nome);
 	 

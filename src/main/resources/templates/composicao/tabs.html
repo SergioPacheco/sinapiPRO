@@ -53,6 +53,73 @@
 	});
 	</script>
 </th:block>
+
+
+
+
+
+<!--  
+			<div class="form-group">
+			
+				<div class="tab-pane active" id="itens-composicao">
+					 
+					<div class="table-responsive  sn-tabela-simples">
+						<table class="table  table-hover">
+				            <thead>
+				            	<tr>
+				            		<th class="table-item-composicao-col-tipo">Tipo</th>
+				                	<th class="table-item-composicao-col-codigo-item">Código</th>
+				                	<th class="table-item-composicao-col-descricao">Descricao</th>
+				                	<th class="table-item-composicao-col-unidade">Unidade</th>
+				                	<th class="table-item-composicao-col-coeficiente">Coeficiente</th>
+				                	<th class="table-item-composicao-col-valor">Vl.Unitário</th>
+				                 	<th class="table-col-acoes"></th>
+								</tr>
+							</thead>
+							
+				            <tbody>
+								<tr th:each="it : ${itens}">
+									<td class="text-center" th:text="${it.tipo}"></td>
+									<td class="text-center" th:text="${it.codigoItem}"></td>
+									<td class="text-left" th:text="${it.descricao}"></td>
+									<td class="text-center" th:text="${it.unidade}"></td>
+									<td class="text-center" th:text="|${{it.coeficiente}}|"></td>
+									<td class="text-center" th:text="|R$ ${{it.precoUnitario}}|"></td>
+									
+				                 	<td class="text-center">
+				                 	    <a class="btn  btn-link  btn-xs  js-tooltip" 
+										   title="Preços" 
+										   href="#" data-toggle="modal" data-target="#modalListaPrecos"> 
+										   <i class="glyphicon glyphicon-stats"></i>
+										</a>
+					   				
+				                 	</td>
+				                </tr>
+				             </tbody>
+			         	</table>
+					</div>
+					
+					
+				</div>
+				
+				 
+			</div>
+			
+			
+			<div class="sn-tabela-item">
+			<div class="sn-tabela-item__coluna  sn-tabela-item__coluna--detalhes">
+				<span class="sn-tabela-item-nome">{{descricao}}</span>
+				<span class="label label-default">{{codigo}}</span>
+				<span class="sn-tabela-item-unidade">{{unidade}}</span>
+			</div>
+			<div class="sn-tabela-item__coluna  sn-tabela-item__coluna--valores">
+				<div class="sn-tabela-item-valor-medio">R${{valorFormatado}}</div>
+			</div>
+			</div>
+					
+			-->			
+
+
 			
 			
 			

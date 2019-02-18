@@ -22,8 +22,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
 import br.edu.ifrn.sinapiPRO.model.ComposicaoClasse;
-import br.edu.ifrn.sinapiPRO.repository.ClassesRepository;
-import br.edu.ifrn.sinapiPRO.repository.filter.ClasseComposicaoFilter;
+import br.edu.ifrn.sinapiPRO.repository.ComposicaoClassesRepository;
+import br.edu.ifrn.sinapiPRO.repository.filter.ComposicaoClasseFilter;
 import br.edu.ifrn.sinapiPRO.service.ClasseComposicaoService;
 import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
 import br.edu.ifrn.sinapiPRO.service.exception.NomeClasseJaCadastradaException;
@@ -36,7 +36,7 @@ public class ComposicaoClassesController {
 	private ClasseComposicaoService classeComposicaoService;
 	
 	@Autowired
-	private ClassesRepository classesRepository;
+	private ComposicaoClassesRepository composicaoClassesRepository;
 	
 	@RequestMapping("/nova")
 	public ModelAndView nova(ComposicaoClasse classe) {
@@ -73,11 +73,11 @@ public class ComposicaoClassesController {
 	}
 	
 	@GetMapping
-	public ModelAndView pesquisar(ClasseComposicaoFilter classeFilter, BindingResult result
+	public ModelAndView pesquisar(ComposicaoClasseFilter classeFilter, BindingResult result
 			,@PageableDefault(size = 15) Pageable pageable, HttpServletRequest httpServletRequest){
 		ModelAndView mv = new ModelAndView("classeComposicao/PesquisaClassesComposicao");
 		
-		PageWrapper<ComposicaoClasse> paginaWrapper = new PageWrapper<>(classesRepository.filtrar(classeFilter, pageable)
+		PageWrapper<ComposicaoClasse> paginaWrapper = new PageWrapper<>(composicaoClassesRepository.filtrar(classeFilter, pageable)
 				, httpServletRequest);
 		
 		mv.addObject("pagina" , paginaWrapper);
@@ -86,7 +86,7 @@ public class ComposicaoClassesController {
 	
 	@GetMapping("/{codigo}")
 	public ModelAndView editar(@PathVariable Long codigo) {
-		ComposicaoClasse composicaoClasse = classesRepository.getOne(codigo);
+		ComposicaoClasse composicaoClasse = composicaoClassesRepository.getOne(codigo);
 		ModelAndView mv = nova(composicaoClasse);
 		mv.addObject(composicaoClasse);
 		return mv;

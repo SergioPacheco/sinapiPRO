@@ -10,6 +10,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -45,7 +46,10 @@ public class Composicao  {
 	@JoinColumn(name = "codigo_base_insumo")
     private BaseInsumo  baseInsumo;
 	
-	@OneToMany(mappedBy = "composicao", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy="composicaoPai", 
+			fetch = FetchType.EAGER, 
+			cascade = CascadeType.ALL, 
+			orphanRemoval = true)
 	private List<ComposicaoItem> itens = new ArrayList<>();
  
 	@ManyToOne 
@@ -60,8 +64,12 @@ public class Composicao  {
 	@JoinColumn(name = "codigo_composicao_grupo")
 	private ComposicaoGrupo composicaoGrupo;
 	
+	@ManyToOne 
+	@JoinColumn(name = "codigo_usuario")
+	private Usuario usuario;
+	
 	@Enumerated(EnumType.STRING)
-	private SituacaoComposicao ativa = SituacaoComposicao.ATIVA;
+	private ComposicaoSituacao status = ComposicaoSituacao.ATIVA;
 			
 	@Size(max = 400)
 	@Column(name = "descricao")
@@ -96,6 +104,8 @@ public class Composicao  {
 	
 	@Column(name = "perc_equipamento",  precision=10, scale=7)
 	private BigDecimal percEquipamento;
+	
+	
 	
 	@Transient
 	private String uuid;
@@ -159,12 +169,12 @@ public class Composicao  {
 		this.composicaoGrupo = composicaoGrupo;
 	}
 
-	public SituacaoComposicao getAtiva() {
-		return ativa;
+	public ComposicaoSituacao getStatus() {
+		return status;
 	}
 
-	public void setAtiva(SituacaoComposicao ativa) {
-		this.ativa = ativa;
+	public void setStatus(ComposicaoSituacao status) {
+		this.status = status;
 	}
 
 	public String getDescricao() {
@@ -254,6 +264,14 @@ public class Composicao  {
 	public void setPercEquipamento(BigDecimal percEquipamento) {
 		this.percEquipamento = percEquipamento;
 	}
+		
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
+	}
 
 	public String getUuid() {
 		return uuid;
@@ -265,8 +283,19 @@ public class Composicao  {
 
 	public void adicionarItens(List<ComposicaoItem> itens) {
 		this.itens = itens;
-		this.itens.forEach(i -> i.setComposicao(this));
+		this.itens.forEach(i -> i.setComposicaoPai(this));
 	}
+	
+	public void addItem(ComposicaoItem item) {
+		itens.add(item);
+		item.setComposicaoPai(this);
+	}
+	
+	public void removeItem(ComposicaoItem item) {
+		item.setComposicaoPai(null);
+		this.itens.remove(item);
+	}
+	
 	
 	public BigDecimal getValorTotalItens(){
 		return getItens().stream()
@@ -276,7 +305,7 @@ public class Composicao  {
 	}
 	
 	public boolean isSalvarPermitido() {
-		return !ativa.equals(SituacaoComposicao.CANCELADA);
+		return !status.equals(ComposicaoSituacao.CANCELADA);
 	}
 	
 	public boolean isSalvarProibido() {
@@ -301,7 +330,7 @@ public class Composicao  {
 	}
 
 	public boolean getSinapi() {
-		if (baseInsumo.getNome() == null) {
+		if (isNova()) {
 			return false;
 		}
 		return "SINAPI".equals(Lib.Trim(baseInsumo.getNome())); 

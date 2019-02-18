@@ -1,4 +1,4 @@
-sinapiPRO.Composicao = (function(){
+SinapiPRO.Composicao = (function(){
 	
 	function Composicao(tabelaItens){
 		this.tabelaItens            = tabelaItens;
@@ -22,7 +22,7 @@ sinapiPRO.Composicao = (function(){
 	function onValoresAlterados(){
 		// Numeral garante que tudo vai ser numero descartando hipotese de numeros como strings
 		var valorTotal = numeral(this.valorTotalItens);
-		this.valorTotalBox.html(sinapiPRO.formatarMoeda(valorTotal));
+		this.valorTotalBox.html(SinapiPRO.formatarMoeda(valorTotal));
 		this.valorTotalBoxContainer.toggleClass('negativo', valorTotal < 0);
 	}
 	
@@ -32,13 +32,13 @@ sinapiPRO.Composicao = (function(){
 
 $(function(){
 	
-	var autocomplete = new sinapiPRO.Autocomplete();
+	var autocomplete = new SinapiPRO.Autocomplete();
 	autocomplete.iniciar();
 	
-	var tabelaItens = new sinapiPRO.TabelaItens(autocomplete);
+	var tabelaItens = new SinapiPRO.TabelaItens(autocomplete);
 	tabelaItens.iniciar();
 	
-	var composicao = new sinapiPRO.composicao(tabelaItens);
+	var composicao = new SinapiPRO.Composicao(tabelaItens);
 	composicao.iniciar();
 	
 });

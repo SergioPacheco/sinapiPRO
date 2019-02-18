@@ -1,11 +1,11 @@
-sinapiPRO = sinapiPRO || {};
+SinapiPRO = SinapiPRO || {};
 
-sinapiPRO.BotaoSubmit = (function(){
+SinapiPRO.BotaoSubmit = (function(){
 	
 	function BotaoSubmit(){
 		
 		this.submitBtn = $('.js-submit-btn');
-		this.formulario = $('.js-formulario-principal');
+		this.formulario = $('.js-formulario-composicao');
 	}
 	
 	BotaoSubmit.prototype.iniciar = function(){
@@ -17,7 +17,7 @@ sinapiPRO.BotaoSubmit = (function(){
 		
 		var botaoClicado = $(evento.target);
 		var acao = botaoClicado.data('acao');
-//		console.log('ação: ', acao);
+		console.log('ação: ', acao);
 		var acaoInput = $('<input>');
 		acaoInput.attr('name', acao);
 		
@@ -32,7 +32,7 @@ sinapiPRO.BotaoSubmit = (function(){
 
 $(function(){
 	
-	var botaoSubmit = new sinapiPRO.BotaoSubmit();
+	var botaoSubmit = new SinapiPRO.BotaoSubmit();
 	
 	botaoSubmit.iniciar();
 });

@@ -9,13 +9,13 @@ import br.edu.ifrn.sinapiPRO.dto.ComposicaoDTO;
 import br.edu.ifrn.sinapiPRO.model.Composicao;
 import br.edu.ifrn.sinapiPRO.repository.filter.ComposicaoFilter;
 
-public interface ComposicoesQueries {
+public interface ComposicaoRepositoryQueries {
 
 	public Page<Composicao> filtrar(ComposicaoFilter filtro, Pageable pageable);
 	
 	public Composicao buscarComItens(Long codigo);
 	
-	public  List<ComposicaoDTO> porCodigoOuNome(String codigoOuNome); 
+	public  List<ComposicaoDTO> porDescricao(Long codigoBaseInsumo, String descricao); 
 	
 	// public BigDecimal valorTotalNoAno();
 	// public BigDecimal valorTotalNoMes();
