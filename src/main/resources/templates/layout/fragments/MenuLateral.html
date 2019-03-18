@@ -11,27 +11,43 @@
       		<ul class="aw-menu__list">
 
         		<li class="aw-menu__item" sinapiPRO:menu="@{/}">
-          			<a th:href="@{/}"><i class="fa  fa-2x  fa-home"></i><span>Dashboard</span></a>
+          			<a th:href="@{/}"><i class="fa  fa-1x  fa-tachometer-alt"></i><span>Dashboard</span></a>
+        		</li>
+        		
+        		<li class="aw-menu__item" sinapiPRO:menu="@{/obras.*}">
+          			<a th:href="@{/atual}">
+          				<i class="fa  fa-1x  fa-list"></i><span>Orcamento Atual</span>
+            			<i class="aw-menu__navigation-icon  fa"></i>	
+          			</a>
+          			
         		</li>
         		<li class="aw-menu__item">
           			<a href="#">
-          				<i class="fa  fa-2x  fa-table"></i><span>Orçamentos</span>
+          				<i class="fa  fa-1x  fa-table"></i><span>Orçamentos</span>
             			<i class="aw-menu__navigation-icon  fa"></i>	
           			</a>
           			<ul class="aw-menu__list  aw-menu__list--sublist">
-          				<li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/orcamentos.*}">
-			            	<a th:href="@{/orcamentos}">Pesquisar</a>
+          				<li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/orcamentos.novo*}">
+			            	<a th:href="@{/orcamentos/novo}">Cadastrar Orçamento</a>
 			            </li>
-			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/etapas.*}">
-			            	<a th:href="@{/etapas}">Orçamento Atual</a>
+          				<li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/orcamentos.*}">
+			            	<a th:href="@{/orcamentos}">Pesquisar Orçamentos</a>
 			            </li>
           			
           			</ul>
         		</li>
+        		
+        		<li class="aw-menu__item" sinapiPRO:menu="@{/obras.*}">
+          			<a th:href="@{/obras}">
+          				<i class="fa  fa-1x  fa-home"></i><span>Obras</span>
+            			<i class="aw-menu__navigation-icon  fa"></i>	
+          			</a>
+          			
+        		</li>
        		      		
         		<li class="aw-menu__item" sinapiPRO:menu="@{/insumos.*}">
           			<a th:href="@{/insumos}">
-            			<i class="fa  fa-2x  fa-cube"></i><span>Insumos</span>
+            			<i class="fa  fa-1x  fa-cube"></i><span>Insumos</span>
             			<i class="aw-menu__navigation-icon  fa"></i>
           			</a>
       
@@ -39,15 +55,23 @@
         		
         		<li class="aw-menu__item" sinapiPRO:menu="@{/composicoes.*}">
           			<a th:href="@{/composicoes}">
-            			<i class="fa  fa-2x  fa-cubes"></i><span>Composições</span>
+            			<i class="fa  fa-1x  fa-cubes"></i><span>Composições</span>
             			<i class="aw-menu__navigation-icon  fa"></i>
           			</a>
           			
         		</li>
-
+        		
+        		<li class="aw-menu__item" sinapiPRO:menu="@{/etapas.*}">
+          			<a th:href="@{/etapas}">
+            			<i class="fa  fa-1x  fa-bars"></i><span> Etapas</span>
+            			<i class="aw-menu__navigation-icon  fa"></i>
+          			</a>
+          			
+        		</li>
+        		
         		<li class="aw-menu__item">
           			<a href="#">
-            			<i class="fa  fa-2x  fa-database"></i><span>Cadastros</span>
+            			<i class="fa  fa-1x  fa-database"></i><span>Cadastros</span>
             			<i class="aw-menu__navigation-icon  fa"></i>
           			</a>
 
@@ -61,8 +85,8 @@
 			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/cidades.*}">
 			            	<a th:href="@{/cidades}">Cidades</a>
 			            </li>
-			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/classesComposicao.*}">
-			            	<a th:href="@{/classesComposicao}">Classes</a>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/composicaoClasse.*}">
+			            	<a th:href="@{/composicaoClasses}">Classes</a>
 			            </li>
 			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/clientes.*}">
 			            	<a th:href="@{/clientes}">Clientes</a>
@@ -75,13 +99,18 @@
         		
         		<li class="aw-menu__item">
           			<a href="#">
-            			<i class="fa  fa-2x  fa-file-pdf-o"></i><span>Relatórios</span>
+            			<i class="fa  fa-1x  fa-file-pdf-o"></i><span>Relatórios</span>
             			<i class="aw-menu__navigation-icon  fa"></i>
           			</a>
 
           			<ul class="aw-menu__list  aw-menu__list--sublist">
 			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/relatorios.*}">
-			            	<a th:href="@{/relatorios/orcamentosEmitidos}">Orcamentos emitidos</a>
+			            	<a th:href="@{/relatorios/listaInsumos}">Lista de Insumos</a>
+			            </li>
+          			</ul>
+          			<ul class="aw-menu__list  aw-menu__list--sublist">
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/relatorios.*}">
+			            	<a th:href="@{/relatorios/listaComposicoes}">Lista de Composições</a>
 			            </li>
           			</ul>
           			

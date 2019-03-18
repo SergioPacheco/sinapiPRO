@@ -15,7 +15,7 @@ SinapiPRO.TabelaItens = (function() {
 	
 	TabelaItens.prototype.iniciar = function() {
 		this.autocomplete.on('composicao-selecionado', onComposicaoSelecionado.bind(this));
-		this.autocompleteInsumo.on('insumo-selecionado',  onInsumoSelecionado.bind(this));
+		this.autocompleteInsumo.on('insumo-selecionado', onInsumoSelecionado.bind(this));
 		this.autocompleteEtapa.on('etapa-selecionado', onEtapaSelecionado.bind(this));
 		
 		this.selecaoCheckbox.on('click', onSelecaoClicado.bind(this));

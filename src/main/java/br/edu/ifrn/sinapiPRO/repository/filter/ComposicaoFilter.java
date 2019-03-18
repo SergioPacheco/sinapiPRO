@@ -7,8 +7,8 @@ import br.edu.ifrn.sinapiPRO.model.ComposicaoGrupo;
 public class ComposicaoFilter {
 
 	private BaseInsumo baseInsumo; 
-	private Long codigoComposicao;
-	private ComposicaoClasse composicaoClasse;
+	private String codigoComposicao;
+	private ComposicaoClasse composicaoClasse; 
 	private ComposicaoGrupo composicaoGrupo;
 	private String descricao;
 	
@@ -18,17 +18,17 @@ public class ComposicaoFilter {
 	public void setBaseInsumo(BaseInsumo baseInsumo) {
 		this.baseInsumo = baseInsumo;
 	}
-	public Long getCodigoComposicao() {
-		return codigoComposicao;
-	}
-	public void setCodigoComposicao(Long codigoComposicao) {
-		this.codigoComposicao = codigoComposicao;
-	}
 	public ComposicaoClasse getComposicaoClasse() {
 		return composicaoClasse;
 	}
 	public void setComposicaoClasse(ComposicaoClasse composicaoClasse) {
 		this.composicaoClasse = composicaoClasse;
+	}
+	public String getCodigoComposicao() {
+		return codigoComposicao;
+	}
+	public void setCodigoComposicao(String codigoComposicao) {
+		this.codigoComposicao = codigoComposicao;
 	}
 	public ComposicaoGrupo getComposicaoGrupo() {
 		return composicaoGrupo;

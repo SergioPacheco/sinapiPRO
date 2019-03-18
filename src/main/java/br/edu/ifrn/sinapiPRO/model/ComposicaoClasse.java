@@ -13,16 +13,17 @@ import org.hibernate.annotations.GenericGenerator;
 @Entity
 @Table(name = "composicao_classe")
 public class ComposicaoClasse implements Serializable {
-
+ 
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY, generator="native")
 	private Long codigo;
 	
 	private String sigla;
 	private String nome;
 			
+	
 	public Long getCodigo() {
 		return codigo;
 	}

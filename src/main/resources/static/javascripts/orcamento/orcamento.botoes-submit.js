@@ -4,7 +4,7 @@ SinapiPRO.BotaoSubmit = (function() {
 	
 	function BotaoSubmit() {
 		this.submitBtn = $('.js-submit-btn');
-		this.formulario = $('.js-formulario-principal');
+		this.formulario = $('.js-formulario-orcamento');
 	}
 	
 	BotaoSubmit.prototype.iniciar = function() {

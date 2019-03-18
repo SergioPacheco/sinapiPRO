@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -11,30 +13,40 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.Size;
+
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity(name = "ComposicaoItem")
 @Table(name = "composicao_item")
 public class ComposicaoItem {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY, generator="native")
+	@GenericGenerator(name = "native", strategy = "native")
 	private Long codigo;
-	private Long codigoItem;     // codigo composiçao ou insumo 
-	private String tipo;         // {COMPOSICAO, INSUMO}
+	private String codigoItem;     // codigo composiçao ou insumo 
+	
+	@Column(name = "tipo")
+	@Enumerated(EnumType.STRING)
+	private Tipo tipo;             /* C=Composicao I=Insumo E=Etapa */
+	
+    @Column(name = "tipo", insertable = false, updatable = false)
+    private String tipoAsText;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "codigo_composicao_pai", referencedColumnName="codigo")
 	private Composicao composicaoPai;
 	
 	@ManyToOne
+	@JoinColumn(name = "codigo_composicao")
+	private Composicao composicao;
+	
+	@ManyToOne
 	@JoinColumn(name = "codigo_insumo")
 	private Insumo insumo;
 	
-	@ManyToOne
-	@JoinColumn(name = "codigo_composicao")
-	private Composicao composicao;
-		
 	@Size(max = 400)
 	private String descricao; 
 	
@@ -49,7 +61,21 @@ public class ComposicaoItem {
 	@Column(precision=15, scale=2)
 	private BigDecimal custoTotal;
 
+	@Transient 
+	public BigDecimal quantidadeComposicao;
 	
+	public boolean temItens() {
+		return composicao.getItens() != null;
+	}
+	
+	public BigDecimal getQuantidadeComposicao() {
+		return quantidadeComposicao;
+	}
+
+	public void setQuantidadeComposicao(BigDecimal quantidadeComposicao) {
+		this.quantidadeComposicao = quantidadeComposicao;
+	}
+
 	public Long getCodigo() {
 		return codigo;
 	}
@@ -58,19 +84,19 @@ public class ComposicaoItem {
 		this.codigo = codigo;
 	}
 
-	public String getTipo() {
+	public Tipo getTipo() {
 		return tipo;
 	}
 
-	public void setTipo(String tipo) {
+	public void setTipo(Tipo tipo) {
 		this.tipo = tipo;
 	}
 
-	public Long getCodigoItem() {
+	public String getCodigoItem() {
 		return codigoItem;
 	}
 
-	public void setCodigoItem(Long codigoItem) {
+	public void setCodigoItem(String codigoItem) {
 		this.codigoItem = codigoItem;
 	}
 

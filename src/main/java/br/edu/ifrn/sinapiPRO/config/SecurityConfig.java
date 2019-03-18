@@ -26,7 +26,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+		auth
+			.userDetailsService(userDetailsService)
+			.passwordEncoder(passwordEncoder());
 	}
 	
 	@Override
@@ -38,9 +40,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http
+		http 
 			.authorizeRequests()
-				.antMatchers("/cidades/nova").hasRole("CADASTRAR_CIDADE")
+				.antMatchers("/orcamentos/novo").hasRole("CADASTRAR_ORCAMENTO")
 				.antMatchers("/usuarios/**").hasRole("CADASTRAR_USUARIO")
 				.anyRequest().authenticated()
 				.and()
@@ -51,8 +53,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.logout()
 				.logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
 				.and()
+			.exceptionHandling()
+				.accessDeniedPage("/403")
+				.and()
 			.sessionManagement()
 				.invalidSessionUrl("/login");
+		
+		/* 
+		.authorizeRequests()
+        .anyRequest().permitAll();
+        */
+		
 	}
 	
 	@Bean

@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="OBR00100_JAVA" pageWidth="864" pageHeight="576" orientation="Landscape" columnWidth="844" leftMargin="10" rightMargin="10" topMargin="20" bottomMargin="20" uuid="61b513d2-7038-4404-9b7c-355a45e0433b">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="2.1961500000000016"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="SinapiPRO MySql Data Adapter "/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w1" value="497"/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w2" value="491"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<style name="REL_TITULO" isBlankWhenNull="true" fontName="Arial" pdfFontName="Helvetica" isPdfEmbedded="false"/>
+	<style name="REL_TITULO_COLUNA" isBlankWhenNull="true" fontName="Arial" fontSize="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+	<style name="REL_COLUNA" isBlankWhenNull="true" fontName="Arial" fontSize="8" pdfFontName="Helvetica"/>
+	<style name="REL_TITULO_COLUNA_SUBLINHADO" isBlankWhenNull="true" fontName="Arial" fontSize="8" isBold="true" isUnderline="true" pdfFontName="Helvetica-BoldOblique"/>
+	<parameter name="_Parameter1" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["orcamento.codigo>0"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="_Parameter2" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["orcamento.codigo"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="_Parameter3" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="_Parameter4" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="_Parameter5" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="_Parameter6" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="_Parameter7" class="java.lang.String" isForPrompting="false"/>
+	<queryString>
+		<![CDATA[SELECT 
+	codigo,
+	nome,
+	observacao,
+	data_criacao
+FROM orcamento
+ORDER BY nome DESC]]>
+	</queryString>
+	<field name="codigo" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="codigo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="orcamento"/>
+	</field>
+	<field name="nome" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="nome"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="orcamento"/>
+	</field>
+	<field name="observacao" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="observacao"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="orcamento"/>
+	</field>
+	<field name="data_criacao" class="java.sql.Timestamp">
+		<property name="com.jaspersoft.studio.field.label" value="data_criacao"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="orcamento"/>
+	</field>
+	<variable name="Data" class="java.text.SimpleDateFormat">
+		<variableExpression><![CDATA[new java.text.SimpleDateFormat("dd/MM/yyyy")]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="63" splitType="Stretch">
+			<image>
+				<reportElement key="image-1" x="0" y="0" width="36" height="22" uuid="c0e80af3-64ea-4f18-b766-9a317e5ffe9c"/>
+				<imageExpression><![CDATA[$P{_Parameter7}]]></imageExpression>
+			</image>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement key="textField-1" x="39" y="0" width="556" height="12" uuid="6a47b9f7-def5-45c7-86fc-3d027e63618b"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{_Parameter4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField-2" x="39" y="12" width="556" height="12" uuid="c79cebe2-efba-4cd9-863d-4e1fa3a6e3be"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{_Parameter3}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField-4" x="705" y="12" width="139" height="12" uuid="4bf0a39c-33e9-4381-babd-f178ef36a87f"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Data: "+new java.text.SimpleDateFormat("dd/MM/yyyy").format(new Date())]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-3" x="0" y="31" width="189" height="13" uuid="ec0bfa21-d288-4560-91d8-f42a76991af4"/>
+				<textElement>
+					<font fontName="Arial"/>
+				</textElement>
+				<text><![CDATA[RELATÓRIO DE OBRAS]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField-5" x="189" y="31" width="655" height="13" uuid="c3cb2c72-7315-490e-9e41-caaf117a199d"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{_Parameter5}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement key="line-3" x="0" y="29" width="844" height="1" uuid="7da1fb61-90aa-46d6-9631-b5218b693c9b"/>
+			</line>
+			<line>
+				<reportElement key="line-4" x="0" y="44" width="844" height="1" uuid="dc7a1e25-26d3-4fe8-bb97-30943e114732"/>
+			</line>
+			<textField evaluationTime="Report" pattern="000" isBlankWhenNull="true">
+				<reportElement key="textField-5" style="REL_TITULO" x="811" y="0" width="33" height="12" uuid="679ccd2c-1527-4263-89f8-6b92920c6a5e"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" / "+ (new DecimalFormat("000").format($V{PAGE_NUMBER}.doubleValue()))]]></textFieldExpression>
+			</textField>
+			<textField pattern="000" isBlankWhenNull="true">
+				<reportElement key="textField-5" style="REL_TITULO" x="705" y="0" width="106" height="12" uuid="e941ecf9-e233-4ee1-aedc-716a69bd2920"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Pág: "+(new DecimalFormat("000").format($V{PAGE_NUMBER}.doubleValue()))]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="18" splitType="Stretch">
+			<staticText>
+				<reportElement key="staticText-4" x="0" y="0" width="36" height="10" uuid="fd209226-12cc-44bf-9503-4cd1914d1f1d"/>
+				<box leftPadding="2"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Arial" size="8" isBold="true" isUnderline="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[CÓDIGO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-5" x="36" y="0" width="172" height="10" uuid="bcd31b65-654d-41b9-b62b-23ebb557a9c4"/>
+				<box leftPadding="4"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Arial" size="8" isBold="true" isUnderline="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[NOME]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-6" x="208" y="0" width="221" height="10" uuid="b5219282-0a48-4ce5-b14a-39f89f20f483"/>
+				<box leftPadding="4"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Arial" size="8" isBold="true" isUnderline="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[ENDEREÇO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-7" x="429" y="0" width="158" height="10" uuid="457b2a08-8c37-41cc-b90b-8404ab3dda6c"/>
+				<box leftPadding="4"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Arial" size="8" isBold="true" isUnderline="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[CIDADE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-4" x="587" y="0" width="75" height="10" uuid="7e61b877-7e2a-4485-abfa-a34ae33c9e55"/>
+				<box leftPadding="4"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Arial" size="8" isBold="true" isUnderline="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[NRO.CEI]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-4" x="662" y="0" width="60" height="10" uuid="4eb4338b-0020-48cf-9942-6e0a177ad06f"/>
+				<box leftPadding="4"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Arial" size="8" isBold="true" isUnderline="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[INÍCIO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-4" x="722" y="0" width="60" height="10" uuid="03f45b61-563b-458c-ab37-42e30112be48"/>
+				<box leftPadding="4"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Arial" size="8" isBold="true" isUnderline="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[ENTREGA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-4" x="782" y="0" width="62" height="10" uuid="22c007aa-8372-4a5c-9f6d-af5b2b083632"/>
+				<box leftPadding="4"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Arial" size="8" isBold="true" isUnderline="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[CONCLUSÃO]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="10" splitType="Stretch">
+			<textField isStretchWithOverflow="true">
+				<reportElement key="staticText-7" x="429" y="0" width="158" height="10" uuid="9f6d5288-30f2-474c-bd3e-52eda1f59786"/>
+				<box leftPadding="4"/>
+				<textElement verticalAlignment="Middle" markup="none">
+					<font fontName="Arial" size="8" isBold="false" isUnderline="false" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{codigo}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement key="staticText-4" x="0" y="0" width="36" height="10" uuid="a0a3c7ef-c18b-40bc-88ca-04a2735dc7a2"/>
+				<box leftPadding="0" rightPadding="4"/>
+				<textElement verticalAlignment="Middle" markup="none">
+					<font fontName="Arial" size="8" isBold="false" isUnderline="false" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{codigo}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement key="staticText-4" x="722" y="0" width="60" height="10" uuid="ae0bb13d-42b2-4c1d-b82b-64017475f076"/>
+				<box leftPadding="4"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+					<font fontName="Arial" size="8" isBold="false" isUnderline="false" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{data_criacao}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="staticText-4" x="587" y="0" width="75" height="10" uuid="d40d10e2-f86d-476f-a611-52ca1bebde85"/>
+				<box leftPadding="4"/>
+				<textElement verticalAlignment="Middle" markup="none">
+					<font fontName="Arial" size="8" isBold="false" isUnderline="false" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{codigo}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement key="staticText-5" x="36" y="0" width="172" height="10" uuid="e460455a-bf4b-4fb1-a311-33e282132afa"/>
+				<box leftPadding="4"/>
+				<textElement verticalAlignment="Middle" markup="none">
+					<font fontName="Arial" size="8" isBold="false" isUnderline="false" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nome}.trim() +":"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement key="staticText-4" x="662" y="0" width="60" height="10" uuid="d41a040b-7d0d-4f5d-a8c3-77e2d61adb86"/>
+				<box leftPadding="4"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+					<font fontName="Arial" size="8" isBold="false" isUnderline="false" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{data_criacao}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement key="staticText-4" x="782" y="0" width="62" height="10" uuid="62d57927-b96a-4bf3-9d22-1a87ae497ce7"/>
+				<box leftPadding="4"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+					<font fontName="Arial" size="8" isBold="false" isUnderline="false" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{data_criacao}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="staticText-6" x="208" y="0" width="221" height="10" uuid="a7fd8e4e-ecc0-48a5-95f4-740a0eeeb828"/>
+				<box leftPadding="4"/>
+				<textElement verticalAlignment="Middle" markup="none">
+					<font fontName="Arial" size="8" isBold="false" isUnderline="false" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{observacao} != null ? $F{observacao}.trim() : "")]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

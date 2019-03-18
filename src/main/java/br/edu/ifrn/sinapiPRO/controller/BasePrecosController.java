@@ -26,12 +26,12 @@ import br.edu.ifrn.sinapiPRO.model.BasePreco;
 import br.edu.ifrn.sinapiPRO.model.Desoneracao;
 import br.edu.ifrn.sinapiPRO.repository.BaseInsumosRepository;
 import br.edu.ifrn.sinapiPRO.repository.BasePrecosRepository;
-import br.edu.ifrn.sinapiPRO.repository.Estados;
+import br.edu.ifrn.sinapiPRO.repository.EstadosRepository;
 import br.edu.ifrn.sinapiPRO.repository.filter.BasePrecoFilter;
 import br.edu.ifrn.sinapiPRO.security.UsuarioSistema;
 import br.edu.ifrn.sinapiPRO.service.BasePrecoService;
 import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
-import br.edu.ifrn.sinapiPRO.service.exception.NomeBasePrecoJaCadastradaException;
+import br.edu.ifrn.sinapiPRO.service.exception.JaCadastradoException;
 
 @Controller
 @RequestMapping("/basePrecos")
@@ -50,7 +50,7 @@ public class BasePrecosController  {
 	private BaseInsumosRepository baseInsumosRepository;
 	
 	@Autowired
-	private Estados estados;
+	private EstadosRepository estados;
 	 
 	@RequestMapping("/nova")
 	public ModelAndView nova(BasePreco basePreco) {
@@ -71,7 +71,7 @@ public class BasePrecosController  {
 		
 		try{
 			cadastroBasePrecoService.salvar(basePreco);
-		} catch(NomeBasePrecoJaCadastradaException e){
+		} catch(JaCadastradoException e){
 			result.rejectValue("nome",e.getMessage(), e.getMessage());
 			return nova(basePreco);
 		}
@@ -131,7 +131,7 @@ public class BasePrecosController  {
 	@GetMapping("importaInsumo/{codigo}")
 	public ModelAndView  importarInsumos(@PathVariable Long codigo, @AuthenticationPrincipal UsuarioSistema usuarioSistema) {
 		
-		//sinapiController.importaInsumos(codigo, "O", usuarioSistema); 
+		sinapiController.importaInsumos(codigo, "O", usuarioSistema); 
 		sinapiController.importaInsumos(codigo, "D", usuarioSistema); 
 		
 		return new ModelAndView("redirect:/basePrecos/nova"); 
@@ -140,8 +140,9 @@ public class BasePrecosController  {
 	@GetMapping("importaComposicao/{codigo}")
 	public ModelAndView   importarComposicoes(@PathVariable Long codigo, @AuthenticationPrincipal UsuarioSistema usuarioSistema) {
 		
-		// sinapiController.importaComposicoes(codigo, "O");
-		sinapiController.importaComposicoes(codigo, "D", usuarioSistema);
+		// sinapiController.importaComposicoes(codigo, "O", usuarioSistema);
+		// sinapiController.importaComposicoes(codigo, "D", usuarioSistema);
+		sinapiController.novosInsumos(codigo, usuarioSistema);
 		
 		// sinapiController.novosInsumos(codigo, usuarioSistema);
 		

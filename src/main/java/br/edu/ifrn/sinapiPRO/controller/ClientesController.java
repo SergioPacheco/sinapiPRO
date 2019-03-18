@@ -26,11 +26,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
 import br.edu.ifrn.sinapiPRO.model.Cliente;
 import br.edu.ifrn.sinapiPRO.model.TipoPessoa;
-import br.edu.ifrn.sinapiPRO.repository.Clientes;
-import br.edu.ifrn.sinapiPRO.repository.Estados;
+import br.edu.ifrn.sinapiPRO.repository.ClientesRepository;
+import br.edu.ifrn.sinapiPRO.repository.EstadosRepository;
 import br.edu.ifrn.sinapiPRO.repository.filter.ClienteFilter;
 import br.edu.ifrn.sinapiPRO.service.ClienteService;
-import br.edu.ifrn.sinapiPRO.service.exception.CpfCnpjClienteJaCadastradoException;
+import br.edu.ifrn.sinapiPRO.service.exception.JaCadastradoException;
 import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
 
 @Controller
@@ -38,13 +38,13 @@ import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeExceptio
 public class ClientesController {
 	
 	@Autowired
-	private Estados estados;
+	private EstadosRepository estados;
 	
 	@Autowired
 	private ClienteService cadastroClienteService;
 	
 	@Autowired
-	private Clientes clientes;
+	private ClientesRepository clientes;
 
 	@RequestMapping("/novo")
 	public ModelAndView novo(Cliente cliente) { 
@@ -62,7 +62,7 @@ public class ClientesController {
 		
 		try {
 			cadastroClienteService.salvar(cliente);
-		} catch (CpfCnpjClienteJaCadastradoException e) {
+		} catch (JaCadastradoException e) {
 			result.rejectValue("cpfOuCnpj", e.getMessage(), e.getMessage());
 			return novo(cliente);
 		}

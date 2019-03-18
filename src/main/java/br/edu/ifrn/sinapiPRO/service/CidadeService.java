@@ -9,22 +9,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.edu.ifrn.sinapiPRO.model.Cidade;
-import br.edu.ifrn.sinapiPRO.repository.Cidades;
+import br.edu.ifrn.sinapiPRO.repository.CidadesRepository;
 import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
-import br.edu.ifrn.sinapiPRO.service.exception.NomeCidadeJaCadastradaException;
+import br.edu.ifrn.sinapiPRO.service.exception.JaCadastradoException;
 
 @Service
 public class CidadeService {
 
 	@Autowired
-	private Cidades cidades;
+	private CidadesRepository cidades;
 	
 	@Transactional
 	public void salvar(Cidade cidade){
 		
 		Optional<Cidade> cidadeExistente = cidades.findByNomeAndEstado(cidade.getNome(), cidade.getEstado());
 		if(cidadeExistente.isPresent() && cidade.isNova()){
-			throw new NomeCidadeJaCadastradaException("Nome da cidade já cadastrado");
+			throw new JaCadastradoException("Nome da cidade já cadastrado");
 		}
 		cidades.save(cidade);
 	}

@@ -26,22 +26,22 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
 import br.edu.ifrn.sinapiPRO.model.Cidade;
-import br.edu.ifrn.sinapiPRO.repository.Cidades;
-import br.edu.ifrn.sinapiPRO.repository.Estados;
+import br.edu.ifrn.sinapiPRO.repository.CidadesRepository;
+import br.edu.ifrn.sinapiPRO.repository.EstadosRepository;
 import br.edu.ifrn.sinapiPRO.repository.filter.CidadeFilter;
 import br.edu.ifrn.sinapiPRO.service.CidadeService;
 import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
-import br.edu.ifrn.sinapiPRO.service.exception.NomeCidadeJaCadastradaException;
+import br.edu.ifrn.sinapiPRO.service.exception.JaCadastradoException;
 
 @Controller
 @RequestMapping("/cidades")
 public class CidadesController {
 
 	@Autowired
-	private Cidades cidades;
+	private CidadesRepository cidades;
 	
 	@Autowired
-	private Estados estados;
+	private EstadosRepository estados;
 	
 	@Autowired
 	private CidadeService cadastroCidadeService;
@@ -79,7 +79,7 @@ public class CidadesController {
 		try {
 			cadastroCidadeService.salvar(cidade);
 			
-		} catch (NomeCidadeJaCadastradaException e) {
+		} catch (JaCadastradoException e) {
 			result.rejectValue("nome", e.getMessage(), e.getMessage());
 			return nova(cidade);
 		}

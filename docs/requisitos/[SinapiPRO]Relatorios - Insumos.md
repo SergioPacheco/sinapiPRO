@@ -2,12 +2,11 @@
 
 # RELATÓRIO INSUMOS DO ORÇAMENTO 
 
-+--- Ordenar por ------------------------------------+
-| () Identificação                                   |
-| () Descrição                                       |
-| () Valor                                           |
-+----------------------------------------------------+
-
++--- Ordenar por -------------------------------------+
+| () Identificação                                    |
+| () Descrição                                        |
+| () Valor                                            |
++-----------------------------------------------------+
 
 +--- Tipo de Ordem -----------------------------------+
 | () Crescente                                        | 
@@ -16,7 +15,7 @@
 
 +---- Opções -----------------------------------------+ 
 | () Acrescentar Leis, BDI e Taxas                    |
-| () Agrupar por nível                                |
+| () Agrupar por etapa                             	  |
 | () Agrupar valores diferentes para o mesmo item     |
 | () Totalizar itens por espécie                      |
 | () Omitir itens sem valor                           |

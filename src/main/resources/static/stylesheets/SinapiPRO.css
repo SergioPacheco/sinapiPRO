@@ -47,13 +47,19 @@
 */
 
 /* Colunas comuns */
-.table-col-acoes {
-	width: 80px;
-}
+.table-col-codigo      {width: 40px; text-align: center;}
+.table-col-descricao   {width: 500px; text-align: left;}
+.table-col-tipo        {width: 30px; text-align: center;}
+.table-col-unidade     {width: 40px; text-align: center;}
+.table-col-coeficiente {width: 40px; text-align: center;}
+.table-col-valor       {width: 40px; text-align: center;} 
+.table-col-acoes       {width: 100px;}
+
+.table-col-800px       {width: 800px; text-align: left;}
 
 /* Colunas - Pesquisa de Insumos */
 .table-insumos-col-foto      {min-width: 50px; width: 50px}
-.table-insumos-col-codigo    {width: 50px; text-align: center;}
+.table-insumos-col-codigo    {width: 40px; text-align: center;}
 .table-insumos-col-unidade   {width: 50px; text-align: center;}
 .table-insumos-col-preco     {width: 100px; text-align: right;}
 .table-insumos-col-descricao {width: 500px; text-align: center}
@@ -82,8 +88,9 @@
 .table-orcamento-col-obra     {width: 200px; text-align:center;}
 .table-orcamento-col-situacao {width: 50px; text-align: center;}
 
+
+
 /* Colunas - Itens da Orçamento */ 
-.table-item-chk           {width: 05px; text-align: center;}
 .table-item-itemizacao    {width: 40px; text-align: center;}
 .table-item-tipo          {width: 20px; text-align: center;}
 .table-item-codigo        {width: 50px; text-align:center;}
@@ -93,6 +100,14 @@
 .table-item-custoUnitario {width: 50px; text-align: center;}
 .table-item-custoTotal    {width: 50px; text-align: center;}
 
+/* Colunas - Itens da Orçamento Atual*/ 
+.table-orca-col-codigo    {width: 20px; text-align: center;}
+.table-orca-col-tipo      {width: 10px; text-align: center;}
+.table-orca-col-sinapi    {width: 50px; text-align: center;}
+.table-orca-col-descricao {width: 300px; text-align:center;}
+.table-orca-col-unidade   {width: 30px; text-align: center;}
+.table-orca-col-valor     {width: 100px; text-align: center;}
+
 
 /* Colunas - Pesquisa de Precos */
 .table-precos-col-codigo {
@@ -101,12 +116,15 @@
 
 /* Colunas - Pesquisa de Clientes */
 .table-clientes-col-nome {
-	
 }
 
-.table-clientes-col-tipo-pessoa {width: 120px; text-align: center; }
-.table-clientes-col-cpf-cnpj {width: 140px; text-align: right; }
-.table-clientes-col-telefone {width: 140px; text-align: right; }
+.spacer {
+     padding-bottom: 10px;
+ }
+ 
+.table-clientes-col-tipo-pessoa   {width: 120px; text-align: center; }
+.table-clientes-col-cpf-cnpj      {width: 140px; text-align: right; }
+.table-clientes-col-telefone      {width: 140px; text-align: right; }
 .table-clientes-col-cidade-estado {width: 140px; text-align: right;}
 
 /* Colunas - Pesquisa de cidades */
@@ -124,9 +142,7 @@
 
 .sn-tabela-composicoes__vazio {
 	padding: 15px 15px;
-	
 	border: 1px dashed #ddd;
-	
 	text-align: center;
 	font-size: 1.2em;
 	font-weight: 300;
@@ -140,9 +156,7 @@
 
 .sn-tabela-insumos__vazio {
 	padding: 15px 15px;
-	
 	border: 1px dashed #ddd;
-	
 	text-align: center;
 	font-size: 1.2em;
 	font-weight: 300;
@@ -156,6 +170,9 @@
 ######################################
 */
 
+.auto-codigo {width: 20px; text-align:center;}
+.auto-nome   {width: 40px; text-align: left;}
+ 
 .easy-autocomplete{
   width:100% !important
 }
@@ -169,7 +186,7 @@
     content: "\f00c"; 
 }
 
-/* Easy Autocomplete */
+ 
 .easy-autocomplete input {
 	border-radius: 2px !important;
 	width: 100%;
@@ -178,13 +195,14 @@
 .easy-autocomplete-container ul li {
 	font-size: 1em !important;
 	padding: 0px 5px !important;
+	list-style: none;
 }
 
-/* Box */
-.negativo .aw-box__value {
+ 
+.negativo .sn-box__value {
 	color: red;
 }
-
+ 
 /* Tabela Item */
 .sn-tabela-item {
 	position: relative; /* Para que o painel de exclusão apareça dentro da linha */
@@ -225,6 +243,8 @@
 
 
 .sn-etapa {background-color: #f0ad4e;}
+.sn-insumo {}
+.sn-composicao {}
 
 
 @media (min-width: 768px) { /* screen-sm-min */

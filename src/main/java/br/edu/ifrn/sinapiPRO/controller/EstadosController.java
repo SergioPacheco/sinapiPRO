@@ -20,10 +20,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
 import br.edu.ifrn.sinapiPRO.model.Estado;
-import br.edu.ifrn.sinapiPRO.repository.Estados;
+import br.edu.ifrn.sinapiPRO.repository.EstadosRepository;
 import br.edu.ifrn.sinapiPRO.repository.filter.EstadoFilter;
 import br.edu.ifrn.sinapiPRO.service.EstadoService;
-import br.edu.ifrn.sinapiPRO.service.exception.NomeEstadoJaCadastradoException;
+import br.edu.ifrn.sinapiPRO.service.exception.JaCadastradoException;
 
 @Controller
 @RequestMapping("/estados")
@@ -33,7 +33,7 @@ public class EstadosController {
 	private EstadoService cadastroEstadoService;
 	
 	@Autowired
-	private Estados estados;
+	private EstadosRepository estados;
 	
 	@RequestMapping("/novo")
 	public ModelAndView novo(Estado estado) {
@@ -48,7 +48,7 @@ public class EstadosController {
 		
 		try {
 			cadastroEstadoService.salvar(estado);
-		} catch (NomeEstadoJaCadastradoException e) {
+		} catch (JaCadastradoException e) {
 			result.rejectValue("nome", e.getMessage(), e.getMessage());
 			return novo(estado);
 		}

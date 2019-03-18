@@ -29,7 +29,7 @@ public class TabelaComposicaoItemSession {
 		TabelaComposicaoItem tabela = buscarTabelaPorUuid(uuid);
 		tabela.alterarCoeficiente(insumo, coeficiente);
 	}
-
+ 
 	public void excluirItem(String uuid, Insumo insumo) {
 		TabelaComposicaoItem tabela = buscarTabelaPorUuid(uuid);
 		tabela.excluirItem(insumo);

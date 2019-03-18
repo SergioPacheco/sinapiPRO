@@ -74,9 +74,11 @@
 				
 				<div class="col-sm-5  form-group  sn-required" sinapiPRO:classforerror="especie">
 					<label for="especie" class="control-label">Espécie</label>
-					<select id="sabor" class="form-control" th:field="*{especie}">
+					<select id="especie" class="form-control" th:field="*{especie}">
 						<option value="">Selecione a espécie</option>
-						<option th:each="especie : ${especies}" th:value="${especie}" th:text="${especie.descricao}">Materiais</option>
+						<option th:each="especie : ${especies}" 
+						        th:value="${especie}" 
+						        th:text="${especie.descricao}">Materiais</option>
 					</select>
 				</div>
 				
@@ -112,13 +114,14 @@
 						             data:acao="copiar"
 						             data-toggle="tooltip" 
 						             data-placement="top" 
-						             title="Escolha acima a Base de Insumo">Copiar</button>
+						             title="Escolha acima a Base de Insumo">Adicionar em Outra Base</button>
 						</div>
 						<div th:unless="${insumo.sinapi}"> 
 						    <button type="submit" 
 						            class="btn  btn-lg btn-primary  js-submit-btn" 
 						            data:acao="salvar">Salvar</button>
 						</div>
+						
 					</div>
 				</div>	
 				

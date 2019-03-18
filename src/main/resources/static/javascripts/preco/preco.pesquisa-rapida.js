@@ -38,7 +38,7 @@ SinapiPRO.PesquisaRapidaPreco = (function() {
 	
 	function onPesquisaConcluida(resultado) {
 		
-		console.log('ahahahah', resultado);
+		console.log('resultado=', resultado);
 		this.mensagemErro.addClass('hidden');
 		var html = this.template(resultado);
 		this.containerTabela.html(html);

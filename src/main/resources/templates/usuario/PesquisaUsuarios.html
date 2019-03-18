@@ -34,19 +34,17 @@
 	<div class="container-fluid">
 		<form method="GET" th:object="${usuarioFilter}" th:action="@{/usuarios}">
 			<div class="row">
-				<div class="form-group  col-sm-6">
+				<div class="form-group  col-sm-4">
 					<label class="control-label" for="nome">Nome</label>
 					<input type="text" class="form-control" id="nome" autofocus="autofocus" th:field="*{nome}"/>
 				</div>
 				
-				<div class="form-group  col-sm-6">
+				<div class="form-group  col-sm-4">
 					<label class="control-label" for="email">E-mail</label>
 					<input type="text" class="form-control" id="email" th:field="*{email}"/>
 				</div>
-			</div>
-			
-			<div class="row">
-				<div class="form-group  col-sm-12">
+			 
+				<div class="form-group  col-sm-4">
 					<label class="control-label">Grupos</label> 
 					<div>
 						<th:block th:each="grupo : ${grupos}">
@@ -94,7 +92,8 @@
 	            <tbody>
 					<tr th:each="usuario : ${pagina.conteudo}">
 						<td>
-							<div class="checkbox  aw-checkbox-no-margin" th:if="${#authentication.principal.usuario.codigo != usuario.codigo}">
+							<div class="checkbox  aw-checkbox-no-margin" 
+							     th:if="${#authentication.principal.usuario.codigo != usuario.codigo}">
 	            				<input type="checkbox" class="js-selecao" data:codigo="${usuario.codigo}">
 	            				<label></label>
 	            			</div>

@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="INS00100_JAVA" pageWidth="576" pageHeight="864" columnWidth="569" columnSpacing="36" leftMargin="7" rightMargin="0" topMargin="14" bottomMargin="14" uuid="4575b1ab-8f26-4cea-a96b-0efdc122f907">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="SinapiPRO MySql Data Adapter "/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="266"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="725"/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w1" value="646"/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w2" value="342"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<style name="REL_TITULO" isBlankWhenNull="true" fontName="Arial" isPdfEmbedded="false"/>
+	<style name="REL_TITULO_COLUNA" isBlankWhenNull="true" fontName="Arial" fontSize="8" isBold="true"/>
+	<style name="REL_COLUNA" isBlankWhenNull="true" fontName="Arial" fontSize="8"/>
+	<style name="REL_TITULO_COLUNA_SUBLINHADO" isBlankWhenNull="true" fontName="Arial" fontSize="8" isBold="true" isUnderline="true"/>
+	<parameter name="_Parameter1" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["insumo.codigo_insumo>0"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="_Parameter2" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["insumo.codigo_insumo"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="_Parameter8" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["insumo.codigo_insumo"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="_Parameter7" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="_Parameter3" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="_Parameter4" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="_Parameter5" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="_Parameter9" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="_Parameter10" class="java.lang.Long"/>
+	<parameter name="_Parameter11" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["0"]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+    insumo.codigo, 
+    insumo.codigo_insumo,
+	insumo.descricao,
+	insumo.unidade,
+	insumo.especie,
+    insumo.preco_padrao,
+    bp.nome AS base_preco,
+    bi.nome AS base_insumo
+FROM
+    insumo  
+INNER JOIN base_insumo AS bi ON bi.codigo = insumo.codigo_base_insumo
+INNER JOIN base_preco AS bp ON bp.codigo = insumo.codigo_base_preco 
+
+WHERE
+    $P!{_Parameter9}
+	insumo.codigo_base_insumo = $P!{_Parameter10} 
+	
+	
+ORDER BY  
+	'$P!{_Parameter2}']]>
+	</queryString>
+	<field name="codigo" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="codigo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="insumo"/>
+	</field>
+	<field name="codigo_insumo" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="codigo_insumo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="insumo"/>
+	</field>
+	<field name="descricao" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="descricao"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="insumo"/>
+	</field>
+	<field name="unidade" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="unidade"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="insumo"/>
+	</field>
+	<field name="especie" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="especie"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="insumo"/>
+	</field>
+	<field name="preco_padrao" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="preco_padrao"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="insumo"/>
+	</field>
+	<field name="base_preco" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="base_preco"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="base_preco"/>
+	</field>
+	<field name="base_insumo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="base_insumo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="base_insumo"/>
+	</field>
+	<variable name="dataAtual" class="java.lang.String" resetType="None">
+		<variableExpression><![CDATA[new java.text.SimpleDateFormat("dd/MM/yyyy").format(new Date())]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="50" splitType="Stretch">
+			<image>
+				<reportElement key="image-1" x="0" y="0" width="36" height="22" uuid="795b88a6-1460-4e6f-8ca0-f269a3de8d0c"/>
+				<imageExpression><![CDATA[$P{_Parameter7}]]></imageExpression>
+			</image>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement key="textField-3" style="REL_TITULO" x="42" y="0" width="403" height="13" uuid="8b20c3c5-a1cd-4361-a359-d38381db9c80"/>
+				<textElement textAlignment="Left">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{_Parameter4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField-4" style="REL_TITULO" x="42" y="13" width="403" height="13" uuid="1577072a-a95f-4b2d-9373-5c6765958672"/>
+				<textElement textAlignment="Left"/>
+				<textFieldExpression><![CDATA[$P{_Parameter3}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-1" style="REL_TITULO" x="476" y="0" width="30" height="13" uuid="0d7494aa-7b6c-44f7-bda0-261ee1b30fd5"/>
+				<textElement textAlignment="Right"/>
+				<text><![CDATA[Pag]]></text>
+			</staticText>
+			<textField pattern="000" isBlankWhenNull="true">
+				<reportElement key="textField-5" style="REL_TITULO" x="507" y="0" width="20" height="13" uuid="65f5ecc9-e99b-4dad-a7a9-b752c8485bfc"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement key="staticText-2" style="REL_TITULO" x="468" y="13" width="30" height="13" uuid="ba4475a3-c538-4ad9-bbf6-22ff952aee60"/>
+				<textElement textAlignment="Right"/>
+				<text><![CDATA[Data:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField-6" style="REL_TITULO" x="501" y="13" width="52" height="13" uuid="25962916-37fc-499e-a034-4dd4dc23a5ca"/>
+				<textElement textAlignment="Left"/>
+				<textFieldExpression><![CDATA[$V{dataAtual}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement key="line-1" x="0" y="30" width="553" height="1" uuid="2f0af480-f148-4ea0-9f3d-f2becbecf491"/>
+			</line>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField-12" x="0" y="33" width="380" height="10" uuid="5e602626-0d1e-4360-9dce-5baae98dced3"/>
+				<box leftPadding="1"/>
+				<textElement>
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["RELATÓRIO DE INSUMOS" +"  "+($F{base_insumo} != null ? $F{base_insumo} : "")]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField" x="380" y="33" width="174" height="10" forecolor="#000000" uuid="8ec99625-3a4d-4754-9e0e-2e4141dab020"/>
+				<box leftPadding="1" rightPadding="1"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{base_preco}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement key="line-2" x="0" y="44" width="553" height="2" uuid="20de38b9-c731-4fba-ad8e-fad01001e804"/>
+			</line>
+			<textField evaluationTime="Report" pattern="000" isBlankWhenNull="true">
+				<reportElement key="textField-5" style="REL_TITULO" x="527" y="0" width="26" height="13" uuid="347aa8b3-669e-4fd4-a800-a9f05142ffc8"/>
+				<textElement textAlignment="Left"/>
+				<textFieldExpression><![CDATA[" / "+ (new DecimalFormat("000").format($V{PAGE_NUMBER}.doubleValue()))]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="10" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="false">
+				<reportElement key="textField-7" stretchType="RelativeToBandHeight" x="60" y="0" width="310" height="10" uuid="66376ac6-5cfa-4fd9-975f-2145a7009c7f"/>
+				<box leftPadding="2"/>
+				<textElement>
+					<font fontName="Arial" size="8" isBold="false" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{descricao} != null ? $F{descricao} : ""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField-8" x="448" y="0" width="45" height="10" uuid="8a5c963c-a8c9-4749-b678-e64539b22cf9"/>
+				<box leftPadding="2"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="8" isBold="false" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{unidade} != null ? $F{unidade}.trim() : ""]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement key="textField-9" x="380" y="0" width="65" height="10" uuid="52bc2150-c24e-4c60-b2f2-bb9c5b4cdd79"/>
+				<box leftPadding="2"/>
+				<textElement textAlignment="Left">
+					<font fontName="Arial" size="8" isBold="false" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{especie} != null ? $F{especie} : ""]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement key="textField-10" x="498" y="0" width="55" height="10" uuid="80accaa6-b7bd-43b8-aeed-9da8c16753b3"/>
+				<box rightPadding="2"/>
+				<textElement textAlignment="Right">
+					<font fontName="Arial" size="8" isBold="false" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{preco_padrao} != null ? $F{preco_padrao} : BigDecimal.ZERO]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="false">
+				<reportElement key="textField-15" x="10" y="0" width="40" height="10" uuid="67c3b561-1cac-4451-8242-d0bfa3366a8e"/>
+				<box leftPadding="2"/>
+				<textElement>
+					<font fontName="Arial" size="8" isBold="false" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{codigo_insumo}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

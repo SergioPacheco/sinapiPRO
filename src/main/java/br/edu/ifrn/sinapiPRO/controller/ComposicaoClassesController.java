@@ -24,23 +24,23 @@ import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
 import br.edu.ifrn.sinapiPRO.model.ComposicaoClasse;
 import br.edu.ifrn.sinapiPRO.repository.ComposicaoClassesRepository;
 import br.edu.ifrn.sinapiPRO.repository.filter.ComposicaoClasseFilter;
-import br.edu.ifrn.sinapiPRO.service.ClasseComposicaoService;
+import br.edu.ifrn.sinapiPRO.service.ComposicaoClasseService;
 import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
-import br.edu.ifrn.sinapiPRO.service.exception.NomeClasseJaCadastradaException;
+import br.edu.ifrn.sinapiPRO.service.exception.JaCadastradoException;
 
 @Controller
-@RequestMapping("/classesComposicao")
+@RequestMapping("/composicaoClasses")
 public class ComposicaoClassesController {
-
+ 
 	@Autowired
-	private ClasseComposicaoService classeComposicaoService;
+	private ComposicaoClasseService composicaoClasseService;
 	
 	@Autowired
 	private ComposicaoClassesRepository composicaoClassesRepository;
 	
 	@RequestMapping("/nova")
 	public ModelAndView nova(ComposicaoClasse classe) {
-		return new ModelAndView("classeComposicao/CadastroClasseComposicao");
+		return new ModelAndView("composicaoClasse/CadastroComposicaoClasse");
 	}
 	
 	@RequestMapping(value = { "/nova", "{\\d+}" }, method = RequestMethod.POST)
@@ -51,14 +51,14 @@ public class ComposicaoClassesController {
 		}
 		
 		try{
-			classeComposicaoService.salvar(composicaoClasse);
-		} catch(NomeClasseJaCadastradaException e){
+			composicaoClasseService.salvar(composicaoClasse);
+		} catch(JaCadastradoException e){
 			result.rejectValue("nome",e.getMessage(), e.getMessage());
 			return nova(composicaoClasse);
 		}
-		attributes.addFlashAttribute("mensagem", "Classe salva com sucesso!");
+		attributes.addFlashAttribute("mensagem", "Classe da Composição salva com sucesso!");
 		
-		return new ModelAndView("redirect:/classesComposicao/nova");// Redirect
+		return new ModelAndView("redirect:/composicaoClasse/nova");// Redirect
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE})
@@ -68,14 +68,14 @@ public class ComposicaoClassesController {
 			return ResponseEntity.badRequest().body(result.getFieldError("nome").getDefaultMessage());
 		}
 		
-		composicaoClasse = classeComposicaoService.salvar(composicaoClasse); 
+		composicaoClasse = composicaoClasseService.salvar(composicaoClasse); 
 		return ResponseEntity.ok(composicaoClasse);
 	}
 	
 	@GetMapping
 	public ModelAndView pesquisar(ComposicaoClasseFilter classeFilter, BindingResult result
 			,@PageableDefault(size = 15) Pageable pageable, HttpServletRequest httpServletRequest){
-		ModelAndView mv = new ModelAndView("classeComposicao/PesquisaClassesComposicao");
+		ModelAndView mv = new ModelAndView("composicaoClasse/PesquisaComposicaoClasses");
 		
 		PageWrapper<ComposicaoClasse> paginaWrapper = new PageWrapper<>(composicaoClassesRepository.filtrar(classeFilter, pageable)
 				, httpServletRequest);
@@ -93,9 +93,9 @@ public class ComposicaoClassesController {
 	}
 	
 	@DeleteMapping("/{codigo}")
-	public @ResponseBody ResponseEntity<?> excluir(@PathVariable("codigo") Long codigo) {
+	public @ResponseBody ResponseEntity<?> excluir(@PathVariable("codigo") ComposicaoClasse composicaoClasse) {
 		try {
-			classeComposicaoService.excluir(codigo);
+			composicaoClasseService.excluir(composicaoClasse);
 		} catch (ImpossivelExcluirEntidadeException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}

@@ -39,7 +39,10 @@ public class Orcamento implements Serializable {
 	@GenericGenerator(name = "native", strategy = "native")
 	private Long codigo;
 	
-	@NotBlank(message = "Nome da obra é obrigatório")
+	@OneToMany(mappedBy = "orcamento", cascade = CascadeType.ALL, orphanRemoval=true)
+	private List<Item> itens = new ArrayList<>();
+	
+	@NotBlank(message = "Descriçao é obrigatório")
 	private String nome;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -57,8 +60,6 @@ public class Orcamento implements Serializable {
 	@Column(name = "data_criacao")
 	private LocalDateTime dataCriacao;
 
-	private String observacao;
-
 	@ManyToOne
 	@JoinColumn(name = "codigo_cliente")
 	private Cliente cliente;
@@ -66,47 +67,56 @@ public class Orcamento implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "codigo_usuario")
 	private Usuario usuario;
+	
+	@ManyToOne
+	@JoinColumn(name = "codigo_obra")
+	private Obra obra;
 
+	@Enumerated(EnumType.STRING)
+	private Desoneracao desoneracao;
+	
 	@Enumerated(EnumType.STRING)
 	private OrcamentoSituacao situacao = OrcamentoSituacao.ABERTO;
 	
-	@OneToMany(mappedBy = "orcamento", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<OrcamentoItem> itens = new ArrayList<>();
-
 	@Column(name = "valor_total")
 	private BigDecimal valorTotal = BigDecimal.ZERO;
+	
+	@Column(name = "sub_total")
+	private BigDecimal subTotal = BigDecimal.ZERO;
+	
+	@Column(name = "total_bdi")
+	private BigDecimal totalBDI = BigDecimal.ZERO;
+	
+	@Column(name = "total_leis_sociais")
+	private BigDecimal totaLeisSociais = BigDecimal.ZERO;
+	
+	@Column(name = "total_taxa_adm")
+	private BigDecimal totalTaxaAdm = BigDecimal.ZERO;
+	
+	@Column(name = "total_taxas")
+	private BigDecimal totalTaxas = BigDecimal.ZERO;
 
-	@Column(name = "valor_mao_obra")
-	private BigDecimal valorMaoObra = BigDecimal.ZERO;
+	@Column(name = "percentual_bdi")
+	private BigDecimal percentualBdi;
 	
-	@Column(name = "valor_materiais")
-	private BigDecimal valorMaterial = BigDecimal.ZERO;
+	@Column(name = "percentual_leis_sociais")
+	private BigDecimal percentualLeisSociais;
 	
-	@Column(name = "valor_equipamentos")
-	private BigDecimal valorEquipamento = BigDecimal.ZERO;
+	@Column(name = "tipo_arredondamento") // E-exato T-para baixo G-geral C-somente composições
+	private String tipoArredondamento;
 	
-	@Column(name = "bdi_mao_obra")
-	private BigDecimal BdiMaoObra = BigDecimal.ZERO;
-		
-	@Column(name = "bdi_equipamentos")
-	private BigDecimal BdiEquipamentos = BigDecimal.ZERO;
+	@Column(name = "decimais_arredondamento")
+	private BigDecimal decimaisArredondamento;
 	
-	@Column(name = "bdi_materiais")
-	private BigDecimal BdiMateriais = BigDecimal.ZERO;
-	
-	@Column(name = "leis_sociais")
-	private BigDecimal LeisSociais = BigDecimal.ZERO;
-	
-	@Column(name = "taxa_administracao")
-	private BigDecimal TaxaAdministracao = BigDecimal.ZERO;
+	@Column(name = "percentual_taxa_adm")
+	private BigDecimal percentualTaxaAdm;
 			
+	@Column(name = "observacao")
+	private String observacao;
+	
 	@Transient
 	private String uuid;
 	
-	@Transient
-	private Long etapaCheckBox;
-
-
 	public Long getCodigo() {
 		return codigo;
 	}
@@ -162,7 +172,6 @@ public class Orcamento implements Serializable {
 	public void setObservacao(String observacao) {
 		this.observacao = observacao;
 	}
-
 	
 	public Cliente getCliente() {
 		return cliente;
@@ -180,6 +189,14 @@ public class Orcamento implements Serializable {
 		this.usuario = usuario;
 	}
 
+	public Obra getObra() {
+		return obra;
+	}
+
+	public void setObra(Obra obra) {
+		this.obra = obra;
+	}
+
 	public OrcamentoSituacao getSituacao() {
 		return situacao;
 	}
@@ -195,13 +212,13 @@ public class Orcamento implements Serializable {
 	public void setUuid(String uuid) {
 		this.uuid = uuid;
 	}
-			
-	public Long getEtapaCheckBox() {
-		return etapaCheckBox;
+	
+	public Desoneracao getDesoneracao() {
+		return desoneracao;
 	}
 
-	public void setEtapaCheckBox(Long etapaCheckBox) {
-		this.etapaCheckBox = etapaCheckBox;
+	public void setDesoneracao(Desoneracao desoneracao) {
+		this.desoneracao = desoneracao;
 	}
 
 	public boolean isSalvarPermitido() {
@@ -211,177 +228,275 @@ public class Orcamento implements Serializable {
 	public boolean isSalvarProibido() {
 		return !isSalvarPermitido();
 	}
-			
-	public BigDecimal getValorTotal() {
-		return valorTotal;
+	
+	public BigDecimal getSubTotal() {
+		return subTotal;
 	}
 
-	public void setValorTotal(BigDecimal valorTotal) {
-		this.valorTotal = valorTotal;
+	public void setSubTotal(BigDecimal subTotal) {
+		this.subTotal = subTotal;
+	}
+
+	public BigDecimal getTotalBDI() {
+		return totalBDI;
+	}
+
+	public void setTotalBDI(BigDecimal totalBDI) {
+		this.totalBDI = totalBDI;
+	}
+
+	public BigDecimal getTotaLeisSociais() {
+		return totaLeisSociais;
+	}
+
+	public void setTotaLeisSociais(BigDecimal totaLeisSociais) {
+		this.totaLeisSociais = totaLeisSociais;
+	}
+
+	public BigDecimal getTotalTaxaAdm() {
+		return totalTaxaAdm;
+	}
+
+	public void setTotalTaxaAdm(BigDecimal totalTaxaAdm) {
+		this.totalTaxaAdm = totalTaxaAdm;
+	}
+
+	public BigDecimal getTotalTaxas() {
+		return totalTaxas;
+	}
+
+	public void setTotalTaxas(BigDecimal totalTaxas) {
+		this.totalTaxas = totalTaxas;
+	}
+
+	public BigDecimal getPercentualBdi() {
+		return percentualBdi;
+	}
+
+	public void setPercentualBdi(BigDecimal percentualBdi) {
+		this.percentualBdi = percentualBdi;
+	}
+
+	public BigDecimal getPercentualLeisSociais() {
+		return percentualLeisSociais;
+	}
+
+	public void setPercentualLeisSociais(BigDecimal percentualLeisSociais) {
+		this.percentualLeisSociais = percentualLeisSociais;
+	}
+
+	public BigDecimal getPercentualTaxaAdm() {
+		return percentualTaxaAdm;
+	}
+
+	public void setPercentualTaxaAdm(BigDecimal percentualTaxaAdm) {
+		this.percentualTaxaAdm = percentualTaxaAdm;
+	}
+
+	public String getTipoArredondamento() {
+		return tipoArredondamento;
+	}
+
+	public void setTipoArredondamento(String tipoArredondamento) {
+		this.tipoArredondamento = tipoArredondamento;
+	}
+
+	public BigDecimal getDecimaisArredondamento() {
+		return decimaisArredondamento;
+	}
+
+	public void setDecimaisArredondamento(BigDecimal decimaisArredondamento) {
+		this.decimaisArredondamento = decimaisArredondamento;
+	}
+
+	
+	
+	
+	public void setItens(List<Item> itens) {
+		this.itens = itens;
 	}
 	
-	public BigDecimal getBdiMaoObra() {
-		return BdiMaoObra;
-	}
-
-	public void setBdiMaoObra(BigDecimal bdiMaoObra) {
-		BdiMaoObra = bdiMaoObra;
-	}
-
-	public BigDecimal getBdiEquipamentos() {
-		return BdiEquipamentos;
-	}
-
-	public void setBdiEquipamentos(BigDecimal bdiEquipamentos) {
-		BdiEquipamentos = bdiEquipamentos;
-	}
-
-	public BigDecimal getBdiMateriais() {
-		return BdiMateriais;
-	}
-
-	public void setBdiMateriais(BigDecimal bdiMateriais) {
-		BdiMateriais = bdiMateriais;
-	}
-
-	public BigDecimal getLeisSociais() {
-		return LeisSociais;
-	}
-
-	public void setLeisSociais(BigDecimal leisSociais) {
-		LeisSociais = leisSociais;
-	}
-
-	public BigDecimal getTaxaAdministracao() {
-		return TaxaAdministracao;
-	}
-
-	public void setTaxaAdministracao(BigDecimal taxaAdministracao) {
-		TaxaAdministracao = taxaAdministracao;
-	}
-
-	public List<OrcamentoItem> getItens() {
+	
+	
+	public List<Item> getItens() {
 		/*
-		Collections.sort(itens, new Comparator<OrcamentoItem>() {
-		        @Override public int compare(OrcamentoItem p1, OrcamentoItem p2) {
+		Collections.sort(itens, new Comparator<Item>() {
+		        @Override public int compare(Item p1, Item p2) {
 		            return p1.getEtapa().getCodigo().intValue() - p2.getEtapa().getCodigo().intValue(); // Ascending
 		        }
 		});
 		Itemizar();
 		*/
-		
 		return itens;
-	}
-
-	public void setItens(List<OrcamentoItem> itens) {
-		this.itens = itens;
 	}
 	
 	public void Itemizar() { 
-		
-		
-		/*
-		 * list.sort((o1, o2) -> {
-			    int cmp = o1.getGroup().compareTo(o2.getGroup());
-			    if (cmp == 0)
-			        cmp = Integer.compare(o1.getAge(), o2.getAge());
-			    if (cmp == 0)
-			        cmp = o1.getName().compareTo(o2.getName());
-			    return cmp;
-			});
-		 */
-
-		/*
-	    Collections.sort(itens, new Comparator<OrcamentoItem>() {
-	        @Override public int compare(OrcamentoItem p1, OrcamentoItem p2) {
+	    Collections.sort(itens, new Comparator<Item>() {
+	        @Override public int compare(Item p1, Item p2) {
 	            return p1.getEtapa().getCodigo().intValue() - p2.getEtapa().getCodigo().intValue(); // Ascending
 	        }
-
 	    });
-		
 		Long aux = 0L;
 		Long sub = 1L; 
-		for (OrcamentoItem orcamentoItem : itens) {
+		for (Item orcamentoItem : itens) {
 			if (orcamentoItem.getEtapa().getCodigo() == aux) { 
-			    if (orcamentoItem.getTipo().equals("E")) { 
+			    if (orcamentoItem.getTipo() == Tipo.ETAPA) { 
 			    	orcamentoItem.setItemizacao(orcamentoItem.getEtapa().getCodigo()+".");
 			    } else { 
 			    	orcamentoItem.setItemizacao(orcamentoItem.getEtapa().getCodigo()+"."+sub+".");
 			    	sub++;
 			    }
-			  
 				continue; 
 			}
 		    aux = orcamentoItem.getEtapa().getCodigo();
 		    sub = 1L;
-		    if (orcamentoItem.getTipo().equals("E")) { 
+		    if (orcamentoItem.getTipo() == Tipo.ETAPA) { 
 		    	orcamentoItem.setItemizacao(orcamentoItem.getEtapa().getCodigo()+".");
 		    } else { 
 		    	orcamentoItem.setItemizacao(orcamentoItem.getEtapa().getCodigo()+"."+sub+".");
 		    	sub++;
 		    }
 		} 
-		*/
-		
 		Collections.sort(itens, (o1, o2) -> (o1.getItemizacao().compareTo(o2.getItemizacao())));
-		
 	}
-	
 	
 	public boolean isNovo() {
 		return codigo == null;
 	}
-	
-	public void adicionarItens(List<OrcamentoItem> itens) {
-		this.itens = itens;
-		this.itens.forEach(i -> i.setOrcamento(this));
+
+	public void setValorTotal(BigDecimal valorTotal) {
+		this.valorTotal = valorTotal;
 	}
 	
-	public BigDecimal getValorTotalItens() {
+	public BigDecimal calculaValorTotalItens() {
 		return getItens().stream()
-				.map(OrcamentoItem::getValorTotal)
+				.filter(i -> {
+                    if (i.getValorTotal() != null) {
+                        return true;
+                    }
+                    return false;
+                })
+				.map(Item::getValorTotal)
 				.reduce(BigDecimal::add)
 				.orElse(BigDecimal.ZERO);
 	}
 	
-	/*
-	public BigDecimal getValorMaoObra() {
+	public BigDecimal calculaValorMaoObra() {
 		return getItens().stream()
-				.map(OrcamentoItem::getValorMaoObra)
+				.filter(i -> {
+                    if (i.getValorMaoObra() != null) {
+                        return true;
+                    }
+                    return false;
+                })
+				.map(Item::getValorMaoObra)
 				.reduce(BigDecimal::add)
 				.orElse(BigDecimal.ZERO);
 	}
 	
-	public BigDecimal getValorMaterial() {
+	public BigDecimal calculaValorMaterial() {
 		return getItens().stream()
-				.map(OrcamentoItem::getValorMaterial)
+				.filter(i -> {
+                    if (i.getValorMaterial() != null) {
+                        return true;
+                    }
+                    return false;
+                })
+				.map(Item::getValorMaterial)
 				.reduce(BigDecimal::add)
 				.orElse(BigDecimal.ZERO);
 	}
 	
-	public BigDecimal getValorEquipamento() {
+	public BigDecimal calculaValorEquipamento() {
 		return getItens().stream()
-				.map(OrcamentoItem::getValorEquipamento)
+				.filter(i -> {
+                    if (i.getValorEquipamento() != null) {
+                        return true;
+                    }
+                    return false;
+                })
+				.map(Item::getValorEquipamento)
 				.reduce(BigDecimal::add)
 				.orElse(BigDecimal.ZERO);
 	}
 	
+	public BigDecimal getValorTotal() {
+		return this.valorTotal;
+	}
+			
+	 
+	public BigDecimal calculaValorBDI() {
+		
+		return 
+				((calculaValorMaoObra().add(calculaValorMaterial()).add(calculaValorEquipamento()))
+				.multiply(this.percentualBdi)).divide(new BigDecimal(100));
+	}
+	public BigDecimal calculaValorLeisSociais() {
+		
+		return 
+				calculaValorMaoObra()
+				.multiply(this.percentualLeisSociais).divide(new BigDecimal(100));
+		 		
+	}
+	public BigDecimal calculaValorTaxaAdm() {
+		
+		return 
+				((calculaValorMaoObra().add(calculaValorMaterial()).add(calculaValorEquipamento()))
+				.multiply(this.percentualTaxaAdm)).divide(new BigDecimal(100));
+		 		
+	}
+	public BigDecimal calculaValorSubTotal() {
+		
+		return 
+				calculaValorMaoObra().add(calculaValorMaterial()).add(calculaValorEquipamento());
+		 		
+	}
 	
+	public BigDecimal calculaValorTaxas() {
+		
+		return 
+				((calculaValorMaoObra().add(calculaValorMaterial()).add(calculaValorEquipamento()))
+						.multiply(this.percentualBdi)).divide(new BigDecimal(100))
+				.add(
+				calculaValorMaoObra()
+				.multiply(this.percentualLeisSociais).divide(new BigDecimal(100)))
+				
+				.add( 
+				((calculaValorMaoObra().add(calculaValorMaterial()).add(calculaValorEquipamento()))
+						.multiply(this.percentualTaxaAdm)).divide(new BigDecimal(100)));
+	}
 	
-	public void calcularValorTotal() {
-		this.valorTotal = getValorTotalItens();
-	}
-	public void calcularValorMaoObra() {
-		this.valorMaoObra = getValorMaoObra();
-	}
-	public void calcularValorEquipamento() {
-		this.valorEquipamento = getValorEquipamento();
-	}
-	public void calcularValorMaterial() {
-		this.valorMaterial = getValorMaterial();
+	public BigDecimal calculaValorTotalComTaxas() {
+		
+		return 
+	
+				calculaValorMaoObra().add(calculaValorMaterial()).add(calculaValorEquipamento())
+				
+				.add( 
+			
+				((calculaValorMaoObra().add(calculaValorMaterial()).add(calculaValorEquipamento()))
+						.multiply(this.percentualBdi)).divide(new BigDecimal(100))
+				.add(
+				calculaValorMaoObra()
+				.multiply(this.percentualLeisSociais).divide(new BigDecimal(100)))
+				
+				.add( 
+				((calculaValorMaoObra().add(calculaValorMaterial()).add(calculaValorEquipamento()))
+				.multiply(this.percentualTaxaAdm)).divide(new BigDecimal(100)))
+				
+						);
+	
 	}
 	
-	*/
+	public void addItem(Item item) {
+		itens.add(item);
+		item.setOrcamento(this);
+	}
+	
+	public void removeItem(Item item) {
+		item.setOrcamento(null);
+		this.itens.remove(item);
+	}
 	
 	@Override
 	public int hashCode() {
@@ -409,3 +524,49 @@ public class Orcamento implements Serializable {
 	}
 
 }
+/*
+ * 
+NONE    = Não faz nada com o objeto (padrão)
+MERGE   = Atualiza filhos quando atualiza o pai, somente se já estiver persisitido
+PERSIST = Salva o filho quando salva o pai
+REFRESH = Salva o pai e mantém o filho sem alterar
+REMOVE  = Remove o filho quando remove o pai e vice-versa
+ALL = Executa todas as operações de cascade
+
+class Parent {
+    String name;
+    @OneToMany(mappedBy = "parent", 
+               fetch = FetchType.LAZY, 
+               cascade = CascadeType.ALL, orphanRemoval = true)
+    List<Child> children;
+
+    public void addChild(Child child) {
+        child.setParent(this);
+        children.add(child);
+    }
+
+    public void removeChild(Child child) {
+        children.remove(child);
+        if (child != null) {
+            child.setParent(null);
+        }
+    }
+}
+
+class Child {
+    String name;
+    @ManyToOne
+    Parent parent;
+
+    @OneToOne(mappedBy = "child", cascade = CascadeType.ALL, orphanRemoval = true)
+    Toy toy;
+}
+
+class Toy {
+    String name;
+
+    @OneToOne
+    Child child;
+}
+*/
+

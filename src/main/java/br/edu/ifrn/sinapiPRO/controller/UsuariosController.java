@@ -21,12 +21,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
 import br.edu.ifrn.sinapiPRO.model.Usuario;
-import br.edu.ifrn.sinapiPRO.repository.Grupos;
-import br.edu.ifrn.sinapiPRO.repository.Usuarios;
+import br.edu.ifrn.sinapiPRO.repository.GruposRepository;
+import br.edu.ifrn.sinapiPRO.repository.UsuariosRepository;
 import br.edu.ifrn.sinapiPRO.repository.filter.UsuarioFilter;
-import br.edu.ifrn.sinapiPRO.service.UsuarioService;
 import br.edu.ifrn.sinapiPRO.service.StatusUsuario;
-import br.edu.ifrn.sinapiPRO.service.exception.EmailUsuarioJaCadastradoException;
+import br.edu.ifrn.sinapiPRO.service.UsuarioService;
+import br.edu.ifrn.sinapiPRO.service.exception.JaCadastradoException;
 import br.edu.ifrn.sinapiPRO.service.exception.SenhaObrigatoriaUsuarioException;
 
 @Controller
@@ -37,10 +37,10 @@ public class UsuariosController {
 	private UsuarioService cadastroUsuarioService;
 
 	@Autowired
-	private Grupos grupos;
+	private GruposRepository grupos;
 	
 	@Autowired
-	private Usuarios usuarios;
+	private UsuariosRepository usuarios;
 	
 	@RequestMapping("/novo")
 	public ModelAndView novo(Usuario usuario) {
@@ -59,7 +59,7 @@ public class UsuariosController {
 
 			cadastroUsuarioService.salvar(usuario);
 			
-		} catch (EmailUsuarioJaCadastradoException e) {
+		} catch (JaCadastradoException e) {
 			
 			result.rejectValue("email", e.getMessage(), e.getMessage());
 			return novo(usuario);

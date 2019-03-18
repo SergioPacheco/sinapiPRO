@@ -3,11 +3,12 @@ SinapiPRO = SinapiPRO || {};
 SinapiPRO.PesquisaRapidaEtapa = (function() {
 	
 	function PesquisaRapidaEtapa() {
+		
 		this.pesquisaRapidaEtapasModal = $('#pesquisaRapidaEtapas');
 		this.nomeInput                 = $('#nomeEtapaModal');
 		this.pesquisaRapidaBtn         = $('.js-pesquisa-rapida-etapas-btn'); 
 		this.containerTabelaPesquisa   = $('#containerTabelaPesquisaRapidaEtapas');
-		this.htmlTabelaPesquisa        = $('#tabela-pesquisa-rapida-etapa').html();
+		this.htmlTabelaPesquisa        = $('#tabela-pesquisa-rapida-etapas').html();
 		this.template                  = Handlebars.compile(this.htmlTabelaPesquisa);
 		this.mensagemErro              = $('.js-mensagem-erro');
 		
@@ -75,10 +76,9 @@ SinapiPRO.TabelaEtapaPesquisaRapida = (function() {
 		
 		var etapaSelecionado = $(evento.currentTarget);
 		var formData = {
-    			name : etapaSelecionado.data('nome'),
+    			nome   : etapaSelecionado.data('nome'),
     			codigo : etapaSelecionado.data('codigo')
 		}
- 
 	}
 	
 	return TabelaEtapaPesquisaRapida;

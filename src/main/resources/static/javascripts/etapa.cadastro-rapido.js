@@ -53,7 +53,6 @@ sinapiPRO.EstiloCadastroRapido = (function() {
 		comboEstilo.val(estilo.codigo);
 		this.modal.modal('hide');
 	}
-	
 	return EtapaCadastroRapido;
 	
 }());

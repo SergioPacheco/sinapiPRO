@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="COM00100_JAVA" pageWidth="595" pageHeight="842" columnWidth="575" leftMargin="10" rightMargin="10" topMargin="20" bottomMargin="20" uuid="067d75d9-ba15-4d04-9f6d-3adbd2360cd4">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="278"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Jasper_sinapipro"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="307"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="685"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<style name="REL_TITULO" isBlankWhenNull="true" fontName="Arial" isPdfEmbedded="false"/>
+	<style name="REL_TITULO_COLUNA" isBlankWhenNull="true" fontName="Arial" fontSize="8" isBold="true"/>
+	<style name="REL_COLUNA" isBlankWhenNull="true" fontName="Arial" fontSize="8"/>
+	<style name="REL_TITULO_COLUNA_SUBLINHADO" isBlankWhenNull="true" fontName="Arial" fontSize="8" isBold="true" isUnderline="true"/>
+	<parameter name="_Parameter1" class="java.lang.String">
+		<defaultValueExpression><![CDATA["2"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="_Parameter2" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="_Parameter3" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["RIO GRANDE DO NORTE - PARNAMIRIM"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="_Parameter4" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["INSTITUTO FEDERAL DE EDUCAÇÃO, CIÊNCIAS E TECNOLOGIA"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="_Parameter5" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["RELATÓRIO COMPOSICAO"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="_Parameter6" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="_Parameter7" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="_Parameter8" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="_Parameter9" class="java.lang.String">
+		<defaultValueExpression><![CDATA["5"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="_Parameter10" class="java.lang.String">
+		<defaultValueExpression><![CDATA["composicao.codigo_composicao"]]></defaultValueExpression>
+	</parameter>
+	<queryString language="SQL">
+		<![CDATA[SELECT sinapipro.composicao.codigo_composicao pai_codigo_composicao,
+	sinapipro.composicao.descricao pai_descricao,
+	sinapipro.composicao.unidade pai_unidade,
+	sinapipro.composicao.custo_total pai_custo_total,
+	sinapipro.composicao_item.codigo_item filho_codigo_item,
+	sinapipro.composicao_item.descricao filho_descricao,
+	sinapipro.composicao_item.preco_unitario filho_preco,
+	sinapipro.composicao_item.unidade filho_unidade,
+	sinapipro.composicao_item.custo_total filho_custo_total,
+	sinapipro.composicao_item.tipo filho_tipo,
+	sinapipro.composicao_item.coeficiente filho_coeficiente,
+	sinapipro.composicao_classe.sigla pai_sigla
+
+FROM sinapipro.composicao_item
+
+	INNER JOIN sinapipro.composicao ON  composicao.codigo = composicao_item.codigo_composicao_pai 
+	INNER JOIN sinapipro.composicao_grupo ON composicao_grupo.codigo = composicao.codigo_composicao_grupo 
+	INNER JOIN sinapipro.composicao_classe ON composicao_classe.codigo =  composicao_grupo.codigo_composicao_classe  
+	INNER JOIN sinapipro.base_preco ON base_preco.codigo = composicao.codigo_base_preco 
+	INNER JOIN sinapipro.base_insumo ON base_insumo.codigo = composicao.codigo_base_insumo
+	
+WHERE 
+	 
+   	composicao.codigo_base_preco =  $P!{_Parameter9} AND 
+   	composicao.codigo_base_insumo = base_preco.codigo_base_insumo
+   	
+ORDER BY
+ 	'$P!{_Parameter10} ']]>
+	</queryString>
+	<field name="pai_codigo_composicao" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="pai_codigo_composicao"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="composicao"/>
+	</field>
+	<field name="pai_descricao" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="pai_descricao"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="composicao"/>
+	</field>
+	<field name="pai_unidade" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="pai_unidade"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="composicao"/>
+	</field>
+	<field name="pai_custo_total" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="pai_custo_total"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="composicao"/>
+	</field>
+	<field name="filho_codigo_item" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="filho_codigo_item"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="composicao_item"/>
+	</field>
+	<field name="filho_descricao" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="filho_descricao"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="composicao_item"/>
+	</field>
+	<field name="filho_preco" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="filho_preco"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="composicao_item"/>
+	</field>
+	<field name="filho_unidade" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="filho_unidade"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="composicao_item"/>
+	</field>
+	<field name="filho_custo_total" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="filho_custo_total"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="composicao_item"/>
+	</field>
+	<field name="filho_tipo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="filho_tipo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="composicao_item"/>
+	</field>
+	<field name="filho_coeficiente" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="filho_coeficiente"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="composicao_item"/>
+	</field>
+	<field name="pai_sigla" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="pai_sigla"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="composicao_classe"/>
+	</field>
+	<variable name="dataAtual" class="java.lang.String" resetType="None">
+		<variableExpression><![CDATA["Data: " + new java.text.SimpleDateFormat("dd/MM/yyyy").format(new Date())]]></variableExpression>
+	</variable>
+	<variable name="Mascara_Unitario" class="java.lang.String" resetType="None">
+		<variableExpression><![CDATA["###,###,##0.00"]]></variableExpression>
+	</variable>
+	<variable name="Mascara_Quantidade" class="java.lang.String" resetType="None">
+		<variableExpression><![CDATA["###,###,##0.00"]]></variableExpression>
+	</variable>
+	<variable name="ImprimeAnalitico" class="java.lang.Boolean" resetType="None">
+		<variableExpression><![CDATA["2".equalsIgnoreCase($P{_Parameter1}) ? true : false]]></variableExpression>
+	</variable>
+	<variable name="ImprimeSintetico" class="java.lang.Boolean" resetType="None">
+		<variableExpression><![CDATA["0".equalsIgnoreCase($P{_Parameter1}) ? true : false]]></variableExpression>
+	</variable>
+	<variable name="ImprimeSemiSintetico" class="java.lang.Boolean" resetType="None">
+		<variableExpression><![CDATA["1".equalsIgnoreCase($P{_Parameter1}) ? true : false]]></variableExpression>
+	</variable>
+	<group name="GH1" isReprintHeaderOnEachPage="true" minHeightToStartNewPage="20">
+		<groupExpression><![CDATA[$F{pai_codigo_composicao}]]></groupExpression>
+		<groupHeader>
+			<band height="15" splitType="Stretch">
+				<printWhenExpression><![CDATA[$V{ImprimeSintetico} || $V{ImprimeAnalitico}]]></printWhenExpression>
+				<textField>
+					<reportElement stretchType="RelativeToTallestObject" x="50" y="0" width="40" height="10" uuid="283cf7e6-1a1b-42ca-8657-cedf7a858d67">
+						<printWhenExpression><![CDATA[$V{ImprimeSintetico} || $V{ImprimeAnalitico}]]></printWhenExpression>
+					</reportElement>
+					<box leftPadding="2"/>
+					<textElement verticalAlignment="Middle" markup="none">
+						<font fontName="Arial" size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{pai_codigo_composicao}.trim()]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement stretchType="RelativeToBandHeight" x="90" y="0" width="358" height="10" uuid="0dda7c06-300c-4b37-842a-d37e32b99a16">
+						<printWhenExpression><![CDATA[$V{ImprimeSintetico} || $V{ImprimeAnalitico}]]></printWhenExpression>
+					</reportElement>
+					<box leftPadding="2"/>
+					<textElement verticalAlignment="Bottom" markup="none">
+						<font fontName="Arial" size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{pai_descricao}.trim()]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement stretchType="RelativeToTallestObject" x="448" y="0" width="82" height="10" forecolor="#000000" uuid="784a10f0-78be-4f9d-bca5-6be9df8725f9">
+						<printWhenExpression><![CDATA[$V{ImprimeSintetico} || $V{ImprimeAnalitico}]]></printWhenExpression>
+					</reportElement>
+					<box leftPadding="0"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+						<font fontName="Arial" size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{pai_unidade}.trim()]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement stretchType="RelativeToTallestObject" x="530" y="0" width="45" height="10" uuid="47357285-b752-4915-b930-fcbc672bfe49">
+						<printWhenExpression><![CDATA[$V{ImprimeSintetico} || $V{ImprimeAnalitico}]]></printWhenExpression>
+					</reportElement>
+					<box leftPadding="0" rightPadding="2"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+						<font fontName="Arial" size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{pai_custo_total}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="50" height="10" uuid="780521cb-d075-415d-b393-b7603daf0e93">
+						<printWhenExpression><![CDATA[$V{ImprimeSintetico} || $V{ImprimeAnalitico}]]></printWhenExpression>
+					</reportElement>
+					<box leftPadding="2"/>
+					<textElement verticalAlignment="Middle" markup="none">
+						<font fontName="Arial" size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{pai_sigla}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+	</group>
+	<group name="GH2" minHeightToStartNewPage="10">
+		<groupExpression><![CDATA[$F{filho_codigo_item}]]></groupExpression>
+		<groupHeader>
+			<band height="10">
+				<printWhenExpression><![CDATA[$V{ImprimeAnalitico}]]></printWhenExpression>
+				<textField isStretchWithOverflow="true">
+					<reportElement stretchType="RelativeToTallestObject" x="530" y="0" width="45" height="10" isPrintWhenDetailOverflows="true" forecolor="#000000" uuid="cfc89f1e-0317-4daa-b847-82ca2904bb66">
+						<printWhenExpression><![CDATA[$V{ImprimeAnalitico}]]></printWhenExpression>
+					</reportElement>
+					<box leftPadding="0" rightPadding="2"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" markup="none">
+						<font fontName="Arial" size="8" isBold="false" isStrikeThrough="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{filho_custo_total}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement stretchType="RelativeToTallestObject" x="398" y="0" width="50" height="10" isPrintWhenDetailOverflows="true" forecolor="#000000" uuid="13629799-ec90-4596-988f-05c81df623c6">
+						<printWhenExpression><![CDATA[$V{ImprimeAnalitico}]]></printWhenExpression>
+					</reportElement>
+					<box leftPadding="0"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" markup="none">
+						<font fontName="Arial" size="8" isBold="false" isStrikeThrough="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{filho_unidade}.trim()]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement stretchType="RelativeToBandHeight" x="90" y="0" width="308" height="10" isPrintWhenDetailOverflows="true" forecolor="#000000" uuid="4e1ec5e4-87a3-49b5-befd-67f49dd849fa">
+						<printWhenExpression><![CDATA[$V{ImprimeAnalitico}]]></printWhenExpression>
+					</reportElement>
+					<box leftPadding="0"/>
+					<textElement verticalAlignment="Top" markup="none">
+						<font fontName="Arial" size="8" isBold="false" isStrikeThrough="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{filho_descricao}.trim()]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement stretchType="RelativeToTallestObject" x="448" y="0" width="82" height="10" isPrintWhenDetailOverflows="true" forecolor="#000000" uuid="7f2cdfeb-13c9-48d3-a823-f1f8ca759008">
+						<printWhenExpression><![CDATA[$V{ImprimeAnalitico}]]></printWhenExpression>
+					</reportElement>
+					<box leftPadding="0"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" markup="none">
+						<font fontName="Arial" size="8" isBold="false" isStrikeThrough="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{filho_coeficiente}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement stretchType="RelativeToTallestObject" x="50" y="0" width="40" height="10" uuid="38e0fd84-95e3-47d9-83d2-41763cea0e16">
+						<printWhenExpression><![CDATA[$V{ImprimeAnalitico}]]></printWhenExpression>
+					</reportElement>
+					<box leftPadding="2"/>
+					<textElement verticalAlignment="Top" markup="none">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{filho_codigo_item}.trim()]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="50" height="10" uuid="5b375f92-ac5c-43aa-accf-44590fe55c3e">
+						<printWhenExpression><![CDATA[$V{ImprimeAnalitico}]]></printWhenExpression>
+					</reportElement>
+					<box leftPadding="2"/>
+					<textElement verticalAlignment="Top" markup="none">
+						<font fontName="Arial" size="7"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{filho_tipo}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="112">
+			<image onErrorType="Blank">
+				<reportElement key="image-1" x="0" y="0" width="36" height="22" uuid="924e9e00-072f-4e99-850c-fe39f4449a22"/>
+				<imageExpression><![CDATA[$P{_Parameter7}]]></imageExpression>
+			</image>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField-3" style="REL_TITULO" x="42" y="0" width="448" height="13" uuid="31646015-045d-4356-9266-e5c55da5e071"/>
+				<textElement textAlignment="Left"/>
+				<textFieldExpression><![CDATA[$P{_Parameter4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField-4" style="REL_TITULO" x="42" y="13" width="448" height="13" uuid="d1a15213-4e65-47e7-b9d9-f301f8ecc3de"/>
+				<textElement textAlignment="Left"/>
+				<textFieldExpression><![CDATA[$P{_Parameter3}]]></textFieldExpression>
+			</textField>
+			<textField pattern="000" isBlankWhenNull="true">
+				<reportElement key="textField-5" style="REL_TITULO" x="486" y="0" width="63" height="13" uuid="c11ca46a-dea1-43e4-9ac1-4c9b76b16990"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA["Pág.: " + (new DecimalFormat("000").format($V{PAGE_NUMBER}.doubleValue())) +" /"]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement key="textField-6" style="REL_TITULO" x="490" y="13" width="85" height="13" uuid="8afcd325-2612-4918-9af0-387705ff4d93"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$V{dataAtual}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement key="textField" style="REL_TITULO" x="0" y="34" width="575" height="13" uuid="bce51a4a-7138-4612-9949-e61708fa6c81"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{_Parameter5}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement key="line-1" x="0" y="30" width="575" height="1" uuid="7876752e-001c-49d0-bea3-88f7755526ca"/>
+			</line>
+			<line>
+				<reportElement key="line-2" x="0" y="50" width="575" height="1" uuid="484f8c4b-ea4a-4eac-8a0c-5e42e4d97a3e"/>
+			</line>
+			<textField evaluationTime="Report" pattern="0000" isBlankWhenNull="true">
+				<reportElement key="textField-5" style="REL_TITULO" x="549" y="0" width="26" height="13" uuid="cace296a-6164-48e8-8c18-5c1ab0425d3d"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[(new DecimalFormat("000").format($V{PAGE_NUMBER}.doubleValue()))]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="50" y="57" width="40" height="25" isRemoveLineWhenBlank="true" uuid="022acebd-4395-4f88-b5af-a2995a87f882">
+					<printWhenExpression><![CDATA[$V{ImprimeSintetico}]]></printWhenExpression>
+				</reportElement>
+				<box leftPadding="2"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Código]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="90" y="57" width="358" height="25" isRemoveLineWhenBlank="true" uuid="a88bdd1a-a8cc-459c-a417-ef8e7c7ac765">
+					<printWhenExpression><![CDATA[$V{ImprimeSintetico}]]></printWhenExpression>
+				</reportElement>
+				<box leftPadding="2"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Descrição]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="448" y="57" width="82" height="25" isRemoveLineWhenBlank="true" uuid="27b8273c-8597-445e-a6c5-159f54069c8a">
+					<printWhenExpression><![CDATA[$V{ImprimeSintetico}]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Unidade]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="530" y="57" width="45" height="25" isRemoveLineWhenBlank="true" uuid="3537f899-cef6-4652-b937-388504f1f87a">
+					<printWhenExpression><![CDATA[$V{ImprimeSintetico}]]></printWhenExpression>
+				</reportElement>
+				<box rightPadding="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Valor]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="448" y="82" width="82" height="25" isRemoveLineWhenBlank="true" uuid="ee6cb6d7-6576-4752-9508-7d645a1ff0c3">
+					<printWhenExpression><![CDATA[!$V{ImprimeSintetico}]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Quantidade]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="50" y="82" width="40" height="25" isRemoveLineWhenBlank="true" uuid="50545038-ff18-4bac-a693-74b77fb9a6f5">
+					<printWhenExpression><![CDATA[!$V{ImprimeSintetico}]]></printWhenExpression>
+				</reportElement>
+				<box leftPadding="2"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Código]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="90" y="82" width="308" height="25" isRemoveLineWhenBlank="true" uuid="df5e7fcf-e971-48c0-aade-1ef06aa7cdb8">
+					<printWhenExpression><![CDATA[!$V{ImprimeSintetico}]]></printWhenExpression>
+				</reportElement>
+				<box leftPadding="2"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Descrição]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="398" y="82" width="50" height="25" isRemoveLineWhenBlank="true" uuid="aa5c0790-cd72-420b-858f-29a4eabb2a9a">
+					<printWhenExpression><![CDATA[!$V{ImprimeSintetico}]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Unid.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="530" y="82" width="45" height="25" isRemoveLineWhenBlank="true" uuid="22f6ab8e-1b0b-46a0-8a66-49f4dced14ad">
+					<printWhenExpression><![CDATA[!$V{ImprimeSintetico}]]></printWhenExpression>
+				</reportElement>
+				<box rightPadding="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Valor]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="57" width="50" height="25" isRemoveLineWhenBlank="true" uuid="f425f005-e106-4546-b391-0e9dd1b3a395">
+					<printWhenExpression><![CDATA[$V{ImprimeSintetico}]]></printWhenExpression>
+				</reportElement>
+				<box leftPadding="2"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Classe]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="82" width="50" height="25" isRemoveLineWhenBlank="true" uuid="a8e9f805-f7db-4c0f-a0db-e1b2ec4bf289">
+					<printWhenExpression><![CDATA[!$V{ImprimeSintetico}]]></printWhenExpression>
+				</reportElement>
+				<box leftPadding="2"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Classe / Tipo]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band splitType="Stretch">
+			<printWhenExpression><![CDATA[]]></printWhenExpression>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

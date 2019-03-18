@@ -4,18 +4,19 @@ SinapiPRO.Autocomplete = (function() {
 
 	function Autocomplete() {
 		
-		this.inputComposicao         = $('.js-composicao-input');
-		var htmlTemplateComposicao   = $('#template-autocomplete-composicao').html();
-		this.template                = Handlebars.compile(htmlTemplateComposicao);
-		this.emitter                 = $({});
-		this.on                      = this.emitter.on.bind(this.emitter);
+		this.inputComposicao       = $('.js-composicao-input');
+		var htmlTemplateComposicao = $('#template-autocomplete-composicao').html();
+		this.template              = Handlebars.compile(htmlTemplateComposicao);
+		this.emitter               = $({});
+		this.on                    = this.emitter.on.bind(this.emitter);
 	}
 	
 	Autocomplete.prototype.iniciar = function() {
 		console.log('autocomplete COMPOSICAO inicou', '');
+		
 		var options = {
-			url: function(codigoOuNome) {
-				return this.inputComposicao.data('url') + '?codigoOuNome=' + codigoOuNome;
+			url: function(porDescricao) {
+				return this.inputComposicao.data('url') + '?porDescricao=' + porDescricao;
 			}.bind(this),
 			getValue: 'descricao',
 			minCharNumber: 3,

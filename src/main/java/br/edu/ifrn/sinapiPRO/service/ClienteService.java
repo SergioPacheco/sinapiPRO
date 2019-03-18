@@ -8,17 +8,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
-
 import br.edu.ifrn.sinapiPRO.model.Cliente;
-import br.edu.ifrn.sinapiPRO.repository.Clientes;
-import br.edu.ifrn.sinapiPRO.service.exception.CpfCnpjClienteJaCadastradoException;
+import br.edu.ifrn.sinapiPRO.repository.ClientesRepository;
+import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
+import br.edu.ifrn.sinapiPRO.service.exception.JaCadastradoException;
 
 @Service
 public class ClienteService {
 	
 	@Autowired
-	private Clientes clientes;
+	private ClientesRepository clientes;
 	
 	@Transactional
 	public void salvar(Cliente cliente){
@@ -28,7 +27,7 @@ public class ClienteService {
 		if(clienteExistente.isPresent() && cliente.isNovo()){
 			System.out.println("isNovo: "+cliente.isNovo()+""+cliente.getCodigo());
 			System.out.println("clienteExistente: "+ clienteExistente.isPresent());
-			throw new CpfCnpjClienteJaCadastradoException ("CPF/CNPJ já cadastrado!");
+			throw new JaCadastradoException ("CPF/CNPJ já cadastrado!");
 		}
 		clientes.save(cliente);
 	}

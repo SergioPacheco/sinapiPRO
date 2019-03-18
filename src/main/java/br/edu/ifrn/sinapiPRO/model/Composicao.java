@@ -24,6 +24,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.GenericGenerator;
 
 import br.edu.ifrn.sinapiPRO.utils.Lib;
 
@@ -34,12 +35,13 @@ import br.edu.ifrn.sinapiPRO.utils.Lib;
 public class Composicao  {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY, generator="native")
+	@GenericGenerator(name = "native", strategy = "native")
 	private Long codigo;
 	
 	@NotNull(message = "O código da composição é obrigatório")
 	@Column(name = "codigo_composicao")
-	private Long codigoComposicao;   
+	private String codigoComposicao;   
 	  
 	@NotNull(message = "A base de insumo é obrigatória")
 	@ManyToOne
@@ -47,18 +49,13 @@ public class Composicao  {
     private BaseInsumo  baseInsumo;
 	
 	@OneToMany(mappedBy="composicaoPai", 
-			fetch = FetchType.EAGER, 
-			cascade = CascadeType.ALL, 
-			orphanRemoval = true)
+			   cascade = CascadeType.ALL, 
+			   orphanRemoval = true)
 	private List<ComposicaoItem> itens = new ArrayList<>();
  
 	@ManyToOne 
 	@JoinColumn(name = "codigo_base_preco")
 	private BasePreco basePreco;
-	
-	@ManyToOne 
-	@JoinColumn(name = "codigo_composicao_classe")
-	private ComposicaoClasse composicaoClasse;
 	
 	@ManyToOne 
 	@JoinColumn(name = "codigo_composicao_grupo")
@@ -80,9 +77,6 @@ public class Composicao  {
 	
 	@Column(name = "data_criacao")
 	private LocalDateTime dataCriacao;
-	
-	@Column(name = "valor_total", precision=15, scale=2)
-	private BigDecimal valorTotal = BigDecimal.ZERO;
 	
 	@Column(name = "custo_total", precision=15, scale=2)
 	private BigDecimal custoTotal;
@@ -106,6 +100,8 @@ public class Composicao  {
 	private BigDecimal percEquipamento;
 	
 	
+	@Transient
+	private ComposicaoClasse composicaoClasse;
 	
 	@Transient
 	private String uuid;
@@ -121,11 +117,11 @@ public class Composicao  {
 		this.codigo = codigo;
 	}
 
-	public Long getCodigoComposicao() {
+	public String getCodigoComposicao() {
 		return codigoComposicao;
 	}
 
-	public void setCodigoComposicao(Long codigoComposicao) {
+	public void setCodigoComposicao(String codigoComposicao) {
 		this.codigoComposicao = codigoComposicao;
 	}
 
@@ -199,14 +195,6 @@ public class Composicao  {
 
 	public void setDataCriacao(LocalDateTime dataCriacao) {
 		this.dataCriacao = dataCriacao;
-	}
-
-	public BigDecimal getValorTotal() {
-		return valorTotal;
-	}
-
-	public void setValorTotal(BigDecimal valorTotal) {
-		this.valorTotal = valorTotal;
 	}
 
 	public BigDecimal getCustoTotal() {
@@ -312,10 +300,6 @@ public class Composicao  {
 		return !isSalvarPermitido();
 	}
 	
-	public void calcularValorTotal(){
-		this.valorTotal = calcularValorTotal(getValorTotalItens()); 
-	}
-	                                       
 	private BigDecimal calcularValorTotal(BigDecimal valorTotalItens) {
 		BigDecimal valorTotal = valorTotalItens;
 		return valorTotal;

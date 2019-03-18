@@ -2,7 +2,7 @@
 <html lang="pt" xmlns="http://www.w3.org/1999/xhtml" 
 	xmlns:th="http://www.thymeleaf.org"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	xmlns:brewer="http://sinapiPRO.ifrn.edu.br"
+	xmlns:sinapiPRO="http://sinapiPRO.ifrn.edu.br"
 	xmlns:data="http://www.thymeleaf.org/extras/data"
 	layout:decorate="~{layout/LayoutPadrao}">
 	
@@ -43,7 +43,7 @@
 			<table class="table  table-hover">
 				<thead>
 					<tr>
-						<th class="table-classes-col-codigo text-center">Código</th>
+						<th class="table-col-codigo text-center">Código</th>
 						<th> <sinapiPRO:order page="${pagina}" field="nome" text="Nome"/> </th>
 						<th class="table-col-acoes"></th>
 					</tr>

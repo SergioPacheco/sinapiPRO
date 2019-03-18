@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" 
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/LayoutPadrao}"
+	xmlns:sinapiPRO="http://sinapiPRO.ifrn.edu.br"
+	xmlns:data="http://www.thymeleaf.org/extras/data">
+	
+<head>
+	<title>SinapiPRO</title>
+	
+	<link rel="stylesheet" th:href="@{/stylesheets/vendors/easy-autocomplete.min.css}"/>
+	<link rel="stylesheet" th:href="@{/stylesheets/vendors/easy-autocomplete.themes.min.css}"/>
+</head>
+
+<body>
+<section layout:fragment="conteudo">
+	<div class="page-header">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-sm-6">
+					<h1 th:text="#{orcamento.edicao.obra(${orcamentoAtual.codigo}, ${orcamentoAtual.nome})}">Casa Residencial </h1>
+				</div>
+				<div class="col-sm-3 text-right">
+					<h3><span th:text="#{orcamento.edicao.uf(${orcamentoAtual.estado.nome})}">RN</span></h3>
+				  	<h5> <span th:text="#{orcamento.edicao.base(${orcamentoAtual.baseInsumo.nome})}">SINAPI</span> </h5>
+				</div>
+				<div class="col-sm-3">
+				 	<div class="aw-page-header-controls">
+				   		<a  class="btn  btn-default js-tooltip" 
+				   		    title="Pesquisar Insumos" th:href="@{/insumos}">
+							<i class="fa fa-cube"></i> <span class="hidden-xs  hidden-sm"></span>
+						</a>
+						<span style="width:10px"></span>
+				   		<a 	class="btn  btn-default js-tooltip" 
+				   		 	title="Pesquisar Composições" th:href="@{/composicoes}">
+							<i class="fa fa-cubes"></i> <span class="hidden-xs  hidden-sm"></span>
+						</a>
+						<span style="width:10px"></span>
+				   		<a 	class="btn  btn-default js-tooltip" 
+				   			title="Itemizar"           
+				   			th:href="@{/atual/itemizar/{codigo}(codigo=${orcamentoAtual.codigo})}">
+							<i class="fa fa-align-center"></i> <span class="hidden-xs  hidden-sm"></span>
+						</a>
+						<span style="width:10px"></span>
+				   		<a 	class="btn  btn-default js-tooltip" 
+				   			title="Lista de Insumos"   th:href="@{/insumos/listaInsumos/{codigo}(codigo=${orcamentoAtual.codigo})}">
+							<i class="glyphicon  glyphicon-list"></i> <span class="hidden-xs  hidden-sm"></span>
+						</a>
+						<span style="width:10px"></span>
+				   		<a 	class="btn  btn-default js-tooltip" 
+				   			title="Editar Orçamento"   th:href="@{/orcamentos/{codigo}(codigo=${orcamentoAtual.codigo})}">
+							<i class="glyphicon  glyphicon-pencil"></i> <span class="hidden-xs  hidden-sm"></span>
+						</a>
+						<span style="width:10px"></span>
+						<div class="btn-group">
+							<a 	class="btn  btn-default js-tooltip" 
+								title="Imprimir Orçamento" th:href="@{/orcamentos/{codigo}(codigo=${orcamentoAtual.codigo})}">
+								<i class="glyphicon  glyphicon-print"></i> <span class="hidden-xs  hidden-sm"></span>
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- começo cadastro item novo --> 
+	<div class="container-fluid"> 
+	 	<div class="row spacer" style="clear: both">
+			<div class="col-sm-8">
+				<button class="btn  btn-primary js-toolip"
+						type="button" 
+				        title="Incluir Etapa"
+				        data-toggle="modal" 
+				       	data-target="#pesquisaRapidaEtapas">
+					    <i class="fa fa-plus"></i>
+					    ETAPA
+				</button>
+				<div class="btn-group">
+				  <button type="submit" class="btn btn-primary">
+				  	<i class="fa fa-plus fa-1x"></i> INSUMO</button>
+				  
+				  <button type="button" class="btn btn-primary  dropdown-toggle" data-toggle="dropdown">
+				    <span class="caret"></span></button>
+				  <ul class="dropdown-menu">
+				    <li><a href="#" data:acao="sinapi"> <i class="fa fa-search"></i> Base SINAPI</a></li>
+				    <li><a href="#" data:acao="propria"><i class="fa fa-search"></i> Base PRÓPRIA</a></li>
+				  </ul>
+				</div>
+				
+				<div class="btn-group">
+				  <button type="submit" class="btn  btn-primary" >
+				  	<i class="fa fa-plus"></i>
+				  	COMPOSIÇÃO
+				  </button>
+				  <button type="button" class="btn  btn-primary  dropdown-toggle" data-toggle="dropdown">
+				    <span class="caret"></span>
+				  </button>
+				  <ul class="dropdown-menu">
+				    <li><a href="#" class="js-submit-btn"><i class="fa fa-search"></i> Base SINAPI</a></li>
+				    <li><a href="#" class="js-submit-btn"><i class="fa fa-search"></i> Base PRÓPRIA</a></li>
+				  </ul>
+				</div>
+				<div class="btn-group">
+				  <button type="submit" class="btn  btn-primary" >
+				  	<i class="fa fa-list"></i>
+				  	RELATÓRIOS
+				  </button>
+				  <button type="button" class="btn  btn-primary  dropdown-toggle" data-toggle="dropdown">
+				    <span class="caret"></span>
+				  </button>
+				  <ul class="dropdown-menu">
+				    <li><a th:href="@{/atual/imprimirOrcamento/{codigo}(codigo=${orcamentoAtual.codigo})}"><i class="fa fa-print" ></i> Relatório do Orçamento</a></li>
+				    <li><a th:href="@{/atual/imprimirComposicoesOrcamento/{codigo}(codigo=${orcamentoAtual.codigo})}" class="js-submit-btn"><i class="fa fa-print"></i> Composições do Orçamento</a></li>
+				    <li><a href="#" class="js-submit-btn"><i class="fa fa-print"></i> Insumos do Orçamento</a></li>
+				    <li><a href="#" class="js-submit-btn"><i class="fa fa-print"></i> Serviços do Orçamento</a></li>
+				  </ul>
+				</div>
+				
+				
+				<a th:href="@{/atual}">
+					<button type="submit" class="btn btn-primary">
+					  	<i class="fa fa-bars"></i>
+					</button>
+				</a>	
+			</div>
+			<div class="col-sm-4"> </div>
+		</div>
+		 
+		<form method="POST" th:object="${item}" autocomplete="off" class="form-vertical  js-form-loading"
+		  	  th:action="${item.novo} ? @{/atual/novo} : @{/atual/{codigo}(codigo=${item.codigo})}"
+		  	  th:unless="${item.novo}">
+				
+			<sinapiPRO:message/>
+				
+			<input type="hidden" th:field="*{codigo}"/>
+			<input type="hidden" th:field="*{etapa}"/>
+			<input type="hidden" th:field="*{tipo}"/>
+			<input type="hidden" th:field="*{especie}"/>
+			<input type="hidden" th:field="*{orcamento}"/>
+			<input type="hidden" th:field="*{insumo}"/>
+			<input type="hidden" th:field="*{composicao}"/>
+			 
+			<div class="form-group">
+				<div class="row sn-etapa">
+					<th:block th:switch="${item.tipo.descricao}"> 
+						<th:block th:case="'Etapa'">
+						    
+							<div class="col-sm-1 form-group">
+								<button type="button" class="btn btn-secundary">ETAPA: </button> 
+							</div>
+							<div class="col-sm-1 form-group">
+								<lable for="itemizacao" class="control-label">Item:</label> 
+								<input id="itemizacao" type="text"class="form-control" th:field="*{itemizacao}" />
+							</div>	
+							<div class="col-sm-9 form-group">
+								<lable for="descricao" class="control-label">Descrição:</label> 					
+								<input id="descricao" type="text" class="form-control" th:field="*{descricao}" />
+							</div>	
+							<input type="hidden" th:field="*{unidade}"/>
+							<input type="hidden" th:field="*{quantidade}"/>
+							<input type="hidden" th:field="*{valorUnitario}"/>
+							<input type="hidden" th:field="*{valorMaoObra}"/>
+							<input type="hidden" th:field="*{valorMaterial}"/>
+							<input type="hidden" th:field="*{valorEquipamento}"/>
+						</th:block> 
+						
+						<th:block th:case="'Insumo'">
+							<div class="col-sm-1 form-group">
+								 <button type="button" class="btn btn-secundary">INSUMO: </button> 
+							</div>
+							<div class="col-sm-1 form-group">
+								<lable for="itemizacao" class="control-label">Item:</label> 
+								<input id="itemizacao" type="text"class="form-control" th:field="*{itemizacao}" />
+							</div>	
+							<div class="col-sm-6 form-group">
+								<lable for="descricao" class="control-label">Descrição:</label> 					
+								<input id="descricao" type="text" class="form-control" th:field="*{descricao}" />
+							</div>	
+							<div class="col-sm-1 form-group">
+								<lable for="unidade" class="control-label">UN:</label> 					
+								<input id="unidade" type="text" class="form-control" th:field="*{unidade}" />
+							</div>	
+							<div class="col-sm-1 form-group">
+								<lable for="quantidade" class="control-label js-coeficiente">Qtd:</label> 			
+								<input id="quantidade"  type="text" class="form-control" th:field="*{quantidade}" />
+							</div>	
+							<div class="col-sm-1 form-group">
+									<lable for="valorUnitario" class="control-label js-decimal">Vl.Unitário:</label>  
+									<input id="valorUnitario" maxlength="10"type="text" class="form-control" th:field="*{valorUnitario}" />
+							</div>	
+							<input type="hidden" th:field="*{valorMaoObra}"/>
+							<input type="hidden" th:field="*{valorMaterial}"/>
+							<input type="hidden" th:field="*{valorEquipamento}"/>
+						</th:block> 
+						
+						<th:block th:case="'Composição'">
+							<div class="col-sm-1 form-group">
+								 <button type="button" class="btn btn-secundary">COMPOSIÇÃO: </button> 
+							</div>
+							<div class="col-sm-1 form-group">
+								<lable for="itemizacao" class="control-label">Item:</label> 
+								<input id="itemizacao" type="text"class="form-control" th:field="*{itemizacao}" />
+							</div>	
+							<div class="col-sm-6 form-group">
+								<lable for="descricao" class="control-label">Descrição:</label> 					
+								<input id="descricao" type="text" class="form-control" th:field="*{descricao}" />
+							</div>	
+							<div class="col-sm-1 form-group">
+								<lable for="unidade" class="control-label">Unidade:</label> 					
+								<input id="unidade" type="text" class="form-control" th:field="*{unidade}" />
+							</div>	
+							<div class="col-sm-1 form-group">
+								<lable for="quantidade" class="control-label js-decimal">Quantidade:</label> 			
+								<input id="quantidade" type="text" class="form-control" th:field="*{quantidade}" />
+							</div>	
+							<div class="col-sm-1 form-group">
+									<lable for="valorUnitario" class="control-label js-decimal">Vl.Unitário:</label>  
+									<input id="valorUnitario" maxlength="10"type="text" class="form-control" th:field="*{valorUnitario}" />
+							</div>	
+						 	<input type="hidden" th:field="*{valorMaoObra}"/>
+							<input type="hidden" th:field="*{valorMaterial}"/>
+							<input type="hidden" th:field="*{valorEquipamento}"/>
+						</th:block> 
+						<div class="col-sm-1 form-group">
+						   <lable for="btnSubmit" class="control-label">.</label>
+							<button id="btnSubmit" class="btn  btn-primary form-control" type="submit">Salvar</button>
+						</div>
+					</th:block> 	
+				</div>	
+			</div>	
+		</form>
+		 
+		 
+	</div>
+	<!-- fim cadastro item novo -->
+	
+	<div class="row spacer"></div>
+	
+	<!-- pesquisa -->
+	<div class="container-fluid" >
+		<div class="row" >
+			<form method="GET" th:object="${atualFilter}" th:action="@{/atual}">
+				<div class="form-group  col-sm-6">
+					<select id="etapa" onchange="this.form.submit()" placeholder="Selecione a Etapa" class="form-control" th:field="*{etapa}">
+		            	<option value="">Todas Etapas</option>
+		                <option th:each="etapa : ${etapas}" th:text="${etapa.nome}" th:value="${etapa.codigo}"></option>
+		            </select>
+				</div>
+				<div class="form-group  col-sm-6">
+					<div class="input-group">
+						<input  id="descricaoItem" type="text" placeholder="Pesquisa nos itens do orçamento"class="form-control" th:field="*{descricaoItem}"/>
+						<span class="input-group-btn">
+							<button type="submit" class="btn btn-primary"> <i class="fa fa-search"></i></button>
+						</span>
+					</div>
+				</div>
+				
+			</form>
+			
+		</div>
+		
+		<div class="table-responsive  sn-tabela-simples">
+		
+			<table class="table  table-hover">
+				<thead>
+					<tr>
+						<th class="table-orca-col-codigo">Código</th>
+						<th class="table-orca-col-tipo">Tipo</th>
+						<th class="table-orca-col-tipo">Item</th>
+						<th class="table-orca-col-descricao">Descrição</th>
+						<th class="table-orca-col-unidade text-center">Unidade</th>
+						<th class="table-orca-col-valor text-right">Quantidade</th>
+						<th class="table-orca-col-valor text-right">Vl.Unitário</th>
+						<th class="table-orca-col-valor text-right">Vl.Total</th>
+						<th class="table-col-acoes"></th>
+					</tr>
+				</thead>
+				<tbody>
+					
+				<div th:each="filtro : ${pagina.conteudo}">
+				     
+					<tr th:switch="${filtro.tipo.descricao}">
+					 
+						<th:block th:case="'Etapa'">
+							<td class="sn-etapa"></td> <td class="sn-etapa"></td>
+							<td class="sn-etapa" th:text="${filtro.itemizacao}">E</td>
+							<td class="sn-etapa" th:text="${filtro.descricao}">PROJETOS</td>
+							<td class="sn-etapa"></td> <td class="sn-etapa"></td>
+							<td class="sn-etapa"></td> <td class="sn-etapa"></td>
+							 
+							<td class="text-center sn-etapa">
+								<a class="btn  btn-link  btn-xs  js-tooltip" title="Editar" 
+								   th:href="@{/atual/{codigo}(codigo=${filtro.codigo})}"> 
+								   <i class="glyphicon glyphicon-pencil"></i>
+								</a>
+								<form action="#" th:action="@{'/atual/{codigo}'(codigo=${filtro.codigo})}" th:method="delete" class="form-horizontal">
+									<input type="hidden" name="_method" value="delete"/>
+								    <button type="submit" class="btn  btn-link  btn-xs  js-tooltip" title="Excluir"> 
+								            <i class="glyphicon glyphicon-trash"></i>
+								    </button>        
+								</form>
+							</td>
+							
+						</th:block>
+						
+						<th:block th:case="'Insumo'" class="sn-insumo">
+							<td class="text-center" th:text="${filtro.insumo.codigoInsumo}">001</td>
+							<td class="text-center" th:text="${#strings.substring(filtro.tipo,0,1)}">COMPOSICAO</td>
+							<td class="text-left" th:text="${filtro.itemizacao}">C</td>
+							<td class="text-left" th:text="${filtro.descricao}">Alvenaria</td>
+							<td class="text-center" th:text="${filtro.unidade}">C</td>
+							<td class="text-center js-decimal" th:text="|${#numbers.formatDecimal(filtro.quantidade, 0, 'POINT', 2, 'COMMA')}|">C</td>
+							<td class="text-right js-decimal" th:text="|R$ ${#numbers.formatDecimal(filtro.valorUnitario, 0, 'POINT', 2, 'COMMA')}|"></td>
+							<td class="text-right js-decimal" th:text="|R$ ${#numbers.formatDecimal(filtro.quantidade * filtro.valorUnitario, 0, 'POINT', 2, 'COMMA')}|"></td>
+							 
+							<td class="text-center">
+								<a class="btn  btn-link  btn-xs  js-tooltip" title="Editar" 
+								   th:href="@{/atual/{codigo}(codigo=${filtro.codigo})}"> 
+								   <i class="glyphicon glyphicon-pencil"></i>
+								</a>
+								<form action="#" th:action="@{'/atual/{codigo}'(codigo=${filtro.codigo})}" th:method="delete">
+									<input type="hidden" name="_method" value="delete"/>
+								    <button type="submit" class="btn  btn-link  btn-xs  js-tooltip" title="Excluir"> 
+								            <i class="glyphicon glyphicon-trash"></i>
+								    </button>        
+								</form>
+							</td>
+						</th:block>
+						
+						<th:block th:case="'Composição'" >
+							<td class="text-center" th:text="${filtro.composicao.codigoComposicao}">001</td>
+							<td class="text-center" th:text="${#strings.substring(filtro.tipo,0,1)}">COMPOSICAO</td>
+							<td class="text-left" th:text="${filtro.itemizacao}">C</td>
+							<td class="text-left" th:text="${filtro.descricao}">Alvenaria</td>
+							<td class="text-center" th:text="${filtro.unidade}">C</td>
+							<td class="text-center js-decimal" th:text="|${#numbers.formatDecimal(filtro.quantidade, 0, 'POINT', 4, 'COMMA')}|">C</td>
+							<td class="text-right js-decimal" th:text="|R$ ${#numbers.formatDecimal(filtro.valorUnitario, 0, 'POINT', 2, 'COMMA')}|">C</td>
+							<td class="text-right js-decimal" th:text="|R$ ${#numbers.formatDecimal(filtro.quantidade * filtro.valorUnitario, 0, 'POINT', 2, 'COMMA')}|">R$ 12,89</td>
+							 
+							<td class="text-center">
+								<a class="btn  btn-link  btn-xs  js-tooltip" title="Editar" 
+								   th:href="@{/atual/{codigo}(codigo=${filtro.codigo})}"> 
+								   <i class="glyphicon glyphicon-pencil"></i>
+								</a>
+								<form action="#" th:action="@{'/atual/{codigo}'(codigo=${filtro.codigo})}" th:method="delete" class="form-horizontal">
+									<input type="hidden" name="_method" value="delete"/>
+								    <button type="submit" class="btn  btn-link  btn-xs  js-tooltip" title="Excluir"> 
+								            <i class="glyphicon glyphicon-trash"></i>
+								    </button>        
+								</form>
+							</td>
+						</th:block>
+						
+					</tr>
+					
+					<tr th:if="${pagina.vazia}">
+						<td colspan="3" >Nenhuma item encontrado</td>
+					</tr>
+				   	
+				</div> <!-- filtro -->
+					
+				</tbody>
+			</table>
+			
+		</div>
+		
+		<!-- inicio paginação  -->
+		 
+		<div class="row"> 
+			<div class="col-sm-4">
+				<div class="text-left" th:if="${not pagina.vazia}">
+					<nav>
+						<ul class='pagination pagination-sm pagination-start' th:with="paginaAtual=${pagina.atual}">
+					    	<li th:class="${pagina.primeira}?'disabled':''">
+			              		<span th:if='${pagina.primeira}'>Primeira</span>
+			                	<a th:if='${not pagina.primeira}' th:href='@{${pagina.urlParaPagina(paginaAtual-paginaAtual)}}'>Primeira</a>
+			                </li>
+			                <li th:class="${pagina.primeira} ? disabled">
+			                	<a th:href="${pagina.urlParaPagina(paginaAtual - 1)}" th:remove="${pagina.primeira} ? tag" title='Ir para página anterior'><span>&laquo;</span></a>
+			                </li>
+			                <li th:each='item : ${pagina.items}' th:class="${item.current}? 'active' : ''">
+			                	<span th:if='${item.current}' th:text='${item.number}'>1</span>
+			                	<a th:if='${not item.current}' th:href='@{${pagina.urlParaPagina(item.number-1)}}'><span th:text='${item.number}'>1</span></a>
+			                </li>
+							<li th:class="${pagina.ultima} ? disabled">
+								<a th:href="${pagina.urlParaPagina(paginaAtual + 1)}" th:remove="${pagina.ultima} ? tag" title='Ir para próxima página'><span>&raquo;</span></a>
+							</li>
+							<li th:class="${pagina.ultima}? disabled">
+								<span th:if='${pagina.ultima}'>Último</span>
+			                	<a th:if='${not pagina.ultima}' th:href='@{${pagina.urlParaPagina(pagina.total-1)}}'>Última</a>
+			                </li>
+			
+			            </ul>
+					</nav>
+				</div>
+			</div>	
+		</div>
+		<div class="row"> 	 
+			<div th:unless="${pagina.vazia}">
+				<div class="col-sm-3"> 
+				</div>
+				<div class="aw-box  js-valor-total-box-container col-sm-2">
+					<div class="aw-box__title">Mão de Obra</div>
+					<div class="aw-box__value">R$ <span th:text="${{totalMaoObra}}">0,00</span></div>
+				</div>
+				<div class="aw-box  js-valor-total-box-container col-sm-2">
+					<div class="aw-box__title">Material</div>
+					<div class="aw-box__value">R$ <span th:text="${{totalMaterial}}">0,00</span></div>
+				</div>
+				<div class="aw-box  js-valor-total-box-container col-sm-2">
+					<div class="aw-box__title">Equipamentos</div>
+					<div class="aw-box__value">R$ <span th:text="${{totalEquipamento}}">0,00</span></div>
+				</div>
+				<div class="aw-box  js-valor-total-box-container col-sm-2">
+					<div class="aw-box__title">Total</div>
+					<div class="aw-box__value">R$ <span th:text="${{totalOrcamento}}">0,00</span></div>
+				</div>
+				<div class="col-sm-1"> 
+			</div>	
+			 
+		</div>
+		
+		<!-- fim paginacao -->
+		
+		<th:block th:replace="etapa/PesquisaRapidaEtapas :: pesquisaRapidaEtapas"></th:block>
+		
+	</div> 
+	<!-- fim pesquisa -->
+	
+	<!-- hbs -->
+	<script id="template-autocomplete-composicao" type="text/x-handlebars-template">
+	<div class="sn-tabela-item">
+		<div class="sn-tabela-item__coluna  sn-tabela-item__coluna--unidade">
+			 <span>{{unidade}}</span>
+		</div>
+		<div class="sn-tabela-item__coluna  sn-tabela-item__coluna--detalhes">
+			<span>{{descricao}}</span>
+		</div>
+		<div class="sn-tabela-item__coluna  sn-tabela-item__coluna--valores">
+			<span  class="label  label-default">{{codigo}}</span>
+			<div class="sn-tabela-item-valor-medio">R${{valorFormatado}}</div>
+		</div>
+	</div>
+	</script>
+	<script id="template-autocomplete-insumo" type="text/x-handlebars-template">
+	<div class="sn-tabela-item">
+	
+		<div class="sn-tabela-item__coluna  bw-tabela-item__coluna--detalhes">
+			<span class="sn-tabela-item-nome">{{descricao}}</span>
+			<span class="label label-default">{{codigo}}</span>
+			<span class="bn-tabela-item-unidade">{{unidade}}</span>
+		</div>
+		<div class="bw-tabela-item__coluna  bw-tabela-item__coluna--valores">
+			<div class="bw-tabela-item-valor-medio">R${{valorFormatado}}</div>
+		</div>
+
+	</div>
+	</script>
+	<script id="template-autocomplete-etapa" type="text/x-handlebars-template">
+	  <table class="table">
+		<tr>
+			<td class="auto-codigo">{{codigo}}</td>
+			<td class="auto-nome" >{{nome}}</td>
+ 		</tr>
+	  </table>
+	</script>
+	<!-- fim hbs -->
+	
+</section>
+<script>
+$.extend($.ui.autocomplete.prototype.options, {
+	open: function(event, ui) {
+		$(this).autocomplete("widget").css({
+            "width": ($(this).width() + "px")
+        });
+    }
+});
+</script>
+
+</body>
+<th:block layout:fragment="javascript-extra">
+	<!-- <script th:src="@{/javascripts/orcamento/etapa.pesquisa-rapida.js}"></script> -->
+	<script th:src="@{/javascripts/vendors/jquery.easy-autocomplete.min.js}"></script>
+	<script th:src="@{/javascripts/vendors/handlebars.min.js}"></script>
+	<script th:src="@{/javascripts/orcamento/orcamento.autocomplete-composicao.js}"></script>
+	<script th:src="@{/javascripts/orcamento/orcamento.autocomplete-insumo.js}"></script>
+	<script th:src="@{/javascripts/orcamento/orcamento.autocomplete-etapa.js}"></script>
+</th:block>
+</html>

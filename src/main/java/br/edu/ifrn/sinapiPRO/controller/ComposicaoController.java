@@ -2,6 +2,7 @@ package br.edu.ifrn.sinapiPRO.controller;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -9,7 +10,9 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -27,19 +30,27 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
 import br.edu.ifrn.sinapiPRO.dto.ComposicaoDTO;
+import br.edu.ifrn.sinapiPRO.model.BaseInsumo;
 import br.edu.ifrn.sinapiPRO.model.Composicao;
 import br.edu.ifrn.sinapiPRO.model.ComposicaoItem;
+import br.edu.ifrn.sinapiPRO.model.Etapa;
 import br.edu.ifrn.sinapiPRO.model.Insumo;
+import br.edu.ifrn.sinapiPRO.model.Item;
+import br.edu.ifrn.sinapiPRO.model.Orcamento;
+import br.edu.ifrn.sinapiPRO.model.Tipo;
 import br.edu.ifrn.sinapiPRO.repository.BaseInsumosRepository;
-import br.edu.ifrn.sinapiPRO.repository.BasePrecosRepository;
-import br.edu.ifrn.sinapiPRO.repository.ComposicaoClassesRepository;
-import br.edu.ifrn.sinapiPRO.repository.ComposicaoGruposRepository;
-import br.edu.ifrn.sinapiPRO.repository.ComposicaoItemRepository;
 import br.edu.ifrn.sinapiPRO.repository.ComposicaoRepository;
 import br.edu.ifrn.sinapiPRO.repository.InsumosRepository;
 import br.edu.ifrn.sinapiPRO.repository.filter.ComposicaoFilter;
 import br.edu.ifrn.sinapiPRO.security.UsuarioSistema;
+import br.edu.ifrn.sinapiPRO.service.BaseInsumoService;
+import br.edu.ifrn.sinapiPRO.service.BasePrecoService;
+import br.edu.ifrn.sinapiPRO.service.ComposicaoClasseService;
 import br.edu.ifrn.sinapiPRO.service.ComposicaoService;
+import br.edu.ifrn.sinapiPRO.service.OrcamentoService;
+import br.edu.ifrn.sinapiPRO.service.RelatorioService;
+import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
+import br.edu.ifrn.sinapiPRO.service.exception.JaCadastradoException;
 import br.edu.ifrn.sinapiPRO.session.composicao.TabelaComposicaoItemSession;
 
 @Controller
@@ -56,24 +67,27 @@ public class ComposicaoController {
 	private ComposicaoService composicaoService;
 	
 	@Autowired
-	private ComposicaoClassesRepository composicaoClassesRepository;
+	private BasePrecoService basePrecoService;
 	
 	@Autowired
-	private ComposicaoGruposRepository composicoaoGruposRepository;
+	private BaseInsumoService baseInsumoService;
 	
 	@Autowired
-	private BaseInsumosRepository baseInsumosRepository;
+	private ComposicaoClasseService composicaoClassesService;
+	
+	@Autowired
+	private OrcamentoService orcamentoService;
 	
 	@Autowired
 	private InsumosRepository insumosRepository;
 	
 	@Autowired
-	private BasePrecosRepository basePrecosRepository;
+	private BaseInsumosRepository baseInsumosRepository;
 	
-	@Autowired 
-	private ComposicaoItemRepository composicaoItemRepository; 
-
-	@GetMapping("/nova")
+	@Autowired
+	private RelatorioService relatorioService;
+	
+	@RequestMapping("/nova")
 	public ModelAndView nova(Composicao composicao) {
 		
 		ModelAndView mv = new ModelAndView("composicao/CadastroComposicao");
@@ -81,37 +95,26 @@ public class ComposicaoController {
 		setUuid(composicao);
 		
 		mv.addObject("itens", composicao.getItens());
-		mv.addObject("basePrecos", basePrecosRepository.findAll());
-		mv.addObject("baseInsumos", baseInsumosRepository.findAll());
-		mv.addObject("composicaoClasses", composicaoClassesRepository.findAll());
-		mv.addObject("composicaoGrupos", composicoaoGruposRepository.findAll());
-		mv.addObject("valorTotal", tabelaItens.getValorTotal(composicao.getUuid()));
-		
+		mv.addObject("basePrecos", basePrecoService.findAll());
+		mv.addObject("baseInsumos", baseInsumoService.findAll());
+		mv.addObject("composicaoClasses", composicaoClassesService.findAll());
+		 
 		return mv;
 	}
-	
+	 
 	@PostMapping(value = "/nova", params = "salvar")
 	public ModelAndView salvar(Composicao composicao, 
 			                    BindingResult result, 
 			           RedirectAttributes attributes, 
 			                 @AuthenticationPrincipal UsuarioSistema usuarioSistema){
-
+		if (result.hasErrors()) {
+			return nova(composicao);
+		}
+		
 		composicao.setUsuario(usuarioSistema.getUsuario());
-		
-		tabelaItens
-				.getItens(composicao.getUuid())
-				.forEach(i-> composicao.addItem(i));;
-		
-		//for (ComposicaoItem i:listaItem) {
-		//	composicao.addItem(i);
-		//}
-		 
-		composicao.calcularValorTotal();
 		composicaoService.salvar(composicao);
 		
-		// composicaoItemRepository.saveAll(listaItem );
-		
-		attributes.addFlashAttribute("mensagem", "Composicao salva com sucesso!");
+		attributes.addFlashAttribute("mensagem", "Composição salva com sucesso!");
 		return new ModelAndView("redirect:/composicoes/"+composicao.getCodigo());
 	}
 	
@@ -149,26 +152,21 @@ public class ComposicaoController {
 			                      HttpServletRequest httpServletRequest) {
 		
 		ModelAndView mv = new ModelAndView("/composicao/PesquisaComposicoes");
-		mv.addObject("baseInsumos", baseInsumosRepository.findAll());
-		mv.addObject("composicaoClasses", composicaoClassesRepository.findAll());
-		mv.addObject("composicaoGrupos", composicoaoGruposRepository.findAll());
+		mv.addObject("baseInsumos", baseInsumoService.findAll());
+		mv.addObject("composicaoClasses", composicaoClassesService.findAll());
 		
-		PageWrapper<Composicao> paginaWrapper = new PageWrapper<>(composicaoRepository.filtrar(composicaoFilter, pageable)
-				, httpServletRequest);
+		PageWrapper<Composicao> paginaWrapper = new PageWrapper<>(composicaoRepository
+				.filtrar(composicaoFilter, pageable), httpServletRequest);
 		mv.addObject("pagina", paginaWrapper);
 		return mv;
 	}
 	
 	/**
-	 * Pesquisa todas composições pela descrição por base de insumo 
-	 *  
-	 * @param codigoBaseInsumo
-	 * @param descricao
-	 * @return
+	 * PESQUISAR - Pesquisa todas composições pela descrição por base de insumo 
 	 */
 	@RequestMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody List<ComposicaoDTO> pesquisar(Long codigoBaseInsumo, String descricao) {
-		return composicaoRepository.porDescricao(codigoBaseInsumo, descricao);
+	public @ResponseBody List<ComposicaoDTO> pesquisar(String porDescricao) {
+		return composicaoRepository.porDescricao(porDescricao);
 	}
 	
 	@GetMapping("/{codigo}")
@@ -188,6 +186,34 @@ public class ComposicaoController {
 		mv.addObject(composicao);
 		return mv;
 	}
+	
+	/**
+	 *  EDITA POR CODIGO - edita o insumo pelo codigo do insumo 
+	 */
+	@GetMapping("/editaPorCodigo/{codigo}")
+	public ModelAndView editaPorCodigo(@PathVariable String codigo) {
+		
+		Optional<BaseInsumo> sinapi = baseInsumosRepository.findById(1L); // base vir como paramentro
+		Optional<Composicao> composicao = composicaoRepository.findByBaseInsumoAndCodigoComposicao(sinapi.get(), codigo);
+		
+		if (composicao.isPresent()) {
+			ModelAndView mv = nova(composicao.get());
+			mv.addObject(composicao.get());
+			return mv;
+		}
+		return new ModelAndView("/composicao/PesquisaComposicoes");
+	}
+	
+	@DeleteMapping("/{codigo}")
+	public @ResponseBody ResponseEntity<?> excluir(@PathVariable("codigo") Composicao composicao) {
+		try {
+			composicaoService.excluir(composicao);
+		} catch (ImpossivelExcluirEntidadeException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+		return ResponseEntity.ok().build();
+	}
+	
 		
 	@PostMapping(value = "/nova", params = "cancelar")
 	public ModelAndView cancelar(Composicao composicao, BindingResult result
@@ -204,6 +230,28 @@ public class ComposicaoController {
 		return new ModelAndView("redirect:/composicoes/" + composicao.getCodigo());
 	}
 	
+	/**
+	 *  IMPRIMIR - Imprime a composição selecionada
+	 */
+	@PostMapping(value = "/nova", params = "imprimir")
+	public ResponseEntity<byte[]> imprimir (Composicao composicao, 
+			                   @AuthenticationPrincipal UsuarioSistema usuarioSistema) {
+		
+		System.out.println("Imprimir composicao");
+		byte[] relatorio = null;
+		try {
+			relatorio = relatorioService
+					.gerarRelatorioImprimirComposicao(composicao.getCodigo(), 
+							usuarioSistema.getUsername());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE)
+				.body(relatorio);
+	}
+	
 	private ModelAndView mvTabelaItensComposicao(String uuid) {
 		
 		ModelAndView mv = new ModelAndView("composicao/TabelaItensComposicao");
@@ -217,6 +265,41 @@ public class ComposicaoController {
 		if(StringUtils.isEmpty(composicao.getUuid())){
 			composicao.setUuid(UUID.randomUUID().toString());
 		}
+	}
+	
+	@GetMapping("/adicionarComposicao/{codigo}")
+	public ModelAndView addComposicao(@PathVariable("codigo") Composicao composicao, 
+									  @AuthenticationPrincipal UsuarioSistema usuarioSistema) {
+	
+		Optional<Orcamento> orcamentoAtual = orcamentoService.findOrcamentoAtual(usuarioSistema.getUsername());
+		
+		if (!orcamentoAtual.isPresent()) {
+			System.out.println("ADICIONA COMPOSIÇÃO: Orçamento Atual não está presente da variavel global");
+			return new ModelAndView("redirect:/orcamentos");
+		}
+		
+		Optional<Etapa> etapaSelecionada = orcamentoService
+				.findEtapaSelecionada(usuarioSistema.getUsername());
+		
+		Item item = new Item();
+		item.setOrcamento(orcamentoAtual.get());
+		item.setTipo(Tipo.COMPOSICAO); 
+		item.setItemizacao(etapaSelecionada.get().getCodigo().toString()+".");
+		item.setDescricao(composicao.getDescricao());
+		item.setUnidade(composicao.getUnidade());
+		item.setQuantidade(BigDecimal.ONE);
+		item.setValorUnitario(composicao.getCustoTotal()); // TODO: Pesquisar na base de preço do orcamento
+		item.setEtapa(etapaSelecionada.get());
+		item.setComposicao(composicao);
+		item.setValorMaoObra(composicao.getCustoMaoObra()); // multiply quantidade
+		item.setValorMaterial(composicao.getCustoMaterial());
+		item.setValorEquipamento(composicao.getCustoEquipamento());
+
+		orcamentoAtual.get().addItem(item); 
+		orcamentoService.salvar(orcamentoAtual.get()); 
+
+		return new ModelAndView("redirect:/atual");
+
 	}
 	
 }

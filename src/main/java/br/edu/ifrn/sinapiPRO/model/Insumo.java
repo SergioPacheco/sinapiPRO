@@ -7,23 +7,18 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.hibernate.annotations.JoinFormula;
-
-import br.edu.ifrn.sinapiPRO.utils.Lib;
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity(name = "Insumo")
 @Table(name = "insumo", 
@@ -33,12 +28,13 @@ public class Insumo implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY, generator="native")
+	@GenericGenerator(name = "native", strategy = "native")
 	private Long codigo;
 	
 	@NotNull(message = "O código do insumo é obrigatório")
 	@Column(name = "codigo_insumo")
-	private Long codigoInsumo; 
+	private String codigoInsumo; 
 	
 	@NotNull(message = "A base de insumo é obrigatória")
 	@ManyToOne
@@ -86,11 +82,11 @@ public class Insumo implements Serializable {
 		this.baseInsumo = baseInsumo;
 	}
 
-	public Long getCodigoInsumo() {
+	public String getCodigoInsumo() {
 		return codigoInsumo;
 	}
 
-	public void setCodigoInsumo(Long codigoInsumo) {
+	public void setCodigoInsumo(String codigoInsumo) {
 		this.codigoInsumo = codigoInsumo;
 	}
 

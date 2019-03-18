@@ -8,6 +8,7 @@ import java.util.stream.IntStream;
 
 import br.edu.ifrn.sinapiPRO.model.ComposicaoItem;
 import br.edu.ifrn.sinapiPRO.model.Insumo;
+import br.edu.ifrn.sinapiPRO.model.Tipo;
 
 public class TabelaComposicaoItem {
 
@@ -42,7 +43,7 @@ public class TabelaComposicaoItem {
 			composicaoItem.setCodigoItem(insumo.getCodigoInsumo());
 			composicaoItem.setUnidade(insumo.getUnidade());
 			composicaoItem.setDescricao(insumo.getDescricao());
-			composicaoItem.setTipo("INSUMO");
+			composicaoItem.setTipo(Tipo.INSUMO);
 			composicaoItem.setPrecoUnitario(insumo.getPrecoPadrao());
 			composicaoItem.setCoeficiente(coeficiente);
 			itens.add(0, composicaoItem);

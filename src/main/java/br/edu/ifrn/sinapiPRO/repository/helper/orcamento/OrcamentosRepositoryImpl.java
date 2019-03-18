@@ -63,6 +63,8 @@ public class OrcamentosRepositoryImpl implements OrcamentosRepositoryQueries {
 		criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 		return (Orcamento) criteria.uniqueResult();
 	}
+	
+	
 }
 
 

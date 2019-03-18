@@ -9,6 +9,8 @@
 <head>
 	<title>Cadastro Composições</title>
 	<link rel="stylesheet" type="text/css" th:href="@{/stylesheets/vendors/bootstrap-switch.min.css}"/>
+	<link rel="stylesheet" th:href="@{/stylesheets/vendors/easy-autocomplete.min.css}"/>
+	<link rel="stylesheet" th:href="@{/stylesheets/vendors/easy-autocomplete.themes.min.css}"/>
 </head>
  
 <section layout:fragment="conteudo">
@@ -44,40 +46,39 @@
 			<input type="hidden" id="uuid" th:field="*{uuid}"/>
 			<input type="hidden" th:field="*{codigo}"/>
 			<input type="hidden" th:field="*{usuario}"/>
+			<input type="hidden" th:field="*{itens}"/>
+			<input type="hidden" th:field="*{usuario}">
+			<input type="hidden" th:field="*{status}">
+			<input type="hidden" th:field="*{dataCriacao}">
+			<input type="hidden" th:field="*{percMaoObra}">
+			<input type="hidden" th:field="*{percMaterial}">
+			<input type="hidden" th:field="*{percEquipamento}">
 			
 			<div class="row">
 			
-				<div class="form-group col-sm-3  sn-required" sinapiPRO:classforerror="codigoComposicao" >
+				<div class="form-group col-sm-2  sn-required"  sinapiPRO:classforerror="codigoComposicao" >
 					<label for="codigoComposicao" class="control-label">Código</label>
 				    <input id="codigoComposicao" type="number" class="form-control" th:field="*{codigoComposicao}"/>
 				</div>	
-				
-				<div class="form-group  col-sm-3 sn-required">
+				<div class="form-group  col-sm-2 sn-required"  sinapiPRO:classforerror="baseInsumo">
 					<label for="baseInsumo">Base Insumos</label>
 					<select id="baseInsumo" class="form-control" th:field="*{baseInsumo}">
-	                    <option value="">Selecione a Base de Insumos</option>
+	                    <option value="">Todas</option>
 	                    <option th:each="baseInsumo : ${baseInsumos}" 
 	                            th:value="${baseInsumo.codigo}" 
 	                            th:text="${baseInsumo.nome}">SINAPI</option>
 	                </select>
 	       		</div>  
-	       		
-	       		<div class="form-group col-sm-3 " sinapiPRO:classforerror="basePreco">
-					<label for="basePreco">Base Preçoso</label>
+	       		<div class="form-group col-sm-2 ">
+					<label for="basePreco">Base Preços</label>
 					<select id="basePreco" class="form-control" th:field="*{basePreco}">
-	                   <option value="">Selecione a Base de Preços</option>
+	                   <option value="">Todas</option>
 	                   <option th:each="basePreco : ${basePrecos}" 
 	                           th:value="${basePreco.codigo}" 
 	                           th:text="${basePreco.nome}">SINAPI</option>
                 	</select>
 				</div>
-				<div class="form-group  col-sm-3">
-					<label for="dataCriacao" class="control-label" >Data Criação</label>
-					<input id="dataCriacao"class="form-control"  type="text"  th:field="*{dataCriacao}" disabled/>
-				</div>
-			</div>	
 				
-			<div class="row">	
 				<div class="form-group  col-sm-3">
 					<label for="composicaoClasse">Classe</label>
 					<select id="composicaoClasse" class="form-control" th:field="*{composicaoClasse}">
@@ -93,99 +94,176 @@
 					<select id="composicaoGrupo" class="form-control" th:field="*{composicaoGrupo}">
 	                    
 	                    <option value="">Todos</option>
-	                    <option th:each="composicaoGrupo : ${composicaoGrupos}" 
+	                    <option th:each ="composicaoGrupo : ${composicaoGrupos}" 
 	                            th:value="${composicaoGrupo.codigo}" 
-	                            th:text="${composicaoGrupo.nome}">SINAPI</option>
+	                            th:text ="${composicaoGrupo.nome}">SINAPI</option>
 	                </select>
 				</div>
-			
-				 
-				<div class="form-group col-sm-3 sn-required" sinapiPRO:classforerror="unidade">
+			</div>	
+				
+			<div class="row">	
+			    <div class="col-sm-9 form-group sn-required" sinapiPRO:classforerror="descricao">
+					<label for="descricao" class="control-label">Descrição</label>
+					<textarea id="descricao" rows="2" class="form-control" th:field="*{descricao}"></textarea>
+				</div>	
+				<div class="form-group col-sm-1 sn-required" sinapiPRO:classforerror="unidade">
 					<label for="unidade" class="control-label">Unidade</label>
 					<input id="unidade" type="text" class="form-control" th:field="*{unidade}" />
 				</div>
 				 
-				<div class="form-group col-sm-3">
+				<div class="form-group col-sm-2">
 					<label for="custoTotal" class="control-label">Preço Padrão</label>
 					<div class="input-group">
 						<div class="input-group-addon">R$</div>
 						<input id="custoTotal" type="text" class="form-control  js-decimal" th:field="*{custoTotal}"/>
 					</div>
 				</div>
-				
-				
 			</div>
 			
-			<div class="row">	
-				<div class="col-sm-12 form-group sn-required" sinapiPRO:classforerror="descricao">
-					<label for="descricao" class="control-label">Descrição</label>
-					<textarea id="descricao" rows="2" class="form-control" th:field="*{descricao}"></textarea>
-				</div>	
-			</div>
-				
-			<div class="row">
-				<div class="form-group  col-lg-12">
-					<ul class="nav nav-tabs  js-abas-insumos">
-					  <li role="presentation" class="active"><a href="#insumos">Insumos</a></li>
-					  <li role="presentation"><a href="#composicoes">Composições</a></li>
-					</ul>
+			<div class="row card" >
+				<div class="form-group col-sm-3">
+					<label for="custoMaoObra" class="control-label">Custo Mão de Obra</label>
+					<div class="input-group">
+						<div class="input-group-addon">R$</div>
+						<input disabled id="custoMaoObra" type="text" class="form-control  js-decimal" th:field="*{custoMaoObra}"/>
+					</div>
+				</div>
+				<div class="form-group col-sm-3">
+					<label for="custoMaterial" class="control-label">Custo Material</label>
+					<div class="input-group">
+						<div class="input-group-addon">R$</div>
+						<input disabled id="custoMaterial" type="text" class="form-control  js-decimal" th:field="*{custoMaterial}"/>
+					</div>
+				</div>
+				<div class="form-group col-sm-3">
+					<label for="custoEquipamento" class="control-label">Custo Equipamento</label>
+					<div class="input-group">
+						<div class="input-group-addon">R$</div>
+						<input disabled id="custoEquipamento" type="text" class="form-control  js-decimal" th:field="*{custoEquipamento}"/>
+					</div>
+				</div>
+				<div class="form-group col-sm-3">
+					<label for="custoTotal" class="control-label">Custo Total</label>
+					<div class="input-group">
+						<div class="input-group-addon">R$</div>
+						<input disabled id="custoTotal" type="text" class="form-control  js-decimal" th:field="*{custoTotal}"/>
+					</div>
 				</div>
 			</div>
-			
-			<div class="tab-content">
-				<div class="tab-pane active" id="insumos">
-
-					<div class="row">
-						<div class="form-group  col-lg-12">
-							<input type="text" 
-							       class="form-control  js-codigo-descricao-insumo-input" id="insumo" 
-								   placeholder="Pesquise e adicione o insumo pelo cogio ou nome" 
-								   autofocus="autofocus" 
-								   data:url="@{/insumos}" 
-								   data:base="1"
-								   th:disabled="${composicao.salvarProibido}"/>
-						</div>
-					</div>
-					
-					<div class="sn-tabela-insumos  js-tabela-insumos-container" 
-					     data:valor="${valorTotalItens}">
-					     
-					      <th:block th:replace="composicao/TabelaItensComposicao"/>
-					     
-					</div>
-					
+			<div class="form-group">
+				 
+				<div th:if="${composicao.nova}">	
+				    <button type="submit" class="btn  btn-lg btn-primary  js-submit-btn">Salvar</button>
 				</div>
-				
-				<div class="tab-pane" id="composicao">
-					<div class="row">
-						<h1> INCLUSAO DE COMPOSIÇÕES  </h1>>
+				<div th:unless="${composicao.nova}">
+					<div th:if="${composicao.sinapi}">	
+					     <button type="submit" 
+					             class="btn btn-success  js-submit-btn" 
+					             data:acao="copiar"
+					             data-toggle="tooltip" 
+					             data-placement="top" 
+					             title="Escolha acima a Base de Insumo">Adicionar em Outra Base</button>
 					</div>
-					<div class="row">
-						<h1>TOTAIS </h1>>
+					<div th:unless="${composicao.sinapi}"> 
+					    <button type="submit" class="btn  btn-lg btn-primary  js-submit-btn">Salvar</button>
 					</div>
+					<button type="submit" 
+					             class="btn btn-secundary  js-submit-btn" 
+					             data:acao="imprimir"
+					             data-toggle="tooltip" 
+					             data-placement="top" 
+					             title="Imprime a composição">Imprimir</button>
 				</div>
-				
-			</div> <!-- fim tab-content -->
-			
-			<div class="row" style="clear: both" th:if="${composicao.salvarPermitido}">
-				<div class="col-lg-12">
-					<div class="btn-group">
-					  <button type="submit" class="btn  btn-primary  js-submit-btn" data:acao="salvar">Salvar</button>
-					  <button type="button" class="btn  btn-primary  dropdown-toggle" data-toggle="dropdown">
-					    <span class="caret"></span>
-					  </button>
-					  
-					  <ul class="dropdown-menu">
-					    <li><a href="#" class="js-submit-btn" data:acao="copiar">Copiar</a></li>
-					    <li><a href="#" class="js-submit-btn" data:acao="desativar">Salvar e enviar por e-mail</a></li>
-					  </ul>
-					</div>
-				
-					<button class="btn  btn-danger  js-submit-btn" data:acao="cancelar" th:unless="${composicao.nova}">Cancelar</button>
-				</div>
+			 
 			</div>
-			
 		</form>
+		
+		<div class="table-responsive  sn-tabela-simples">
+			<table class="table  table-hover">
+				<thead>
+					<tr>
+						<th class="table-orca-col-codigo">Código</th>
+						<th class="table-orca-col-tipo">Tipo</th>
+						<th class="table-col-descricao">Descrição</th>
+						<th class="table-col-unidade text-center">Unidade</th>
+						<th class="table-col-valor text-right">Coeficiente</th>
+						<th class="table-col-valor text-right">Vl.Unitário</th>
+						<th class="table-col-valor text-right">Vl.Total</th>
+						<th class="table-col-acoes"></th>
+					</tr>
+				</thead>
+				<tbody>
+				<div th:each="filtro : ${itens}">
+					<tr th:switch="${filtro.tipo.descricao}">
+						<th:block th:case="'Insumo'">
+							<td class="text-center">
+							    <a class="js-tooltip" 
+							       title="Edita o Insumo"	
+							       th:text="${filtro.codigoItem}"
+							       th:href="@{/insumos/editaPorCodigo/{codigo}(codigo=${filtro.codigoItem})}">
+							    </a>
+							</td> 
+							<td class="text-center" th:text="${#strings.substring(filtro.tipo,0,1)}">C</td>
+							<td class="text-left"   th:text="${filtro.descricao}">Alvenaria</td>
+							<td class="text-center" th:text="${filtro.unidade}">M2</td>
+							<td class="text-right js-coeficiente" th:text="|${#numbers.formatDecimal(filtro.coeficiente, 0, 'POINT', 7, 'COMMA')}|">0,0010C</td>
+							<td class="text-right js-decimal"     th:text="|R$ ${#numbers.formatDecimal(filtro.precoUnitario, 0, 'POINT', 2, 'COMMA')}|">R$4,56</td>
+							<td class="text-right js-decimal"     th:text="|R$ ${#numbers.formatDecimal(filtro.custoTotal, 0, 'POINT', 2, 'COMMA')}|">R$0,0456</td>
+							 
+							<td class="text-center">
+								<a class="btn  btn-link  btn-xs  js-tooltip" title="Editar" 
+								   th:href="@{/atual/{codigo}(codigo=${filtro.codigo})}"> 
+								   <i class="glyphicon glyphicon-pencil"></i>
+								</a>
+								<form action="#" th:action="@{'/atual/{codigo}'(codigo=${filtro.codigo})}" th:method="delete">
+									<input type="hidden" name="_method" value="delete"/>
+								    <button type="submit" class="btn  btn-link  btn-xs  js-tooltip" title="Excluir"> 
+								            <i class="glyphicon glyphicon-trash"></i>
+								    </button>        
+								</form>
+							</td>
+						</th:block>
+						
+						<th:block th:case="'Composição'" >
+							<td class="text-center">
+							    <a class="js-tooltip" 
+							       title="Edita a Composição"	
+							       th:text="${filtro.codigoItem}"
+							       th:href="@{/composicoes/editaPorCodigo/{codigo}(codigo=${filtro.codigoItem})}">
+							    </a>
+							</td> 						
+							<td class="text-center" th:text="${#strings.substring(filtro.tipo,0,1)}">COMPOSICAO</td>
+							<td class="text-left"   th:text="${filtro.descricao}">Alvenaria</td>
+							<td class="text-center" th:text="${filtro.unidade}">C</td>
+							<td class="text-right js-coeficiente" th:text="|${#numbers.formatDecimal(filtro.coeficiente, 0, 'POINT', 7, 'COMMA')}|">C</td>
+							<td class="text-right js-decimal"     th:text="|R$ ${#numbers.formatDecimal(filtro.precoUnitario, 0, 'POINT', 2, 'COMMA')}|">C</td>
+							<td class="text-right js-decimal"     th:text="|R$ ${#numbers.formatDecimal(filtro.custoTotal, 0, 'POINT', 2, 'COMMA')}|">R$ 12,89</td>
+							 
+							<td class="text-center">
+								<a class="btn  btn-link  btn-xs  js-tooltip" title="Editar" 
+								   th:href="@{/composicoes/item/{codigo}(codigo=${filtro.codigo})}"> 
+								   <i class="glyphicon glyphicon-pencil"></i>
+								</a>
+								<form action="#" 
+								      th:action="@{'/composicoes/item/{codigo}'(codigo=${filtro.codigo})}" 
+								      th:method="delete" class="form-horizontal">
+									<input type="hidden" name="_method" value="delete"/>
+								    <button type="submit" class="btn  btn-link  btn-xs  js-tooltip" title="Excluir"> 
+								            <i class="glyphicon glyphicon-trash"></i>
+								    </button>        
+								</form>
+							</td>
+						</th:block>
+					</tr>
+					
+					<!-- <tr th:if="${itens}">
+						<td colspan="3" >Nenhuma item encontrado</td>
+					</tr> -->
+				   	
+				</div> <!-- filtro -->
+				</tbody>
+			</table>
+		</div>
 	</div>
 
 	<script id="template-autocomplete-insumo" type="text/x-handlebars-template">

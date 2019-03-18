@@ -11,11 +11,9 @@ import br.edu.ifrn.sinapiPRO.repository.helper.composicao.ComposicaoRepositoryQu
 
 public interface ComposicaoRepository extends JpaRepository<Composicao, Long>, ComposicaoRepositoryQueries {
 
-	public Optional<Composicao> findByBaseInsumoAndCodigoComposicao(BaseInsumo baseInsumo, Long codigoComposicao);
+	public Optional<Composicao> findByBaseInsumoAndCodigoComposicao(BaseInsumo baseInsumo, String codigoComposicao);
 	public List<Composicao> findByBaseInsumo(BaseInsumo baseInsumo);
 }
-
-
 
 
 

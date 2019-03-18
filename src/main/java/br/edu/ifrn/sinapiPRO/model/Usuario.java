@@ -12,20 +12,24 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.beans.factory.annotation.Value;
 
 import br.edu.ifrn.sinapiPRO.validation.AtributoConfirmacao;
 
-@AtributoConfirmacao(atributo = "senha", atributoConfirmacao = "confirmacaoSenha"
-				, message = "Confirmação da senha não confere")
+@AtributoConfirmacao(atributo = "senha", 
+                     atributoConfirmacao = "confirmacaoSenha",
+				     message = "Confirmação da senha não confere")
 @Entity
 @Table(name = "usuario")
 @DynamicUpdate
@@ -45,14 +49,23 @@ public class Usuario implements Serializable {
 	@Email(message = "E-mail inválido")
 	private String email;
 
+	@NotBlank(message = "Senha é obrigatório")
 	private String senha;
 	
 	@Transient
 	private String confirmacaoSenha;
 
+	@Value("${some.key:true}")
+	@NotNull
 	private Boolean ativo;
 	
 	private String estado;
+	
+	private Long codigoOrcamentoAtual;
+	
+	@ManyToOne
+	@JoinColumn(name = "codigo_etapa_selecionada") 
+	private Etapa etapaSelecionada;
 
 	@Size(min = 1, message = "Selecione pelo menos um grupo")
 	@ManyToMany
@@ -63,7 +76,7 @@ public class Usuario implements Serializable {
 
 	@Column(name = "data_nascimento")
 	private LocalDate dataNascimento;
-
+	
 	@PreUpdate
 	private void preUpdate() {
 		this.confirmacaoSenha = senha;
@@ -117,14 +130,6 @@ public class Usuario implements Serializable {
 		this.estado = estado;
 	}
 
-	public LocalDate getDataNascimento() {
-		return dataNascimento;
-	}
-
-	public void setDataNascimento(LocalDate dataNascimento) {
-		this.dataNascimento = dataNascimento;
-	}
-
 	public List<Grupo> getGrupos() {
 		return grupos;
 	}
@@ -141,6 +146,30 @@ public class Usuario implements Serializable {
 		this.confirmacaoSenha = confirmacaoSenha;
 	}
 	
+	public Long getCodigoOrcamentoAtual() {
+		return codigoOrcamentoAtual;
+	}
+
+	public void setCodigoOrcamentoAtual(Long codigoOrcamentoAtual) {
+		this.codigoOrcamentoAtual = codigoOrcamentoAtual;
+	}
+
+	public Etapa getEtapaSelecionada() {
+		return etapaSelecionada;
+	}
+
+	public void setEtapaSelecionada(Etapa etapaSelecionada) {
+		this.etapaSelecionada = etapaSelecionada;
+	}
+	
+	public LocalDate getDataNascimento() {
+		return dataNascimento;
+	}
+
+	public void setDataNascimento(LocalDate dataNascimento) {
+		this.dataNascimento = dataNascimento;
+	}
+
 	public boolean isNovo() {
 		return codigo == null;
 	}

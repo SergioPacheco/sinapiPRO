@@ -1,7 +1,7 @@
 # REGRAS DE NEGÓCIO 
 
 ## Obra 
-Em engenharia se utiliza a palavra obra para designar um projeto executado ou pendente de execução. Uma obra civil é um conjunto de actividades nas quais se altera a aparência, estrutura ou forma de uma edificação ou parte dela.
+Em engenharia se utiliza a palavra obra para designar um projeto executado ou pendente de execução. Uma obra civil é um conjunto de atividades nas quais se altera a aparência, estrutura ou forma de uma edificação ou parte dela.
 
 ## Projeto 
 Para a realização de uma obra são necessários alguns passos:

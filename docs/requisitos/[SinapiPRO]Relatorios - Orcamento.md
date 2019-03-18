@@ -2,20 +2,18 @@
 
 # Impressão do Orçamento 
 
++-- Conversão de valores ---------------------------+
+| Converter valores para índice R$			 		|
+|                Data do índice 99/99/9999 	 		|
+|        Data emissão orçamento 99/99/9999  		|
++---------------------------------------------------+
 
-+-- Conversão de valores -------------------+
-| Converter valores para índice __R$______  |
-|                Data do índice 99/99/9999  |
-|        Data emissão orçamento 99/99/9999  |
-+-------------------------------------------+
-
-
-+-- Apresentação ---------------------------+ 
-| () Sintético                              | 
-| () Analítico                              |
-| () Global Material+Mao Obra               |
-| () Global Material+Mao Obra Sintético     |
-+-------------------------------------------+
++-- Apresentação -----------------------------------+ 
+| () Sintético                              		| 
+| () Analítico                              		|
+| () Global Material+Mao Obra               		|
+| () Global Material+Mao Obra Sintético     		|
++---------------------------------------------------+
 
 +-- Impressão --------------------------------------+ 
 | () Exibir informações do cliente                  |
@@ -26,8 +24,8 @@
 | () Exibir informações de origem (BASE)            |
 +---------------------------------------------------+
 
-
 ## Relatório Sintético 
+
 
 RELATÓRIO DO ORÇAMENTO - SINTÉTICO 					 99/99/9999
 ---------------------------------------------------------------
@@ -37,7 +35,7 @@ BASE DE PREÇO: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 OBSERVAÇÃO   : XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ---------------------------------------------------------------
 
-ITEM------ DESCRICAO ITENS          ESPECIE     UNID     QTD      UNITARIO         TOTAL
+ITEM------ DESCRIÇÃO ITENS          ESPÉCIE     UNID     QTD      UNITÁRIO         TOTAL
 999.999 - XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX 99.999.999,99  
 99.999.999 XXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXX XXXX 9999999 99.999.999,99 99.999.999,99
 99.999.999 XXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXX XXXX 9999999 99.999.999,99 99.999.999,99
@@ -61,8 +59,6 @@ ITEM------ DESCRICAO ITENS          ESPECIE     UNID     QTD      UNITARIO      
  Taxa de Administração  99.999.999,99
  Total do Orçamento     99.999.999,99 
 
-
-
 # Impressão Insumos do Orçamento 
 
 +--- Ordenar por -------------------------------------+
@@ -85,8 +81,7 @@ ITEM------ DESCRICAO ITENS          ESPECIE     UNID     QTD      UNITARIO      
 | () Imprimir especificações e normas para execũção   |
 +-----------------------------------------------------+
 
-
-INSUMOS DO ORÇAMENTO                                          99/99/9999
+INSUMOS DO ORÇAMENTO                                  99/99/9999 Pag.999
 
 OBRA     : 999999 - XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX 
 ORÇAMENTO: 999999 - XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX

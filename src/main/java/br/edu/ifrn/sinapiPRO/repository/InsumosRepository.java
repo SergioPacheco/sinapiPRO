@@ -12,7 +12,9 @@ import br.edu.ifrn.sinapiPRO.repository.helper.insumo.InsumosRepositoryQueries;
 @Repository
 public interface InsumosRepository extends JpaRepository<Insumo, Long>, InsumosRepositoryQueries {
 	
-	public Optional<Insumo> findByBaseInsumoAndCodigoInsumo(BaseInsumo baseInsumo, Long codigoInsumo);
+	public Optional<Insumo> findByBaseInsumoAndCodigoInsumo(BaseInsumo baseInsumo, String codigoInsumo);
 	
 	public Optional<Insumo> findById(Long codigo);
+
+	
 }

@@ -1,3 +1,17 @@
+/*
+$(function() {
+
+  $("input").maskMoney({
+    allowNegative: true,
+    thousands: '.',
+    decimal: ',',
+    affixesStay: false
+  });
+
+});
+*/
+// SINAPI_Preco_Ref_Insumos_RN_201802_NaoDesonerado.xls
+//
 var SinapiPRO = SinapiPRO || {};
 
 SinapiPRO.MaskMoney = (function() {
@@ -5,13 +19,30 @@ SinapiPRO.MaskMoney = (function() {
 	function MaskMoney() {
 		this.decimal = $('.js-decimal');
 		this.plain = $('.js-plain');
+		this.coeficiente = $('.js-coeficiente');
 	}
 	
 	MaskMoney.prototype.enable = function() {
-		this.decimal.maskNumber({ decimal: ',', thousands: '.' });
-		this.plain.maskNumber({ integer: true, thousands: '.' });
+		this.decimal.maskNumber({ 
+			allowNegative: false, 
+			decimal: ',', 
+			thousands: '.',
+			affixesStay: false
+		});
+		this.plain.maskNumber({ 
+			allowNegative: false, 
+			integer: true, 
+			thousands: '.', 
+			affixesStay: false
+		});
+		this.coeficiente.maskNumber({ 
+			allowNegative: false, 
+			precision: 7, 
+			decimal: ',', 
+			thousands: '.',
+			affixesStay: false});
 	}
-	
+	$('.money').mask("#,##0.00", {reverse: true});
 	return MaskMoney;
 	
 }());

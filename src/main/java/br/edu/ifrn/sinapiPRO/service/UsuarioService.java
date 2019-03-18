@@ -9,26 +9,26 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import br.edu.ifrn.sinapiPRO.model.Usuario;
-import br.edu.ifrn.sinapiPRO.repository.Usuarios;
-import br.edu.ifrn.sinapiPRO.service.exception.EmailUsuarioJaCadastradoException;
+import br.edu.ifrn.sinapiPRO.repository.UsuariosRepository;
+import br.edu.ifrn.sinapiPRO.service.exception.JaCadastradoException;
 import br.edu.ifrn.sinapiPRO.service.exception.SenhaObrigatoriaUsuarioException;
 
 @Service
 public class UsuarioService {
 
 	@Autowired
-	private Usuarios usuarios;
-	
+	private UsuariosRepository usuariosRepository;
+
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
 	@Transactional
 	public void salvar(Usuario usuario) {
-		
-		Optional<Usuario> usuarioExistente = usuarios.findByEmail(usuario.getEmail());
+		 
+		Optional<Usuario> usuarioExistente = usuariosRepository.findByEmail(usuario.getEmail());
 		
 		if (usuarioExistente.isPresent() && !usuarioExistente.get().equals(usuario)) {
-			throw new EmailUsuarioJaCadastradoException("E-mail já cadastrado");
+			throw new JaCadastradoException("E-mail já cadastrado");
 		}
 		
 		if (usuario.isNovo() && StringUtils.isEmpty(usuario.getSenha())) {
@@ -46,12 +46,35 @@ public class UsuarioService {
 			usuario.setAtivo(usuarioExistente.get().getAtivo());
 		}
 		
-		usuarios.save(usuario);
+		usuario.setSenha(this.passwordEncoder.encode("admin")); // erro ao validar
+		
+		usuariosRepository.save(usuario);
 	}
 
 	@Transactional
 	public void alterarStatus(Long[] codigos, StatusUsuario statusUsuario) {
-		statusUsuario.executar(codigos, usuarios);
+		statusUsuario.executar(codigos, usuariosRepository);
 	}
+	
+	@Transactional
+	public void alteraOrcamentoAtual(Usuario usuario, Long codigoOrcamentoAtual) {
+		Optional<Usuario> usuarioExistente = usuariosRepository.findByEmail(usuario.getEmail());
+		
+		if (usuarioExistente.isPresent()) {
+			Usuario editaUsuario = usuarioExistente.get();
+			editaUsuario.setCodigoOrcamentoAtual(codigoOrcamentoAtual);
+			usuariosRepository.save(usuario);
+		}
+		
+	}
+	 
+	@Transactional 
+	public Optional<Usuario> findByNome(String nome) {
+        return usuariosRepository.findByNome(nome);
+    }
+	@Transactional 
+	public Optional<Usuario> findByEmail(String email) {
+        return usuariosRepository.findByEmail(email);
+    }
 	
 }

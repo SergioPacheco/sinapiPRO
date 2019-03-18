@@ -27,7 +27,6 @@ public class ComposicaoService {
 	
 	@Transactional
 	public Composicao salvar(Composicao composicao) {
-	
 		
 		if (composicao.isNova()) {
 			composicao.setDataCriacao(LocalDateTime.now());

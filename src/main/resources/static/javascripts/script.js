@@ -469,7 +469,7 @@ function selecionaMenuMensagem() {
 	}
 
 	var ajax = openAjax();
-	ajax.open("POST", "/ajax/MenuStrato.jsp" + cParam, true);
+	ajax.open("POST", "/ajax/Menu.jsp" + cParam, true);
 	ajax.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	ajax.setRequestHeader("Content-length", res.length);
 	ajax.onreadystatechange = function() {
@@ -1055,11 +1055,8 @@ function SelectCalendarControl(cId, aDate) {
 	var cVirgula = "";
 
 	for (var i = 0; i < aDate.length; i++) {
-
 		var nDate = aDate[i].getTime();
-
 		dates += cVirgula + nDate;
-
 		cVirgula = ",";
 
 	}
@@ -1189,9 +1186,6 @@ function acaoWindow(id, idAba, cMostrarStatus, cParametros) {
 		cParams = cParametros;
 	}
 
-	// var res = "id=" + id + "&idAba=" + idAba + "&" +
-	// encodeURIComponent(cParams);
-	// var res = "id=" + id + "&idAba=" + idAba + "&" + encodeURI(cParams);
 	var res = "id=" + id + "&idAba=" + idAba + "&" + cParams;
 
 	var compViewState = document.getElementById('javax.faces.ViewState');

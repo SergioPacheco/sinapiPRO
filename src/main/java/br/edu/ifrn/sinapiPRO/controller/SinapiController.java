@@ -17,6 +17,8 @@ import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -35,6 +37,7 @@ import br.edu.ifrn.sinapiPRO.model.ComposicaoItem;
 import br.edu.ifrn.sinapiPRO.model.ComposicaoSituacao;
 import br.edu.ifrn.sinapiPRO.model.Especie;
 import br.edu.ifrn.sinapiPRO.model.Insumo;
+import br.edu.ifrn.sinapiPRO.model.Tipo;
 import br.edu.ifrn.sinapiPRO.repository.BaseInsumosRepository;
 import br.edu.ifrn.sinapiPRO.repository.BasePrecoItemRepository;
 import br.edu.ifrn.sinapiPRO.repository.BasePrecosRepository;
@@ -79,6 +82,8 @@ public class SinapiController {
 	@Autowired
 	private InsumoService insumoService;
 	
+	
+	private static Logger logger = LoggerFactory.getLogger(SinapiController.class);
 	private Double valueNumeric; 
 	private String valueString;
 	private List<ComposicaoItem> itens = new ArrayList<>();
@@ -123,11 +128,11 @@ public class SinapiController {
 		}
 		String fileName = "";
 		
-		// TODO: renomear a extensão dos arquivos para caixa baixa
+		// TODO: renomear a extensão (.xls .XLS) dos arquivos para caixa baixa
 		
 		// /home/sergio/sinapi-download/RN/2018/01/Desonerado/SINAPI_Preco_Ref_Insumos_RN_201801_Desonerado.xls
 		// /home/sergio/sinapi-download/RN/2018/01/Desonerado/SINAPI_Preco_Ref_Insumos_RN_012018_Desonerado.XLS
-		fileName = "src/main/resources/sinapi-download/"+uf+"/"+ano+"/SINAPI_Preco_Ref_Insumos_"+uf+"_"+ano+mes+"_"+oneracao+".xls";
+		fileName = "src/main/resources/sinapi-download/"+uf+"/"+oneracao+"/SINAPI_Preco_Ref_Insumos_"+uf+"_"+ano+mes+"_"+oneracao+".xls";
 		Double n = null; 
 		Long   l = 0L;
 		String s = null;
@@ -136,28 +141,19 @@ public class SinapiController {
 		   
 		try (HSSFWorkbook wb = SinapiController.readFile(fileName)) {
 			
-			System.out.println("Data dump:\n");
+			logger.info("Data dump:\n");
 			
 			for (int k = 0; k < wb.getNumberOfSheets(); k++) {
 				
 				HSSFSheet sheet = wb.getSheetAt(k);
 				int rows = sheet.getPhysicalNumberOfRows();
-				// System.out.println("Planilha " + k + " \"" + wb.getSheetName(k) + "\" tem " + rows + " linha(s).");
 				
 				for (int r = 0; r < rows; r++) {
 					HSSFRow row = sheet.getRow(r);
-					if (row == null)  {
+					
+					if (row == null || row.getPhysicalNumberOfCells() < 5 || row.getRowNum() ==6 )  {
 						continue;
 					}
-					if ( row.getPhysicalNumberOfCells() < 5 ) {
-						continue;
-					}
-					
-					if (row.getRowNum() ==6) { 
-						continue; 
-					}
-					
-					// System.out.println("\nROW " + row.getRowNum() + " has " + row.getPhysicalNumberOfCells() + " cell(s).");
 					
 					Insumo insumo = new Insumo(); 
 					
@@ -198,12 +194,9 @@ public class SinapiController {
 									value = "UNKNOWN value of type " + cell.getCellTypeEnum();
 							}
 							
-							// System.out.println("CELL col=" + cell.getColumnIndex() + " VALUE="+ value);
-							
-							
 							switch (cell.getColumnIndex()) {
 								case 0:
-									insumo.setCodigoInsumo( Lib.Round(valueNumeric,0).longValue());
+									insumo.setCodigoInsumo( Lib.Round(valueNumeric,0).toString() );
 									break;
 								case 1:
 									insumo.setDescricao(valueString.trim()); 
@@ -212,10 +205,11 @@ public class SinapiController {
 									insumo.setUnidade(valueString.trim());
 									break;
 								case 3:
-									// insumo.setOrigem(valueString.trim());
+									// Origem
 									break;
 								case 4:
-									insumo.setPrecoPadrao(StrToBig(valueString, 2)); 
+									 
+									insumo.setPrecoPadrao(strToBig(valueString, 2)); 
 									break;
 								default:
 									insumo = null; 
@@ -229,7 +223,8 @@ public class SinapiController {
 					
 					// ok ... então vamos persistir 
 					
-					Optional<Insumo> insumoExistente = insumoRepository.findByBaseInsumoAndCodigoInsumo(baseInsumo, insumo.getCodigoInsumo()); 
+					Optional<Insumo> insumoExistente = insumoRepository
+							.findByBaseInsumoAndCodigoInsumo(baseInsumo, insumo.getCodigoInsumo()); 
 					
 					if(!insumoExistente.isPresent()) {
 						
@@ -239,11 +234,11 @@ public class SinapiController {
 							insumo.getDescricao()    !=null &&
 							insumo.getUnidade()      !=null &&
 							insumo.getPrecoPadrao()  !=null) {
-							
 							insumo.setEspecie(defineEspecie(insumo.getUnidade(), insumo.getDescricao()) );
 							insumo.setBaseInsumo(baseInsumo);
 							insumo.setBasePreco(basePreco);
 							insumo.setUsuario(usuarioSistema.getUsuario());
+							
 							insumoService.salvar(insumo);
 							
 						} else {
@@ -272,6 +267,7 @@ public class SinapiController {
 							insumoService.salvar(insumoEdita);
 							
 							System.out.println("Atualiza Insumo "+insumoEdita.getCodigoInsumo());
+							 
 							
 						} else {
 
@@ -284,8 +280,6 @@ public class SinapiController {
 					
 					// Salva o Item da Base de Preço  
 					 
-					System.out.println();
-					
 					Optional<BasePrecoItem> item = basePrecoItemRepository
 							.findByBasePrecoAndCodigoInsumo(basePreco, insumo.getCodigoInsumo());
 					
@@ -295,6 +289,7 @@ public class SinapiController {
 						
 						novoItem.setBasePreco(basePreco);
 						novoItem.setCodigoInsumo(insumo.getCodigoInsumo());
+						
 						if ("D".equals(onerado)) {
 							novoItem.setPreco(insumo.getPrecoPadrao());	
 						} else {
@@ -308,7 +303,11 @@ public class SinapiController {
 					} else { 
 						
 						BasePrecoItem editaItem = item.get();
-						editaItem.setPreco(insumo.getPrecoPadrao()); 
+						if ("D".equals(onerado)) {
+							editaItem.setPreco(insumo.getPrecoPadrao());
+						} else {
+							editaItem.setPrecoOnerado(insumo.getPrecoPadrao());
+						}
 					 
 						editaItem.setAnoMes(ano+"/"+mes);
 						basePrecoItemRepository.saveAndFlush(editaItem);
@@ -373,7 +372,7 @@ public class SinapiController {
 			oneracao = "NaoDesonerado";
 		}
 
-		String fileName = "src/main/resources/sinapi-download/"+uf+"/"+ano+"/SINAPI_Custo_Ref_Composicoes_Analitico_"+uf+"_"+ano+mes+"_"+oneracao+".xls";
+		String fileName = "src/main/resources/sinapi-download/"+uf+"/"+oneracao+"/SINAPI_Custo_Ref_Composicoes_Analitico_"+uf+"_"+ano+mes+"_"+oneracao+".xls";
 		
 		Long L=0L;
 		String s = null;
@@ -395,33 +394,27 @@ public class SinapiController {
 		
 		Composicao composicao = new Composicao(); 
 		ComposicaoItem composicaoItem = new ComposicaoItem(); 
-		ComposicaoGrupo tipoComposicao = new ComposicaoGrupo(); 
-		ComposicaoClasse classe = new ComposicaoClasse();
 		List<ComposicaoItem> itens = new ArrayList<>();
 		 
 		
 		try (HSSFWorkbook wb = SinapiController.readFile(fileName)) {
 			
-			System.out.println("Data dump:\n");
+			logger.info("Data dump:\\n");
 			
 			for (int k = 0; k < wb.getNumberOfSheets(); k++) {
 				
 				HSSFSheet sheet = wb.getSheetAt(k);
 				int rows = sheet.getPhysicalNumberOfRows();
-				System.out.println("Planilha " + k + " \"" + wb.getSheetName(k) + "\" tem " + rows + " linha(s).");
+				
+				logger.info("Planilha " + k + " \"" + wb.getSheetName(k) + "\" tem " + rows + " linha(s).");
 				
 				for (int r = 0; r < rows; r++) {
 					HSSFRow row = sheet.getRow(r);
-					if (row == null)  {
+					if (row == null || row.getRowNum() < 8)  {
 						continue;
 					}
 					
-					if (row.getRowNum() < 8) { 
-						continue; 
-					}
-					
-					System.out.println("\nROW " + row.getRowNum() + " has " + row.getPhysicalNumberOfCells() + " cell(s).");
-					
+					logger.info("\nROW " + row.getRowNum() + " has " + row.getPhysicalNumberOfCells() + " cell(s).");
 					
 					for (int c = 0; c < row.getLastCellNum(); c++) {
 						HSSFCell cell = row.getCell(c);
@@ -461,10 +454,7 @@ public class SinapiController {
 									continue;
 							}
 							
-							System.out.println("CELL col=" + cell.getColumnIndex() + " VALUE="+ value);
-							 
-							s=Lib.RTrim(s);
-							s=Lib.LTrim(s);
+							s=Lib.RTrim(Lib.LTrim(s));
 							 
 							switch (cell.getColumnIndex()) {
 							
@@ -480,7 +470,7 @@ public class SinapiController {
 									campo2Atual = s;
 									break;
 									
-								case 3: // codigo do Tipo
+								case 3: // codigo do Grupo
 									campo3Atual = n;
 									break;
 									
@@ -496,45 +486,9 @@ public class SinapiController {
 									if (comeco) { /* Primeira vez */ 
 										comeco=false;
 										composicaoAnterior=campo6Atual;
-										
-										o=campo6Atual;
-										L=Long.parseLong(  Lib.StrTran(o, "/", "0")  );
-										composicao.setCodigoComposicao(L);
-										
-										Optional<ComposicaoClasse> classeExistente = composicaoClassesRepository
-												.findBySiglaIgnoreCase(campo1Atual);
-										
-										if (classeExistente.isPresent()) {
-											composicao.setComposicaoClasse(classeExistente.get()); 
-										} else { 
-											classe =new ComposicaoClasse();
-											classe.setNome(campo0Atual);
-											classe.setSigla(campo1Atual);
-											
-											composicaoClassesRepository.save(classe);
-											composicao.setComposicaoClasse(composicaoClassesRepository
-													.findBySiglaIgnoreCase(campo1Atual).get());
-										}
-										
-										Optional<ComposicaoGrupo> tipoExistente = composicaoGruposRepository
-												.findById( campo3Atual.longValue() );
-										
-										if (tipoExistente.isPresent()) {
-											composicao.setComposicaoGrupo(tipoExistente.get()); 
-										} else {
-											tipoComposicao =new ComposicaoGrupo();
-											tipoComposicao.setCodigo(campo3Atual.longValue() ); 
-											tipoComposicao.setNome(campo2Atual);
-											
-											composicaoGruposRepository.save(tipoComposicao); 
-											
-											ComposicaoGrupo novoTipo = composicaoGruposRepository
-													.findById( campo3Atual.longValue() ).get();
-											composicao.setComposicaoGrupo(novoTipo);
-										}
-										
+										composicao.setCodigoComposicao(campo6Atual);
+										composicao = pesquisaClasseGrupo(composicao, campo1Atual, campo0Atual, campo3Atual.longValue(), campo2Atual);
 									}
-									
 																	
 									if (composicaoAnterior.compareTo(campo6Atual) != 0) {    // 0 são idênticas   diferentes -1  +1
 										
@@ -556,17 +510,12 @@ public class SinapiController {
 												.findByBaseInsumoAndCodigoComposicao(baseInsumo, composicao.getCodigoComposicao()); 
 										
 										if(!composicaoExistente.isPresent()) {
-											
-											// composicao.adicionarItens(itens);
 											composicaoService.salvar(composicao);
-											
-										}else { 
-											
+										} else { 
 											Composicao editaComposicao = composicaoExistente.get() ; 
 											editaComposicao.setCodigoComposicao(composicao.getCodigoComposicao());
 											editaComposicao.setBaseInsumo(composicao.getBaseInsumo());
 											editaComposicao.setBasePreco(composicao.getBasePreco()); 
-											editaComposicao.setComposicaoClasse(composicao.getComposicaoClasse());
 											editaComposicao.setComposicaoGrupo(composicao.getComposicaoGrupo()); 
 											editaComposicao.setStatus(ComposicaoSituacao.ATIVA);
 											editaComposicao.setDescricao(composicao.getDescricao());
@@ -578,10 +527,6 @@ public class SinapiController {
 											editaComposicao.setPercMaterial(composicao.getPercMaterial());
 											editaComposicao.setCustoEquipamento(composicao.getCustoEquipamento());
 											editaComposicao.setPercEquipamento(composicao.getPercEquipamento());
-											//editaComposicao.getItens().clear();
-											//editaComposicao = composicaoService.salvar(editaComposicao);
-											//editaComposicao.getItens().addAll(itens);
-											//editaComposicao.adicionarItens(itens);
 											composicaoService.salvar(editaComposicao);
 											
 										}
@@ -591,40 +536,10 @@ public class SinapiController {
 									    composicaoItem =  new ComposicaoItem();
 									    
 									    // Nova composicao
-									    
-									    o=campo6Atual;
-										L=Long.parseLong(  Lib.StrTran(o, "/", "0")  );  
 										
-										composicao.setCodigoComposicao(L);
-										
-										Optional<ComposicaoClasse> classeExistente = composicaoClassesRepository.findBySiglaIgnoreCase(campo1Atual);
-										
-										if (classeExistente.isPresent()) {
-											composicao.setComposicaoClasse(classeExistente.get()); 
-										} else { 
-											classe =new ComposicaoClasse();
-											classe.setNome(campo0Atual);
-											classe.setSigla(campo1Atual);
-											
-											composicaoClassesRepository.save(classe);
-											composicao.setComposicaoClasse(composicaoClassesRepository.findBySiglaIgnoreCase(campo1Atual).get());
-										}
-										
-										Optional<ComposicaoGrupo> tipoExistente = composicaoGruposRepository.findById( campo3Atual.longValue() );
-										
-										if (tipoExistente.isPresent()) {
-											composicao.setComposicaoGrupo(tipoExistente.get()); 
-										} else {
-											tipoComposicao =new ComposicaoGrupo();
-											tipoComposicao.setCodigo(campo3Atual.longValue() ); 
-											tipoComposicao.setNome(campo2Atual);
-											
-											composicaoGruposRepository.save(tipoComposicao); 
-											
-											ComposicaoGrupo novoTipo = composicaoGruposRepository.findById( campo3Atual.longValue() ).get();
-											composicao.setComposicaoGrupo(novoTipo);
-										}
-									    
+										composicaoAnterior=campo6Atual;
+										composicao.setCodigoComposicao(campo6Atual);
+										composicao = pesquisaClasseGrupo(composicao, campo1Atual, campo0Atual, campo3Atual.longValue(), campo2Atual);
 									}
 									break;	
 									
@@ -641,7 +556,7 @@ public class SinapiController {
 									
 								case 10: // Valor da Composição
 									if (!Lib.Empty(s)) {
-										composicao.setCustoTotal(StrToBig(s, 2)); 
+										composicao.setCustoTotal(strToBig(s, 2)); 
 									}	
 									break;	
 									
@@ -649,16 +564,20 @@ public class SinapiController {
 									 
 									if (!Lib.Empty(s)) {
 										composicaoItem = new ComposicaoItem(); 
-										composicaoItem.setTipo(s); 
+										if (s.equals("COMPOSICAO")) {
+											composicaoItem.setTipo(Tipo.COMPOSICAO);
+										} else {
+											if (s.equals("INSUMO")) {
+												composicaoItem.setTipo(Tipo.INSUMO);
+											}
+										}
 									}
 									break;	
 									
 								case 12: // codigo do item
 									
 									if (!Lib.Empty(s)) {
-										o=s;
-										L=Long.parseLong(  Lib.StrTran(o, "/", "0")  );
-										composicaoItem.setCodigoItem(L);
+										composicaoItem.setCodigoItem(s);
 									}
 									break;	
 									
@@ -679,58 +598,58 @@ public class SinapiController {
 									
 								case 16: // coeficiente do item
 									if (!Lib.Empty(s)) {
-										composicaoItem.setCoeficiente(StrToBig(s, 7)); 
+										composicaoItem.setCoeficiente(strToBig(s, 7)); 
 									}	
 									break;	
 									
 								case 17: // preco unitario do item 
 									if (!Lib.Empty(s)) {
-										composicaoItem.setPrecoUnitario(StrToBig(s, 2)); 
+										composicaoItem.setPrecoUnitario(strToBig(s, 2)); 
 									}
 									break;	
 									
 								case 18: // Custo Total do Item 
 									campo18Atual = s;
 									if (!Lib.Empty(s)) {
-										composicaoItem.setCustoTotal(StrToBig(s, 2)); 
+										composicaoItem.setCustoTotal(strToBig(s, 2)); 
 									
 									}
 									break;	
 									
 								case 19: // Custo Mão de Obra 
 									if (!Lib.Empty(s)) {
-										composicao.setCustoMaoObra(StrToBig(s, 2)); 
+										composicao.setCustoMaoObra(strToBig(s, 2)); 
 									}	
 									break;	
 									
 								case 20: // Percentual da Mão de Obra 
 									if (!Lib.Empty(s)) {
-										composicao.setPercMaoObra(StrToBig(s, 7)); 
+										composicao.setPercMaoObra(strToBig(s, 7)); 
 									}	
 									break;	
 									
 								case 21:
 									if (!Lib.Empty(s)) {
-										composicao.setCustoMaterial(StrToBig(s, 2)); 
+										composicao.setCustoMaterial(strToBig(s, 2)); 
 									}	
 									break;	
 									
 								case 22:
 									if (!Lib.Empty(s)) {
-										composicao.setPercMaterial(StrToBig(s, 7)); 
+										composicao.setPercMaterial(strToBig(s, 7)); 
 									}	
 									break;	
 									
 								case 23:
 									if (!Lib.Empty(s)) {
-										composicao.setCustoEquipamento(StrToBig(s, 2));
+										composicao.setCustoEquipamento(strToBig(s, 2));
 									}	
 									break;	
 									
 								case 24:
 									
 									if (!Lib.Empty(s)) {
-										composicao.setPercEquipamento(StrToBig(s, 7));
+										composicao.setPercEquipamento(strToBig(s, 7));
 									}	
 									
 									break;
@@ -738,26 +657,45 @@ public class SinapiController {
 								case 29:
 									if (!Lib.Empty(campo18Atual)) {
 										
-										if("INSUMO".equals(composicaoItem.getTipo())) {
-											Optional<Insumo> opti = insumoRepository
+										if(composicaoItem.getTipo() == Tipo.INSUMO ) {
+											Optional<Insumo> optional = insumoRepository
 													.findByBaseInsumoAndCodigoInsumo(baseInsumo,composicaoItem.getCodigoItem());
-											if (opti.isPresent()) {
-												composicaoItem.setInsumo(opti.get());
+											if (optional.isPresent()) {
+												composicaoItem.setInsumo(optional.get());
 											} else {
-												composicaoItem.setInsumo(null);
+
+												Insumo novoInsumo = new Insumo(); 
+												novoInsumo.setCodigoInsumo(composicaoItem.getCodigoItem());
+												novoInsumo.setUnidade(composicaoItem.getUnidade());
+												novoInsumo.setEspecie(defineEspecie(composicaoItem.getUnidade(), composicaoItem.getDescricao()) );
+												novoInsumo.setBaseInsumo(baseInsumo);
+												novoInsumo.setBasePreco(basePreco);
+												novoInsumo.setPrecoPadrao(composicaoItem.getCustoTotal() );
+												novoInsumo.setUsuario(usuarioSistema.getUsuario());
+												composicaoItem.setInsumo(insumoService.salvar(novoInsumo));
+												//TODO: Criar item da base de preco
 											}
 												
 										}
-										if("COMPOSICAO".equals(composicaoItem.getTipo())) {
-											Optional<Composicao> optc = composicaoRepository
+										if(composicaoItem.getTipo() == Tipo.COMPOSICAO) {
+											Optional<Composicao> optional = composicaoRepository
 													.findByBaseInsumoAndCodigoComposicao(baseInsumo, composicaoItem.getCodigoItem());
-											if (optc.isPresent()) {
-												composicaoItem.setComposicao(optc.get());
+											if (optional.isPresent()) {
+												composicaoItem.setComposicao(optional.get());
 											} else {
-												composicaoItem.setInsumo(null);
+												// Cria nova composicao 
+												Composicao novaComposicao = new Composicao(); 
+												novaComposicao.setCodigoComposicao(composicaoItem.getCodigoItem());
+												novaComposicao.setBaseInsumo(baseInsumo);
+												novaComposicao.setBasePreco(basePreco);
+												novaComposicao.setUsuario(usuarioSistema.getUsuario()); 
+												novaComposicao.setDescricao(composicaoItem.getDescricao());
+												novaComposicao.setUnidade(composicaoItem.getUnidade());
+												novaComposicao.setCustoTotal(composicaoItem.getCustoTotal());
+												
+												composicaoItem.setComposicao(composicaoService.salvar(novaComposicao) );
 											}
 										}	
-										
 										composicao.addItem(composicaoItem);
 										composicaoItem = new ComposicaoItem(); 
 									}
@@ -784,7 +722,7 @@ public class SinapiController {
 	}
 	 
 	/**
-	 * Procura por novos insumos 
+	 * Procura por novos insumos na base de composições
 	 * 
 	 * @param codigo   - codigo da base de Preço 
 	 * @return
@@ -792,68 +730,78 @@ public class SinapiController {
 	@GetMapping(path="/composicao/novosInsumos/{codigo}")  
 	public @ResponseBody String novosInsumos(@PathVariable Long codigo, @AuthenticationPrincipal UsuarioSistema usuarioSistema) {
 	
-		BaseInsumo baseInsumo = baseInsumoRepository.findById(codigo).get();
 		
+		if(!basePrecoRepository.existsById(codigo)) {
+            throw new ResourceNotFoundException("Erro ao pesquisar Base Precos");
+        }
+		
+		BasePreco basePreco = basePrecoRepository.findById(codigo).get();
+		if(!baseInsumoRepository.existsById(basePreco.getBaseInsumo().getCodigo())) {
+            throw new ResourceNotFoundException("Erro ao pesquisar Base Insumos");
+        }
+		
+		Long codigoBaseInsumo = basePreco.getBaseInsumo().getCodigo(); 
+		BaseInsumo baseInsumo = baseInsumoRepository.findById(codigoBaseInsumo).get();
 		List<Composicao> composicoes = composicaoRepository.findAll(); 
 		
-		List<ComposicaoItem> item; 
-		
-		for (Composicao c:composicoes) { 
-
-			item = c.getItens();
+		for (int c = 0; c < composicoes.size(); c++) {
 			
-			if (c.getItens() == null) {continue;}
-			for (ComposicaoItem i: item ) {
+			for (int ci = 0; ci <  composicoes.get(c).getItens().size(); ci++) {
 				
-				if ("INSUMO".equals(i.getTipo())) {
+				if (composicoes.get(c).getItens().get(ci).getTipo() == Tipo.INSUMO) {
 					
 					Optional<Insumo> insumoExistente = insumoRepository
-							.findByBaseInsumoAndCodigoInsumo(baseInsumo, i.getCodigoItem());
+							.findByBaseInsumoAndCodigoInsumo(baseInsumo, 
+									composicoes.get(c).getItens().get(ci).getCodigoItem());
 					
 					if (!insumoExistente.isPresent()) {
 						Insumo novoInsumo = new Insumo();
-						novoInsumo.setCodigoInsumo(i.getCodigoItem());
-						novoInsumo.setBaseInsumo(c.getBaseInsumo());
-						novoInsumo.setBasePreco(c.getBasePreco());
-						novoInsumo.setUsuario(c.getUsuario()); 
-						novoInsumo.setDescricao(i.getDescricao());
-						novoInsumo.setUnidade(i.getUnidade());
-						novoInsumo.setPrecoPadrao(i.getPrecoUnitario());
-						novoInsumo.setEspecie(Especie.MATERIAL);
-						c.removeItem(i);
-						i.setInsumo(insumoRepository.save(novoInsumo));
-						c.addItem(i);
+						novoInsumo.setCodigoInsumo(composicoes.get(c).getItens().get(ci).getCodigoItem());
+						novoInsumo.setBaseInsumo(baseInsumo);
+						novoInsumo.setBasePreco(basePreco);
+						novoInsumo.setUsuario(composicoes.get(c).getUsuario());  
+						novoInsumo.setDescricao(composicoes.get(c).getItens().get(ci).getDescricao());
+						novoInsumo.setUnidade(composicoes.get(c).getItens().get(ci).getUnidade());
+						novoInsumo.setPrecoPadrao(composicoes.get(c).getItens().get(ci).getPrecoUnitario());
+						novoInsumo.setEspecie(defineEspecie(composicoes.get(c).getItens().get(ci).getUnidade(), 
+											  composicoes.get(c).getItens().get(ci).getDescricao()) );
+						composicoes.get(c).getItens().get(ci).setInsumo(insumoRepository.save(novoInsumo));
+						
 						System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-						System.out.println("     NOVO INSUMO "+i.getCodigoItem());
+						System.out.println("     NOVO INSUMO "+composicoes.get(c).getItens().get(ci).getCodigoItem());
 						System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 					} else {
-						c.removeItem(i);
-						i.setInsumo(insumoExistente.get());
-						c.addItem(i);
+						composicoes.get(c).getItens().get(ci).setInsumo(insumoExistente.get() );
 					}
 					
 				} else {
 					
 					Optional<Composicao> composicaoExistente = composicaoRepository
-							.findByBaseInsumoAndCodigoComposicao(baseInsumo, i.getCodigoItem());
+							.findByBaseInsumoAndCodigoComposicao(baseInsumo, 
+									composicoes.get(c).getItens().get(ci).getCodigoItem());
 					
 					if (!composicaoExistente.isPresent()) { 
 						Composicao novaComposicao = new Composicao();
-						novaComposicao.setCodigoComposicao(i.getCodigoItem());
-						novaComposicao.setBaseInsumo(c.getBaseInsumo());
-						novaComposicao.setBasePreco(c.getBasePreco());
-						novaComposicao.setUnidade(i.getUnidade());
-						novaComposicao.setDescricao(i.getDescricao());
-						novaComposicao.setCustoTotal(i.getCustoTotal());
-						i.setComposicao(composicaoRepository.save(novaComposicao));
-						System.out.println("NOVA COMPOSICAO "+i.getCodigoItem());
+						novaComposicao.setCodigoComposicao(composicoes.get(c).getItens().get(ci).getCodigoItem());
+						novaComposicao.setBaseInsumo(baseInsumo);
+						novaComposicao.setBasePreco(basePreco);
+						novaComposicao.setUnidade(composicoes.get(c).getItens().get(ci).getUnidade());
+						novaComposicao.setDescricao(composicoes.get(c).getItens().get(ci).getDescricao());
+						novaComposicao.setCustoTotal(composicoes.get(c).getItens().get(ci).getCustoTotal());
+						composicoes.get(c).getItens().get(ci).setComposicao(composicaoRepository.save(novaComposicao));
+						System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+						System.out.println("     NOVO COMPOSIÇÃO "+composicoes.get(c).getItens().get(ci).getCodigoItem());
+						System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 					} else {
-						i.setComposicao(composicaoExistente.get());
+						composicoes.get(c).getItens().get(ci).setComposicao(composicaoExistente.get());
 					}
 				}	
-				composicaoService.salvar(c);
-			}
-		}
+				
+			} // itens
+			
+			composicaoService.salvar(composicoes.get(c));
+			
+		} // composicao
 		return "ok";
 	}	
 	
@@ -861,6 +809,39 @@ public class SinapiController {
 		try (FileInputStream fis = new FileInputStream(filename)) {
 			return new HSSFWorkbook(fis);      
 		}
+	}
+	
+	private Composicao pesquisaClasseGrupo (Composicao composicao, String siglaClasse, 
+								String nomeClasse, Long codigoGrupo, String nomeGrupo) {
+		
+		ComposicaoClasse classe =new ComposicaoClasse();
+		ComposicaoGrupo grupo = new ComposicaoGrupo();
+		
+		Optional<ComposicaoGrupo> grupoExistente = composicaoGruposRepository
+				.findById( codigoGrupo );
+		
+		if (grupoExistente.isPresent()) {
+			composicao.setComposicaoGrupo(grupoExistente.get()); 
+		} else {
+			
+			Optional<ComposicaoClasse> classeExistente = composicaoClassesRepository
+					.findBySiglaIgnoreCase(siglaClasse);
+			
+			if (classeExistente.isPresent()) {
+				composicao.setComposicaoClasse(classeExistente.get()); 
+			} else { 
+				classe.setNome(nomeClasse);
+				classe.setSigla(siglaClasse);
+				composicaoClassesRepository.save(classe);
+				composicao.setComposicaoClasse(composicaoClassesRepository.saveAndFlush(classe));
+			}
+			grupo.setCodigo(codigoGrupo); 
+			grupo.setNome(nomeGrupo);
+			grupo.setComposicaoClasse(composicao.getComposicaoClasse());
+			composicao.setComposicaoGrupo(composicaoGruposRepository.saveAndFlush(grupo));
+		}
+		
+		return composicao;
 	}
 	
 	public static String strRemove(String str){     
@@ -878,9 +859,7 @@ public class SinapiController {
         
 		if ("H".equals(unidade) || "MES".equals(unidade)) {
 			if (descricao.length() > 7) {
-				System.out.println(descricao.substring(0, 7)); 
 			    if ( "LOCACAO".equals( descricao.substring(0, 7) ) ) { 
-			    		
 			       return Especie.EQUIPAMENTO;	
 			    }
 	 	    }
@@ -889,7 +868,7 @@ public class SinapiController {
 		return Especie.MATERIAL;
     } 
 	
-    public static BigDecimal StrToBig (String numero, Integer decimais) {
+    public static BigDecimal strToBig (String numero, Integer decimais) {
         String casasDecimais = "";
         String num = numero;
         DecimalFormat df = null;
@@ -918,9 +897,6 @@ public class SinapiController {
             return new BigDecimal("0");
         }
     }
-
-   
-    
 }
 
 /*  http://www.caixa.gov.br/Downloads/sinapi-a-partir-jul-2009-rn/SINAPI_ref_Insumos_Composicoes_RN_01a062018.zip

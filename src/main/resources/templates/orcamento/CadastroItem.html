@@ -19,23 +19,45 @@
 	<div class="page-header">
 		<div class="container-fluid">
 			<div class="row">
-				<div class="col-xs-10">
-					<h1 th:if="${orcamento.novo}"     th:text="#{orcamento.cadastro.titulo}">BUG. Não deveria incluir o orçamento por aqui</h1>
-					<h1 th:unless="${orcamento.novo}" th:text="#{orcamento.edicao.titulo(${orcamento.codigo})}">Orçamento nº </h1>
+				<div class="col-xs-4">
+					<h1 th:if="${orcamento.novo}"     th:text="#{orcamento.cadastro.titulo}"></h1>
+					<h1 th:unless="${orcamento.novo}" th:text="#{orcamento.edicao.obra(${orcamento.codigo}, ${orcamento.nome})}">Casa Residencial </h1>
 				</div>
+				<div class="col-xs-4 text-center">
+				  	<h1 th:unless="${orcamento.novo}" th:text="#{orcamento.edicao.uf(${orcamento.estado.nome})}">RN</h1> 
+				</div>
+				
+				<div class="col-xs-4">
+				   <div class="aw-page-header-controls">
+				   		<a class="btn  btn-default js-tooltip" title="Pesquisar Insumos" th:href="@{/insumos}">
+							<i class="fa fa-cube"></i> <span class="hidden-xs  hidden-sm"></span>
+						</a>
+						<span style="width:10px"></span>
+				   		<a class="btn  btn-default js-tooltip" title="Pesquisar Composições" th:href="@{/composicoes}">
+							<i class="fa fa-cubes"></i> <span class="hidden-xs  hidden-sm"></span>
+						</a>
+						<span style="width:10px"></span>
+				   		<a class="btn  btn-default js-tooltip" title="Editar Orçamento" th:href="@{/orcamentos/{codigo}(codigo=${orcamento.codigo}) }">
+							<i class="glyphicon  glyphicon-pencil"></i> <span class="hidden-xs  hidden-sm"></span>
+						</a>
+						<span style="width:10px"></span>
+						<a class="btn  btn-default js-tooltip" title="Imprimir Orçamento" th:href="@{/orcamentos/{codigo}(codigo=${orcamento.codigo}) }">
+							<i class="glyphicon  glyphicon-print"></i> <span class="hidden-xs  hidden-sm"></span>
+						</a>
+				   </div>
+				</div>
+				
 			</div>
 		</div>
 	</div>
 	
 	<div class="container-fluid">
-		<form method="POST" 
-		      th:action="@{/item/novo}" 
-		      th:object="${orcamento}" class="js-formulario-principal">
+		<form method="POST" th:action="@{/item/novo}" 
+		      th:object="${orcamento}" class="js-formulario-orcamento">
 		      
-			
-			 	
-			<input type="hidden" th:field="*{uuid}"          id="uuid" />
-			<input th:field="*{etapaCheckBox}" id="etapaCheckBox" />
+		     <sinapiPRO:message/> 
+		      
+			<input type="hidden" th:field="*{uuid}" id="uuid" />
 			<input type="hidden" th:field="*{codigo}"/>
 			<input type="hidden" th:field="*{nome}"/>
 			<input type="hidden" th:field="*{cliente}"/>
@@ -44,58 +66,23 @@
 			<input type="hidden" th:field="*{estado}"/>
 			<input type="hidden" th:field="*{dataCriacao}"/>
 			<input type="hidden" th:field="*{usuario}"/>
+			<input type="hidden" th:field="*{etapaSelecionada}"/>
 			
-			<!-- totais -->
 			
-			<div class="row">
-				<div class="col-sm-3">
-					<div class="aw-box  js-valor-total-box-container">
-						<div class="aw-box__icon">
-							<i class="fa  fa-usd  fa-2x"></i>
-						</div>
-						<div class="aw-box__value">R$ <span class="js-valor-total-box" th:text="${{orcamento.valorTotal}}">0,00</span></div>
-						<div class="aw-box__title">TOTAL GERAL</div>
-					</div>
-				</div>
-				<div class="col-sm-3">
-					<div class="aw-box  js-total-servicos-box-container">
-						<div class="aw-box__icon">
-							<i class="fa  fa-usd  fa-2x"></i>
-						</div>
-						<div class="aw-box__value">R$ <span class="js-valor-mao-obra-box" th:text="${{orcamento.valorMaoObra}}">0,00</span></div>
-						<div class="aw-box__title">TOTAL MÃO DE OBRA</div>
-					</div>
-				</div>
-				<div class="col-sm-3">
-					<div class="aw-box  js-total-materiais-box-container">
-						<div class="aw-box__icon">
-							<i class="fa  fa-usd  fa-2x"></i>
-						</div>
-						<div class="aw-box__value">R$<span class="js-valor-material-box" th:text="${{orcamento.valorMaterial}}">0,00</span></div>
-						<div class="aw-box__title">TOTAL MATERIAIS</div>
-					</div>
-				</div>
-				<div class="col-sm-3">
-					<div class="aw-box  js-total-equipamentos-box-container">
-						<div class="aw-box__icon">
-							<i class="fa  fa-usd  fa-2x"></i>
-						</div>
-						<div class="aw-box__value">R$<span class="js-valor-equipamento-box" th:text="${{orcamento.valorEquipamento}}">0,00</span></div>
-						<div class="aw-box__title">TOTAL EQUIPAMENTOS</div>
-					</div>
-				</div>
-				 
-			</div> 	<!-- fim totais -->	
 			
 			<div class="row">
-				<div class="form-group  col-lg-12">
+				<div class="col-sm-12">
 					<ul class="nav nav-pills">
-					  <li class="active">  <a data-toggle="pill" href="#composicoes">COMPOSIÇÕES</a></li>
-					  <li><a data-toggle="pill" href="#insumos">INSUMOS</a></li>
 					  <li><a data-toggle="pill" href="#etapas">ETAPAS</a></li>
+					  <li><a data-toggle="pill" href="#composicoes">COMPOSIÇÕES</a></li>
+					  <li class="active"><a data-toggle="pill" href="#insumos">INSUMOS</a></li>
+					 
 					</ul>
 				</div>
+				
 			</div>
+			
+			<div class="row">
 			
 			<div class="tab-content">
 				<div class="tab-pane fade in active" id="composicoes" >
@@ -104,39 +91,33 @@
 							<input type="text" 
 							       class="form-control  js-composicao-input" 
 							       id="composicao" 
-								   placeholder="Pesquise e adicione a composicao pelo Código ou Nome" 
+								   placeholder="Pesquise a composicao pelo Nome" 
 								   data:url="@{/composicoes}"/>
 						</div>
 					</div>
 				</div>
-				
 				<div class="tab-pane fade" id="insumos">
 					 <div class="row" >
-						<div class="form-group  col-lg-12" >
+						<div class="col-lg-12" >
 							<input type="text" 
 							       class="form-control  js-insumo-input" 
 							       id="insumo" 
-								   placeholder="Pesquise e adicione o insumo pelo Código ou Nome" 
+								   placeholder="Pesquise e adicione o insumo pelo Nome" 
 								   data:url="@{/insumos}"/>
 						</div>
 					</div>
 				</div>
-				
 				<div class="tab-pane fade" id="etapas">
-					 
 					 <div class="row">
-						<div class="form-group  col-lg-12">
+						<div class="col-lg-12">
 							<input type="text" 
 							       class="form-control  js-etapa-input" 
 							       id="etapa" 
-								   placeholder="Pesquise e adicione a etapa pelo Código ou Nome" 
+								   placeholder="Pesquise e adicione a etapa pelo Nome" 
 								   data:url="@{/etapas}"/>
 						</div>
 					</div>
 				</div>
-				
-				
-				<!-- Lista items  -->
 				<div class="sn-tabela-composicoes  js-tabela-item-container" 
 				     data:valor-total="${valorTotalItens}"
 				     data:valor-mao-obra="${valorMaoObraItens}"
@@ -148,6 +129,53 @@
 				</div>
 			</div>
 			 
+			 
+			</div>
+			
+			
+			<!-- totais -->
+			<div class="row">
+				<div class="col-sm-3">
+					<div class="aw-box  js-valor-total-box-container">
+						<div class="aw-box__icon">
+							<i class="fa  fa-usd  fa-2x"></i>
+						</div>
+						<div class="aw-box__value">R$ <span class="js-valor-total-box" th:text="${{orcamento.valorTotal}}">0,00</span></div>
+						<div class="aw-box__title">Total</div>
+					</div>
+				</div>
+				
+				<div class="col-sm-3">
+					<div class="aw-box  js-total-servicos-box-container">
+						<div class="aw-box__icon">
+							<i class="fa  fa-usd  fa-2x"></i>
+						</div>
+						<div class="aw-box__value">R$ <span class="js-valor-mao-obra-box" th:text="${{orcamento.valorTotal}}">0,00</span></div>
+						<div class="aw-box__title">Mão de Obra</div>
+					</div>
+				</div>
+				<div class="col-sm-3">
+					<div class="aw-box  js-total-materiais-box-container">
+						<div class="aw-box__icon">
+							<i class="fa  fa-usd  fa-2x"></i>
+						</div>
+						<div class="aw-box__value">R$<span class="js-valor-material-box" th:text="${{orcamento.valorTotal}}">0,00</span></div>
+						<div class="aw-box__title">Materiais</div>
+					</div>
+				</div>
+				<div class="col-sm-3">
+					<div class="aw-box  js-total-equipamentos-box-container">
+						<div class="aw-box__icon">
+							<i class="fa  fa-usd  fa-2x"></i>
+						</div>
+						<div class="aw-box__value">R$<span class="js-valor-equipamento-box" th:text="${{orcamento.valorTotal}}">0,00</span></div>
+						<div class="aw-box__title">Equipamentos</div>
+					</div>
+				</div>
+				 
+			</div> 	
+			<!-- fim totais -->	
+			 
 			<div class="row" style="clear: both">
 				<div class="col-lg-12">
 					<div class="btn-group">
@@ -158,8 +186,8 @@
 					  
 					  <ul class="dropdown-menu">
 					    <li><a href="#" class="js-submit-btn" data:acao="efetivar">Salvar e efetivar</a></li>
-					    <li><a href="#" class="js-submit-btn" data:acao="concluir">Salvar e concluir</a></li>
-					    <li><a href="#" class="js-submit-btn" data:acao="bloquear">Salvar e bloquear</a></li>
+					    <li><a href="#" class="js-submit-btn" data:acao="concluir">Concluir</a></li>
+					    <li><a href="#" class="js-submit-btn" data:acao="bloquear">Bloquear</a></li>
 					  </ul>
 					</div>
 				
@@ -168,14 +196,57 @@
 					        th:unless="${orcamento.novo}">Cancelar</button>
 				</div>
 			</div>
-			<sinapiPRO:message/>
+			
 		</form>
 		
 	</div>
 	
-	<th:block th:replace="hbs/TemplateAutocompleteComposicao"></th:block>  
-	<th:block th:replace="hbs/TemplateAutocompleteInsumo"></th:block>  
-	<th:block th:replace="hbs/TemplateAutocompleteEtapa"></th:block>  
+	<!-- <th:block th:replace="hbs/TemplateAutocompleteComposicao"></th:block>   -->
+	<script id="template-autocomplete-composicao" type="text/x-handlebars-template">
+	<div class="sn-tabela-item">
+	    
+		<div class="sn-tabela-item__coluna  sn-tabela-item__coluna--unidade">
+			 <span>{{unidade}}</span>
+		</div>
+		<div class="sn-tabela-item__coluna  sn-tabela-item__coluna--detalhes">
+			<span>{{descricao}}</span>
+		</div>
+		<div class="sn-tabela-item__coluna  sn-tabela-item__coluna--valores">
+			<span  class="label  label-default">{{codigo}}</span>
+			<div class="sn-tabela-item-valor-medio">R${{valorFormatado}}</div>
+		</div>
+
+	</div>
+	</script>
+	
+	<!--<th:block th:replace="hbs/TemplateAutocompleteInsumo"></th:block>   -->
+	<script id="template-autocomplete-insumo" type="text/x-handlebars-template">
+	<div class="bw-tabela-item">
+	
+		<div class="bw-tabela-item__coluna  bw-tabela-item__coluna--detalhes">
+			<span class="bw-tabela-item-nome">{{descricao}}</span>
+			<span class="label label-default">{{codigo}}</span>
+			<span class="bw-tabela-item-unidade">{{unidade}}</span>
+		</div>
+		<div class="bw-tabela-item__coluna  bw-tabela-item__coluna--valores">
+			<div class="bw-tabela-item-valor-medio">R${{valorFormatado}}</div>
+		</div>
+
+	</div>
+	</script>
+
+	<!--<th:block th:replace="hbs/TemplateAutocompleteEtapa"></th:block>   -->
+	<script id="template-autocomplete-etapa" type="text/x-handlebars-template">
+	<div class="sn-tabela-item">
+	
+		<div class="sn-tabela-item__coluna ">
+			<span class="sn-tabela-item-codigo">{{codigo}}</span>
+		</div>
+		<div class="sn-tabela-item__coluna  sn-tabela-item__coluna--detalhes">
+			<span class="sn-tabela-item-nome">{{nome}}</span>
+		</div>
+	</div>
+	</script>
 	
 </section>
 

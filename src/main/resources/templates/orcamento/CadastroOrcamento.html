@@ -18,23 +18,18 @@
 	<div class="page-header">
 		<div class="container-fluid">
 			<div class="row">
-				<div class="col-xs-10">
-					<h1 th:if="${orcamento.novo}">Cadastro de Orçamento</h1>
-					<h1 th:unless="${orcamento.novo}" th:text="|Edição do Orcamento nº ${orcamento.codigo}|">Edição de Orçamento</h1>
+				<div class="col-xs-8">
+					<h1 th:if="${orcamento?.novo}">Cadastro de Orçamento</h1>
+					<h1 th:unless="${orcamento?.novo}" th:text="|Edição do Orcamento nº ${orcamento?.codigo}|">Edição de Orçamento</h1>
 				</div>
 			
-				<div class="col-xs-2">
+				<div class="col-xs-4">
 					<div class="aw-page-header-controls">
 						<a class="btn  btn-default" th:href="@{/orcamentos}">
 							<i class="glyphicon  glyphicon-search"></i> <span class="hidden-xs  hidden-sm">PESQUISA</span>
 						</a>
-						<a class="btn  btn-default" th:href="@{/orcamentos}">
-							<i class="glyphicon  glyphicon-search"></i> <span class="hidden-xs  hidden-sm">PESQUISA</span>
-						</a>
-					</div>
-					
-					
-				</div>
+					</div>	
+				</div>		
 			</div>
 		</div>
 	</div>
@@ -51,56 +46,35 @@
 		    <input type="hidden" th:field="${orcamento.situacao.descricao}"/>
 			<input type="hidden" id="uuid" th:field="*{uuid}"/>
 			<input type="hidden" th:field="*{usuario}"/>
-			
+			<input type="hidden" th:field="*{itens}"/>
 			
 			<div class="row">
-			     
-				<div class="form-group col-sm-12    sn-required" sinapiPRO:classforerror="nome">
-					<label for="nome" class="control-label">Obra</label>
-					<input id="nome" type="text" class="form-control" th:field="*{nome}" />
-				</div>	
+				<div class="form-group  col-sm-12  sn-required" sinapiPRO:classforerror="nome">
+					<label for="nome" class="control-label">Nome</label>
+					<input type="text" class="form-control" id="nome" autofocus="autofocus" th:field="*{nome}"/>
+				</div>
 			</div>
 			
 			<div class="row">
-			
-				<div class="form-group  col-sm-3">
-					<label for="estado">Estado</label>
-					<select id="estado" class="form-control" th:field="*{estado}">
-					
-	                    <option value="">Selecione o estado</option>
-	                
-	                    <option th:each="estado : ${estados}" 
-	                            th:value="${estado.codigo}" 
-	                            th:text="${estado.nome}">São Paulo</option>
-	                </select>
+				<div class="form-group  col-sm-6 sn-required" sinapiPRO:classforerror="obra.codigo">
+					<label class="control-label" for="nomeObra">Obra</label>
+					<div class="input-group">
+				      <input id="nomeObra" 
+				             type="text" 
+				             readonly="readonly" 
+				             class="form-control" th:field="*{obra.nome}" 
+				      	     placeholder="Clique na lupa para pesquisar a Obra"/>
+				      <input id="codigoObra" type="hidden" th:field="*{obra}"/>
+				      <span class="input-group-btn">
+					        <button class="btn  btn-default  js-tooltip" type="button" title="Pesquisa avançada"
+					        		data-toggle="modal" 
+					        		data-target="#pesquisaRapidaObras" th:disabled="${orcamento.salvarProibido}">
+					        	<i class="glyphicon  glyphicon-search"></i>
+					        </button>
+				      </span>
+				    </div>
 				</div>
-				 
-				<div class="form-group  col-sm-3">
-					<label for="baseInsumo">Base Insumos Padrão</label>
-					<select id="baseInsumo" class="form-control" th:field="*{baseInsumo}">
-	                    
-	                    <option value="">Todas</option>
-	                    
-	                    <option th:each="baseInsumo : ${baseInsumos}" 
-	                            th:value="${baseInsumo.codigo}" 
-	                            th:text="${baseInsumo.nome}">SINAPI</option>
-	                </select>
-				</div>
-				
-				<div class="form-group  col-sm-3">
-					<label for="basePreco">Base Preços Padrão</label>
-					<select id="basePreco" class="form-control" th:field="*{basePreco}">
-	                    
-	                    <option value="">Todas</option>
-	                    
-	                    <option th:each="basePreco : ${basePrecos}" 
-	                            th:value="${basePreco.codigo}" 
-	                            th:text="${basePreco.nome}">RN SINAPI 2018-01</option>
-	                </select>
-				</div>
-				
-				
-				<div class="form-group  col-sm-3  sn-required" sinapiPRO:classforerror="cliente.codigo">
+				<div class="form-group  col-sm-6  sn-required" sinapiPRO:classforerror="cliente.codigo">
 					<label class="control-label" for="nomeCliente">Cliente</label>
 					<div class="input-group">
 				      <input id="nomeCliente" 
@@ -111,56 +85,90 @@
 				      <input id="codigoCliente" type="hidden" th:field="*{cliente}"/>
 				      <span class="input-group-btn">
 					        <button class="btn  btn-default  js-tooltip" type="button" title="Pesquisa avançada"
-					        		data-toggle="modal" data-target="#pesquisaRapidaClientes" th:disabled="${orcamento.salvarProibido}">
+					        		data-toggle="modal" 
+					        		data-target="#pesquisaRapidaClientes" th:disabled="${orcamento.salvarProibido}">
 					        	<i class="glyphicon  glyphicon-search"></i>
 					        </button>
 				      </span>
 				    </div>
 				</div>
-				
 			</div>
 			<div class="row">
-				<div class="col-sm-2  form-group  bw-required" sinapiPRO:classforerror="bdiMaoObra">
-					<label for="bdiMaoObra" class="control-label">BDI Mão de Obra</label>
-					<div class="input-group">
-						<input id="bdiMaoObra" type="text" class="form-control  js-decimal" th:field="*{bdiMaoObra}"/>
-						<div class="input-group-addon">%</div>
-					</div>
-				</div>
-				<div class="col-sm-2  form-group  bw-required" sinapiPRO:classforerror="bdiMateriais">
-					<label for="bdiMateriais" class="control-label">BDI Materiais</label>
-					<div class="input-group">
-						<input id="bdiMateriais" type="text" class="form-control  js-decimal" th:field="*{bdiMateriais}"/>
-						<div class="input-group-addon">%</div>
-					</div>
-				</div>
-				<div class="col-sm-2  form-group  bw-required" sinapiPRO:classforerror="bdiEquipamentos">
-					<label for="bdiEquipamentos" class="control-label">BDI Equipamentos</label>
-					<div class="input-group">
-						<input id="bdiEquipamentos" type="text" class="form-control  js-decimal" th:field="*{bdiEquipamentos}"/>
-						<div class="input-group-addon">%</div>
-					</div>
-				</div>
-				<div class="col-sm-3  form-group  bw-required" sinapiPRO:classforerror="leisSociais">
-					<label for="leisSociais" class="control-label">Leis Sociais</label>
-					<div class="input-group">
-						<input id="leisSociais" type="text" class="form-control  js-decimal" th:field="*{leisSociais}"/>
-						<div class="input-group-addon">%</div>
-					</div>
-				</div>
-				<div class="col-sm-3  form-group  bw-required" sinapiPRO:classforerror="taxaAdministracao">
-					<label for="taxaAdministracao" class="control-label">Taxa de Administração</label>
-					<div class="input-group">
-						<input id="taxaAdministracao" type="text" class="form-control  js-decimal" th:field="*{taxaAdministracao}"/>
-						<div class="input-group-addon">%</div>
-					</div>
-				</div>
+				
+				
 				
 			</div>
 			
 			<div class="row">
+				<div class="form-group  col-sm-3 sn-required">
+					<label for="baseInsumo">Base de Insumos</label>
+					<select id="baseInsumo" class="form-control" th:field="*{baseInsumo}">
+	                    
+	                    <option value="">Todas</option>
+	                    
+	                    <option th:each="baseInsumo : ${baseInsumos}" 
+	                            th:value="${baseInsumo.codigo}" 
+	                            th:text="${baseInsumo.nome}">SINAPI</option>
+	                </select>
+				</div>
+				<div class="form-group  col-sm-3 sn-required">
+					<label for="basePreco">Base de Preços</label>
+					<select id="basePreco" class="form-control" th:field="*{basePreco}">
+	                    
+	                    <option value="">Todas</option>
+	                    
+	                    <option th:each="basePreco : ${basePrecos}" 
+	                            th:value="${basePreco.codigo}" 
+	                            th:text="${basePreco.nome}">RN SINAPI 2018-01</option>
+	                </select>
+				</div>
+				<div class="form-group col-sm-3  sn-required" sinapiPRO:classforerror="desoneracao">
+					<label for="desoneracao" class="control-label">Desoneração da Folha</label>
+					<select id="desoneracao" class="form-control" th:field="*{desoneracao}">
+						<option value="">Todos</option>
+						<option th:each="oneracao : ${desoneracoes}" th:value="${desoneracao}" 
+						        th:text="${oneracao.descricao}">Onerada</option>
+					</select>
+				</div>
+				<div class="form-group  col-sm-3 sn-required" sinapiPRO:classforerror="estado">
+					<label for="estado">Estado</label>
+					<select id="estado" class="form-control" th:field="*{estado}">
+	                    <option value="">Todos</option>
+	                    <option th:each="estado : ${estados}" 
+	                            th:value="${estado.codigo}" 
+	                            th:text="${estado.nome}">São Paulo</option>
+	                </select>
+				</div>	
+			</div>
+			
+			<div class="row">	
+				<div class="col-sm-3  form-group js-decimal" sinapiPRO:classforerror="percentualBdi">
+					<label for="bdi" class="control-label">BDI</label>
+					<div class="input-group">
+						<input id="bdi" type="text" class="form-control  js-decimal" th:field="*{percentualBdi}"/>
+						<div class="input-group-addon">%</div>
+					</div>
+				</div>
+				<div class="col-sm-3  form-group js-decimal" sinapiPRO:classforerror="percentualTaxaAdm">
+					<label for="taxa" class="control-label">Taxa Administração</label>
+					<div class="input-group">
+						<input id="taxa" type="text" class="form-control  js-decimal" th:field="*{percentualTaxaAdm}"/>
+						<div class="input-group-addon">%</div>
+					</div>
+				</div>
+				<div class="col-sm-3  form-group js-decimal" sinapiPRO:classforerror="percentualLeisSociais">
+					<label for="leis" class="control-label">Leis Sociais</label>
+					<div class="input-group">
+						<input id="leis" type="text" class="form-control  js-decimal" th:field="*{percentualLeisSociais}"/>
+						<div class="input-group-addon">%</div>
+					</div>
+				</div>
 				
-				<div class="col-sm-12  form-group sn-required" sinapiPRO:classforerror="observacao">
+				
+			</div>
+			 
+			<div class="row">
+				<div class="col-sm-12  form-group" sinapiPRO:classforerror="observacao">
 					<label for="observacao" class="control-label">Observação</label>
 					<textarea id="observacao" rows="2" class="form-control" th:field="*{observacao}"></textarea>
 				</div>
@@ -168,19 +176,27 @@
 			
 			<div class="form-group">
 				<button class="btn  btn-primary" type="submit">Salvar</button>
+				<a th:href="@{/orcamentos/acessaOrcamento/{codigo}(codigo=${orcamento.codigo})}">
+					<button class="btn  btn-success"
+					        type="button"
+				        	th:unless="${orcamento.novo}">Acessar Items
+				    </button>
+				</a>    
+				
 			</div>
 			 
 		</form>
 	</div>
 	
 	<th:block th:replace="cliente/PesquisaRapidaClientes :: pesquisaRapidaClientes"></th:block>
-	<th:block th:replace="hbs/TemplateAutocompleteComposicao"></th:block>
+	<th:block th:replace="obra/PesquisaRapidaObras :: pesquisaRapidaObras"></th:block>
 	
 </section>
 
 <th:block layout:fragment="javascript-extra">
 	<script th:src="@{/javascripts/vendors/handlebars.min.js}"></script>
 	<script th:src="@{/javascripts/cliente.pesquisa-rapida.js}"></script>
+	<script th:src="@{/javascripts/obra.pesquisa-rapida.js}"></script>
 	<script th:src="@{/javascripts/orcamento/orcamento.botoes-submit.js}"></script>
 </th:block>
 

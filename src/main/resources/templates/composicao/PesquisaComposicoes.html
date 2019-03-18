@@ -36,24 +36,24 @@
 			<!-- pesquisar pelo codigo tambem -->
 			<div class="row">
 			
+				<div class="form-group  col-sm-3">
+					<label class="control-label" for="codigoComposicao">Código Composição</label>
+					<input type="text" class="form-control" id="codigoComposicao" th:field="*{codigoComposicao}"/>
+				</div>
+							
 			    <div class="form-group  col-sm-3">
-					<label for="baseInsumo">Base Insumos</label>
+					<label for="baseInsumo">Base de Insumos</label>
 					<select id="baseInsumo" class="form-control" autofocus="autofocus" th:field="*{baseInsumo}">
-	                   <option value="">Selecione Base de Insumos</option>
+	                   <option value="">Todas</option>
 	                   <option th:each="baseInsumo : ${baseInsumos}" 
 	                           th:value="${baseInsumo.codigo}" 
 	                           th:text="${baseInsumo.nome}">SINAPI</option>
                 	</select>
 				</div>
-				 
-				<div class="form-group  col-sm-3">
-					<label class="control-label" for="codigoComposicao">Código</label>
-					<input type="number" class="form-control" id="codigoComposicao" th:field="*{codigoComposicao}"/>
-				</div>
 			 
 				<div class="form-group  col-sm-3">
-					<label for="ComposicaoClasse">Classe</label>
-					<select id="ComposicaoClasse" class="form-control" th:field="*{composicaoClasse}">
+					<label for="classe">Classe</label>
+					<select id="classe" class="form-control" th:field="*{composicaoClasse}">
 	                    <option value="">Todas</option>
 	                    <option th:each="composicaoClasse : ${composicaoClasses}" 
 	                            th:value="${composicaoClasse.codigo}" th:text="${composicaoClasse.nome}">Hidraulica</option>
@@ -61,14 +61,20 @@
 				</div>
 				
 				<div class="form-group  col-sm-3">
-					<label for="composicaoGrupo">Grupo </label>
-					<select id="composicaoGrupo" class="form-control" th:field="*{composicaoGrupo}">
-	                    <option value="">Todos</option>
-	                    <option th:each="composicaoGrupo : ${composicaoGrupos}" 
-	                    	       th:value="${composicaoGrupo.codigo}" 
-	                    	       th:text="${composicaoGrupo.nome}">Hidraulica</option>
-	                </select>
+					<label  for="grupo">Grupo</label>
+					<div class="bw-field-action">
+						<input type="hidden" id="inputHiddenGrupoSelecionado" 
+						       th:value="*{composicaoGrupo} != null ? *{composicaoGrupo.codigo}"/>
+						<select id="grupo" class="form-control" 
+						        data:url="@{/composicaoGrupos}" th:field="*{composicaoGrupo}">
+						</select>
+						
+						<div class="bw-field-action__icon  js-img-loading" style="display: none">
+							<img th:src="@{/images/mini-loading.gif}"/>
+						</div>
+					</div>
 				</div>
+				
 			</div>
 			
 			<div class="row">
@@ -86,18 +92,17 @@
 			<table class="table  table-hover">
 	            <thead>
 	            	<tr>
-	            	   <th class="table-insumos-col-codigo">
-							<sinapiPRO:order page="${pagina}" field="codigoComposicao" text="Código"/>
-						</th>
+	            	    
+	            	    <th class="table-col-codigo">Código</th>
 						<th class="table-insumos-col-unidade">Base</th>
-						<th class="table-insumos-col-unidade">
-							<sinapiPRO:order page="${pagina}" field="unidade" text="UN"/>
-						</th>
-						<th class="table-composicoes-col-classe">Classe</th>
-						<th class="table-insumos-col-preco">Preço Padrão</th>
+						<th class="table-composicoes-col-classe text-center">Classe</th>
 						<th class="table-insumos-col-descricao">
 							<sinapiPRO:order page="${pagina}" field="descricao" text="Descrição"/>
 						</th>
+						<th class="table-insumos-col-unidade">
+							<sinapiPRO:order page="${pagina}" field="unidade" text="Unidade"/>
+						</th>
+						<th class="table-insumos-col-preco">Preço</th>
 						<th class="table-insumos-col-acoes"></th> 
 					</tr>
 				</thead>
@@ -106,19 +111,24 @@
 					<tr th:each="composicao : ${pagina.conteudo}">
 						<td class="text-center" th:text="${composicao.codigoComposicao}"></td>
 						<td class="text-center" th:text="${composicao.baseInsumo.nome}">SINAPI</td>
-						<td class="text-center" th:text="${composicao.unidade}"></td>
-						
 						<td class="text-center">
 						    <a class="js-tooltip" 
-						       th:title="${composicao.composicaoClasse.nome}"	
-						       th:text="${composicao.composicaoClasse.sigla}"
+						       th:title="${composicao.composicaoGrupo.composicaoClasse.nome}"	
+						       th:text="${composicao.composicaoGrupo.composicaoClasse.sigla}"
 						    </a>
-						 
 						</td> 
-						<td class="text-right"  th:text="|R$ ${{composicao.custoTotal}}|"></td>
 						<td class="text-left"   th:text="${composicao.descricao}"></td>
+						<td class="text-center" th:text="${composicao.unidade}"></td>
+						<td class="text-right"  th:text="|R$ ${{composicao.custoTotal}}|"></td>
+						
 						
 	                 	<td class="text-center">
+	                 	
+							<a class="btn  btn-link  btn-xs  js-tooltip " 
+							   title="Adicionar no Orçamento" 
+							   th:href="@{/composicoes/adicionarComposicao/{codigo}(codigo=${composicao.codigo})}"> 
+							   <i class="glyphicon glyphicon-duplicate"></i>
+							</a>
 	                 	    
 	                 	    <a class="btn  btn-link  btn-xs  js-tooltip" 
 							   title="Preços" 
@@ -130,6 +140,14 @@
 		   						th:href="@{/composicoes/{codigo}(codigo=${composicao.codigo})}">
 		   						<i class="glyphicon glyphicon-pencil"></i>
 		   					</a>
+		   					<a class="btn  btn-link  btn-xs  js-tooltip  js-exclusao-btn" 
+							   title="Excluir" 
+							   href="#" 
+							   data:url="@{/composicoes/{codigo}(codigo=${composicao.codigo})}"
+							   data:objeto="${composicao.descricao}">
+							   <i class="glyphicon glyphicon-trash"></i>
+							</a>
+		   					
 	                 	</td>
 	                </tr>
 	                
@@ -207,6 +225,7 @@
 	<script th:src="@{/javascripts/vendors/jquery.easy-autocomplete.min.js}"></script>
 	<script th:src="@{/javascripts/vendors/handlebars.min.js}"></script>
 	<script th:src="@{/javascripts/preco/preco.pesquisa-rapida.js}"></script>
+	<script th:src="@{/javascripts/composicao/composicao.combo-classe-grupo.js}"></script>
 </th:block>
 
 </body>

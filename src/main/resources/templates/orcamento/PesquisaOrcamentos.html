@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="pt" xmlns="http://www.w3.org/1999/xhtml" 
-	xmlns:th="http://www.thymeleaf.org"
-	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{layout/LayoutPadrao}"
-	xmlns:sinapiPRO="http://sinapiPRO.ifrn.edu.br"
+	  xmlns:th="http://www.thymeleaf.org"
+ 	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/LayoutPadrao}"
+	  xmlns:sinapiPRO="http://sinapiPRO.ifrn.edu.br"
 	xmlns:data="http://www.thymeleaf.org/extras/data">
 	
 <head>
@@ -74,11 +74,12 @@
 							   href="#" data:url="@{/orcamentos/{codigo}(codigo=${orcamento.codigo})}"
 							   data:objeto="${orcamento.nome}"> <i class="glyphicon glyphicon-remove"></i>
 							</a>
-		   					
-		   					<a class="btn  btn-link  btn-xs  js-tooltip" title="Acessar" 
-		   					   th:href="@{item/{codigoOrcamento}(codigoOrcamento=${orcamento.codigo})}">
+		   					<!-- null point 
+		   					<a class="btn  btn-link  btn-xs  js-tooltip" title="Itens do Orçamento" 
+		   					   th:href="@{/atual/{codigo}(codigo=${orcamento.codigo})}">
 		   					   <i class="glyphicon glyphicon-th-list"></i>
 		   					</a>
+		   					 -->
 	                 	</td>
 	                </tr>
 	                

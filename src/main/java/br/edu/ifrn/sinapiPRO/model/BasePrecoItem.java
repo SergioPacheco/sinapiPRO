@@ -5,18 +5,16 @@ import java.math.BigDecimal;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
-import org.hibernate.annotations.JoinFormula;
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity(name = "BasePrecoItem")
 @Table(name = "base_preco_item", 
@@ -26,12 +24,13 @@ public class BasePrecoItem implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY, generator="native")
+	@GenericGenerator(name = "native", strategy = "native")
 	private Long codigo;
 	
 	@NotNull(message = "O código do insumo é obrigatório")
 	@Column(name = "codigo_insumo")
-	private Long codigoInsumo; 
+	private String codigoInsumo; 
 	
 	@NotNull(message = "A base de preço é obrigatória")
 	@ManyToOne
@@ -52,11 +51,11 @@ public class BasePrecoItem implements Serializable {
 		this.codigo = codigo;
 	}
 
-	public Long getCodigoInsumo() {
+	public String getCodigoInsumo() {
 		return codigoInsumo;
 	}
 
-	public void setCodigoInsumo(Long codigoInsumo) {
+	public void setCodigoInsumo(String codigoInsumo) {
 		this.codigoInsumo = codigoInsumo;
 	}
 

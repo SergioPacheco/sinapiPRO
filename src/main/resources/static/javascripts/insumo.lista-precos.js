@@ -1,6 +1,6 @@
-var Brewer = Brewer || {};
+var SinapiPRO = SinapiPRO || {};
 
-Brewer.InsumoListaPrecos = (function() {
+SinapiPRO.InsumoListaPrecos = (function() {
 	
 	function InsumoListaPrecos() {
 		this.modal = $('#modalListaPrecos');
@@ -60,6 +60,6 @@ Brewer.InsumoListaPrecos = (function() {
 }());
 
 $(function() {
-	var insumoListaPrecos = new Brewer.InsumoListaPrecos();
+	var insumoListaPrecos = new SinapiPRO.InsumoListaPrecos();
 	insumoListaPrecos.iniciar();
 });

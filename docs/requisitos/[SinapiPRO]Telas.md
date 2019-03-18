@@ -2,10 +2,10 @@
 
 ### Pesquisa Insumo 
 
-Código Descricao                         Tipo       Unidade        Preço      Ações  
-123456 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxxxx xxxxxxx    R$ 999.999,99  (Excluir)(Editar)(Historico)   
-123456 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxxxx xxxxxxx    R$ 999.999,99  (Excluir)(Editar)(Historico)   
-123456 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxxxx xxxxxxx    R$ 999.999,99  (Excluir)(Editar)(Historico)   
+Código Descricao                         Tipo       Unidade          Preço  Ações  
+123456 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxxxx xxxxxxx  R$ 999.999,99 (Excluir)(Editar)(Historico)   
+123456 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxxxx xxxxxxx  R$ 999.999,99 (Excluir)(Editar)(Historico)   
+123456 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxxxx xxxxxxx  R$ 999.999,99 (Excluir)(Editar)(Historico)   
 
 ### Cadatro/Edição Insumo 
 codigo Unidade Descrição                 Data Inclusão Data Atualização 	
@@ -77,9 +77,7 @@ ITEM  NOME DA ETAPA
 
 
 
-
-
-TELA LISTA INSUMOS DO ORCAMENTO
+## TELA LISTA INSUMOS DO ORCAMENTO
 -------------------------------
 Codigo Descricao           Tipo     Unidade Quant.   Preco      Total Açoes
 99999  xxxxxxxxxxxxxxxxxxx Material xxxxxxx 99.9999 999,99  R$ 999,99 [Editar]
@@ -88,8 +86,7 @@ Codigo Descricao           Tipo     Unidade Quant.   Preco      Total Açoes
 
 
 
-
-TELA SINAPI COMPOSIÇÕES 
+## TELA SINAPI COMPOSIÇÕES 
 ------------------------ 
 Código  Classe Grupo Descrição     Unidade  Preço Liberação    Preço Açoes  
 {99999}  XXXXXX 9999  xxxxxxxxxxxxx xxxxxxx 999,99 99/9999   R$999.99 
@@ -98,7 +95,7 @@ TELA SINAPI VISUALIZA ITENS COMPOSICAO
 --------------------------------------
 
 Tipo      Codigo Descricao Unidade Quant. Cust Unit. Custo Total  Ações 
-xxxxxxxxx xxxxxx xxxxxxxxx xxxxxxx 9,999  R$999,99   R$999,99     **Historico Precos] [Lista Insumos]
+xxxxxxxxx xxxxxx xxxxxxxxx xxxxxxx 9,999  R$999,99   R$999,99     **Historico Precos] [Lista Insumos]**
 xxxxxxxxx xxxxxx xxxxxxxxx xxxxxxx 9,999  R$999,99   R$999,99 
 
            Materiais     R$ 99.999,99  
@@ -106,12 +103,12 @@ xxxxxxxxx xxxxxx xxxxxxxxx xxxxxxx 9,999  R$999,99   R$999,99
            Equipamentos  R$ 99.999,99 
            Outros        R$ 99.999,99 
            Preço Total   R$ 99.999,99  
-           */
+            
            
 
 
 
-RESUMO ORÇAMENTO 
+## TELA RESUMO ORÇAMENTO 
 ------------------
 
 TOTAL DO ORÇAMENTO: 	
@@ -124,10 +121,10 @@ Taxa de Administração:  R$ 999.999.999,99
 Leis Sociais:           R$ 999.999.999,99 
 Total                   R$ 999.999.999,99 
 
-ESPECIE 
+### ESPECIE 
 
 Descrição                   Valor            BDI        Tax,Adm        Lei.Soc          Total
-        
+---------------------------------------------------------------------------------------------        
 1 - Material        R$ 999.999,99  R$ 999.999,99  R$ 999.999,99  R$ 999.999,99  R$ 999.999,99 
 2 - Mão de Obra     R$ 999.999,99  R$ 999.999,99  R$ 999.999,99  R$ 999.999,99  R$ 999.999,99 
 3 - Equipamentos    R$ 999.999,99  R$ 999.999,99  R$ 999.999,99  R$ 999.999,99  R$ 999.999,99 

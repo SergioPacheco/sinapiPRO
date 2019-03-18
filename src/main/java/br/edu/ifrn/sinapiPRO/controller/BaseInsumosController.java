@@ -26,7 +26,7 @@ import br.edu.ifrn.sinapiPRO.repository.BaseInsumosRepository;
 import br.edu.ifrn.sinapiPRO.repository.filter.BaseInsumoFilter;
 import br.edu.ifrn.sinapiPRO.service.BaseInsumoService;
 import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
-import br.edu.ifrn.sinapiPRO.service.exception.NomeBaseInsumoJaCadastradaException;
+import br.edu.ifrn.sinapiPRO.service.exception.JaCadastradoException;
 
 @Controller
 @RequestMapping("/baseInsumos")
@@ -53,7 +53,7 @@ public class BaseInsumosController {
 		
 		try{
 			baseInsumoService.salvar(baseInsumo);
-		} catch(NomeBaseInsumoJaCadastradaException e){
+		} catch(JaCadastradoException e){
 			result.rejectValue("nome",e.getMessage(), e.getMessage());
 			return nova(baseInsumo);
 		}

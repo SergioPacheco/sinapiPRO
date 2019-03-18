@@ -12,7 +12,7 @@ import br.edu.ifrn.sinapiPRO.model.BasePrecoItem;
 @Repository
 public interface BasePrecoItemRepository extends JpaRepository<BasePrecoItem, Long> {
 
-	public Optional<BasePrecoItem> findByBasePrecoAndCodigoInsumo(BasePreco basePreco, Long codigoInsumo);
+	public Optional<BasePrecoItem> findByBasePrecoAndCodigoInsumo(BasePreco basePreco, String codigoInsumo);
 	
 }
 

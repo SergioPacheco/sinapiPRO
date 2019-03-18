@@ -2470,18 +2470,17 @@ public class Lib {
 		// val = BigDecimal.valueOf(val.doubleValue());
 
 		switch (arredondamento) {
-		case 'E':
-			// O banco de dados aceita no máximo 38 caracteres numéricos
+		case 'E': // Exato
 			Integer nInteiros = val.intValue();
 			val = val.setScale(38 - nInteiros.toString().length(), BigDecimal.ROUND_DOWN);
 			break;
-		case 'T':
+		case 'T': // Para baixo
 			val = val.setScale(decimal.intValue(), BigDecimal.ROUND_DOWN);
 			break;
-		case 'G':
+		case 'G': // Geral 
 			val = val.setScale(decimal.intValue(), BigDecimal.ROUND_HALF_UP);
 			break;
-		case 'C':
+		case 'C': // Somente Composicoes
 			val = val.setScale(decimal.intValue(), BigDecimal.ROUND_HALF_UP);
 			break;
 		}
@@ -2496,7 +2495,6 @@ public class Lib {
 
 		switch (arredondamento) {
 		case 'E':
-			// O banco de dados aceita no máximo 38 caracteres numéricos
 			Integer nInteiros = bd.intValue();
 			val = bd.setScale(38 - nInteiros.toString().length(), BigDecimal.ROUND_DOWN).doubleValue();
 			break;

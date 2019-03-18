@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org"
+  	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/LayoutPadrao}">
+
+<head> 
+	<title>Relatório Composições</title> 
+</head>
+
+<section layout:fragment="conteudo">
+
+	<div class="page-header">
+		<div class="container-fluid">
+			<h1>
+				Relatório Composições
+			</h1>
+		</div>
+	</div>
+	
+	<div class="container-fluid">
+		<form method="POST" 
+		      th:object="${listaComposicoes}" 
+		      th:action="@{/relatorios/listaComposicoes}">
+		      
+			<th:block th:include="fragments/MensagensErroValidacao"></th:block>
+			
+			<div class="row">
+				<div class="form-group col-sm-1"> <span>Opções:</span></div>
+				<div class="form-group col-sm-4">
+					<select id="basePreco" class="form-control" th:field="*{basePreco}">
+	                    <option value="">Selecione a Base de Insumos</option>
+	                    <option th:each="basePreco : ${basePrecos}" 
+	                            th:value="${basePreco.codigo}" 
+	                            th:text="${basePreco.nome}">SINAPI Janeiro/2018</option>
+	                </select>
+				</div>
+				<div class="form-group  col-sm-7"></div>
+			</div>	
+			<div class="row">
+				<div class="form-group col-sm-1"> </div>
+				<div class="form-group col-sm-6">
+					<label class="control-label">Selecione:</label> 	 	
+					<div class="checkbox checkbox-inline">
+						<input class="form-check-input" type="radio" name="relatorio"  
+						       id="sintetico" value="0" checked>
+						<label class="form-check-label" for="sintetico">Sintético</label>
+					</div>
+					<div class="checkbox checkbox-inline">
+					  <input class="form-check-input" type="radio" name="relatorio" 
+					         id="analitico" value="2">
+					  <label class="form-check-label" for="analitico">Analítico</label>
+					</div>
+				</div> 
+				<div class="form-group  col-sm-5"></div>
+			</div>	
+			
+			
+			<div class="row">
+				<div class="form-group col-sm-1"> </div>
+				<div class="form-group col-sm-6">
+					<label class="control-label">Ordenar por:</label> 	 	
+					<div class="checkbox checkbox-inline">
+						<input class="form-check-input" type="radio" name="ordem"  
+						       id="identificacao" value="composicao.codigo_composicao" checked>
+						<label class="form-check-label" for="identificacao">
+					    Identificação
+					  </label>
+					</div>
+					<div class="checkbox checkbox-inline">
+					  <input class="form-check-input" type="radio" name="ordem"  
+					         id="descricao" value="composicao.descricao">
+					  <label class="form-check-label" for="descricao">
+					    Descrição
+					  </label>
+					</div>
+					<div class="checkbox checkbox-inline">
+					  <input class="form-check-input" type="radio" name="ordem"  
+					         id="valor" value="composicao.custo_total">
+					  <label class="form-check-label" for="valor">
+					    Valor
+					  </label>
+					</div>
+				</div>
+				<div class="form-group  col-sm-5"></div>
+			</div>
+			<div class="row">	
+				<div class="form-group col-sm-1"> </div>			
+				<div class="form-group col-sm-6">
+					<label class="control-label">Tipo da Ordem:</label> 	 	
+					<div class="checkbox checkbox-inline">
+						<input class="form-check-input" type="radio" name="tipoOrdem"  
+						       id="crescente" value="ASC" checked>
+						<label class="form-check-label" for="crescente">Crescente</label>
+					</div>
+					<div class="checkbox checkbox-inline">
+						  <input class="form-check-input" type="radio" name="tipoOrdem" 
+						         id="decrescente" value="DESC">
+						  <label class="form-check-label" for="decrescente">Decrescente</label>
+					</div>
+				</div>
+				<div class="form-group  col-sm-5"></div>
+			</div>
+			<div class="row">
+				<div class="form-group  col-sm-1"> </div>
+				<div class="form-group  col-sm-6">
+					<label for="dataInicio">Data de Criação da Composição</label>
+					<div class="form-inline">
+						<input type="text" class="form-control  aw-form-control-inline-sm  js-date" 
+							   id="dataInicio" th:field="*{dataInicio}" autocomplete="off"/>
+						<label for="a" class="aw-form-label-between">a</label>
+						<input type="text" class="form-control  aw-form-control-inline-sm  js-date" 
+							id="dataFim" th:field="*{dataFim}" autocomplete="off"/>
+					</div>
+				</div>
+				<div class="form-group  col-sm-5"></div>
+			</div> 
+			
+			
+			<button type="submit" class="btn  btn-primary">Emitir</button>
+		</form>
+	</div>
+</section>
+
+</html>

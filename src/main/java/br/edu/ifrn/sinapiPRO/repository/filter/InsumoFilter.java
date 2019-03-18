@@ -6,7 +6,7 @@ import br.edu.ifrn.sinapiPRO.model.Especie;
 public class InsumoFilter {
 
 	private BaseInsumo baseInsumo; 
-	private Long codigoInsumo;
+	private String codigoInsumo;
 	private String descricao;
 	private Especie especie;
 	
@@ -16,10 +16,10 @@ public class InsumoFilter {
 	public void setBaseInsumo(BaseInsumo baseInsumo) {
 		this.baseInsumo = baseInsumo;
 	}
-	public Long getCodigoInsumo() {
+	public String getCodigoInsumo() {
 		return codigoInsumo;
 	}
-	public void setCodigoInsumo(Long codigoInsumo) {
+	public void setCodigoInsumo(String codigoInsumo) {
 		this.codigoInsumo = codigoInsumo;
 	}
 	public String getDescricao() {

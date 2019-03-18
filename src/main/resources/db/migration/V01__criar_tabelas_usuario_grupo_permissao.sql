@@ -5,7 +5,10 @@ CREATE TABLE usuario (
     senha VARCHAR(120) NOT NULL,
     ativo BOOLEAN DEFAULT true NOT NULL, 
     estado VARCHAR(02), 
-    data_nascimento DATE
+    data_nascimento DATE,
+    estado VARCHAR(2),
+    codigo_orcamento_atual BIGINT(20)
+    
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE grupo (
@@ -41,8 +44,9 @@ INSERT INTO grupo (codigo, nome) VALUES (1, 'Administrador');
 INSERT INTO grupo (codigo, nome) VALUES (2, 'Orcamentista');
 INSERT INTO grupo (codigo, nome) VALUES (3, 'Cliente');
 
-INSERT INTO usuario (nome, email, senha, ativo, estado) 
-VALUES ('admin', 'admin', '$2a$10$g.wT4R0Wnfel1jc/k84OXuwZE02BlACSLfWy6TycGPvvEKvIm86SG', 1, "RN");
+INSERT INTO usuario (nome, email, senha, ativo, estado, codigo_orcamento_atual, codigo_etapa_selecionada) 
+VALUES ('admin', 'admin@sinapipro.com', '$2a$10$g.wT4R0Wnfel1jc/k84OXuwZE02BlACSLfWy6TycGPvvEKvIm86SG', TRUE, "RN", NULL, NULL);
+--                                       $2a$10$g.wT4R0Wnfel1jc/k84OXuwZE02BlACSLfWy6TycGPvvEKvIm86SG
 
 -- Inserir permissões e relacionar com o usuario administrador  
 INSERT INTO permissao VALUES (1, 'ROLE_CADASTRAR_CIDADE');
@@ -57,10 +61,13 @@ INSERT INTO grupo_permissao (codigo_grupo, codigo_permissao) VALUES (1, 3);
 INSERT INTO grupo_permissao (codigo_grupo, codigo_permissao) VALUES (1, 4);
 
 INSERT INTO usuario_grupo (codigo_usuario, codigo_grupo) 
-     VALUES ( (SELECT codigo FROM usuario WHERE email = 'admin'), 1);
+     VALUES ( (SELECT codigo FROM usuario WHERE email = 'admin@sinapipro.com'), 1);
+     
+ALTER TABLE usuario	MODIFY ativo BOOLEAN DEFAULT true NOT NULL;     
 
-
-
+ALTER TABLE usuario CHANGE COLUMN orcamento_atual orcamento_atual BIGINT(20) NULL DEFAULT NULL ;  
+     
+     
 
 
 

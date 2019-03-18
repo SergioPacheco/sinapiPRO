@@ -4,18 +4,18 @@ SinapiPRO.AutocompleteInsumo = (function() {
 
 	function AutocompleteInsumo() {
 		
-		this.inputInsumo             = $('.js-insumo-input');
-		var htmlTemplateInsumo      = $('#template-autocomplete-insumo').html();
-		this.template                = Handlebars.compile(htmlTemplateInsumo);
-		this.emitter                 = $({});
-		this.on                      = this.emitter.on.bind(this.emitter);
+		this.inputInsumo       = $('.js-insumo-input');
+		var htmlTemplateInsumo = $('#template-autocomplete-insumo').html();
+		this.template          = Handlebars.compile(htmlTemplateInsumo);
+		this.emitter           = $({});
+		this.on                = this.emitter.on.bind(this.emitter);
 	}
 	
 	AutocompleteInsumo.prototype.iniciar = function() {
 		console.log('autocomplete INSUMO iniciou', '');
 		var options = {
-			url: function(codigoOuNome) {
-				return this.inputInsumo.data('url') + '?codigoOuNome=' + codigoOuNome;
+			url: function(porDescricao) {
+				return this.inputInsumo.data('url') + '?porDescricao=' + porDescricao;
 			}.bind(this),
 			getValue: 'descricao',
 			minCharNumber: 3,

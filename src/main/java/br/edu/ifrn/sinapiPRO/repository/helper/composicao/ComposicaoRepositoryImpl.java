@@ -39,9 +39,10 @@ public class ComposicaoRepositoryImpl implements ComposicaoRepositoryQueries {
 		Criteria criteria = manager.unwrap(Session.class).createCriteria(Composicao.class);
 		paginacaoUtil.preparar(criteria, pageable);
 		adicionarFiltro(filtro, criteria);
+		criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 		
 		return new PageImpl<>(criteria.list(), pageable, total(filtro));
-	}
+	} 
 	
 	@Transactional(readOnly = true)
 	@Override
@@ -63,41 +64,20 @@ public class ComposicaoRepositoryImpl implements ComposicaoRepositoryQueries {
 		return (Long) criteria.uniqueResult();
 	}
 
-	@Override
-	public List<ComposicaoDTO> porDescricao(Long codigoBaseInsumo, String descricao) {
-		
-		return manager 
-				.createQuery(
-					  "select new br.edu.ifrn.sinapiPRO.dto.ComposicaoDTO(i.codigoComposicao, b.nome as nomeBaseInsumo, i.descricao, i.unidade,  i.custoTotal) "
-				    + "  from Composicao as i"
-					+ " right join BaseInsumo b" 		  
-				    + " where b.codigo:= codigoBaseInsumo and"
-				    + "       lower(i.descricao) like lower(:descricao)", ComposicaoDTO.class)
-					.setParameter("descricao", descricao + "%")
-					.setParameter("codigoBaseInsumo", codigoBaseInsumo)
-					.getResultList();
-	}
-	
 	private void adicionarFiltro(ComposicaoFilter filtro, Criteria criteria) {
-		criteria.createAlias("baseInsumo", "b");
-		criteria.createAlias("composicaoClasse", "c");
-		criteria.createAlias("composicaoGrupo", "g");
 		
 		if (filtro != null) {
-			if(filtro.getCodigoComposicao()!=null){
+			if (!StringUtils.isEmpty(filtro.getCodigoComposicao())) {
 				criteria.add(Restrictions.eq("codigoComposicao", filtro.getCodigoComposicao()));
 			}
 			if (!StringUtils.isEmpty(filtro.getDescricao())) {
 				criteria.add(Restrictions.ilike("descricao", filtro.getDescricao(), MatchMode.ANYWHERE));
 			}
-			if (isComposicaoClassePresente(filtro)) {
-				criteria.add(Restrictions.eq("c.codigo", filtro.getComposicaoClasse().getCodigo()));
-			}
 			if (isComposicaoGrupoPresente(filtro)) {
-				criteria.add(Restrictions.eq("g.codigo", filtro.getComposicaoGrupo().getCodigo()));
+				criteria.add(Restrictions.eq("composicaoGrupo", filtro.getComposicaoGrupo()));
 			}
 			if (isBaseInsumoPresente(filtro)) {
-				criteria.add(Restrictions.eq("b.codigo", filtro.getBaseInsumo().getCodigo()));
+				criteria.add(Restrictions.eq("baseInsumo", filtro.getBaseInsumo()));
 			}
 		}
 	}
@@ -110,7 +90,17 @@ public class ComposicaoRepositoryImpl implements ComposicaoRepositoryQueries {
 		return filtro.getComposicaoGrupo() != null && filtro.getComposicaoGrupo().getCodigo() != null;
 	}
 	
-	private boolean isComposicaoClassePresente(ComposicaoFilter filtro) {
-		return filtro.getComposicaoClasse() != null && filtro.getComposicaoClasse().getCodigo() != null;
+	@Override
+	public List<ComposicaoDTO> porDescricao(String descricao) {
+		// TODO: Incluir filtro por base de insumo 
+		return manager 
+				.createQuery(
+					  "select new br.edu.ifrn.sinapiPRO.dto"
+					  + ".ComposicaoDTO(codigo, codigoComposicao, descricao, unidade,  custoTotal) "
+				    + "  from Composicao"
+				    + " where lower(descricao)        like lower(:descricao) or"
+				    + "       lower(codigoComposicao) like lower(:descricao)", ComposicaoDTO.class)
+					.setParameter("descricao", descricao + "%")
+					.getResultList();
 	}
 }

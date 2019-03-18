@@ -5,7 +5,7 @@ import br.edu.ifrn.sinapiPRO.model.BasePreco;
 public class BasePrecoItemFilter {
 	
 	private BasePreco basePreco; 
-	private Long codigoInsumo;
+	private String codigoInsumo;
 	
 	public BasePreco getBasePreco() {
 		return basePreco;
@@ -13,10 +13,10 @@ public class BasePrecoItemFilter {
 	public void setBasePreco(BasePreco basePreco) {
 		this.basePreco = basePreco;
 	}
-	public Long getCodigoInsumo() {
+	public String getCodigoInsumo() {
 		return codigoInsumo;
 	}
-	public void setCodigoInsumo(Long codigoInsumo) {
+	public void setCodigoInsumo(String codigoInsumo) {
 		this.codigoInsumo = codigoInsumo;
 	}
 
