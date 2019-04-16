@@ -20,7 +20,7 @@
 
 	<div class="container-fluid">
 		<div class="row">
-			<div class="col-sm-3">
+			<div class="col-sm-4">
 				<div class="aw-box">
 					<div class="aw-box__icon">
 						<i class="fa  fa-list  fa-3x"></i>
@@ -30,36 +30,64 @@
 				</div>
 			</div>
 			
-			<div class="col-sm-3">
+			<div class="col-sm-4">
 				<div class="aw-box">
 					<div class="aw-box__icon">
 						<i class="fa  fa-cube  fa-3x"></i>
 					</div>
-					<div class="aw-box__value" th:text="${totalInsumos}">123</div>
-					<div class="aw-box__title">Insumos</div>
+					<div class="aw-box__value" th:text="${totalInsumosSinapi}">123</div>
+					<div class="aw-box__title">Insumos SINAPI</div>
 				</div>
 			</div>
 			
-			<div class="col-sm-3">
+			<div class="col-sm-4">
 				<div class="aw-box">
 					<div class="aw-box__icon">
 						<i class="fa  fa-cubes  fa-3x"></i>
 					</div>
-					<div class="aw-box__value" th:text="${totalComposicoes}">9</div>
-					<div class="aw-box__title">Composições</div>
+					<div class="aw-box__value" th:text="${totalComposicoesSinapi}">9</div>
+					<div class="aw-box__title">Composições SINAPI</div>
 				</div>
 			</div>
 			
-			<div class="col-sm-3">
+			 
+		</div>
+		
+		<div class="row">
+			<div class="col-sm-4">
 				<div class="aw-box">
 					<div class="aw-box__icon">
-						<i class="fa  fa-users  fa-3x"></i>
+						<i class="fa  fa-building  fa-3x"></i>
 					</div>
-					<div class="aw-box__value" th:text="${totalClientes}">9</div>
-					<div class="aw-box__title">Clientes</div>
+					<div class="aw-box__value" th:text="${totalOrcamentos}">123</div>
+					<div class="aw-box__title">Obras</div>
 				</div>
 			</div>
+			
+			<div class="col-sm-4">
+				<div class="aw-box">
+					<div class="aw-box__icon">
+						<i class="fa  fa-cube  fa-3x"></i>
+					</div>
+					<div class="aw-box__value" th:text="${totalInsumosPropria}">123</div>
+					<div class="aw-box__title">Insumos PRÓPRIA</div>
+				</div>
+			</div>
+			
+			<div class="col-sm-4">
+				<div class="aw-box">
+					<div class="aw-box__icon">
+						<i class="fa  fa-cubes  fa-3x"></i>
+					</div>
+					<div class="aw-box__value" th:text="${totalComposicoesPropria}">9</div>
+					<div class="aw-box__title">Composições PRÓPRIA</div>
+				</div>
+			</div>
+			
+			 
 		</div>
+		
+		
 		
 		<div class="row">
 			

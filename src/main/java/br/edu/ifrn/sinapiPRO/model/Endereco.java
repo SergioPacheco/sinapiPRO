@@ -13,13 +13,8 @@ public class Endereco implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private String logradouro;
-	
 	private String numero;
-	
-	
-	//@Size(max = 20, message = "O tamanho da descrição deve estar entre 1 e 20")
 	private String complemento;
-	
 	private String cep;
 	
 	@ManyToOne

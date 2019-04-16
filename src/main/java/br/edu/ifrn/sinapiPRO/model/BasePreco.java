@@ -37,9 +37,6 @@ public class BasePreco implements Serializable {
 	@JoinColumn(name = "codigo_estado")
 	private Estado estado;
 	
-	@Enumerated(EnumType.STRING)
-	private Desoneracao desoneracao;
-	
 	private LocalDate dataReferencia;
 	
 	private LocalDate dataUltimaAtualizacao;
@@ -74,14 +71,6 @@ public class BasePreco implements Serializable {
 
 	public void setEstado(Estado estado) {
 		this.estado = estado;
-	}
-
- 	public Desoneracao getDesoneracao() {
-		return desoneracao;
-	}
-
-	public void setDesoneracao(Desoneracao desoneracao) {
-		this.desoneracao = desoneracao;
 	}
 
 	public LocalDate getDataReferencia() {

@@ -33,6 +33,24 @@ public class RelatoriosController {
 	@Autowired 
 	private BasePrecoService basePrecoService; 
 	
+	@GetMapping("/listaInsumos")
+	public ModelAndView relatorioListagemInsumos() {
+		ModelAndView mv = new ModelAndView("relatorio/RelatorioListaInsumos");
+		mv.addObject("baseInsumos", baseInsumoService.findAll());
+		mv.addObject("especies",   Especie.values());
+		mv.addObject(new ListaInsumos());
+		return mv;
+	}
+	
+	@PostMapping("/listaInsumos")
+	public ResponseEntity<byte[]> gerarRelatorioListagemInsumos(ListaInsumos listaInsumos) throws Exception {
+		
+		byte[] relatorio = relatorioService.gerarRelatorioListaInsumos(listaInsumos); 
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE)
+				.body(relatorio);
+	}
+	
 	@GetMapping("/listaComposicoes")
 	public ModelAndView relatorioListaComposicoes() {
 		ModelAndView mv = new ModelAndView("relatorio/RelatorioListaComposicoes");
@@ -66,26 +84,6 @@ public class RelatoriosController {
 			                      @AuthenticationPrincipal UsuarioSistema usuarioSistema) throws Exception {
 		byte[] relatorio = relatorioService
 				.gerarRelatorioImprimirOrcamento(codigo, usuarioSistema.getUsername()); 
-		return ResponseEntity.ok()
-				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE)
-				.body(relatorio);
-	}
-	
-	
-	
-	@GetMapping("/listaInsumos")
-	public ModelAndView relatorioListagemInsumos() {
-		ModelAndView mv = new ModelAndView("relatorio/RelatorioListaInsumos");
-		mv.addObject("baseInsumos", baseInsumoService.findAll());
-		mv.addObject("especies",   Especie.values());
-		mv.addObject(new ListaInsumos());
-		return mv;
-	}
-	
-	@PostMapping("/listaInsumos")
-	public ResponseEntity<byte[]> gerarRelatorioListagemInsumos(ListaInsumos listaInsumos) throws Exception {
-		
-		byte[] relatorio = relatorioService.gerarRelatorioListaInsumos(listaInsumos); 
 		return ResponseEntity.ok()
 				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE)
 				.body(relatorio);

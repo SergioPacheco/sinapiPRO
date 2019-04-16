@@ -61,10 +61,9 @@ public class ItemService {
 	public BigDecimal somaValorEquipamento(Long codigo) {
 		return itemRepository.somaValorEquipamento(codigo);
 	}
+	
 	public BigDecimal somaValorTotal(Long codigo) {
 		return itemRepository.somaValorTotal(codigo);
 	}
-	
-	
 	
 }

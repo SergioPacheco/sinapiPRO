@@ -127,7 +127,7 @@ public class AtualController {
 	@GetMapping("/{codigo}")
 	public ModelAndView editar(@PathVariable("codigo") Item item, 
 			 				  AtualFilter filter, BindingResult result,
-			 				  @PageableDefault(size = 10) Pageable pageable, 
+			 				  @PageableDefault(size = 50) Pageable pageable, 
 			 				  HttpServletRequest httpServletRequest, 
 			 				  @AuthenticationPrincipal UsuarioSistema usuarioSistema) {
 		
@@ -166,7 +166,7 @@ public class AtualController {
 	public ModelAndView pesquisar(Item item,
 								  AtualFilter filter, 
 			                      BindingResult result,
-			                      @PageableDefault(size = 10) Pageable pageable, 
+			                      @PageableDefault(size = 50) Pageable pageable, 
 			                      HttpServletRequest httpServletRequest,
 			                      @AuthenticationPrincipal UsuarioSistema usuarioSistema){
 		                       

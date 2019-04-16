@@ -140,8 +140,8 @@ public class BasePrecosController  {
 	@GetMapping("importaComposicao/{codigo}")
 	public ModelAndView   importarComposicoes(@PathVariable Long codigo, @AuthenticationPrincipal UsuarioSistema usuarioSistema) {
 		
-		// sinapiController.importaComposicoes(codigo, "O", usuarioSistema);
-		// sinapiController.importaComposicoes(codigo, "D", usuarioSistema);
+		sinapiController.importaComposicoes(codigo, "O", usuarioSistema);
+		sinapiController.importaComposicoes(codigo, "D", usuarioSistema);
 		sinapiController.novosInsumos(codigo, usuarioSistema);
 		
 		// sinapiController.novosInsumos(codigo, usuarioSistema);

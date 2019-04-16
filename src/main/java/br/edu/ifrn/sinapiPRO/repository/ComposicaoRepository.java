@@ -13,6 +13,9 @@ public interface ComposicaoRepository extends JpaRepository<Composicao, Long>, C
 
 	public Optional<Composicao> findByBaseInsumoAndCodigoComposicao(BaseInsumo baseInsumo, String codigoComposicao);
 	public List<Composicao> findByBaseInsumo(BaseInsumo baseInsumo);
+	
+	Long countByBaseInsumoCodigo(Long codigo);
+	
 }
 
 

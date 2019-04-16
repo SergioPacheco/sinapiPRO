@@ -16,5 +16,6 @@ public interface InsumosRepository extends JpaRepository<Insumo, Long>, InsumosR
 	
 	public Optional<Insumo> findById(Long codigo);
 
+	Long countByBaseInsumoCodigo(Long codigo);
 	
 }

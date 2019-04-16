@@ -24,16 +24,16 @@ public class DashboardController {
 	@Autowired
 	private ComposicaoRepository composicoesRepository;
 	
-	@Autowired
-	private ClientesRepository clientesRepository;
-	
 	@GetMapping("/")	
 	public ModelAndView dashboard() {
 		ModelAndView mv = new ModelAndView("Dashboard");
 		mv.addObject("totalOrcamentos",   orcamentosRepository.count() );
-		mv.addObject("totalInsumos",         insumosRepository.count() );
-		mv.addObject("totalComposicoes", composicoesRepository.count() );
-		mv.addObject("totalClientes",       clientesRepository.count() );
+		mv.addObject("totalInsumosSinapi",  insumosRepository.countByBaseInsumoCodigo(1L));
+		mv.addObject("totalInsumosPropria", insumosRepository.countByBaseInsumoCodigo(2L));
+		mv.addObject("totalComposicoesSinapi",  composicoesRepository.countByBaseInsumoCodigo(1L));
+		mv.addObject("totalComposicoesPropria", composicoesRepository.countByBaseInsumoCodigo(2L));
+		
+		 
 			
 		return mv;
 	}

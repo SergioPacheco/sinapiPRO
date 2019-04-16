@@ -15,7 +15,14 @@ import org.hibernate.annotations.GenericGenerator;
 public class Etapa implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-
+	
+	public Etapa() {}
+	
+	public Etapa(String nome) {
+		super();
+		this.nome = nome;
+	}
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY, generator="native")
 	@GenericGenerator(name = "native", strategy = "native")

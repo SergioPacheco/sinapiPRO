@@ -1,9 +1,15 @@
 /**
- * COM00100 
- * COM00200
- * COM00300 
+ * INS00100 - Lista de Insumos por Base de Insumo 
+ * 
+ * COM00100 - Lista de Composições por Base de Insumo 
+ * COM00201 - Lista as Composições do Orçamento
+ * COM00400 -  
+ *
+ *  
  * COM00400
  * COM00500
+ * 
+ * ORCA00100 - Relatório do Orçamento 
  */
 
 package br.edu.ifrn.sinapiPRO.service;
@@ -231,7 +237,7 @@ public class RelatorioService {
 		parametros.put("_Parameter3", "RIO GRANDE DO NORTE - PARNAMIRIM");  // Dados do filtro
 		parametros.put("_Parameter5", cTitulo.toString());
 		parametros.put("_Parameter7", "/home/sergio/Documents/sinapiPRO/src/main/resources/relatorios/ifrn.png");
-		parametros.put("_Parameter10", codigo.toString());
+		parametros.put("_Parameter10", codigo.toString().trim());
 		
 		InputStream inputStream = this.getClass()
 									  .getResourceAsStream("/relatorios/COM00201_JAVA.jasper");
