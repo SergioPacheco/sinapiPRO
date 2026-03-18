@@ -379,4 +379,30 @@ public class AtualController {
 		return mv;
 	}
 
+	@GetMapping("/globalMaterialMO/{codigo}")
+	public ModelAndView globalMaterialMO(@PathVariable("codigo") Long codigo) {
+		Orcamento orc = orcamentoService.buscarComItens(codigo);
+		if (orc == null) return new ModelAndView("redirect:/orcamentos");
+		BigDecimal mo = orc.calculaValorMaoObra();
+		BigDecimal mat = orc.calculaValorMaterial();
+		BigDecimal equip = orc.calculaValorEquipamento();
+		BigDecimal sub = orc.calculaValorSubTotal();
+		BigDecimal cem = new BigDecimal("100");
+		ModelAndView mv = new ModelAndView("atual/GlobalMaterialMO");
+		mv.addObject("orcamento", orc);
+		mv.addObject("maoObra", mo);
+		mv.addObject("material", mat);
+		mv.addObject("equipamento", equip);
+		mv.addObject("subtotal", sub);
+		mv.addObject("percMO", sub.compareTo(BigDecimal.ZERO) > 0 ? mo.multiply(cem).divide(sub, 2, RoundingMode.HALF_UP) : BigDecimal.ZERO);
+		mv.addObject("percMat", sub.compareTo(BigDecimal.ZERO) > 0 ? mat.multiply(cem).divide(sub, 2, RoundingMode.HALF_UP) : BigDecimal.ZERO);
+		mv.addObject("percEquip", sub.compareTo(BigDecimal.ZERO) > 0 ? equip.multiply(cem).divide(sub, 2, RoundingMode.HALF_UP) : BigDecimal.ZERO);
+		mv.addObject("leisSociais", orc.calculaValorLeisSociais());
+		mv.addObject("bdi", orc.calculaValorBDI());
+		mv.addObject("taxaAdm", orc.calculaValorTaxaAdm());
+		mv.addObject("tributos", orc.calculaValorTributos());
+		mv.addObject("total", orc.calculaValorTotalComTaxas());
+		return mv;
+	}
+
 }
