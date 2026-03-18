@@ -78,6 +78,10 @@ public class Orcamento implements Serializable {
 	@Enumerated(EnumType.STRING)
 	private OrcamentoSituacao situacao = OrcamentoSituacao.ABERTO;
 	
+	@Enumerated(EnumType.STRING)
+	@Column(name = "tipo_orcamento")
+	private TipoOrcamento tipoOrcamento = TipoOrcamento.ESTIMATIVA;
+	
 	@Column(name = "valor_total")
 	private BigDecimal valorTotal = BigDecimal.ZERO;
 	
@@ -203,6 +207,14 @@ public class Orcamento implements Serializable {
 
 	public void setSituacao(OrcamentoSituacao situacao) {
 		this.situacao = situacao;
+	}
+
+	public TipoOrcamento getTipoOrcamento() {
+		return tipoOrcamento;
+	}
+
+	public void setTipoOrcamento(TipoOrcamento tipoOrcamento) {
+		this.tipoOrcamento = tipoOrcamento;
 	}
 
 	public String getUuid() {
