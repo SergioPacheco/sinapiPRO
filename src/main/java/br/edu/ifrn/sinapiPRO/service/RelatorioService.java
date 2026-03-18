@@ -14,18 +14,29 @@
 
 package br.edu.ifrn.sinapiPRO.service;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import javax.sql.DataSource;
 
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import br.edu.ifrn.sinapiPRO.model.Item;
+import br.edu.ifrn.sinapiPRO.model.Orcamento;
+import br.edu.ifrn.sinapiPRO.model.Tipo;
 
 import br.edu.ifrn.sinapiPRO.dto.ListaComposicoes;
 import br.edu.ifrn.sinapiPRO.dto.ListaInsumos;
@@ -289,6 +300,52 @@ public class RelatorioService {
 		} finally {
 			connection.close();
 		}
+	}
+
+	/**
+	 *  Exporta orçamento como planilha Excel (.xlsx)
+	 */
+	public byte[] exportarOrcamentoXls(Orcamento orcamento) throws Exception {
+		XSSFWorkbook workbook = new XSSFWorkbook();
+		XSSFSheet sheet = workbook.createSheet("Orçamento");
+
+		CellStyle headerStyle = workbook.createCellStyle();
+		Font headerFont = workbook.createFont();
+		headerFont.setBold(true);
+		headerStyle.setFont(headerFont);
+
+		String[] colunas = {"Item", "Tipo", "Descrição", "Unidade", "Quantidade",
+				"Vl. Unitário", "Mão de Obra", "Material", "Equipamento", "Total"};
+		XSSFRow header = sheet.createRow(0);
+		for (int i = 0; i < colunas.length; i++) {
+			header.createCell(i).setCellValue(colunas[i]);
+			header.getCell(i).setCellStyle(headerStyle);
+		}
+
+		List<Item> itens = orcamento.getItens();
+		int rowNum = 1;
+		for (Item item : itens) {
+			XSSFRow row = sheet.createRow(rowNum++);
+			row.createCell(0).setCellValue(item.getItemizacao() != null ? item.getItemizacao() : "");
+			row.createCell(1).setCellValue(item.getTipo() != null ? item.getTipo().name() : "");
+			row.createCell(2).setCellValue(item.getDescricao() != null ? item.getDescricao() : "");
+			row.createCell(3).setCellValue(item.getUnidade() != null ? item.getUnidade() : "");
+			row.createCell(4).setCellValue(item.getQuantidade() != null ? item.getQuantidade().doubleValue() : 0);
+			row.createCell(5).setCellValue(item.getValorUnitario() != null ? item.getValorUnitario().doubleValue() : 0);
+			row.createCell(6).setCellValue(item.getValorMaoObra() != null ? item.getValorMaoObra().doubleValue() : 0);
+			row.createCell(7).setCellValue(item.getValorMaterial() != null ? item.getValorMaterial().doubleValue() : 0);
+			row.createCell(8).setCellValue(item.getValorEquipamento() != null ? item.getValorEquipamento().doubleValue() : 0);
+			row.createCell(9).setCellValue(item.getValorTotal() != null ? item.getValorTotal().doubleValue() : 0);
+		}
+
+		for (int i = 0; i < colunas.length; i++) {
+			sheet.autoSizeColumn(i);
+		}
+
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		workbook.write(out);
+		workbook.close();
+		return out.toByteArray();
 	}
 }
 

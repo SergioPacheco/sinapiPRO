@@ -286,6 +286,26 @@ public class AtualController {
 	}
 	
 	/**
+	 *  EXPORTAR XLS - Exporta orçamento como planilha Excel
+	 */
+	@GetMapping("/exportarXls/{codigo}")
+	public ResponseEntity<byte[]> exportarXls(@PathVariable("codigo") Long codigo) {
+		Orcamento orcamento = orcamentoService.buscarComItens(codigo);
+		if (orcamento == null) {
+			return ResponseEntity.notFound().build();
+		}
+		try {
+			byte[] xls = relatorioService.exportarOrcamentoXls(orcamento);
+			return ResponseEntity.ok()
+					.header(HttpHeaders.CONTENT_TYPE, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=orcamento-" + codigo + ".xlsx")
+					.body(xls);
+		} catch (Exception e) {
+			return ResponseEntity.status(500).build();
+		}
+	}
+
+	/**
 	 *  CURVA ABC - Itens do orçamento ordenados por custo total decrescente
 	 */
 	@GetMapping("/curvaAbc/{codigo}")
