@@ -10,6 +10,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.Objects;
+
 @Configuration
 @EnableCaching
 @EnableAsync
@@ -19,7 +21,7 @@ public class WebConfig implements WebMvcConfigurer {
 	public CacheManager cacheManager() throws Exception {		
 		return new JCacheCacheManager(Caching
 				.getCachingProvider()
-				.getCacheManager(getClass().getResource("/env/ehcache.xml").toURI(),
+				.getCacheManager(Objects.requireNonNull(getClass().getResource("/env/ehcache.xml")).toURI(),
 				getClass().getClassLoader()));
 	}
 	
