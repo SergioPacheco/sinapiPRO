@@ -111,6 +111,19 @@ public class OrcamentoService {
 	public Orcamento buscarComItens(Long codigo) {
 		return orcamentosRepository.buscarComItens(codigo);
 	}
+
+	@Transactional(readOnly = true)
+	public Optional<Long> getCodigoOrcamentoAtual(String username) {
+		return usuarioService.findByNome(username)
+				.map(Usuario::getCodigoOrcamentoAtual);
+	}
+
+	@Transactional
+	public void selecionarOrcamento(String email, Long codigoOrcamento) {
+		Usuario usuario = usuarioService.findByEmail(email)
+				.orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+		usuarioService.alteraOrcamentoAtual(usuario, codigoOrcamento);
+	}
 	
 }
  

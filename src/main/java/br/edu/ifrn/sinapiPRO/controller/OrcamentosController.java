@@ -1,7 +1,5 @@
 package br.edu.ifrn.sinapiPRO.controller;
 
-import java.util.Optional;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -11,13 +9,12 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -25,14 +22,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
 import br.edu.ifrn.sinapiPRO.model.Desoneracao;
 import br.edu.ifrn.sinapiPRO.model.Orcamento;
-import br.edu.ifrn.sinapiPRO.model.Usuario;
 import br.edu.ifrn.sinapiPRO.repository.filter.OrcamentoFilter;
 import br.edu.ifrn.sinapiPRO.security.UsuarioSistema;
 import br.edu.ifrn.sinapiPRO.service.BaseInsumoService;
 import br.edu.ifrn.sinapiPRO.service.BasePrecoService;
 import br.edu.ifrn.sinapiPRO.service.EstadoService;
 import br.edu.ifrn.sinapiPRO.service.OrcamentoService;
-import br.edu.ifrn.sinapiPRO.service.UsuarioService;
 import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
 import br.edu.ifrn.sinapiPRO.service.exception.ResourceNotFoundException;
 
@@ -41,25 +36,21 @@ import br.edu.ifrn.sinapiPRO.service.exception.ResourceNotFoundException;
 public class OrcamentosController {
 
 	private final EstadoService estadoService;
-	private final UsuarioService usuarioService;
 	private final BasePrecoService basePrecoService;
 	private final BaseInsumoService baseInsumoService;
 	private final OrcamentoService orcamentoService;
 	
 	@Autowired
-	public OrcamentosController(OrcamentoService orcamentoService, EstadoService estadoService, BasePrecoService basePrecoService, 
-								BaseInsumoService baseInsumoService, UsuarioService usuarioService) {
-		
+	public OrcamentosController(OrcamentoService orcamentoService, EstadoService estadoService,
+								BasePrecoService basePrecoService, BaseInsumoService baseInsumoService) {
 		this.orcamentoService = orcamentoService;
 		this.estadoService = estadoService; 
 		this.basePrecoService = basePrecoService;
 		this.baseInsumoService = baseInsumoService;
-		this.usuarioService = usuarioService;
 	}
 	
-	@RequestMapping("/novo")
+	@GetMapping("/novo")
 	public ModelAndView novo(Orcamento orcamento) {
-		
 		ModelAndView mv = new ModelAndView("orcamento/CadastroOrcamento");
 		mv.addObject("estados", estadoService.findAll());
 		mv.addObject("basePrecos", basePrecoService.findAll());
@@ -68,9 +59,9 @@ public class OrcamentosController {
 		return mv;
 	}
 	 
-	@RequestMapping(value = { "/novo", "{\\d+}" }, method = RequestMethod.POST)
+	@PostMapping({ "/novo", "{\\d+}" })
 	public ModelAndView salvar(@Valid Orcamento orcamento,
-			                   BindingResult result, Model model, 
+			                   BindingResult result,
 	 		                   RedirectAttributes attributes,
 	 		                   @AuthenticationPrincipal UsuarioSistema usuarioSistema) {
 		if (result.hasErrors()) {
@@ -79,13 +70,11 @@ public class OrcamentosController {
 		try {
 			orcamento.setUsuario(usuarioSistema.getUsuario());
 			orcamentoService.salvar(orcamento);
-
 		} catch(ResourceNotFoundException e){
 			result.rejectValue("nome",e.getMessage(), e.getMessage());
 			return novo(orcamento);
 		}
 		attributes.addFlashAttribute("mensagem", "Orcamento salvo com sucesso!");
-		
 		return new ModelAndView("redirect:/atual");
 	}
 	
@@ -93,7 +82,6 @@ public class OrcamentosController {
 	public ModelAndView pesquisar(OrcamentoFilter orcamentoFilter, BindingResult result, 
 								  @PageableDefault(size = 10) Pageable pageable, 
 			                      HttpServletRequest httpServletRequest){
-		
 		ModelAndView mv = new ModelAndView("orcamento/PesquisaOrcamentos");
 		PageWrapper<Orcamento> paginaWrapper = new PageWrapper<>(orcamentoService
 									.filtrar(orcamentoFilter, pageable), httpServletRequest);
@@ -121,34 +109,25 @@ public class OrcamentosController {
 		mv.addObject(orcamento);
 		return mv;
 	}
+
 	/**
 	 *  Redireciona para o Orçamento Atual
 	 */
 	@GetMapping("/atual")
 	public ModelAndView atual(@AuthenticationPrincipal UsuarioSistema usuarioSistema) {
-		Optional<Usuario> usuarioExistente = usuarioService.findByNome(usuarioSistema.getUsername());		
-		if (!usuarioExistente.isPresent() || usuarioExistente.get().getCodigoOrcamentoAtual() == null) {
-			return new ModelAndView("redirect:/orcamentos");
-		}	
-		return new ModelAndView("redirect:/atual/"+usuarioExistente.get().getCodigoOrcamentoAtual());
+		return orcamentoService.getCodigoOrcamentoAtual(usuarioSistema.getUsername())
+				.map(codigo -> new ModelAndView("redirect:/atual/" + codigo))
+				.orElse(new ModelAndView("redirect:/orcamentos"));
 	}	
 	
 	/**
-	 *  make this Orçamento Atual
+	 *  Seleciona este Orçamento como Atual
 	 */
 	@GetMapping("/acessaOrcamento/{codigo}")
-	public ModelAndView acessaOrcamento(@PathVariable Long codigo, @AuthenticationPrincipal UsuarioSistema usuarioSistema) {
-		
-		if (usuarioSistema == null || usuarioSistema.getUsername() == null) {
-			return new ModelAndView("redirect:/orcamentos");
-		}
-		
-		Optional<Usuario> usuarioExistente = usuarioService.findByEmail(usuarioSistema.getUsername());		
-		if (!usuarioExistente.isPresent() || usuarioExistente.get().getCodigoOrcamentoAtual() == null) {
-			return new ModelAndView("redirect:/orcamentos");
-		}
-		usuarioService.alteraOrcamentoAtual(usuarioExistente.get(), codigo);
-		return new ModelAndView("redirect:/atual/"+codigo);
+	public ModelAndView acessaOrcamento(@PathVariable Long codigo,
+										@AuthenticationPrincipal UsuarioSistema usuarioSistema) {
+		orcamentoService.selecionarOrcamento(usuarioSistema.getUsername(), codigo);
+		return new ModelAndView("redirect:/atual/" + codigo);
 	}	
 	
 }
