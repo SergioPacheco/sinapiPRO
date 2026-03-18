@@ -1,5 +1,6 @@
 package br.edu.ifrn.sinapiPRO.service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import javax.persistence.PersistenceException;
@@ -11,7 +12,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.edu.ifrn.sinapiPRO.model.Etapa;
+import br.edu.ifrn.sinapiPRO.model.Item;
 import br.edu.ifrn.sinapiPRO.model.Orcamento;
+import br.edu.ifrn.sinapiPRO.model.OrcamentoSituacao;
+import br.edu.ifrn.sinapiPRO.model.TipoOrcamento;
 import br.edu.ifrn.sinapiPRO.model.Usuario;
 import br.edu.ifrn.sinapiPRO.repository.EtapasRepository;
 import br.edu.ifrn.sinapiPRO.repository.OrcamentosRepository;
@@ -110,6 +114,59 @@ public class OrcamentoService {
 
 	public Orcamento buscarComItens(Long codigo) {
 		return orcamentosRepository.buscarComItens(codigo);
+	}
+
+	@Transactional
+	public Orcamento copiarOrcamento(Long codigoOrigem, TipoOrcamento novoTipo) {
+		Orcamento origem = orcamentosRepository.buscarComItens(codigoOrigem);
+		if (origem == null) throw new RuntimeException("Orçamento não encontrado");
+
+		Orcamento copia = new Orcamento();
+		copia.setNome(origem.getNome() + " (" + novoTipo.getDescricao() + ")");
+		copia.setTipoOrcamento(novoTipo);
+		copia.setBaseInsumo(origem.getBaseInsumo());
+		copia.setBasePreco(origem.getBasePreco());
+		copia.setEstado(origem.getEstado());
+		copia.setDataCriacao(LocalDateTime.now());
+		copia.setCliente(origem.getCliente());
+		copia.setUsuario(origem.getUsuario());
+		copia.setObra(origem.getObra());
+		copia.setDesoneracao(origem.getDesoneracao());
+		copia.setSituacao(OrcamentoSituacao.ABERTO);
+		copia.setObservacao(origem.getObservacao());
+		copia.setPercentualBdi(origem.getPercentualBdi());
+		copia.setPercentualLeisSociais(origem.getPercentualLeisSociais());
+		copia.setPercentualTaxaAdm(origem.getPercentualTaxaAdm());
+		copia.setPercentualBdiInsumo(origem.getPercentualBdiInsumo());
+		copia.setPercentualBdiServico(origem.getPercentualBdiServico());
+		copia.setPercentualBdiTerceiro(origem.getPercentualBdiTerceiro());
+		copia.setPercentualBdiFerramenta(origem.getPercentualBdiFerramenta());
+		copia.setTipoArredondamento(origem.getTipoArredondamento());
+		copia.setDecimaisArredondamento(origem.getDecimaisArredondamento());
+
+		orcamentosRepository.saveAndFlush(copia);
+
+		for (Item orig : origem.getItens()) {
+			Item novo = new Item();
+			novo.setOrcamento(copia);
+			novo.setTipo(orig.getTipo());
+			novo.setDescricao(orig.getDescricao());
+			novo.setItemizacao(orig.getItemizacao());
+			novo.setEspecie(orig.getEspecie());
+			novo.setUnidade(orig.getUnidade());
+			novo.setQuantidade(orig.getQuantidade());
+			novo.setValorUnitario(orig.getValorUnitario());
+			novo.setValorMaoObra(orig.getValorMaoObra());
+			novo.setValorMaterial(orig.getValorMaterial());
+			novo.setValorEquipamento(orig.getValorEquipamento());
+			novo.setEtapa(orig.getEtapa());
+			novo.setComposicao(orig.getComposicao());
+			novo.setInsumo(orig.getInsumo());
+			novo.setTipoCusto(orig.getTipoCusto());
+			copia.getItens().add(novo);
+		}
+		orcamentosRepository.saveAndFlush(copia);
+		return copia;
 	}
 
 	@Transactional(readOnly = true)
