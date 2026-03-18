@@ -10,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
@@ -37,6 +38,9 @@ public class Tributo implements Serializable {
 	@JoinColumn(name = "codigo_estado")
 	private Estado estado;
 
+	@ManyToMany(mappedBy = "tributos")
+	private java.util.List<Insumo> insumos = new java.util.ArrayList<>();
+
 	public Long getCodigo() { return codigo; }
 	public void setCodigo(Long codigo) { this.codigo = codigo; }
 	public String getDescricao() { return descricao; }
@@ -45,6 +49,8 @@ public class Tributo implements Serializable {
 	public void setPercentual(BigDecimal percentual) { this.percentual = percentual; }
 	public Estado getEstado() { return estado; }
 	public void setEstado(Estado estado) { this.estado = estado; }
+	public java.util.List<Insumo> getInsumos() { return insumos; }
+	public void setInsumos(java.util.List<Insumo> insumos) { this.insumos = insumos; }
 	public boolean isNovo() { return codigo == null; }
 
 	@Override

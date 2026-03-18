@@ -11,6 +11,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -137,6 +139,15 @@ public class Insumo implements Serializable {
 	public void setEspecie(Especie especie) {
 		this.especie = especie;
 	}
+
+	@ManyToMany
+	@JoinTable(name = "tributo_insumo",
+		joinColumns = @JoinColumn(name = "codigo_insumo"),
+		inverseJoinColumns = @JoinColumn(name = "codigo_tributo"))
+	private java.util.List<Tributo> tributos = new java.util.ArrayList<>();
+
+	public java.util.List<Tributo> getTributos() { return tributos; }
+	public void setTributos(java.util.List<Tributo> tributos) { this.tributos = tributos; }
 
 	public boolean isNovo() { 
 		return this.codigo == null;
