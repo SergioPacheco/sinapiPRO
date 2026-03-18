@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" 
+				xmlns:th="http://www.thymeleaf.org"
+				xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+				layout:decorate="~{layout/LayoutPadrao}">
+<head><title>Cadastro de Fornecedor</title></head>
+<body>
+<section layout:fragment="conteudo">
+	<div class="page-header">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-sm-10">
+					<h1 th:if="${fornecedor.novo}">Cadastro de Fornecedor</h1>
+					<h1 th:unless="${fornecedor.novo}" th:text="|Edição de ${fornecedor.nome}|">Edição</h1>
+				</div>
+				<div class="col-sm-2">
+					<div class="aw-page-header-controls">
+						<a class="btn btn-default" th:href="@{/fornecedores}">
+							<i class="glyphicon glyphicon-search"></i> <span class="hidden-xs hidden-sm">Pesquisa</span>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container-fluid">
+		<form method="POST" th:object="${fornecedor}" class="form-vertical js-form-loading"
+			th:action="${fornecedor.novo} ? @{/fornecedores/novo} : @{/fornecedores/{codigo}(codigo=${fornecedor.codigo})}">
+			<sinapiPRO:message/>
+			<input type="hidden" th:field="*{codigo}"/>
+			<div class="row">
+				<div class="form-group col-sm-6 sn-required" sinapiPRO:classforerror="nome">
+					<label for="nome" class="control-label">Nome</label>
+					<input id="nome" type="text" class="form-control" th:field="*{nome}" />
+				</div>
+				<div class="form-group col-sm-3">
+					<label for="cnpj" class="control-label">CNPJ</label>
+					<input id="cnpj" type="text" class="form-control" th:field="*{cnpj}" />
+				</div>
+				<div class="form-group col-sm-3">
+					<label for="telefone" class="control-label">Telefone</label>
+					<input id="telefone" type="text" class="form-control" th:field="*{telefone}" />
+				</div>
+			</div>
+			<div class="row">
+				<div class="form-group col-sm-4">
+					<label for="email" class="control-label">Email</label>
+					<input id="email" type="email" class="form-control" th:field="*{email}" />
+				</div>
+				<div class="form-group col-sm-4">
+					<label for="cidade" class="control-label">Cidade</label>
+					<input id="cidade" type="text" class="form-control" th:field="*{cidade}" />
+				</div>
+				<div class="form-group col-sm-4">
+					<label for="estado" class="control-label">Estado</label>
+					<select id="estado" class="form-control" th:field="*{estado}">
+						<option value="">Selecione</option>
+						<option th:each="e : ${estados}" th:value="${e.codigo}" th:text="${e.nome}">SP</option>
+					</select>
+				</div>
+			</div>
+			<button class="btn btn-primary" type="submit">Salvar</button>
+		</form>
+	</div>
+</section>
+</body>
+</html>
