@@ -33,6 +33,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
 import br.edu.ifrn.sinapiPRO.dto.CurvaAbcDTO;
 import br.edu.ifrn.sinapiPRO.model.Composicao;
+import br.edu.ifrn.sinapiPRO.model.Etapa;
 import br.edu.ifrn.sinapiPRO.model.Item;
 import br.edu.ifrn.sinapiPRO.model.Orcamento;
 import br.edu.ifrn.sinapiPRO.model.Tipo;
@@ -356,7 +357,26 @@ public class AtualController {
 		mv.addObject("totalGeral", totalGeral);
 		return mv;
 	}
-	
-}
 
- 
+	@GetMapping("/analitico/{codigo}")
+	public ModelAndView orcamentoAnalitico(@PathVariable("codigo") Long codigo) {
+		Orcamento orcamento = orcamentoService.buscarComItens(codigo);
+		if (orcamento == null) return new ModelAndView("redirect:/orcamentos");
+		orcamento.Itemizar();
+		java.util.Map<Etapa, java.util.List<Item>> etapas = new java.util.LinkedHashMap<>();
+		for (Item item : orcamento.getItens()) {
+			if (item.getTipo() != Tipo.ETAPA) {
+				etapas.computeIfAbsent(item.getEtapa(), k -> new java.util.ArrayList<>()).add(item);
+			}
+		}
+		ModelAndView mv = new ModelAndView("atual/OrcamentoAnalitico");
+		mv.addObject("orcamento", orcamento);
+		mv.addObject("etapas", etapas.entrySet());
+		mv.addObject("subtotal", orcamento.calculaValorSubTotal());
+		mv.addObject("taxas", orcamento.calculaValorTaxas());
+		mv.addObject("tributos", orcamento.calculaValorTributos());
+		mv.addObject("total", orcamento.calculaValorTotalComTaxas());
+		return mv;
+	}
+
+}
