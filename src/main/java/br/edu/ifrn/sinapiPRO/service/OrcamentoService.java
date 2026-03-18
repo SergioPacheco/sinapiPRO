@@ -28,6 +28,9 @@ public class OrcamentoService {
 	private final OrcamentosRepository orcamentosRepository;
 	private final UsuarioService usuarioService;
 	private final EtapasRepository etapasRepository;
+
+	@Autowired
+	private AuditService auditService;
 	
 	@Autowired
 	public OrcamentoService (OrcamentosRepository orcamentoRepository, EtapasRepository etapasRepository,
@@ -57,15 +60,18 @@ public class OrcamentoService {
 	    } else {
 	    	throw new RuntimeException("usuario não encontrado ao salvar orcamento");
 	    }
-		 
+
+		auditService.registrar("Orcamento", orcamento.getCodigo(), "SALVAR", orcamento.getNome());
 		return orcamento;
 	}
  
 	@Transactional
 	public void excluir(Orcamento orcamento) {
 		try {
+			Long codigo = orcamento.getCodigo();
 			orcamentosRepository.delete(orcamento);
 			orcamentosRepository.flush();
+			auditService.registrar("Orcamento", codigo, "EXCLUIR", null);
 		} catch (PersistenceException e) {
 			
 			throw new ImpossivelExcluirEntidadeException("Impossível excluir Orcamento.");
@@ -166,6 +172,8 @@ public class OrcamentoService {
 			copia.getItens().add(novo);
 		}
 		orcamentosRepository.saveAndFlush(copia);
+		auditService.registrar("Orcamento", copia.getCodigo(), "COPIAR",
+				"Origem: " + codigoOrigem + " → " + novoTipo.getDescricao());
 		return copia;
 	}
 
