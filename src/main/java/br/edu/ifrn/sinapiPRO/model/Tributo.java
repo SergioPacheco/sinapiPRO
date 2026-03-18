@@ -41,6 +41,9 @@ public class Tributo implements Serializable {
 	@ManyToMany(mappedBy = "tributos")
 	private java.util.List<Insumo> insumos = new java.util.ArrayList<>();
 
+	@ManyToMany(mappedBy = "tributos")
+	private java.util.List<Composicao> composicoes = new java.util.ArrayList<>();
+
 	public Long getCodigo() { return codigo; }
 	public void setCodigo(Long codigo) { this.codigo = codigo; }
 	public String getDescricao() { return descricao; }
@@ -51,6 +54,8 @@ public class Tributo implements Serializable {
 	public void setEstado(Estado estado) { this.estado = estado; }
 	public java.util.List<Insumo> getInsumos() { return insumos; }
 	public void setInsumos(java.util.List<Insumo> insumos) { this.insumos = insumos; }
+	public java.util.List<Composicao> getComposicoes() { return composicoes; }
+	public void setComposicoes(java.util.List<Composicao> composicoes) { this.composicoes = composicoes; }
 	public boolean isNovo() { return codigo == null; }
 
 	@Override

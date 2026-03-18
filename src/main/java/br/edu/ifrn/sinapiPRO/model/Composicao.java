@@ -15,6 +15,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -312,6 +314,15 @@ public class Composicao  {
 	public void setSinapi(boolean sinapi) {
 		this.sinapi = sinapi;
 	}
+
+	@ManyToMany
+	@JoinTable(name = "tributo_composicao",
+		joinColumns = @JoinColumn(name = "codigo_composicao"),
+		inverseJoinColumns = @JoinColumn(name = "codigo_tributo"))
+	private List<Tributo> tributos = new ArrayList<>();
+
+	public List<Tributo> getTributos() { return tributos; }
+	public void setTributos(List<Tributo> tributos) { this.tributos = tributos; }
 
 	public boolean getSinapi() {
 		if (isNova()) {
