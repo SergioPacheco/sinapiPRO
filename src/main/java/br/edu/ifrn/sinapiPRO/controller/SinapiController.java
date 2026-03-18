@@ -164,7 +164,7 @@ public class SinapiController {
 						n=null; 
 				 
 						if (cell != null) {
-							switch (cell.getCellTypeEnum()) {
+							switch (cell.getCellType()) {
 								case FORMULA:
 									value = "FORMULA value=" + cell.getCellFormula();
 									break;
@@ -191,7 +191,7 @@ public class SinapiController {
 									break;
 
 								default:
-									value = "UNKNOWN value of type " + cell.getCellTypeEnum();
+									value = "UNKNOWN value of type " + cell.getCellType();
 							}
 							
 							switch (cell.getColumnIndex()) {
@@ -422,7 +422,7 @@ public class SinapiController {
 						if (cell != null) {
 							s=null;
 							n=null; 
-							switch (cell.getCellTypeEnum()) {
+							switch (cell.getCellType()) {
 								case FORMULA:
 									value = "FORMULA value=" + cell.getCellFormula();
 									continue;
@@ -450,7 +450,7 @@ public class SinapiController {
 									break;
 
 								default:
-									value = "UNKNOWN value of type " + cell.getCellTypeEnum();
+									value = "UNKNOWN value of type " + cell.getCellType();
 									continue;
 							}
 							
