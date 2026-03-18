@@ -1,6 +1,11 @@
 package br.edu.ifrn.sinapiPRO.controller;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,6 +31,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
+import br.edu.ifrn.sinapiPRO.dto.CurvaAbcDTO;
 import br.edu.ifrn.sinapiPRO.model.Composicao;
 import br.edu.ifrn.sinapiPRO.model.Item;
 import br.edu.ifrn.sinapiPRO.model.Orcamento;
@@ -279,6 +285,57 @@ public class AtualController {
 				.body(relatorio);
 	}
 	
+	/**
+	 *  CURVA ABC - Itens do orçamento ordenados por custo total decrescente
+	 */
+	@GetMapping("/curvaAbc/{codigo}")
+	public ModelAndView curvaAbc(@PathVariable("codigo") Long codigo) {
+		Orcamento orcamento = orcamentoService.buscarComItens(codigo);
+		if (orcamento == null) {
+			return new ModelAndView("redirect:/orcamentos");
+		}
+
+		List<Item> itens = new ArrayList<>(orcamento.getItens());
+		itens.removeIf(i -> i.getTipo() == Tipo.ETAPA);
+		Collections.sort(itens, Comparator.comparing(Item::getValorTotal).reversed());
+
+		BigDecimal totalGeral = orcamento.calculaValorTotalItens();
+		BigDecimal acumulado = BigDecimal.ZERO;
+		List<CurvaAbcDTO> curva = new ArrayList<>();
+
+		for (Item item : itens) {
+			CurvaAbcDTO dto = new CurvaAbcDTO();
+			dto.setItemizacao(item.getItemizacao());
+			dto.setDescricao(item.getDescricao());
+			dto.setUnidade(item.getUnidade());
+			dto.setQuantidade(item.getQuantidade());
+			dto.setValorUnitario(item.getValorUnitario());
+			dto.setValorTotal(item.getValorTotal());
+
+			BigDecimal perc = totalGeral.compareTo(BigDecimal.ZERO) > 0
+					? item.getValorTotal().multiply(new BigDecimal("100")).divide(totalGeral, 2, RoundingMode.HALF_UP)
+					: BigDecimal.ZERO;
+			dto.setPercentual(perc);
+
+			acumulado = acumulado.add(perc);
+			dto.setPercentualAcumulado(acumulado);
+
+			if (acumulado.compareTo(new BigDecimal("80")) <= 0) {
+				dto.setClassificacao("A");
+			} else if (acumulado.compareTo(new BigDecimal("95")) <= 0) {
+				dto.setClassificacao("B");
+			} else {
+				dto.setClassificacao("C");
+			}
+			curva.add(dto);
+		}
+
+		ModelAndView mv = new ModelAndView("atual/CurvaAbc");
+		mv.addObject("orcamento", orcamento);
+		mv.addObject("curvaAbc", curva);
+		mv.addObject("totalGeral", totalGeral);
+		return mv;
+	}
 	
 }
 

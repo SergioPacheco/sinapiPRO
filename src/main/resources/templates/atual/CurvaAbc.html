@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" 
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/LayoutPadrao}">
+
+<head>
+	<title>Curva ABC</title>
+</head>
+
+<section layout:fragment="conteudo">
+
+	<div class="page-header">
+		<div class="container-fluid">
+			<h1>Curva ABC — <span th:text="${orcamento.nome}">Orçamento</span></h1>
+		</div>
+	</div>
+
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-sm-12">
+				<table class="table table-striped table-hover table-sm">
+					<thead>
+						<tr>
+							<th>Item</th>
+							<th>Descrição</th>
+							<th>Un.</th>
+							<th class="text-right">Qtd.</th>
+							<th class="text-right">Vl. Unit.</th>
+							<th class="text-right">Total</th>
+							<th class="text-right">%</th>
+							<th class="text-right">% Acum.</th>
+							<th class="text-center">Classe</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="item : ${curvaAbc}"
+							th:classappend="${item.classificacao == 'A'} ? 'table-danger' : (${item.classificacao == 'B'} ? 'table-warning' : '')">
+							<td th:text="${item.itemizacao}"></td>
+							<td th:text="${item.descricao}"></td>
+							<td th:text="${item.unidade}"></td>
+							<td class="text-right" th:text="${#numbers.formatDecimal(item.quantidade ?: 0, 1, 'POINT', 4, 'COMMA')}"></td>
+							<td class="text-right" th:text="${'R$ ' + #numbers.formatDecimal(item.valorUnitario ?: 0, 1, 'POINT', 2, 'COMMA')}"></td>
+							<td class="text-right" th:text="${'R$ ' + #numbers.formatDecimal(item.valorTotal ?: 0, 1, 'POINT', 2, 'COMMA')}"></td>
+							<td class="text-right" th:text="${#numbers.formatDecimal(item.percentual ?: 0, 1, 'POINT', 2, 'COMMA') + '%'}"></td>
+							<td class="text-right" th:text="${#numbers.formatDecimal(item.percentualAcumulado ?: 0, 1, 'POINT', 2, 'COMMA') + '%'}"></td>
+							<td class="text-center"><span class="badge" 
+								th:classappend="${item.classificacao == 'A'} ? 'badge-danger' : (${item.classificacao == 'B'} ? 'badge-warning' : 'badge-success')"
+								th:text="${item.classificacao}"></span></td>
+						</tr>
+					</tbody>
+					<tfoot>
+						<tr class="font-weight-bold">
+							<td colspan="5">Total do Orçamento</td>
+							<td class="text-right" th:text="${'R$ ' + #numbers.formatDecimal(totalGeral ?: 0, 1, 'POINT', 2, 'COMMA')}"></td>
+							<td colspan="3"></td>
+						</tr>
+					</tfoot>
+				</table>
+			</div>
+		</div>
+
+		<div class="row mt-3">
+			<div class="col-sm-4">
+				<div class="card">
+					<div class="card-body">
+						<p><span class="badge badge-danger">A</span> 0% a 80% — Itens de maior impacto</p>
+						<p><span class="badge badge-warning">B</span> 80% a 95% — Itens de impacto intermediário</p>
+						<p><span class="badge badge-success">C</span> 95% a 100% — Itens de menor impacto</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row mt-3 mb-3">
+			<div class="col-sm-12">
+				<a class="btn btn-secondary" th:href="@{/atual}">Voltar</a>
+			</div>
+		</div>
+	</div>
+
+</section>
+</html>
