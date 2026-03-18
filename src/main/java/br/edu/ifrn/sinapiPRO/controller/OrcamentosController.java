@@ -149,4 +149,11 @@ public class OrcamentosController {
 		return new ModelAndView("redirect:/orcamentos");
 	}
 
+	@PostMapping("/gerarExecucao/{codigo}")
+	public ModelAndView gerarExecucao(@PathVariable Long codigo, RedirectAttributes attributes) {
+		Orcamento exec = orcamentoService.copiarOrcamento(codigo, TipoOrcamento.EXECUCAO);
+		attributes.addFlashAttribute("mensagem", "Orçamento de Execução gerado com sucesso! Código: " + exec.getCodigo());
+		return new ModelAndView("redirect:/orcamentos");
+	}
+
 }
