@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" 
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/LayoutPadrao}"
+	  xmlns:sinapiPRO="http://sinapiPRO.ifrn.edu.br">
+<head><title>Pesquisa de Tributos</title></head>
+<body>
+<section layout:fragment="conteudo">
+	<div class="page-header">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-xs-10"><h1>Pesquisa de Tributos</h1></div>
+				<div class="col-xs-2">
+					<div class="aw-page-header-controls">
+						<a class="btn btn-default" th:href="@{/tributos/novo}">
+							<i class="glyphicon glyphicon-plus-sign"></i>
+							<span class="hidden-xs hidden-sm">Novo</span>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container-fluid">
+		<form method="GET" th:object="${tributoFilter}">
+			<div class="row">
+				<div class="form-group col-sm-12">
+					<label class="control-label" for="descricao">Descrição</label>
+					<input type="text" class="form-control" id="descricao" th:field="*{descricao}"/>
+				</div>
+			</div>
+			<button type="submit" class="btn btn-primary">Pesquisar</button>
+		</form>
+		<div class="table-responsive sn-tabela-simples">
+			<table class="table table-hover">
+				<thead>
+					<tr>
+						<th>Código</th>
+						<th>Descrição</th>
+						<th>Percentual</th>
+						<th>Estado</th>
+						<th class="table-col-acoes"></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="t : ${pagina.conteudo}">
+						<td class="text-center" th:text="${t.codigo}"></td>
+						<td th:text="${t.descricao}"></td>
+						<td class="text-center" th:text="${t.percentual != null} ? ${#numbers.formatDecimal(t.percentual, 1, 2)} + '%' : ''"></td>
+						<td class="text-center" th:text="${t.estado?.nome}"></td>
+						<td class="text-center">
+							<a class="btn btn-link btn-xs js-tooltip" title="Editar"
+							   th:href="@{/tributos/{codigo}(codigo=${t.codigo})}">
+								<i class="glyphicon glyphicon-pencil"></i>
+							</a>
+						</td>
+					</tr>
+					<tr th:if="${pagina.vazia}">
+						<td colspan="5">Nenhum tributo encontrado</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<sinapiPRO:pagination page="${pagina}"/>
+	</div>
+</section>
+</body>
+</html>
