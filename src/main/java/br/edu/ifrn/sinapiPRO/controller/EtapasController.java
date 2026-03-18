@@ -54,7 +54,9 @@ public class EtapasController {
 	
 	@RequestMapping("/nova")
 	public ModelAndView nova(Etapa etapa) {
-		return new ModelAndView("etapa/CadastroEtapa");
+		ModelAndView mv = new ModelAndView("etapa/CadastroEtapa");
+		mv.addObject("etapas", etapaService.findAll());
+		return mv;
 	}
 	
 	@RequestMapping(value = { "/nova", "{\\d+}" }, method = RequestMethod.POST)

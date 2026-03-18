@@ -3,9 +3,12 @@ package br.edu.ifrn.sinapiPRO.model;
 import java.io.Serializable;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -29,6 +32,10 @@ public class Etapa implements Serializable {
 	private Long codigo;
 	
 	private String nome;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "codigo_etapa_pai")
+	private Etapa etapaPai;
 			
 	public Long getCodigo() {
 		return codigo;
@@ -41,6 +48,12 @@ public class Etapa implements Serializable {
 	}
 	public void setNome(String nome) {
 		this.nome = nome;
+	}
+	public Etapa getEtapaPai() {
+		return etapaPai;
+	}
+	public void setEtapaPai(Etapa etapaPai) {
+		this.etapaPai = etapaPai;
 	}
 	public boolean isNova() {
 		return codigo == null;

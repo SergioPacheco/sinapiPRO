@@ -39,10 +39,18 @@
 				<input type="hidden" th:field="*{codigo}"/>
 				
 				<div class="row">
-					<div class="form-group col-sm-10    sn-required" sinapiPRO:classforerror="nome">
+					<div class="form-group col-sm-6 sn-required" sinapiPRO:classforerror="nome">
 						<label for="nome" class="control-label">Nome</label>
 						<input id="nome" type="text" class="form-control" th:field="*{nome}" />
-					</div>	
+					</div>
+					<div class="form-group col-sm-4">
+						<label for="etapaPai" class="control-label">Etapa Pai</label>
+						<select id="etapaPai" class="form-control" th:field="*{etapaPai}">
+							<option value="">Nenhuma (raiz)</option>
+							<option th:each="e : ${etapas}" th:value="${e.codigo}"
+							        th:text="${e.nome}">Etapa</option>
+						</select>
+					</div>
 				</div>
 				
 				<button class="btn  btn-primary" type="submit">Salvar</button>
