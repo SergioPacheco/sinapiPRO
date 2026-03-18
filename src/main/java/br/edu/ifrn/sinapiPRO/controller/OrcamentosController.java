@@ -23,6 +23,7 @@ import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
 import br.edu.ifrn.sinapiPRO.dto.OrcamentoExportDTO;
 import br.edu.ifrn.sinapiPRO.model.Desoneracao;
 import br.edu.ifrn.sinapiPRO.model.Orcamento;
+import br.edu.ifrn.sinapiPRO.model.TipoOrcamento;
 import br.edu.ifrn.sinapiPRO.repository.filter.OrcamentoFilter;
 import br.edu.ifrn.sinapiPRO.security.UsuarioSistema;
 import br.edu.ifrn.sinapiPRO.service.BaseInsumoService;
@@ -57,6 +58,7 @@ public class OrcamentosController {
 		mv.addObject("basePrecos", basePrecoService.findAll());
 		mv.addObject("baseInsumos", baseInsumoService.findAll());
 		mv.addObject("desoneracoes", Desoneracao.values());
+		mv.addObject("tiposOrcamento", TipoOrcamento.values());
 		return mv;
 	}
 	 

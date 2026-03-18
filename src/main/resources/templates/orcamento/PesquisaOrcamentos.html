@@ -50,6 +50,7 @@
 	            	<tr>
 	                	<th class="table-orcamento-col-codigo">Código</th>
 	                	<th class="table-orcamento-col-obra">Obra</th>
+	                	<th>Tipo</th>
 	                	<th class="table-orcamento-col-situacao">Situacao</th>
 	                 	<th class="table-col-acoes"></th>
 					</tr>
@@ -59,6 +60,7 @@
 					<tr th:each="orcamento : ${pagina.conteudo}">
 						<td class="text-center" th:text="${orcamento.codigo}"></td>
 						<td class="text-left" th:text="${orcamento.nome}"></td>
+						<td class="text-center" th:text="${orcamento.tipoOrcamento?.descricao}"></td>
 						<td class="text-center">
 							<th:block>
 								<span class="label  label-success"

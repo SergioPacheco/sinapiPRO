@@ -138,6 +138,13 @@
 	                            th:value="${estado.codigo}" 
 	                            th:text="${estado.nome}">São Paulo</option>
 	                </select>
+				</div>
+				<div class="form-group col-sm-3" sinapiPRO:classforerror="tipoOrcamento">
+					<label for="tipoOrcamento" class="control-label">Tipo de Orçamento</label>
+					<select id="tipoOrcamento" class="form-control" th:field="*{tipoOrcamento}">
+						<option th:each="tipo : ${tiposOrcamento}" th:value="${tipo}"
+						        th:text="${tipo.descricao}">Estimativa</option>
+					</select>
 				</div>	
 			</div>
 			
