@@ -40,11 +40,11 @@ import br.edu.ifrn.sinapiPRO.service.exception.ResourceNotFoundException;
 @RequestMapping("/orcamentos")
 public class OrcamentosController {
 
-	private EstadoService estadoService;
-	private UsuarioService usuarioService;
-	private BasePrecoService basePrecoService;
-	private BaseInsumoService baseInsumoService;
-	private OrcamentoService orcamentoService;
+	private final EstadoService estadoService;
+	private final UsuarioService usuarioService;
+	private final BasePrecoService basePrecoService;
+	private final BaseInsumoService baseInsumoService;
+	private final OrcamentoService orcamentoService;
 	
 	@Autowired
 	public OrcamentosController(OrcamentoService orcamentoService, EstadoService estadoService, BasePrecoService basePrecoService, 
@@ -54,7 +54,7 @@ public class OrcamentosController {
 		this.estadoService = estadoService; 
 		this.basePrecoService = basePrecoService;
 		this.baseInsumoService = baseInsumoService;
-		
+		this.usuarioService = usuarioService;
 	}
 	
 	@RequestMapping("/novo")
@@ -114,6 +114,9 @@ public class OrcamentosController {
 	@GetMapping("/{codigo}")
 	public ModelAndView editar(@PathVariable Long codigo) {
 		Orcamento orcamento = orcamentoService.buscarComItens(codigo);
+		if (orcamento == null) {
+			return new ModelAndView("redirect:/orcamentos");
+		}
 		ModelAndView mv = novo(orcamento);
 		mv.addObject(orcamento);
 		return mv;
@@ -136,7 +139,7 @@ public class OrcamentosController {
 	@GetMapping("/acessaOrcamento/{codigo}")
 	public ModelAndView acessaOrcamento(@PathVariable Long codigo, @AuthenticationPrincipal UsuarioSistema usuarioSistema) {
 		
-		if (usuarioSistema.getUsername() == null || usuarioSistema == null) {
+		if (usuarioSistema == null || usuarioSistema.getUsername() == null) {
 			return new ModelAndView("redirect:/orcamentos");
 		}
 		
