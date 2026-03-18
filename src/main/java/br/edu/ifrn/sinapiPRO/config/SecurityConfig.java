@@ -28,6 +28,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	private PrimeiroAcessoFilter primeiroAcessoFilter;
+
+	@Autowired
+	private br.edu.ifrn.sinapiPRO.security.LoginSuccessHandler loginSuccessHandler;
 	
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -54,6 +57,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.and()
 			.formLogin()
 				.loginPage("/login")
+				.successHandler(loginSuccessHandler)
 				.permitAll()
 				.and()
 			.logout()
