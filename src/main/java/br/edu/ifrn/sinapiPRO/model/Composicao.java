@@ -100,6 +100,18 @@ public class Composicao  {
 	
 	@Column(name = "perc_equipamento",  precision=10, scale=7)
 	private BigDecimal percEquipamento;
+
+	@Column(name = "percentual_taxacao", precision=10, scale=4)
+	private BigDecimal percentualTaxacao;
+
+	@Column(name = "percentual_tributacao", precision=10, scale=4)
+	private BigDecimal percentualTributacao;
+
+	@Column(name = "percentual_perdas", precision=10, scale=4)
+	private BigDecimal percentualPerdas;
+
+	@Column(name = "percentual_bonificacao", precision=10, scale=4)
+	private BigDecimal percentualBonificacao;
 	
 	
 	@Transient
@@ -254,7 +266,16 @@ public class Composicao  {
 	public void setPercEquipamento(BigDecimal percEquipamento) {
 		this.percEquipamento = percEquipamento;
 	}
-		
+
+	public BigDecimal getPercentualTaxacao() { return percentualTaxacao; }
+	public void setPercentualTaxacao(BigDecimal percentualTaxacao) { this.percentualTaxacao = percentualTaxacao; }
+	public BigDecimal getPercentualTributacao() { return percentualTributacao; }
+	public void setPercentualTributacao(BigDecimal percentualTributacao) { this.percentualTributacao = percentualTributacao; }
+	public BigDecimal getPercentualPerdas() { return percentualPerdas; }
+	public void setPercentualPerdas(BigDecimal percentualPerdas) { this.percentualPerdas = percentualPerdas; }
+	public BigDecimal getPercentualBonificacao() { return percentualBonificacao; }
+	public void setPercentualBonificacao(BigDecimal percentualBonificacao) { this.percentualBonificacao = percentualBonificacao; }
+
 	public Usuario getUsuario() {
 		return usuario;
 	}

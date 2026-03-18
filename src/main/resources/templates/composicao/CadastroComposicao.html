@@ -150,6 +150,36 @@
 					</div>
 				</div>
 			</div>
+			<div class="row card">
+				<div class="col-sm-3 form-group js-decimal">
+					<label for="percentualTaxacao" class="control-label">Taxação</label>
+					<div class="input-group">
+						<input id="percentualTaxacao" type="text" class="form-control js-decimal" th:field="*{percentualTaxacao}"/>
+						<div class="input-group-addon">%</div>
+					</div>
+				</div>
+				<div class="col-sm-3 form-group js-decimal">
+					<label for="percentualTributacao" class="control-label">Tributação</label>
+					<div class="input-group">
+						<input id="percentualTributacao" type="text" class="form-control js-decimal" th:field="*{percentualTributacao}"/>
+						<div class="input-group-addon">%</div>
+					</div>
+				</div>
+				<div class="col-sm-3 form-group js-decimal">
+					<label for="percentualPerdas" class="control-label">Perdas</label>
+					<div class="input-group">
+						<input id="percentualPerdas" type="text" class="form-control js-decimal" th:field="*{percentualPerdas}"/>
+						<div class="input-group-addon">%</div>
+					</div>
+				</div>
+				<div class="col-sm-3 form-group js-decimal">
+					<label for="percentualBonificacao" class="control-label">Bonificação</label>
+					<div class="input-group">
+						<input id="percentualBonificacao" type="text" class="form-control js-decimal" th:field="*{percentualBonificacao}"/>
+						<div class="input-group-addon">%</div>
+					</div>
+				</div>
+			</div>
 			<div class="form-group">
 				 
 				<div th:if="${composicao.nova}">	
