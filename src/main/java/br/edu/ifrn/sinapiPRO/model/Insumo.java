@@ -146,8 +146,20 @@ public class Insumo implements Serializable {
 		inverseJoinColumns = @JoinColumn(name = "codigo_tributo"))
 	private java.util.List<Tributo> tributos = new java.util.ArrayList<>();
 
+	@Enumerated(EnumType.STRING)
+	@Column(name = "origem")
+	private OrigemInsumo origem;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "tipo_equipamento")
+	private TipoEquipamento tipoEquipamento;
+
 	public java.util.List<Tributo> getTributos() { return tributos; }
 	public void setTributos(java.util.List<Tributo> tributos) { this.tributos = tributos; }
+	public OrigemInsumo getOrigem() { return origem; }
+	public void setOrigem(OrigemInsumo origem) { this.origem = origem; }
+	public TipoEquipamento getTipoEquipamento() { return tipoEquipamento; }
+	public void setTipoEquipamento(TipoEquipamento tipoEquipamento) { this.tipoEquipamento = tipoEquipamento; }
 
 	public boolean isNovo() { 
 		return this.codigo == null;
