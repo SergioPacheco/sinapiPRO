@@ -405,4 +405,24 @@ public class AtualController {
 		return mv;
 	}
 
+	@GetMapping("/servicos/{codigo}")
+	public ModelAndView servicosOrcamento(@PathVariable("codigo") Long codigo) {
+		Orcamento orc = orcamentoService.buscarComItens(codigo);
+		if (orc == null) return new ModelAndView("redirect:/orcamentos");
+		orc.Itemizar();
+		List<Item> servicos = new ArrayList<>();
+		BigDecimal totalServicos = BigDecimal.ZERO;
+		for (Item item : orc.getItens()) {
+			if (item.getTipo() == Tipo.COMPOSICAO) {
+				servicos.add(item);
+				if (item.getValorTotal() != null) totalServicos = totalServicos.add(item.getValorTotal());
+			}
+		}
+		ModelAndView mv = new ModelAndView("atual/ServicosOrcamento");
+		mv.addObject("orcamento", orc);
+		mv.addObject("servicos", servicos);
+		mv.addObject("totalServicos", totalServicos);
+		return mv;
+	}
+
 }
