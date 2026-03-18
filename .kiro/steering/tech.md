@@ -6,15 +6,15 @@ inclusion: always
 # Tech Steering
 
 ## Language and runtime
-- Java 8 (source/target 1.8)
-- Spring Boot 2.0.5
+- Java 11
+- Spring Boot 2.7.18
 
 ## Frameworks
 - Web: Spring MVC + Thymeleaf 3.x (server-side rendering)
 - Persistence: Spring Data JPA / Hibernate
-- Security: Spring Security (form login, roles)
+- Security: Spring Security 5 (form login, roles)
 - Validation: Bean Validation (JSR 303)
-- Reports: JasperReports 6.3
+- Reports: JasperReports 6.20
 
 ## Database
 - MySQL (production)
@@ -26,9 +26,10 @@ inclusion: always
 - Deploy: Heroku (Procfile presente)
 
 ## Key dependencies
-- Thymeleaf Layout Dialect
-- Thymeleaf Extras Spring Security
-- JasperReports + jasperreports-fonts
+- Thymeleaf Layout Dialect (managed by Spring Boot BOM)
+- Thymeleaf Extras Spring Security 5
+- JasperReports 6.20.6 + jasperreports-fonts
+- Apache POI 5.2.5
 - Spring Boot DevTools (dev)
 
 ## Feedback loops
