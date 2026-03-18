@@ -20,6 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
+import br.edu.ifrn.sinapiPRO.dto.OrcamentoExportDTO;
 import br.edu.ifrn.sinapiPRO.model.Desoneracao;
 import br.edu.ifrn.sinapiPRO.model.Orcamento;
 import br.edu.ifrn.sinapiPRO.repository.filter.OrcamentoFilter;
@@ -108,6 +109,15 @@ public class OrcamentosController {
 		ModelAndView mv = novo(orcamento);
 		mv.addObject(orcamento);
 		return mv;
+	}
+
+	@GetMapping("/{codigo}/export")
+	public @ResponseBody ResponseEntity<OrcamentoExportDTO> exportar(@PathVariable Long codigo) {
+		Orcamento orcamento = orcamentoService.buscarComItens(codigo);
+		if (orcamento == null) {
+			return ResponseEntity.notFound().build();
+		}
+		return ResponseEntity.ok(new OrcamentoExportDTO(orcamento));
 	}
 
 	/**
