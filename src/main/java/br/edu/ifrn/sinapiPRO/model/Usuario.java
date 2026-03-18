@@ -2,6 +2,7 @@ package br.edu.ifrn.sinapiPRO.model;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -76,6 +77,12 @@ public class Usuario implements Serializable {
 
 	@Column(name = "data_nascimento")
 	private LocalDate dataNascimento;
+
+	@Column(name = "primeiro_acesso")
+	private Boolean primeiroAcesso = true;
+
+	@Column(name = "data_ultimo_acesso")
+	private LocalDateTime dataUltimoAcesso;
 	
 	@PreUpdate
 	private void preUpdate() {
@@ -169,6 +176,11 @@ public class Usuario implements Serializable {
 	public void setDataNascimento(LocalDate dataNascimento) {
 		this.dataNascimento = dataNascimento;
 	}
+
+	public Boolean getPrimeiroAcesso() { return primeiroAcesso; }
+	public void setPrimeiroAcesso(Boolean primeiroAcesso) { this.primeiroAcesso = primeiroAcesso; }
+	public LocalDateTime getDataUltimoAcesso() { return dataUltimoAcesso; }
+	public void setDataUltimoAcesso(LocalDateTime dataUltimoAcesso) { this.dataUltimoAcesso = dataUltimoAcesso; }
 
 	public boolean isNovo() {
 		return codigo == null;

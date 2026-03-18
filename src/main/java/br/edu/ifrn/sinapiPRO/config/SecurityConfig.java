@@ -12,9 +12,11 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import br.edu.ifrn.sinapiPRO.security.AppUserDetailsService;
+import br.edu.ifrn.sinapiPRO.security.PrimeiroAcessoFilter;
 
 @EnableWebSecurity
 @ComponentScan(basePackageClasses = AppUserDetailsService.class)
@@ -23,6 +25,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	private UserDetailsService userDetailsService;
+
+	@Autowired
+	private PrimeiroAcessoFilter primeiroAcessoFilter;
 	
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -44,6 +49,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.authorizeRequests()
 				.antMatchers("/orcamentos/novo").hasRole("CADASTRAR_ORCAMENTO")
 				.antMatchers("/usuarios/**").hasRole("CADASTRAR_USUARIO")
+				.antMatchers("/trocarSenha").authenticated()
 				.anyRequest().authenticated()
 				.and()
 			.formLogin()
@@ -58,6 +64,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.and()
 			.sessionManagement()
 				.invalidSessionUrl("/login");
+
+		http.addFilterAfter(primeiroAcessoFilter, UsernamePasswordAuthenticationFilter.class);
 		
 		/* 
 		.authorizeRequests()
