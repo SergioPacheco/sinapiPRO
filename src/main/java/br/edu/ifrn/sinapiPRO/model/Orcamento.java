@@ -486,67 +486,45 @@ public class Orcamento implements Serializable {
 	}
 			
 	 
-	public BigDecimal calculaValorBDI() {
-		
-		return 
-				((calculaValorMaoObra().add(calculaValorMaterial()).add(calculaValorEquipamento()))
-				.multiply(this.percentualBdi)).divide(new BigDecimal(100));
+	private static final BigDecimal CEM = new BigDecimal("100");
+
+	private BigDecimal percentualOuZero(BigDecimal percentual) {
+		return percentual != null ? percentual : BigDecimal.ZERO;
 	}
+
+	/** Leis Sociais aplicadas SOMENTE sobre mão de obra */
 	public BigDecimal calculaValorLeisSociais() {
-		
-		return 
-				calculaValorMaoObra()
-				.multiply(this.percentualLeisSociais).divide(new BigDecimal(100));
-		 		
+		return calculaValorMaoObra()
+				.multiply(percentualOuZero(this.percentualLeisSociais))
+				.divide(CEM, 2, BigDecimal.ROUND_HALF_UP);
 	}
+
+	/** BDI aplicado sobre (subtotal + leis sociais) — cascata */
+	public BigDecimal calculaValorBDI() {
+		BigDecimal base = calculaValorSubTotal().add(calculaValorLeisSociais());
+		return base.multiply(percentualOuZero(this.percentualBdi))
+				.divide(CEM, 2, BigDecimal.ROUND_HALF_UP);
+	}
+
+	/** Taxa Adm aplicada sobre (subtotal + leis sociais + BDI) — cascata */
 	public BigDecimal calculaValorTaxaAdm() {
-		
-		return 
-				((calculaValorMaoObra().add(calculaValorMaterial()).add(calculaValorEquipamento()))
-				.multiply(this.percentualTaxaAdm)).divide(new BigDecimal(100));
-		 		
+		BigDecimal base = calculaValorSubTotal().add(calculaValorLeisSociais()).add(calculaValorBDI());
+		return base.multiply(percentualOuZero(this.percentualTaxaAdm))
+				.divide(CEM, 2, BigDecimal.ROUND_HALF_UP);
 	}
+
 	public BigDecimal calculaValorSubTotal() {
-		
-		return 
-				calculaValorMaoObra().add(calculaValorMaterial()).add(calculaValorEquipamento());
-		 		
+		return calculaValorMaoObra().add(calculaValorMaterial()).add(calculaValorEquipamento());
 	}
-	
+
+	/** Soma de todas as taxas em cascata */
 	public BigDecimal calculaValorTaxas() {
-		
-		return 
-				((calculaValorMaoObra().add(calculaValorMaterial()).add(calculaValorEquipamento()))
-						.multiply(this.percentualBdi)).divide(new BigDecimal(100))
-				.add(
-				calculaValorMaoObra()
-				.multiply(this.percentualLeisSociais).divide(new BigDecimal(100)))
-				
-				.add( 
-				((calculaValorMaoObra().add(calculaValorMaterial()).add(calculaValorEquipamento()))
-						.multiply(this.percentualTaxaAdm)).divide(new BigDecimal(100)));
+		return calculaValorLeisSociais().add(calculaValorBDI()).add(calculaValorTaxaAdm());
 	}
-	
+
+	/** SubTotal + taxas em cascata */
 	public BigDecimal calculaValorTotalComTaxas() {
-		
-		return 
-	
-				calculaValorMaoObra().add(calculaValorMaterial()).add(calculaValorEquipamento())
-				
-				.add( 
-			
-				((calculaValorMaoObra().add(calculaValorMaterial()).add(calculaValorEquipamento()))
-						.multiply(this.percentualBdi)).divide(new BigDecimal(100))
-				.add(
-				calculaValorMaoObra()
-				.multiply(this.percentualLeisSociais).divide(new BigDecimal(100)))
-				
-				.add( 
-				((calculaValorMaoObra().add(calculaValorMaterial()).add(calculaValorEquipamento()))
-				.multiply(this.percentualTaxaAdm)).divide(new BigDecimal(100)))
-				
-						);
-	
+		return calculaValorSubTotal().add(calculaValorTaxas());
 	}
 	
 	public void addItem(Item item) {
