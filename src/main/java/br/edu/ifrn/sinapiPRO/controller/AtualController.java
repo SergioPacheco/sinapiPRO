@@ -451,4 +451,31 @@ public class AtualController {
 				.body(csv);
 	}
 
+	@GetMapping("/exportarRtf/{codigo}")
+	public ResponseEntity<byte[]> exportarRtf(@PathVariable("codigo") Long codigo) {
+		Orcamento orc = orcamentoService.buscarComItens(codigo);
+		if (orc == null) return ResponseEntity.notFound().build();
+		orc.Itemizar();
+		StringBuilder rtf = new StringBuilder();
+		rtf.append("{\\rtf1\\ansi\\deff0\n");
+		rtf.append("{\\b Orçamento: ").append(orc.getNome()).append("}\n\\par\\par\n");
+		rtf.append("{\\b Item\\tab Tipo\\tab Descrição\\tab Und\\tab Qtd\\tab Vl.Unit\\tab Total}\n\\par\n");
+		for (Item item : orc.getItens()) {
+			rtf.append(item.getItemizacao() != null ? item.getItemizacao() : "").append("\\tab ");
+			rtf.append(item.getTipo() != null ? item.getTipo().name() : "").append("\\tab ");
+			rtf.append(item.getDescricao() != null ? item.getDescricao() : "").append("\\tab ");
+			rtf.append(item.getUnidade() != null ? item.getUnidade() : "").append("\\tab ");
+			rtf.append(item.getQuantidade() != null ? item.getQuantidade() : "0").append("\\tab ");
+			rtf.append(item.getValorUnitario() != null ? item.getValorUnitario() : "0").append("\\tab ");
+			rtf.append(item.getValorTotal() != null ? item.getValorTotal() : "0").append("\\par\n");
+		}
+		rtf.append("\\par{\\b Total: R$ ").append(orc.calculaValorTotalComTaxas()).append("}\n");
+		rtf.append("}");
+		byte[] bytes = rtf.toString().getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_TYPE, "application/rtf")
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=orcamento-" + codigo + ".rtf")
+				.body(bytes);
+	}
+
 }
