@@ -1,0 +1,18 @@
+CREATE TABLE tipo_unidade (
+    codigo BIGINT NOT NULL AUTO_INCREMENT,
+    nome VARCHAR(50) NOT NULL,
+    sigla VARCHAR(10) NOT NULL,
+    PRIMARY KEY (codigo)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE especie_insumo (
+    codigo BIGINT NOT NULL AUTO_INCREMENT,
+    nome VARCHAR(80) NOT NULL,
+    PRIMARY KEY (codigo)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE tipo_usuario (
+    codigo BIGINT NOT NULL AUTO_INCREMENT,
+    nome VARCHAR(80) NOT NULL,
+    PRIMARY KEY (codigo)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
