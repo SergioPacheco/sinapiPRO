@@ -172,7 +172,10 @@ public class Item  {
 	}
 	
 	public BigDecimal getValorTotal() {
-		return valorUnitario.multiply((quantidade));
+		if (valorUnitario == null || quantidade == null) {
+			return BigDecimal.ZERO;
+		}
+		return valorUnitario.multiply(quantidade);
 	}
     
 	/* 
