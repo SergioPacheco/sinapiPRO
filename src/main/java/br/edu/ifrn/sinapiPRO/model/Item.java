@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -58,6 +59,10 @@ public class Item  {
 	@ManyToOne 
 	@JoinColumn(name = "codigo_insumo") 
 	private Insumo insumo;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "codigo_tipo_custo")
+	private TipoCusto tipoCusto;
 	
 	@Column(name = "valor_unitario")
 	private BigDecimal valorUnitario;   
@@ -158,6 +163,9 @@ public class Item  {
 	public void setInsumo(Insumo insumo) {
 		this.insumo = insumo;
 	}
+
+	public TipoCusto getTipoCusto() { return tipoCusto; }
+	public void setTipoCusto(TipoCusto tipoCusto) { this.tipoCusto = tipoCusto; }
 
 	public Etapa getEtapa() {
 		return etapa;
