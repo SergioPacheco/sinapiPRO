@@ -6,7 +6,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -342,34 +345,80 @@ public class Orcamento implements Serializable {
 		return itens;
 	}
 	
-	public void Itemizar() { 
-	    Collections.sort(itens, new Comparator<Item>() {
-	        @Override public int compare(Item p1, Item p2) {
-	            return p1.getEtapa().getCodigo().intValue() - p2.getEtapa().getCodigo().intValue(); // Ascending
-	        }
-	    });
-		Long aux = 0L;
-		Long sub = 1L; 
-		for (Item orcamentoItem : itens) {
-			if (orcamentoItem.getEtapa().getCodigo() == aux) { 
-			    if (orcamentoItem.getTipo() == Tipo.ETAPA) { 
-			    	orcamentoItem.setItemizacao(orcamentoItem.getEtapa().getCodigo()+".");
-			    } else { 
-			    	orcamentoItem.setItemizacao(orcamentoItem.getEtapa().getCodigo()+"."+sub+".");
-			    	sub++;
-			    }
-				continue; 
+	public void Itemizar() {
+		if (itens == null || itens.isEmpty()) return;
+
+		// Build etapa hierarchy number: etapa.codigo -> "1.2."
+		Map<Long, String> etapaNumero = new LinkedHashMap<>();
+		Map<Long, List<Etapa>> filhosPorPai = new HashMap<>();
+		List<Etapa> raizes = new ArrayList<>();
+
+		// Collect unique etapas from items
+		Map<Long, Etapa> etapasMap = new LinkedHashMap<>();
+		for (Item item : itens) {
+			if (item.getEtapa() != null) {
+				etapasMap.put(item.getEtapa().getCodigo(), item.getEtapa());
 			}
-		    aux = orcamentoItem.getEtapa().getCodigo();
-		    sub = 1L;
-		    if (orcamentoItem.getTipo() == Tipo.ETAPA) { 
-		    	orcamentoItem.setItemizacao(orcamentoItem.getEtapa().getCodigo()+".");
-		    } else { 
-		    	orcamentoItem.setItemizacao(orcamentoItem.getEtapa().getCodigo()+"."+sub+".");
-		    	sub++;
-		    }
-		} 
-		Collections.sort(itens, (o1, o2) -> (o1.getItemizacao().compareTo(o2.getItemizacao())));
+		}
+
+		// Classify root vs child etapas
+		for (Etapa e : etapasMap.values()) {
+			if (e.getEtapaPai() == null) {
+				raizes.add(e);
+			} else {
+				Long paiId = e.getEtapaPai().getCodigo();
+				filhosPorPai.computeIfAbsent(paiId, k -> new ArrayList<>()).add(e);
+			}
+		}
+
+		// Sort roots by codigo for stable ordering
+		raizes.sort(Comparator.comparing(Etapa::getCodigo));
+
+		// Assign hierarchical numbers via DFS
+		numerarEtapas(raizes, "", etapaNumero, filhosPorPai);
+
+		// Assign itemizacao to each item
+		Map<Long, Long> contadorPorEtapa = new HashMap<>();
+		// Sort items by etapa hierarchy then by tipo (ETAPA first)
+		itens.sort((a, b) -> {
+			String na = etapaNumero.getOrDefault(a.getEtapa().getCodigo(), "999.");
+			String nb = etapaNumero.getOrDefault(b.getEtapa().getCodigo(), "999.");
+			int cmp = na.compareTo(nb);
+			if (cmp != 0) return cmp;
+			// ETAPA items come first within same etapa
+			if (a.getTipo() == Tipo.ETAPA && b.getTipo() != Tipo.ETAPA) return -1;
+			if (a.getTipo() != Tipo.ETAPA && b.getTipo() == Tipo.ETAPA) return 1;
+			return 0;
+		});
+
+		for (Item item : itens) {
+			Long etapaId = item.getEtapa().getCodigo();
+			String prefixo = etapaNumero.getOrDefault(etapaId, etapaId + ".");
+
+			if (item.getTipo() == Tipo.ETAPA) {
+				item.setItemizacao(prefixo);
+			} else {
+				Long sub = contadorPorEtapa.getOrDefault(etapaId, 1L);
+				item.setItemizacao(prefixo + sub + ".");
+				contadorPorEtapa.put(etapaId, sub + 1);
+			}
+		}
+
+		itens.sort((o1, o2) -> o1.getItemizacao().compareTo(o2.getItemizacao()));
+	}
+
+	private void numerarEtapas(List<Etapa> etapas, String prefixo,
+			Map<Long, String> resultado, Map<Long, List<Etapa>> filhosPorPai) {
+		for (int i = 0; i < etapas.size(); i++) {
+			Etapa e = etapas.get(i);
+			String numero = prefixo + (i + 1) + ".";
+			resultado.put(e.getCodigo(), numero);
+			List<Etapa> filhos = filhosPorPai.get(e.getCodigo());
+			if (filhos != null) {
+				filhos.sort(Comparator.comparing(Etapa::getCodigo));
+				numerarEtapas(filhos, numero, resultado, filhosPorPai);
+			}
+		}
 	}
 	
 	public boolean isNovo() {
