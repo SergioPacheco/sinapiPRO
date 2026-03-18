@@ -117,7 +117,19 @@ public class Orcamento implements Serializable {
 	
 	@Column(name = "percentual_taxa_adm")
 	private BigDecimal percentualTaxaAdm;
-			
+
+	@Column(name = "percentual_bdi_insumo")
+	private BigDecimal percentualBdiInsumo;
+
+	@Column(name = "percentual_bdi_servico")
+	private BigDecimal percentualBdiServico;
+
+	@Column(name = "percentual_bdi_terceiro")
+	private BigDecimal percentualBdiTerceiro;
+
+	@Column(name = "percentual_bdi_ferramenta")
+	private BigDecimal percentualBdiFerramenta;
+
 	@Column(name = "observacao")
 	private String observacao;
 	
@@ -307,6 +319,15 @@ public class Orcamento implements Serializable {
 	public void setPercentualTaxaAdm(BigDecimal percentualTaxaAdm) {
 		this.percentualTaxaAdm = percentualTaxaAdm;
 	}
+
+	public BigDecimal getPercentualBdiInsumo() { return percentualBdiInsumo; }
+	public void setPercentualBdiInsumo(BigDecimal v) { this.percentualBdiInsumo = v; }
+	public BigDecimal getPercentualBdiServico() { return percentualBdiServico; }
+	public void setPercentualBdiServico(BigDecimal v) { this.percentualBdiServico = v; }
+	public BigDecimal getPercentualBdiTerceiro() { return percentualBdiTerceiro; }
+	public void setPercentualBdiTerceiro(BigDecimal v) { this.percentualBdiTerceiro = v; }
+	public BigDecimal getPercentualBdiFerramenta() { return percentualBdiFerramenta; }
+	public void setPercentualBdiFerramenta(BigDecimal v) { this.percentualBdiFerramenta = v; }
 
 	public String getTipoArredondamento() {
 		return tipoArredondamento;
