@@ -478,4 +478,28 @@ public class AtualController {
 				.body(bytes);
 	}
 
+	@GetMapping("/comparativo")
+	public ModelAndView comparativo(@org.springframework.web.bind.annotation.RequestParam("venda") Long codigoVenda,
+									@org.springframework.web.bind.annotation.RequestParam("execucao") Long codigoExecucao) {
+		Orcamento venda = orcamentoService.buscarComItens(codigoVenda);
+		Orcamento execucao = orcamentoService.buscarComItens(codigoExecucao);
+		if (venda == null || execucao == null) return new ModelAndView("redirect:/orcamentos");
+		venda.Itemizar();
+		execucao.Itemizar();
+		BigDecimal totalV = venda.calculaValorTotalComTaxas();
+		BigDecimal totalE = execucao.calculaValorTotalComTaxas();
+		BigDecimal diff = totalE.subtract(totalV);
+		BigDecimal percDiff = totalV.compareTo(BigDecimal.ZERO) > 0
+				? diff.multiply(new BigDecimal("100")).divide(totalV, 2, RoundingMode.HALF_UP)
+				: BigDecimal.ZERO;
+		ModelAndView mv = new ModelAndView("atual/ComparativoVendaExecucao");
+		mv.addObject("venda", venda);
+		mv.addObject("execucao", execucao);
+		mv.addObject("totalVenda", totalV);
+		mv.addObject("totalExecucao", totalE);
+		mv.addObject("diferenca", diff);
+		mv.addObject("percentualDiferenca", percDiff);
+		return mv;
+	}
+
 }
