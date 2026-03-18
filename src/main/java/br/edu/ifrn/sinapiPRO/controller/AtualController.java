@@ -425,4 +425,30 @@ public class AtualController {
 		return mv;
 	}
 
+	@GetMapping("/exportarCsv/{codigo}")
+	public ResponseEntity<byte[]> exportarCsv(@PathVariable("codigo") Long codigo) {
+		Orcamento orc = orcamentoService.buscarComItens(codigo);
+		if (orc == null) return ResponseEntity.notFound().build();
+		orc.Itemizar();
+		StringBuilder sb = new StringBuilder();
+		sb.append("Item;Tipo;Descrição;Unidade;Quantidade;Vl.Unitário;MãoObra;Material;Equipamento;Total\n");
+		for (Item item : orc.getItens()) {
+			sb.append(item.getItemizacao() != null ? item.getItemizacao() : "").append(";");
+			sb.append(item.getTipo() != null ? item.getTipo().name() : "").append(";");
+			sb.append(item.getDescricao() != null ? item.getDescricao().replace(";", ",") : "").append(";");
+			sb.append(item.getUnidade() != null ? item.getUnidade() : "").append(";");
+			sb.append(item.getQuantidade() != null ? item.getQuantidade() : "0").append(";");
+			sb.append(item.getValorUnitario() != null ? item.getValorUnitario() : "0").append(";");
+			sb.append(item.getValorMaoObra() != null ? item.getValorMaoObra() : "0").append(";");
+			sb.append(item.getValorMaterial() != null ? item.getValorMaterial() : "0").append(";");
+			sb.append(item.getValorEquipamento() != null ? item.getValorEquipamento() : "0").append(";");
+			sb.append(item.getValorTotal() != null ? item.getValorTotal() : "0").append("\n");
+		}
+		byte[] csv = sb.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_TYPE, "text/csv; charset=UTF-8")
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=orcamento-" + codigo + ".csv")
+				.body(csv);
+	}
+
 }
