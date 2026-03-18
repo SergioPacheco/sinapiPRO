@@ -543,9 +543,32 @@ public class Orcamento implements Serializable {
 		return calculaValorLeisSociais().add(calculaValorBDI()).add(calculaValorTaxaAdm());
 	}
 
-	/** SubTotal + taxas em cascata */
+	/** Soma dos tributos associados aos insumos/composições dos itens */
+	public BigDecimal calculaValorTributos() {
+		BigDecimal total = BigDecimal.ZERO;
+		for (Item item : getItens()) {
+			if (item.getValorTotal() == null) continue;
+			BigDecimal somaPercentuais = BigDecimal.ZERO;
+			if (item.getInsumo() != null && item.getInsumo().getTributos() != null) {
+				for (Tributo t : item.getInsumo().getTributos()) {
+					if (t.getPercentual() != null) somaPercentuais = somaPercentuais.add(t.getPercentual());
+				}
+			}
+			if (item.getComposicao() != null && item.getComposicao().getTributos() != null) {
+				for (Tributo t : item.getComposicao().getTributos()) {
+					if (t.getPercentual() != null) somaPercentuais = somaPercentuais.add(t.getPercentual());
+				}
+			}
+			if (somaPercentuais.compareTo(BigDecimal.ZERO) > 0) {
+				total = total.add(item.getValorTotal().multiply(somaPercentuais).divide(CEM, 2, BigDecimal.ROUND_HALF_UP));
+			}
+		}
+		return total;
+	}
+
+	/** SubTotal + taxas em cascata + tributos */
 	public BigDecimal calculaValorTotalComTaxas() {
-		return calculaValorSubTotal().add(calculaValorTaxas());
+		return calculaValorSubTotal().add(calculaValorTaxas()).add(calculaValorTributos());
 	}
 	
 	public void addItem(Item item) {
