@@ -76,6 +76,18 @@
 							   href="#" data:url="@{/orcamentos/{codigo}(codigo=${orcamento.codigo})}"
 							   data:objeto="${orcamento.nome}"> <i class="glyphicon glyphicon-remove"></i>
 							</a>
+							<form th:if="${orcamento.tipoOrcamento?.name() == 'ESTIMATIVA'}" style="display:inline"
+								  th:action="@{/orcamentos/gerarVenda/{codigo}(codigo=${orcamento.codigo})}" method="post">
+								<button type="submit" class="btn btn-link btn-xs js-tooltip" title="Gerar Venda">
+									<i class="glyphicon glyphicon-share-alt"></i>
+								</button>
+							</form>
+							<form th:if="${orcamento.tipoOrcamento?.name() == 'VENDA'}" style="display:inline"
+								  th:action="@{/orcamentos/gerarExecucao/{codigo}(codigo=${orcamento.codigo})}" method="post">
+								<button type="submit" class="btn btn-link btn-xs js-tooltip" title="Gerar Execução">
+									<i class="glyphicon glyphicon-play"></i>
+								</button>
+							</form>
 		   					<!-- null point 
 		   					<a class="btn  btn-link  btn-xs  js-tooltip" title="Itens do Orçamento" 
 		   					   th:href="@{/atual/{codigo}(codigo=${orcamento.codigo})}">

@@ -141,5 +141,12 @@ public class OrcamentosController {
 		orcamentoService.selecionarOrcamento(usuarioSistema.getUsername(), codigo);
 		return new ModelAndView("redirect:/atual/" + codigo);
 	}	
-	
+
+	@PostMapping("/gerarVenda/{codigo}")
+	public ModelAndView gerarVenda(@PathVariable Long codigo, RedirectAttributes attributes) {
+		Orcamento venda = orcamentoService.copiarOrcamento(codigo, TipoOrcamento.VENDA);
+		attributes.addFlashAttribute("mensagem", "Orçamento de Venda gerado com sucesso! Código: " + venda.getCodigo());
+		return new ModelAndView("redirect:/orcamentos");
+	}
+
 }
