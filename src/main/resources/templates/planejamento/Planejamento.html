@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/LayoutPadrao}">
+<head><title>Planejamento Físico-Financeiro</title></head>
+<body>
+<section layout:fragment="conteudo">
+	<div class="page-header">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-sm-8"><h1>Planejamento Físico-Financeiro</h1></div>
+				<div class="col-sm-4 text-right" style="margin-top:20px;">
+					<a class="btn btn-info" th:href="@{/planejamento/{id}/cronograma(id=${orcamento.codigo})}">
+						<i class="glyphicon glyphicon-calendar"></i> Cronograma
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container-fluid">
+		<sinapiPRO:message/>
+		<h3 th:text="${orcamento.nome}">Orçamento</h3>
+		<form method="POST" th:action="@{/planejamento/{id}(id=${orcamento.codigo})}">
+			<div class="table-responsive">
+				<table class="table table-striped table-condensed">
+					<thead>
+						<tr>
+							<th>Item</th>
+							<th>Descrição</th>
+							<th class="text-right">Valor Total</th>
+							<th>Data Início</th>
+							<th>Data Fim</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="item : ${orcamento.itens}">
+							<td th:text="${item.itemizacao}"></td>
+							<td th:text="${item.descricao}"></td>
+							<td class="text-right" th:text="${item.valorTotal != null ? #numbers.formatDecimal(item.valorTotal, 1, 2) : '0,00'}"></td>
+							<td><input type="date" class="form-control input-sm"
+									   th:name="|inicio_${item.codigo}|"
+									   th:value="${planejamentoMap.containsKey(item.codigo) ? planejamentoMap.get(item.codigo).dataInicio : ''}"/></td>
+							<td><input type="date" class="form-control input-sm"
+									   th:name="|fim_${item.codigo}|"
+									   th:value="${planejamentoMap.containsKey(item.codigo) ? planejamentoMap.get(item.codigo).dataFim : ''}"/></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<button type="submit" class="btn btn-primary">Salvar Planejamento</button>
+		</form>
+	</div>
+</section>
+</body>
+</html>

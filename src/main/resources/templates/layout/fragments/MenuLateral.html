@@ -33,7 +33,12 @@
           				<li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/orcamentos.*}">
 			            	<a th:href="@{/orcamentos}">Pesquisar Orçamentos</a>
 			            </li>
-          			
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/orcamentos.comparativo*}">
+			            	<a th:href="@{/orcamentos/comparativo}">Comparativo Venda × Execução</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/planejamento*}">
+			            	<a th:href="@{/planejamento/0}">Planejamento Físico-Financeiro</a>
+			            </li>
           			</ul>
         		</li>
         		
@@ -85,11 +90,32 @@
 			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/cidades.*}">
 			            	<a th:href="@{/cidades}">Cidades</a>
 			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/estados.*}">
+			            	<a th:href="@{/estados}">Estados</a>
+			            </li>
 			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/composicaoClasse.*}">
 			            	<a th:href="@{/composicaoClasses}">Classes</a>
 			            </li>
 			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/clientes.*}">
 			            	<a th:href="@{/clientes}">Clientes</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/fornecedores.*}">
+			            	<a th:href="@{/fornecedores}">Fornecedores</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/tiposCusto.*}">
+			            	<a th:href="@{/tiposCusto}">Tipos de Custo</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/tributos.*}">
+			            	<a th:href="@{/tributos}">Tributos</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/tiposUnidade.*}">
+			            	<a th:href="@{/tiposUnidade}">Tipos de Unidade</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/especiesInsumo.*}">
+			            	<a th:href="@{/especiesInsumo}">Espécies de Insumo</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/tiposUsuario.*}">
+			            	<a th:href="@{/tiposUsuario}">Tipos de Usuário</a>
 			            </li>
 			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/usuarios.*}">
 			            	<a th:href="@{/usuarios}">Usuários</a>
@@ -107,16 +133,20 @@
 			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/relatorios.*}">
 			            	<a th:href="@{/relatorios/listaInsumos}">Lista de Insumos</a>
 			            </li>
-          			</ul>
-          			<ul class="aw-menu__list  aw-menu__list--sublist">
 			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/relatorios.*}">
 			            	<a th:href="@{/relatorios/listaComposicoes}">Lista de Composições</a>
 			            </li>
-          			</ul>
-          			
-          			<ul class="aw-menu__list  aw-menu__list--sublist">
 			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/relatorios.*}">
-			            	<a th:href="@{/relatorios/imprimirOrcamento}">Imprimir Orcamento</a>
+			            	<a th:href="@{/relatorios/orcamentosEmitidos}">Orçamentos Emitidos</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/relatorios.*}">
+			            	<a th:href="@{/relatorios/orcamentoAnalitico/0}">Orçamento Analítico</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/relatorios.*}">
+			            	<a th:href="@{/relatorios/globalMaterialMO/0}">Global Material + MO</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/relatorios.*}">
+			            	<a th:href="@{/relatorios/servicosOrcamento/0}">Serviços do Orçamento</a>
 			            </li>
           			</ul>
         		</li>
