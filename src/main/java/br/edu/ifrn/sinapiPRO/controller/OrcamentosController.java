@@ -25,6 +25,7 @@ import br.edu.ifrn.sinapiPRO.model.Desoneracao;
 import br.edu.ifrn.sinapiPRO.model.Orcamento;
 import br.edu.ifrn.sinapiPRO.model.TipoOrcamento;
 import br.edu.ifrn.sinapiPRO.repository.filter.OrcamentoFilter;
+import br.edu.ifrn.sinapiPRO.repository.OrcamentosRepository;
 import br.edu.ifrn.sinapiPRO.security.UsuarioSistema;
 import br.edu.ifrn.sinapiPRO.service.BaseInsumoService;
 import br.edu.ifrn.sinapiPRO.service.BasePrecoService;
@@ -41,14 +42,17 @@ public class OrcamentosController {
 	private final BasePrecoService basePrecoService;
 	private final BaseInsumoService baseInsumoService;
 	private final OrcamentoService orcamentoService;
+	private final OrcamentosRepository orcamentosRepository;
 	
 	@Autowired
 	public OrcamentosController(OrcamentoService orcamentoService, EstadoService estadoService,
-								BasePrecoService basePrecoService, BaseInsumoService baseInsumoService) {
+								BasePrecoService basePrecoService, BaseInsumoService baseInsumoService,
+								OrcamentosRepository orcamentosRepository) {
 		this.orcamentoService = orcamentoService;
 		this.estadoService = estadoService; 
 		this.basePrecoService = basePrecoService;
 		this.baseInsumoService = baseInsumoService;
+		this.orcamentosRepository = orcamentosRepository;
 	}
 	
 	@GetMapping("/novo")
@@ -154,6 +158,21 @@ public class OrcamentosController {
 		Orcamento exec = orcamentoService.copiarOrcamento(codigo, TipoOrcamento.EXECUCAO);
 		attributes.addFlashAttribute("mensagem", "Orçamento de Execução gerado com sucesso! Código: " + exec.getCodigo());
 		return new ModelAndView("redirect:/orcamentos");
+	}
+
+	@GetMapping("/comparativo")
+	public ModelAndView comparativo(@org.springframework.web.bind.annotation.RequestParam(required = false) Long codigoVenda,
+									@org.springframework.web.bind.annotation.RequestParam(required = false) Long codigoExecucao) {
+		ModelAndView mv = new ModelAndView("orcamento/ComparativoVendaExecucao");
+		mv.addObject("orcamentosVenda", orcamentosRepository.findByTipoOrcamento(TipoOrcamento.VENDA));
+		mv.addObject("orcamentosExecucao", orcamentosRepository.findByTipoOrcamento(TipoOrcamento.EXECUCAO));
+		if (codigoVenda != null) {
+			mv.addObject("venda", orcamentoService.buscarComItens(codigoVenda));
+		}
+		if (codigoExecucao != null) {
+			mv.addObject("execucao", orcamentoService.buscarComItens(codigoExecucao));
+		}
+		return mv;
 	}
 
 }

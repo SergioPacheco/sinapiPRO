@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/LayoutPadrao}">
+<head><title>Comparativo Venda vs Execução</title></head>
+<section layout:fragment="conteudo">
+	<div class="page-header">
+		<div class="container-fluid"><h1>Comparativo Venda vs Execução</h1></div>
+	</div>
+	<div class="container-fluid">
+		<div th:if="${venda == null || execucao == null}" class="alert alert-warning">
+			Selecione os orçamentos de Venda e Execução para comparar.
+		</div>
+		<form method="GET" th:action="@{/orcamentos/comparativo}">
+			<div class="row">
+				<div class="form-group col-sm-5">
+					<label>Orçamento de Venda</label>
+					<select name="codigoVenda" class="form-control">
+						<option value="">Selecione...</option>
+						<option th:each="o : ${orcamentosVenda}" th:value="${o.codigo}" th:text="${o.nome}"
+								th:selected="${venda != null && venda.codigo == o.codigo}"></option>
+					</select>
+				</div>
+				<div class="form-group col-sm-5">
+					<label>Orçamento de Execução</label>
+					<select name="codigoExecucao" class="form-control">
+						<option value="">Selecione...</option>
+						<option th:each="o : ${orcamentosExecucao}" th:value="${o.codigo}" th:text="${o.nome}"
+								th:selected="${execucao != null && execucao.codigo == o.codigo}"></option>
+					</select>
+				</div>
+				<div class="form-group col-sm-2" style="margin-top: 25px;">
+					<button type="submit" class="btn btn-primary">Comparar</button>
+				</div>
+			</div>
+		</form>
+		<div th:if="${venda != null && execucao != null}">
+			<table class="table table-bordered table-condensed">
+				<thead>
+					<tr class="active">
+						<th>Indicador</th>
+						<th class="text-right">Venda</th>
+						<th class="text-right">Execução</th>
+						<th class="text-right">Diferença</th>
+						<th class="text-right">%</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr><td>Mão de Obra</td>
+						<td class="text-right" th:text="${#numbers.formatDecimal(venda.calculaValorMaoObra(), 1, 2)}"></td>
+						<td class="text-right" th:text="${#numbers.formatDecimal(execucao.calculaValorMaoObra(), 1, 2)}"></td>
+						<td class="text-right" th:text="${#numbers.formatDecimal(execucao.calculaValorMaoObra() - venda.calculaValorMaoObra(), 1, 2)}"></td>
+						<td class="text-right" th:text="${venda.calculaValorMaoObra().signum() != 0 ? #numbers.formatDecimal((execucao.calculaValorMaoObra() - venda.calculaValorMaoObra()) * 100 / venda.calculaValorMaoObra(), 1, 2) + '%' : '-'}"></td>
+					</tr>
+					<tr><td>Material</td>
+						<td class="text-right" th:text="${#numbers.formatDecimal(venda.calculaValorMaterial(), 1, 2)}"></td>
+						<td class="text-right" th:text="${#numbers.formatDecimal(execucao.calculaValorMaterial(), 1, 2)}"></td>
+						<td class="text-right" th:text="${#numbers.formatDecimal(execucao.calculaValorMaterial() - venda.calculaValorMaterial(), 1, 2)}"></td>
+						<td class="text-right" th:text="${venda.calculaValorMaterial().signum() != 0 ? #numbers.formatDecimal((execucao.calculaValorMaterial() - venda.calculaValorMaterial()) * 100 / venda.calculaValorMaterial(), 1, 2) + '%' : '-'}"></td>
+					</tr>
+					<tr><td>Equipamento</td>
+						<td class="text-right" th:text="${#numbers.formatDecimal(venda.calculaValorEquipamento(), 1, 2)}"></td>
+						<td class="text-right" th:text="${#numbers.formatDecimal(execucao.calculaValorEquipamento(), 1, 2)}"></td>
+						<td class="text-right" th:text="${#numbers.formatDecimal(execucao.calculaValorEquipamento() - venda.calculaValorEquipamento(), 1, 2)}"></td>
+						<td class="text-right" th:text="${venda.calculaValorEquipamento().signum() != 0 ? #numbers.formatDecimal((execucao.calculaValorEquipamento() - venda.calculaValorEquipamento()) * 100 / venda.calculaValorEquipamento(), 1, 2) + '%' : '-'}"></td>
+					</tr>
+					<tr class="active"><td><strong>Sub-Total</strong></td>
+						<td class="text-right"><strong th:text="${#numbers.formatDecimal(venda.calculaValorSubTotal(), 1, 2)}"></strong></td>
+						<td class="text-right"><strong th:text="${#numbers.formatDecimal(execucao.calculaValorSubTotal(), 1, 2)}"></strong></td>
+						<td class="text-right"><strong th:text="${#numbers.formatDecimal(execucao.calculaValorSubTotal() - venda.calculaValorSubTotal(), 1, 2)}"></strong></td>
+						<td class="text-right"><strong th:text="${venda.calculaValorSubTotal().signum() != 0 ? #numbers.formatDecimal((execucao.calculaValorSubTotal() - venda.calculaValorSubTotal()) * 100 / venda.calculaValorSubTotal(), 1, 2) + '%' : '-'}"></strong></td>
+					</tr>
+					<tr><td>Leis Sociais</td>
+						<td class="text-right" th:text="${#numbers.formatDecimal(venda.calculaValorLeisSociais(), 1, 2)}"></td>
+						<td class="text-right" th:text="${#numbers.formatDecimal(execucao.calculaValorLeisSociais(), 1, 2)}"></td>
+						<td class="text-right" th:text="${#numbers.formatDecimal(execucao.calculaValorLeisSociais() - venda.calculaValorLeisSociais(), 1, 2)}"></td>
+						<td></td>
+					</tr>
+					<tr><td>BDI</td>
+						<td class="text-right" th:text="${#numbers.formatDecimal(venda.calculaValorBDI(), 1, 2)}"></td>
+						<td class="text-right" th:text="${#numbers.formatDecimal(execucao.calculaValorBDI(), 1, 2)}"></td>
+						<td class="text-right" th:text="${#numbers.formatDecimal(execucao.calculaValorBDI() - venda.calculaValorBDI(), 1, 2)}"></td>
+						<td></td>
+					</tr>
+					<tr class="success"><td><strong>TOTAL GERAL</strong></td>
+						<td class="text-right"><strong th:text="${#numbers.formatDecimal(venda.calculaValorTotalComTaxas(), 1, 2)}"></strong></td>
+						<td class="text-right"><strong th:text="${#numbers.formatDecimal(execucao.calculaValorTotalComTaxas(), 1, 2)}"></strong></td>
+						<td class="text-right"><strong th:text="${#numbers.formatDecimal(execucao.calculaValorTotalComTaxas() - venda.calculaValorTotalComTaxas(), 1, 2)}"></strong></td>
+						<td class="text-right"><strong th:text="${venda.calculaValorTotalComTaxas().signum() != 0 ? #numbers.formatDecimal((execucao.calculaValorTotalComTaxas() - venda.calculaValorTotalComTaxas()) * 100 / venda.calculaValorTotalComTaxas(), 1, 2) + '%' : '-'}"></strong></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</section>
+</html>
