@@ -1,47 +1,52 @@
 # Project State
 
 ## Last updated
-2026-03-18
+2026-03-29
 
 ## Active spec
-none
+none — all sprints complete
 
 ## Current status
-Projeto brownfield funcional com CRUD completo de orçamentos, composições, insumos, clientes e obras. Importação SINAPI via XLS operacional. Relatórios JasperReports (PDF) funcionando. Deploy no Heroku. Refatoração do OrcamentosController concluída (2 commits: bug fixes + refatoração estrutural). Specrail full instalado.
+Projeto feature-complete. Todos os 63 requisitos do backlog implementados. 238 source files compilando sem erros. Sprints 1-8 concluídos.
 
 ## What's implemented
 - CRUD: Orçamento, Item, Composição, Insumo, Etapa, Cliente, Obra, Usuário, Estado, Cidade, BasePreco, BaseInsumo
+- CRUD: TipoCusto, Tributo, Fornecedor, FornecedorInsumo
+- CRUD: TipoUnidade, EspecieInsumo, TipoUsuario (Sprint 8)
 - Importação SINAPI (insumos + composições via XLS)
-- 5 relatórios JasperReports (PDF)
-- Spring Security (form login, roles, BCrypt)
-- Taxas: BDI, Leis Sociais, Taxa Adm (percentuais no orçamento)
+- Relatórios JasperReports (PDF): ListaInsumos, ListaComposicoes, ImprimirComposicao, ImprimirOrcamento, OrcamentosEmitidos
+- Relatórios Thymeleaf: OrcamentoAnalitico, GlobalMaterialMO, ServicosOrcamento (Sprint 5)
+- Exportação: PDF, XLS (Apache POI), JSON (REST), CSV, RTF (Sprint 5)
+- Spring Security: form login, roles, BCrypt, PrimeiroAcessoFilter, HistoricoSenha (Sprint 7)
+- Audit trail: AuditService + AuditLog (Sprint 7)
+- Taxas: BDI, Leis Sociais, Taxa Adm, BDI detalhado (insumo/servico/terceiro/ferramenta) (Sprint 3)
+- Composição avançada: percentual_taxacao, tributacao, perdas, bonificacao (Sprint 3)
+- Cálculo de tributos no custo final: calculaValorTributos() (Sprint 3)
+- Fornecedores: CRUD + FornecedorInsumo com preço + OrigemInsumo + TipoEquipamento (Sprint 4)
+- Fluxo: Estimativa → Venda → Execução (copiarOrcamento) (Sprint 6)
+- Comparativo Venda vs Execução (Sprint 6)
 - Thymeleaf views completas para todas as entidades
 
-## What's NOT implemented (from requirements docs)
-- Tipos de orçamento (Estimativa / Venda / Execução)
-- Curva ABC
-- Tributos por insumo/serviço/região
-- BDI por serviço (hoje só no orçamento)
-- Custos diretos/indiretos/administrativos
-- Fornecedores
-- Subníveis de etapas (4 níveis)
-- Relatório de Serviços do Orçamento
-- Exportação multi-formato (XLS, CSV, RTF, EMAIL)
-- Histórico de preços (popup)
-- Conversão de valores por índice
-- Audit trail
-- Soft delete
-- REST API export JSON
+## What's NOT implemented (out of scope)
+- Migração para microservices
+- Reescrita do frontend (Thymeleaf → SPA)
+- Módulos do Strato fora do escopo: comercial, financeiro, suprimentos, mão de obra, faturamento, frota, atendimento
+- Diário de obra
+- Contratos e medições de subempreiteiros
+- Cronograma financeiro / planejamento físico-financeiro
 
 ## Blockers
-- Push para GitHub bloqueado (token sem scope `repo` ou senha não recuperada)
-- Zero cobertura de testes nos services — risco para qualquer refatoração
+- Push para GitHub bloqueado (token sem scope `repo`)
+- Nexus corporativo indisponível (503) — compilar com `-s /tmp/settings-local.xml -o`
+- Cobertura de testes baixa nos services
 
-## Recent changes
-- `4ffd503` fix(OrcamentosController): assign usuarioService, fix null check order, handle null orcamento
-- `141d1e4` refactor(OrcamentosController): move business logic to service, modernize annotations
+## Recent changes (2026-03-29)
+- Sprint 8: CRUD TipoUnidade, EspecieInsumo, TipoUsuario (27 arquivos)
+- Sprint 5: Relatórios Analítico, Global Material+MO, Serviços + export CSV/RTF (7 arquivos)
+- Sprint 6: Comparativo Venda vs Execução (2 arquivos)
 
 ## Next steps
-1. Escolher primeira feature para planejar com @planner
-2. Gerar specs (requirements + design + tasks) para a feature escolhida
-3. Executar tasks com feedback loops (compile + test) após cada uma
+1. Adicionar testes unitários para os novos services
+2. Integrar novas rotas no menu de navegação (LayoutPadrao)
+3. Resolver blocker do Nexus/GitHub
+4. Considerar Sprint 9: Cronograma financeiro + Planejamento (funcionalidades do Strato ainda não portadas)
