@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 import br.edu.ifrn.sinapiPRO.dto.ListaComposicoes;
 import br.edu.ifrn.sinapiPRO.dto.ListaInsumos;
 import br.edu.ifrn.sinapiPRO.dto.PeriodoRelatorio;
+import br.edu.ifrn.sinapiPRO.dto.PlanejamentoFisicoDTO;
 import br.edu.ifrn.sinapiPRO.model.Especie;
 import br.edu.ifrn.sinapiPRO.model.Item;
 import br.edu.ifrn.sinapiPRO.model.Orcamento;
@@ -226,6 +227,23 @@ public class RelatoriosController {
 
 	@GetMapping("/cronograma/{codigo}")
 	public ResponseEntity<byte[]> relatorioCronograma(@PathVariable Long codigo) {
+		java.util.Map<String, Object> data = montarDadosCronograma(codigo);
+		byte[] pdf = freeMarkerReport.gerarPdf("cronograma-financeiro.ftl", data);
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE)
+				.body(pdf);
+	}
+
+	@GetMapping("/curvaS/{codigo}")
+	public ResponseEntity<byte[]> relatorioCurvaS(@PathVariable Long codigo) {
+		java.util.Map<String, Object> data = montarDadosCronograma(codigo);
+		byte[] pdf = freeMarkerReport.gerarPdf("curva-s.ftl", data);
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE)
+				.body(pdf);
+	}
+
+	private java.util.Map<String, Object> montarDadosCronograma(Long codigo) {
 		Orcamento orcamento = orcamentoService.buscarComItens(codigo);
 		var cronograma = planejamentoService.calcularCronograma(codigo);
 
@@ -242,24 +260,61 @@ public class RelatoriosController {
 		java.util.Map<String, Object> data = new java.util.HashMap<>();
 		data.put("orcamento", orcamento.getNome());
 		data.put("cronograma", rows);
+		data.put("totalGeral", df.format(orcamento.calculaValorTotalComTaxas()));
+		data.put("emissao", new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
+		return data;
+	}
+
+	@GetMapping("/planejamentoFisico/{codigo}")
+	public ResponseEntity<byte[]> relatorioPlanejamentoFisico(@PathVariable Long codigo) {
+		Orcamento orcamento = orcamentoService.buscarComItens(codigo);
+		List<PlanejamentoFisicoDTO> itens = planejamentoService.montarPlanejamentoFisico(codigo);
+
+		java.text.DecimalFormat df = new java.text.DecimalFormat("#,##0.00");
+		java.time.format.DateTimeFormatter dtf = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+		// Agrupar por etapa
+		java.util.Map<String, List<PlanejamentoFisicoDTO>> porEtapa = new java.util.LinkedHashMap<>();
+		for (PlanejamentoFisicoDTO dto : itens) {
+			porEtapa.computeIfAbsent(dto.getEtapa(), k -> new java.util.ArrayList<>()).add(dto);
+		}
+
+		List<java.util.Map<String, Object>> etapas = new java.util.ArrayList<>();
+		for (var entry : porEtapa.entrySet()) {
+			java.util.Map<String, Object> etapa = new java.util.HashMap<>();
+			etapa.put("nome", entry.getKey());
+			BigDecimal subtotal = BigDecimal.ZERO;
+			List<java.util.Map<String, String>> rows = new java.util.ArrayList<>();
+			for (PlanejamentoFisicoDTO dto : entry.getValue()) {
+				java.util.Map<String, String> row = new java.util.HashMap<>();
+				row.put("itemizacao", dto.getItemizacao() != null ? dto.getItemizacao() : "");
+				row.put("descricao", dto.getDescricao() != null ? dto.getDescricao() : "");
+				row.put("dataInicio", dto.getDataInicio() != null ? dto.getDataInicio().format(dtf) : "");
+				row.put("dataFim", dto.getDataFim() != null ? dto.getDataFim().format(dtf) : "");
+				row.put("duracaoMeses", String.valueOf(dto.getDuracaoMeses()));
+				row.put("valor", df.format(dto.getValor()));
+				row.put("percentual", df.format(dto.getPercentualDoTotal()));
+				rows.add(row);
+				subtotal = subtotal.add(dto.getValor());
+			}
+			etapa.put("itens", rows);
+			etapa.put("subtotal", df.format(subtotal));
+			BigDecimal totalGeral = orcamento.calculaValorTotalComTaxas();
+			etapa.put("percentual", totalGeral.signum() != 0
+					? df.format(subtotal.multiply(BigDecimal.valueOf(100)).divide(totalGeral, 2, RoundingMode.HALF_UP))
+					: "0,00");
+			etapas.add(etapa);
+		}
+
+		java.util.Map<String, Object> data = new java.util.HashMap<>();
+		data.put("orcamento", orcamento.getNome());
+		data.put("etapas", etapas);
+		data.put("totalGeral", df.format(orcamento.calculaValorTotalComTaxas()));
 		data.put("emissao", new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
 
-		byte[] pdf = freeMarkerReport.gerarPdf("cronograma-financeiro.ftl", data);
+		byte[] pdf = freeMarkerReport.gerarPdf("planejamento-fisico.ftl", data);
 		return ResponseEntity.ok()
 				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE)
 				.body(pdf);
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

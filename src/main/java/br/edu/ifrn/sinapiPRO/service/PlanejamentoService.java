@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.edu.ifrn.sinapiPRO.dto.CronogramaMes;
+import br.edu.ifrn.sinapiPRO.dto.PlanejamentoFisicoDTO;
 import br.edu.ifrn.sinapiPRO.model.Item;
 import br.edu.ifrn.sinapiPRO.model.Orcamento;
 import br.edu.ifrn.sinapiPRO.model.PlanejamentoItem;
@@ -89,6 +90,39 @@ public class PlanejamentoService {
 					: BigDecimal.ZERO);
 		}
 
+		return resultado;
+	}
+
+	@Transactional(readOnly = true)
+	public List<PlanejamentoFisicoDTO> montarPlanejamentoFisico(Long codigoOrcamento) {
+		List<PlanejamentoItem> planejamento = repository.findByOrcamentoCodigo(codigoOrcamento);
+		Orcamento orcamento = orcamentoService.buscarComItens(codigoOrcamento);
+		BigDecimal totalGeral = orcamento.calculaValorTotalComTaxas();
+
+		List<PlanejamentoFisicoDTO> resultado = new ArrayList<>();
+		for (PlanejamentoItem pi : planejamento) {
+			if (pi.getDataInicio() == null || pi.getDataFim() == null) continue;
+			Item item = pi.getItem();
+
+			PlanejamentoFisicoDTO dto = new PlanejamentoFisicoDTO();
+			dto.setItemizacao(item.getItemizacao());
+			dto.setDescricao(item.getDescricao());
+			dto.setEtapa(item.getEtapa() != null ? item.getEtapa().getNome() : "Sem Etapa");
+			dto.setDataInicio(pi.getDataInicio());
+			dto.setDataFim(pi.getDataFim());
+
+			long meses = ChronoUnit.MONTHS.between(
+					pi.getDataInicio().withDayOfMonth(1),
+					pi.getDataFim().withDayOfMonth(1)) + 1;
+			dto.setDuracaoMeses(meses > 0 ? (int) meses : 1);
+
+			BigDecimal valor = item.getValorTotal() != null ? item.getValorTotal() : BigDecimal.ZERO;
+			dto.setValor(valor);
+			dto.setPercentualDoTotal(totalGeral.signum() != 0
+					? valor.multiply(BigDecimal.valueOf(100)).divide(totalGeral, 2, RoundingMode.HALF_UP)
+					: BigDecimal.ZERO);
+			resultado.add(dto);
+		}
 		return resultado;
 	}
 }
