@@ -21,9 +21,9 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>11</java.version>
 
-		<!-- JasperReports -->
-		<jasperreports.version>6.20.6</jasperreports.version>
-		<jasperreports-fonts.version>6.0.0</jasperreports-fonts.version>
+		<!-- FreeMarker + Flying Saucer (padrão sgn3) -->
+		<flying-saucer.version>9.1.20</flying-saucer.version>
+		<jtidy.version>r938</jtidy.version>
 	</properties>
 
 	<dependencies>
@@ -86,18 +86,32 @@
         </dependency>
 		
 				
-		<!-- JasperReports -->
+		<!-- FreeMarker -->
 		<dependency>
-			<groupId>net.sf.jasperreports</groupId>
-			<artifactId>jasperreports</artifactId>
-			<version>${jasperreports.version}</version>
-			<scope>compile</scope>
+			<groupId>org.freemarker</groupId>
+			<artifactId>freemarker</artifactId>
+			<version>2.3.31</version>
 		</dependency>
+
+		<!-- Flying Saucer: HTML → PDF -->
 		<dependency>
-		    <groupId>net.sf.jasperreports</groupId>
-		    <artifactId>jasperreports-fonts</artifactId>
-		    <version>${jasperreports-fonts.version}</version>
-		    <scope>compile</scope>
+			<groupId>org.xhtmlrenderer</groupId>
+			<artifactId>flying-saucer-pdf-openpdf</artifactId>
+			<version>${flying-saucer.version}</version>
+		</dependency>
+
+		<!-- JTidy: HTML → XHTML cleanup -->
+		<dependency>
+			<groupId>net.sf.jtidy</groupId>
+			<artifactId>jtidy</artifactId>
+			<version>${jtidy.version}</version>
+		</dependency>
+
+		<!-- Commons BeanUtils (usado por AtributoConfirmacaoValidator) -->
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>1.9.4</version>
 		</dependency>
 		
 		<!-- EhCache -->
