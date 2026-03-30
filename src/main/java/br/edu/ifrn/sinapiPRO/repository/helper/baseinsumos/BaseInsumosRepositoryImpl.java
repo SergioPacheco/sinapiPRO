@@ -56,5 +56,4 @@ public class BaseInsumosRepositoryImpl implements BaseInsumosRepositoryQueries {
 			}
 		}
 	}
-
 }

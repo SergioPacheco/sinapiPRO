@@ -18,11 +18,16 @@ import br.edu.ifrn.sinapiPRO.service.exception.*;
 @RequestMapping("/diarioObra")
 public class DiarioObraController {
 
-	@Autowired private DiarioObraService service;
-	@Autowired private ObrasRepository obraRepository;
-	@Autowired private CadastroDiarioClimaService climaService;
-	@Autowired private CadastroDiarioAreaService areaService;
-	@Autowired private CadastroDiarioAcidenteService acidenteService;
+	@Autowired
+	private DiarioObraService service;
+	@Autowired
+	private ObrasRepository obraRepository;
+	@Autowired
+	private CadastroDiarioClimaService climaService;
+	@Autowired
+	private CadastroDiarioAreaService areaService;
+	@Autowired
+	private CadastroDiarioAcidenteService acidenteService;
 
 	@GetMapping
 	public ModelAndView lista(@RequestParam(required = false) Long codigoObra) {
@@ -56,8 +61,10 @@ public class DiarioObraController {
 
 	@DeleteMapping("/{codigo}")
 	public @ResponseBody ResponseEntity<?> excluir(@PathVariable Long codigo) {
-		try { service.excluir(codigo); }
-		catch (ImpossivelExcluirEntidadeException e) { return ResponseEntity.badRequest().body(e.getMessage()); }
+		try { service.excluir(codigo);
+	}
+		catch (ImpossivelExcluirEntidadeException e) { return ResponseEntity.badRequest().body(e.getMessage());
+	}
 		return ResponseEntity.ok().build();
 	}
 

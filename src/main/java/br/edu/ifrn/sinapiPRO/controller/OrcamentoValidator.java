@@ -6,7 +6,6 @@ import org.springframework.validation.Validator;
 
 import br.edu.ifrn.sinapiPRO.model.Orcamento;
 
-
 @Component
 public class OrcamentoValidator implements Validator {
 

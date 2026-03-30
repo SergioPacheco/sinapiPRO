@@ -11,5 +11,4 @@ public class BasePrecoFilter {
 	public void setNome(String nome) {
 		this.nome= nome;
 	}
-
 }

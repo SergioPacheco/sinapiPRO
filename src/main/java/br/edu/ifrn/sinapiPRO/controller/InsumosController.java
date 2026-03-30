@@ -242,7 +242,6 @@ public class InsumosController {
 		ModelAndView mv = novo(insumo);
 		mv.addObject(insumo);
 		return mv;
-
 	}
 	/**
 	 * ADDINSUMO - Adiciona o insumo para os itens do Orçamento Atual
@@ -303,7 +302,6 @@ public class InsumosController {
 		orcamentoService.salvar(orcamentoAtual.get()); 
 		
 		return new ModelAndView("redirect:/atual");
-
 	}
 	
 	/**

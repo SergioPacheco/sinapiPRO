@@ -22,5 +22,4 @@ public class PeriodoRelatorio {
 	public void setDataFim(LocalDate dataFim) {
 		this.dataFim = dataFim;
 	}
-
 }

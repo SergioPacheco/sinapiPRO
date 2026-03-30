@@ -18,8 +18,6 @@ public interface ComposicaoRepository extends JpaRepository<Composicao, Long>, C
 	
 }
 
-
-
 /*
  * @ManyToOne - como recupear filhos 
  *  

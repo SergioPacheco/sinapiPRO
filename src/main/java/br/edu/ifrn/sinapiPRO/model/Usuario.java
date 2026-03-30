@@ -177,10 +177,21 @@ public class Usuario implements Serializable {
 		this.dataNascimento = dataNascimento;
 	}
 
-	public Boolean getPrimeiroAcesso() { return primeiroAcesso; }
-	public void setPrimeiroAcesso(Boolean primeiroAcesso) { this.primeiroAcesso = primeiroAcesso; }
-	public LocalDateTime getDataUltimoAcesso() { return dataUltimoAcesso; }
-	public void setDataUltimoAcesso(LocalDateTime dataUltimoAcesso) { this.dataUltimoAcesso = dataUltimoAcesso; }
+	public Boolean getPrimeiroAcesso() {
+		return primeiroAcesso;
+	}
+
+	public void setPrimeiroAcesso(Boolean primeiroAcesso) {
+		this.primeiroAcesso = primeiroAcesso;
+	}
+
+	public LocalDateTime getDataUltimoAcesso() {
+		return dataUltimoAcesso;
+	}
+
+	public void setDataUltimoAcesso(LocalDateTime dataUltimoAcesso) {
+		this.dataUltimoAcesso = dataUltimoAcesso;
+	}
 
 	public boolean isNovo() {
 		return codigo == null;
@@ -210,5 +221,4 @@ public class Usuario implements Serializable {
 			return false;
 		return true;
 	}
-
 }

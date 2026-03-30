@@ -153,7 +153,6 @@ public class EtapasController {
 		orcamentoService.salvar(orcamentoAtual.get()); 
 		 
 		return new ModelAndView("redirect:/atual");
-
 	}
 	
 }

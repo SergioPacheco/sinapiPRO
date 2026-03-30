@@ -72,5 +72,4 @@ public class ClientesRepositoryImpl implements ClientesRepositoryQueries {
 			}
 		}
 	}
-
 }

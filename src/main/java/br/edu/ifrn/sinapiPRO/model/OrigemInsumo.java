@@ -5,6 +5,9 @@ public enum OrigemInsumo {
 	TERCEIRO("Terceiro");
 
 	private String descricao;
-	OrigemInsumo(String descricao) { this.descricao = descricao; }
-	public String getDescricao() { return descricao; }
+	OrigemInsumo(String descricao) { this.descricao = descricao;
+}
+	public String getDescricao() {
+		return descricao;
+	}
 }

@@ -108,7 +108,6 @@ public class Extenso {
 				if ("um real, um mil, um milhão, um bilhão, um trilhão, um quatrilhão, um quintilhão, um sextilhão, um septilhão".contains(buf)) {
 					buf = buf.replace(0, 2, "hum");
 				}
-
 			} else {
 				buf.append(numToString(((Integer) nro.get(ct)).intValue(), ct));
 			}

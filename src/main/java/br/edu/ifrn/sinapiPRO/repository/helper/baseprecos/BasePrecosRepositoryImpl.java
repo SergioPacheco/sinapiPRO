@@ -1,6 +1,5 @@
 package br.edu.ifrn.sinapiPRO.repository.helper.baseprecos;
 
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 

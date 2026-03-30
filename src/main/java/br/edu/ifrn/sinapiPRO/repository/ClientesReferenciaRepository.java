@@ -1,5 +1,10 @@
 package br.edu.ifrn.sinapiPRO.repository;
-import java.util.List; import org.springframework.data.jpa.repository.JpaRepository; import org.springframework.stereotype.Repository;
-import br.edu.ifrn.sinapiPRO.model.ClienteReferencia; import br.edu.ifrn.sinapiPRO.repository.helper.clientereferencia.ClientesReferenciaRepositoryQueries;
-@Repository public interface ClientesReferenciaRepository extends JpaRepository<ClienteReferencia, Long>, ClientesReferenciaRepositoryQueries {
-	List<ClienteReferencia> findByClienteCodigo(Long codigoCliente); }
+import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import br.edu.ifrn.sinapiPRO.model.ClienteReferencia;
+import br.edu.ifrn.sinapiPRO.repository.helper.clientereferencia.ClientesReferenciaRepositoryQueries;
+@Repository
+public interface ClientesReferenciaRepository extends JpaRepository<ClienteReferencia, Long>, ClientesReferenciaRepositoryQueries {
+	List<ClienteReferencia> findByClienteCodigo(Long codigoCliente);
+}

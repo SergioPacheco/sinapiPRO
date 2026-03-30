@@ -26,5 +26,4 @@ public class ClienteFilter {
 	public Object getCpfOuCnpjSemFormatacao() {
 		return TipoPessoa.removerFormatacao(this.cpfOuCnpj);
 	}
-
 }

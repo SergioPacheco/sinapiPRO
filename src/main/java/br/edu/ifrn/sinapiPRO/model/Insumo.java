@@ -154,12 +154,29 @@ public class Insumo implements Serializable {
 	@Column(name = "tipo_equipamento")
 	private TipoEquipamento tipoEquipamento;
 
-	public java.util.List<Tributo> getTributos() { return tributos; }
-	public void setTributos(java.util.List<Tributo> tributos) { this.tributos = tributos; }
-	public OrigemInsumo getOrigem() { return origem; }
-	public void setOrigem(OrigemInsumo origem) { this.origem = origem; }
-	public TipoEquipamento getTipoEquipamento() { return tipoEquipamento; }
-	public void setTipoEquipamento(TipoEquipamento tipoEquipamento) { this.tipoEquipamento = tipoEquipamento; }
+	public java.util.List<Tributo> getTributos() {
+		return tributos;
+	}
+
+	public void setTributos(java.util.List<Tributo> tributos) {
+		this.tributos = tributos;
+	}
+
+	public OrigemInsumo getOrigem() {
+		return origem;
+	}
+
+	public void setOrigem(OrigemInsumo origem) {
+		this.origem = origem;
+	}
+
+	public TipoEquipamento getTipoEquipamento() {
+		return tipoEquipamento;
+	}
+
+	public void setTipoEquipamento(TipoEquipamento tipoEquipamento) {
+		this.tipoEquipamento = tipoEquipamento;
+	}
 
 	public boolean isNovo() { 
 		return this.codigo == null;
@@ -196,5 +213,4 @@ public class Insumo implements Serializable {
 	
 	
 	
-
 }

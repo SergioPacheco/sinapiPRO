@@ -53,8 +53,13 @@ public class RelatorioService {
 		return new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date());
 	}
 
-	private String fmt(BigDecimal v) { return v != null ? DF.format(v) : "0,00"; }
-	private String fmt4(BigDecimal v) { return v != null ? DF4.format(v) : "0,0000"; }
+	private String fmt(BigDecimal v) {
+		return v != null ? DF.format(v) : "0,00";
+	}
+
+	private String fmt4(BigDecimal v) {
+		return v != null ? DF4.format(v) : "0,0000";
+	}
 
 	// ========== LISTA DE INSUMOS (substitui INS00100_JAVA.jasper) ==========
 

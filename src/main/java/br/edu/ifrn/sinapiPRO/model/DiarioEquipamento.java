@@ -1,5 +1,7 @@
 package br.edu.ifrn.sinapiPRO.model;
-import java.io.Serializable; import java.math.BigDecimal; import javax.persistence.*;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import javax.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
 @Entity @Table(name = "diario_equipamento")
 public class DiarioEquipamento implements Serializable {
@@ -9,9 +11,43 @@ public class DiarioEquipamento implements Serializable {
 	private String descricao;
 	private Integer quantidade = 0;
 	@Column(name = "horas_trabalhadas") private BigDecimal horasTrabalhadas = BigDecimal.ZERO;
-	public Long getCodigo() { return codigo; } public void setCodigo(Long c) { this.codigo = c; }
-	public DiarioObra getDiario() { return diario; } public void setDiario(DiarioObra d) { this.diario = d; }
-	public String getDescricao() { return descricao; } public void setDescricao(String d) { this.descricao = d; }
-	public Integer getQuantidade() { return quantidade; } public void setQuantidade(Integer q) { this.quantidade = q; }
-	public BigDecimal getHorasTrabalhadas() { return horasTrabalhadas; } public void setHorasTrabalhadas(BigDecimal h) { this.horasTrabalhadas = h; }
+	public Long getCodigo() {
+		return codigo;
+	}
+
+	public void setCodigo(Long codigo) {
+		this.codigo = codigo;
+	}
+
+	public DiarioObra getDiario() {
+		return diario;
+	}
+
+	public void setDiario(DiarioObra diario) {
+		this.diario = diario;
+	}
+
+	public String getDescricao() {
+		return descricao;
+	}
+
+	public void setDescricao(String descricao) {
+		this.descricao = descricao;
+	}
+
+	public Integer getQuantidade() {
+		return quantidade;
+	}
+
+	public void setQuantidade(Integer quantidade) {
+		this.quantidade = quantidade;
+	}
+
+	public BigDecimal getHorasTrabalhadas() {
+		return horasTrabalhadas;
+	}
+
+	public void setHorasTrabalhadas(BigDecimal horasTrabalhadas) {
+		this.horasTrabalhadas = horasTrabalhadas;
+	}
 }

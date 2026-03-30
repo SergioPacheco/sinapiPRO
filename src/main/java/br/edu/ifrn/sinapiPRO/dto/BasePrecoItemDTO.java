@@ -9,7 +9,8 @@ public class BasePrecoItemDTO {
 	private BigDecimal preco; 
 	private BigDecimal precoOnerado; 
 	
-	public BasePrecoItemDTO() {}
+	public BasePrecoItemDTO() {
+	}
 
 	public BasePrecoItemDTO(String nomeBase, String anoMes, BigDecimal preco, BigDecimal precoOnerado) {
 		super();
@@ -50,7 +51,6 @@ public class BasePrecoItemDTO {
 	public void setPrecoOnerado(BigDecimal precoOnerado) {
 		this.precoOnerado = precoOnerado;
 	}
-
 }
 
  

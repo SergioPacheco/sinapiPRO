@@ -102,5 +102,4 @@ public class BaseInsumosController {
 		}
 		return ResponseEntity.ok().build();
 	}
-
 }

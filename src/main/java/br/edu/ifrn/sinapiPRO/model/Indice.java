@@ -11,11 +11,50 @@ public class Indice implements Serializable {
 	@NotBlank(message = "Nome é obrigatório") private String nome;
 	@NotBlank(message = "Sigla é obrigatória") private String sigla;
 	@NotBlank(message = "Tipo é obrigatório") private String tipo;
-	public Long getCodigo() { return codigo; } public void setCodigo(Long c) { this.codigo = c; }
-	public String getNome() { return nome; } public void setNome(String n) { this.nome = n; }
-	public String getSigla() { return sigla; } public void setSigla(String s) { this.sigla = s; }
-	public String getTipo() { return tipo; } public void setTipo(String t) { this.tipo = t; }
-	public boolean isNovo() { return codigo == null; }
-	@Override public int hashCode() { return codigo == null ? 0 : codigo.hashCode(); }
-	@Override public boolean equals(Object o) { if (!(o instanceof Indice)) return false; return codigo != null && codigo.equals(((Indice)o).codigo); }
+	public Long getCodigo() {
+		return codigo;
+	}
+
+	public void setCodigo(Long codigo) {
+		this.codigo = codigo;
+	}
+
+	public String getNome() {
+		return nome;
+	}
+
+	public void setNome(String nome) {
+		this.nome = nome;
+	}
+
+	public String getSigla() {
+		return sigla;
+	}
+
+	public void setSigla(String sigla) {
+		this.sigla = sigla;
+	}
+
+	public String getTipo() {
+		return tipo;
+	}
+
+	public void setTipo(String tipo) {
+		this.tipo = tipo;
+	}
+
+	public boolean isNovo() {
+		return codigo == null;
+	}
+
+	@Override
+	public int hashCode() {
+		return codigo == null ? 0 : codigo.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof Indice)) return false;
+		return codigo != null && codigo.equals(((Indice)o).codigo);
+	}
 }

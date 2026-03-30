@@ -19,8 +19,10 @@ import br.edu.ifrn.sinapiPRO.repository.paginacao.PaginacaoUtil;
 
 public class UnidadesMedidaRepositoryImpl implements UnidadesMedidaRepositoryQueries {
 
-	@PersistenceContext private EntityManager manager;
-	@Autowired private PaginacaoUtil paginacaoUtil;
+	@PersistenceContext
+	private EntityManager manager;
+	@Autowired
+	private PaginacaoUtil paginacaoUtil;
 
 	@SuppressWarnings("unchecked")
 	@Override @Transactional(readOnly = true)

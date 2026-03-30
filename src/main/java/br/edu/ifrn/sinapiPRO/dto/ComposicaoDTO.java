@@ -58,10 +58,5 @@ public class ComposicaoDTO {
 		this.custoTotal = custoTotal;
 	}
 	
-
-
-
 }
-
-
 

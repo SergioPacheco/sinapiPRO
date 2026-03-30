@@ -32,5 +32,4 @@ public class PaginationElementTagProcessor extends AbstractElementTagProcessor {
 		
 		structureHandler.replaceWith(model, true);
 	}
-
 }

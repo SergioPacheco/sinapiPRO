@@ -44,6 +44,11 @@ public class FornecedorService {
 		return repository.filtrar(filtro, pageable);
 	}
 
-	public List<Fornecedor> findAll() { return repository.findAll(); }
-	public Fornecedor getOne(Long codigo) { return repository.getOne(codigo); }
+	public List<Fornecedor> findAll() {
+		return repository.findAll();
+	}
+
+	public Fornecedor getOne(Long codigo) {
+		return repository.getOne(codigo);
+	}
 }

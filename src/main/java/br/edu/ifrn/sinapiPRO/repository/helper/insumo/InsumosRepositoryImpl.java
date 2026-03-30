@@ -1,7 +1,5 @@
 package br.edu.ifrn.sinapiPRO.repository.helper.insumo;
 
-
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -254,7 +252,6 @@ public class InsumosRepositoryImpl implements InsumosRepositoryQueries {
 	
 	
 }
-
 
 /* Criteria Builder 
  * 

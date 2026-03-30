@@ -6,5 +6,4 @@ import java.util.Map;
 public class ReportParam {
 
 	public Map<String, Param> map = new HashMap<String, Param>();
-
 }

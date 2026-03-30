@@ -14,13 +14,66 @@ public class Empresa implements Serializable {
 	private String telefone;
 	private String email;
 	private String endereco;
-	public Long getCodigo() { return codigo; } public void setCodigo(Long c) { this.codigo = c; }
-	public String getNome() { return nome; } public void setNome(String n) { this.nome = n; }
-	public String getCnpj() { return cnpj; } public void setCnpj(String c) { this.cnpj = c; }
-	public String getTelefone() { return telefone; } public void setTelefone(String t) { this.telefone = t; }
-	public String getEmail() { return email; } public void setEmail(String e) { this.email = e; }
-	public String getEndereco() { return endereco; } public void setEndereco(String e) { this.endereco = e; }
-	public boolean isNovo() { return codigo == null; }
-	@Override public int hashCode() { return codigo == null ? 0 : codigo.hashCode(); }
-	@Override public boolean equals(Object o) { if (!(o instanceof Empresa)) return false; return codigo != null && codigo.equals(((Empresa)o).codigo); }
+	public Long getCodigo() {
+		return codigo;
+	}
+
+	public void setCodigo(Long codigo) {
+		this.codigo = codigo;
+	}
+
+	public String getNome() {
+		return nome;
+	}
+
+	public void setNome(String nome) {
+		this.nome = nome;
+	}
+
+	public String getCnpj() {
+		return cnpj;
+	}
+
+	public void setCnpj(String cnpj) {
+		this.cnpj = cnpj;
+	}
+
+	public String getTelefone() {
+		return telefone;
+	}
+
+	public void setTelefone(String telefone) {
+		this.telefone = telefone;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getEndereco() {
+		return endereco;
+	}
+
+	public void setEndereco(String endereco) {
+		this.endereco = endereco;
+	}
+
+	public boolean isNovo() {
+		return codigo == null;
+	}
+
+	@Override
+	public int hashCode() {
+		return codigo == null ? 0 : codigo.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof Empresa)) return false;
+		return codigo != null && codigo.equals(((Empresa)o).codigo);
+	}
 }

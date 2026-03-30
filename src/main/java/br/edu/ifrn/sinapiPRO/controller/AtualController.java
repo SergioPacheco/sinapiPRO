@@ -501,5 +501,4 @@ public class AtualController {
 		mv.addObject("percentualDiferenca", percDiff);
 		return mv;
 	}
-
 }

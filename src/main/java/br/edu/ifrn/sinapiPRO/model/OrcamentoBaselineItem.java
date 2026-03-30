@@ -31,16 +31,51 @@ public class OrcamentoBaselineItem {
 	@Column(name = "valor_total")
 	private BigDecimal valorTotal;
 
-	public Long getCodigo() { return codigo; }
-	public void setCodigo(Long codigo) { this.codigo = codigo; }
-	public OrcamentoBaseline getBaseline() { return baseline; }
-	public void setBaseline(OrcamentoBaseline baseline) { this.baseline = baseline; }
-	public Item getItem() { return item; }
-	public void setItem(Item item) { this.item = item; }
-	public BigDecimal getValorUnitario() { return valorUnitario; }
-	public void setValorUnitario(BigDecimal valorUnitario) { this.valorUnitario = valorUnitario; }
-	public BigDecimal getQuantidade() { return quantidade; }
-	public void setQuantidade(BigDecimal quantidade) { this.quantidade = quantidade; }
-	public BigDecimal getValorTotal() { return valorTotal; }
-	public void setValorTotal(BigDecimal valorTotal) { this.valorTotal = valorTotal; }
+	public Long getCodigo() {
+		return codigo;
+	}
+
+	public void setCodigo(Long codigo) {
+		this.codigo = codigo;
+	}
+
+	public OrcamentoBaseline getBaseline() {
+		return baseline;
+	}
+
+	public void setBaseline(OrcamentoBaseline baseline) {
+		this.baseline = baseline;
+	}
+
+	public Item getItem() {
+		return item;
+	}
+
+	public void setItem(Item item) {
+		this.item = item;
+	}
+
+	public BigDecimal getValorUnitario() {
+		return valorUnitario;
+	}
+
+	public void setValorUnitario(BigDecimal valorUnitario) {
+		this.valorUnitario = valorUnitario;
+	}
+
+	public BigDecimal getQuantidade() {
+		return quantidade;
+	}
+
+	public void setQuantidade(BigDecimal quantidade) {
+		this.quantidade = quantidade;
+	}
+
+	public BigDecimal getValorTotal() {
+		return valorTotal;
+	}
+
+	public void setValorTotal(BigDecimal valorTotal) {
+		this.valorTotal = valorTotal;
+	}
 }

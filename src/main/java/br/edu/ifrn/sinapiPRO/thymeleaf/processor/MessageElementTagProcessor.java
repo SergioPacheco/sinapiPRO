@@ -28,5 +28,4 @@ public class MessageElementTagProcessor extends AbstractElementTagProcessor {
 		
 		structureHandler.replaceWith(model, true);
 	}
-
 }

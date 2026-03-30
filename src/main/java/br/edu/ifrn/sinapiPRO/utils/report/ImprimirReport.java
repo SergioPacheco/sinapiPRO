@@ -103,5 +103,4 @@ public class ImprimirReport {
 	public void setParamsReport(ReportParam paramsReport) {
 		this.paramsReport = paramsReport;
 	}
-
 }

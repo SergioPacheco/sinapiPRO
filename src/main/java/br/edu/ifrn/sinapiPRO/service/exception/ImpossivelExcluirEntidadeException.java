@@ -7,5 +7,4 @@ public class ImpossivelExcluirEntidadeException extends RuntimeException {
 	public ImpossivelExcluirEntidadeException(String msg) {
 		super(msg);
 	}
-
 }

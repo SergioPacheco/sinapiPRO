@@ -164,8 +164,13 @@ public class Item  {
 		this.insumo = insumo;
 	}
 
-	public TipoCusto getTipoCusto() { return tipoCusto; }
-	public void setTipoCusto(TipoCusto tipoCusto) { this.tipoCusto = tipoCusto; }
+	public TipoCusto getTipoCusto() {
+		return tipoCusto;
+	}
+
+	public void setTipoCusto(TipoCusto tipoCusto) {
+		this.tipoCusto = tipoCusto;
+	}
 
 	public Etapa getEtapa() {
 		return etapa;
@@ -270,7 +275,6 @@ public class Item  {
 	}
 	
 }
-
 
 /*
 

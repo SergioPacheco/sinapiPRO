@@ -320,14 +320,37 @@ public class Orcamento implements Serializable {
 		this.percentualTaxaAdm = percentualTaxaAdm;
 	}
 
-	public BigDecimal getPercentualBdiInsumo() { return percentualBdiInsumo; }
-	public void setPercentualBdiInsumo(BigDecimal v) { this.percentualBdiInsumo = v; }
-	public BigDecimal getPercentualBdiServico() { return percentualBdiServico; }
-	public void setPercentualBdiServico(BigDecimal v) { this.percentualBdiServico = v; }
-	public BigDecimal getPercentualBdiTerceiro() { return percentualBdiTerceiro; }
-	public void setPercentualBdiTerceiro(BigDecimal v) { this.percentualBdiTerceiro = v; }
-	public BigDecimal getPercentualBdiFerramenta() { return percentualBdiFerramenta; }
-	public void setPercentualBdiFerramenta(BigDecimal v) { this.percentualBdiFerramenta = v; }
+	public BigDecimal getPercentualBdiInsumo() {
+		return percentualBdiInsumo;
+	}
+
+	public void setPercentualBdiInsumo(BigDecimal percentualBdiInsumo) {
+		this.percentualBdiInsumo = percentualBdiInsumo;
+	}
+
+	public BigDecimal getPercentualBdiServico() {
+		return percentualBdiServico;
+	}
+
+	public void setPercentualBdiServico(BigDecimal percentualBdiServico) {
+		this.percentualBdiServico = percentualBdiServico;
+	}
+
+	public BigDecimal getPercentualBdiTerceiro() {
+		return percentualBdiTerceiro;
+	}
+
+	public void setPercentualBdiTerceiro(BigDecimal percentualBdiTerceiro) {
+		this.percentualBdiTerceiro = percentualBdiTerceiro;
+	}
+
+	public BigDecimal getPercentualBdiFerramenta() {
+		return percentualBdiFerramenta;
+	}
+
+	public void setPercentualBdiFerramenta(BigDecimal percentualBdiFerramenta) {
+		this.percentualBdiFerramenta = percentualBdiFerramenta;
+	}
 
 	public String getTipoArredondamento() {
 		return tipoArredondamento;
@@ -357,7 +380,8 @@ public class Orcamento implements Serializable {
 	public List<Item> getItens() {
 		/*
 		Collections.sort(itens, new Comparator<Item>() {
-		        @Override public int compare(Item p1, Item p2) {
+		@Override
+		public int compare(Item p1, Item p2) {
 		            return p1.getEtapa().getCodigo().intValue() - p2.getEtapa().getCodigo().intValue(); // Ascending
 		        }
 		});
@@ -605,7 +629,6 @@ public class Orcamento implements Serializable {
 			return false;
 		return true;
 	}
-
 }
 /*
  * 

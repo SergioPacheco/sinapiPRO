@@ -39,5 +39,4 @@ public class AppUserDetailsService implements UserDetailsService {
 		
 		return authorities;
 	}
-
 }

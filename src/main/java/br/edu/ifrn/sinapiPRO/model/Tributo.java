@@ -44,19 +44,57 @@ public class Tributo implements Serializable {
 	@ManyToMany(mappedBy = "tributos")
 	private java.util.List<Composicao> composicoes = new java.util.ArrayList<>();
 
-	public Long getCodigo() { return codigo; }
-	public void setCodigo(Long codigo) { this.codigo = codigo; }
-	public String getDescricao() { return descricao; }
-	public void setDescricao(String descricao) { this.descricao = descricao; }
-	public BigDecimal getPercentual() { return percentual; }
-	public void setPercentual(BigDecimal percentual) { this.percentual = percentual; }
-	public Estado getEstado() { return estado; }
-	public void setEstado(Estado estado) { this.estado = estado; }
-	public java.util.List<Insumo> getInsumos() { return insumos; }
-	public void setInsumos(java.util.List<Insumo> insumos) { this.insumos = insumos; }
-	public java.util.List<Composicao> getComposicoes() { return composicoes; }
-	public void setComposicoes(java.util.List<Composicao> composicoes) { this.composicoes = composicoes; }
-	public boolean isNovo() { return codigo == null; }
+	public Long getCodigo() {
+		return codigo;
+	}
+
+	public void setCodigo(Long codigo) {
+		this.codigo = codigo;
+	}
+
+	public String getDescricao() {
+		return descricao;
+	}
+
+	public void setDescricao(String descricao) {
+		this.descricao = descricao;
+	}
+
+	public BigDecimal getPercentual() {
+		return percentual;
+	}
+
+	public void setPercentual(BigDecimal percentual) {
+		this.percentual = percentual;
+	}
+
+	public Estado getEstado() {
+		return estado;
+	}
+
+	public void setEstado(Estado estado) {
+		this.estado = estado;
+	}
+
+	public java.util.List<Insumo> getInsumos() {
+		return insumos;
+	}
+
+	public void setInsumos(java.util.List<Insumo> insumos) {
+		this.insumos = insumos;
+	}
+
+	public java.util.List<Composicao> getComposicoes() {
+		return composicoes;
+	}
+
+	public void setComposicoes(java.util.List<Composicao> composicoes) {
+		this.composicoes = composicoes;
+	}
+
+	public boolean isNovo() {
+		return codigo == null;
+	}
 
 	@Override
 	public int hashCode() {

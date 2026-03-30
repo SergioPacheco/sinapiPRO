@@ -24,5 +24,4 @@ public class ClienteGroupSequenceProvider implements DefaultGroupSequenceProvide
 	private boolean isPessoaSelecionada(Cliente cliente) {
 		return cliente != null && cliente.getTipoPessoa() != null;
 	}
-
 }

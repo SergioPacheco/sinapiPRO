@@ -5,6 +5,9 @@ public enum TipoEquipamento {
 	EXTERNO("Externo");
 
 	private String descricao;
-	TipoEquipamento(String descricao) { this.descricao = descricao; }
-	public String getDescricao() { return descricao; }
+	TipoEquipamento(String descricao) { this.descricao = descricao;
+}
+	public String getDescricao() {
+		return descricao;
+	}
 }

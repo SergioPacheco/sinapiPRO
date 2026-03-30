@@ -35,12 +35,35 @@ public class HistoricoSenha implements Serializable {
 	@Column(name = "data_criacao", nullable = false)
 	private LocalDateTime dataCriacao;
 
-	public Long getCodigo() { return codigo; }
-	public void setCodigo(Long codigo) { this.codigo = codigo; }
-	public Usuario getUsuario() { return usuario; }
-	public void setUsuario(Usuario usuario) { this.usuario = usuario; }
-	public String getSenhaHash() { return senhaHash; }
-	public void setSenhaHash(String senhaHash) { this.senhaHash = senhaHash; }
-	public LocalDateTime getDataCriacao() { return dataCriacao; }
-	public void setDataCriacao(LocalDateTime dataCriacao) { this.dataCriacao = dataCriacao; }
+	public Long getCodigo() {
+		return codigo;
+	}
+
+	public void setCodigo(Long codigo) {
+		this.codigo = codigo;
+	}
+
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
+	}
+
+	public String getSenhaHash() {
+		return senhaHash;
+	}
+
+	public void setSenhaHash(String senhaHash) {
+		this.senhaHash = senhaHash;
+	}
+
+	public LocalDateTime getDataCriacao() {
+		return dataCriacao;
+	}
+
+	public void setDataCriacao(LocalDateTime dataCriacao) {
+		this.dataCriacao = dataCriacao;
+	}
 }

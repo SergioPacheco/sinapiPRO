@@ -40,7 +40,6 @@ public class ClienteService {
 		} catch (PersistenceException e) {
 			
 			throw new ImpossivelExcluirEntidadeException("Impossível apagar o cliente. Já foi usado em algum orçamento.");
-
 		}
 	}
 }

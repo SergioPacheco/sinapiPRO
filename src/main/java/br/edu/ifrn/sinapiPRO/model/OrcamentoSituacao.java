@@ -16,5 +16,4 @@ public enum OrcamentoSituacao {
 	public String getDescricao() {
 		return descricao;
 	}
-
 }

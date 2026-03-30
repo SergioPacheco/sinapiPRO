@@ -10,14 +10,43 @@ public class BaselineComparativoDTO {
 	private BigDecimal diferenca;
 	private BigDecimal percentualVariacao;
 
-	public String getDescricao() { return descricao; }
-	public void setDescricao(String descricao) { this.descricao = descricao; }
-	public BigDecimal getValorBaseline() { return valorBaseline; }
-	public void setValorBaseline(BigDecimal valorBaseline) { this.valorBaseline = valorBaseline; }
-	public BigDecimal getValorAtual() { return valorAtual; }
-	public void setValorAtual(BigDecimal valorAtual) { this.valorAtual = valorAtual; }
-	public BigDecimal getDiferenca() { return diferenca; }
-	public void setDiferenca(BigDecimal diferenca) { this.diferenca = diferenca; }
-	public BigDecimal getPercentualVariacao() { return percentualVariacao; }
-	public void setPercentualVariacao(BigDecimal percentualVariacao) { this.percentualVariacao = percentualVariacao; }
+	public String getDescricao() {
+		return descricao;
+	}
+
+	public void setDescricao(String descricao) {
+		this.descricao = descricao;
+	}
+
+	public BigDecimal getValorBaseline() {
+		return valorBaseline;
+	}
+
+	public void setValorBaseline(BigDecimal valorBaseline) {
+		this.valorBaseline = valorBaseline;
+	}
+
+	public BigDecimal getValorAtual() {
+		return valorAtual;
+	}
+
+	public void setValorAtual(BigDecimal valorAtual) {
+		this.valorAtual = valorAtual;
+	}
+
+	public BigDecimal getDiferenca() {
+		return diferenca;
+	}
+
+	public void setDiferenca(BigDecimal diferenca) {
+		this.diferenca = diferenca;
+	}
+
+	public BigDecimal getPercentualVariacao() {
+		return percentualVariacao;
+	}
+
+	public void setPercentualVariacao(BigDecimal percentualVariacao) {
+		this.percentualVariacao = percentualVariacao;
+	}
 }

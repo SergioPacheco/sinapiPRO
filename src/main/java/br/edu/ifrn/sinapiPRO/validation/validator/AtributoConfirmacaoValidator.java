@@ -48,5 +48,4 @@ public class AtributoConfirmacaoValidator implements ConstraintValidator<Atribut
 	private boolean ambosSaoNull(Object valorAtributo, Object valorAtributoConfirmacao) {
 		return valorAtributo == null && valorAtributoConfirmacao == null;
 	}
-
 }

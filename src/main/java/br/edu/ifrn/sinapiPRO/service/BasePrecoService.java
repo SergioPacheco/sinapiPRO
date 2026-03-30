@@ -14,7 +14,6 @@ import br.edu.ifrn.sinapiPRO.repository.BasePrecosRepository;
 import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
 import br.edu.ifrn.sinapiPRO.service.exception.JaCadastradoException;
 
-
 @Service
 public class BasePrecoService {
 	
@@ -48,5 +47,4 @@ public class BasePrecoService {
 	public List<BasePreco> findAll() {
 		return basePrecosRepository.findAll();
 	}
-
 }

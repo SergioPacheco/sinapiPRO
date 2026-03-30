@@ -36,17 +36,55 @@ public class ItemExportDTO {
 		this.etapaNome = item.getEtapa() != null ? item.getEtapa().getNome() : null;
 	}
 
-	public Long getCodigo() { return codigo; }
-	public String getTipo() { return tipo; }
-	public String getDescricao() { return descricao; }
-	public String getItemizacao() { return itemizacao; }
-	public String getEspecie() { return especie; }
-	public String getUnidade() { return unidade; }
-	public BigDecimal getQuantidade() { return quantidade; }
-	public BigDecimal getValorUnitario() { return valorUnitario; }
-	public BigDecimal getValorTotal() { return valorTotal; }
-	public BigDecimal getValorMaoObra() { return valorMaoObra; }
-	public BigDecimal getValorMaterial() { return valorMaterial; }
-	public BigDecimal getValorEquipamento() { return valorEquipamento; }
-	public String getEtapaNome() { return etapaNome; }
+	public Long getCodigo() {
+		return codigo;
+	}
+
+	public String getTipo() {
+		return tipo;
+	}
+
+	public String getDescricao() {
+		return descricao;
+	}
+
+	public String getItemizacao() {
+		return itemizacao;
+	}
+
+	public String getEspecie() {
+		return especie;
+	}
+
+	public String getUnidade() {
+		return unidade;
+	}
+
+	public BigDecimal getQuantidade() {
+		return quantidade;
+	}
+
+	public BigDecimal getValorUnitario() {
+		return valorUnitario;
+	}
+
+	public BigDecimal getValorTotal() {
+		return valorTotal;
+	}
+
+	public BigDecimal getValorMaoObra() {
+		return valorMaoObra;
+	}
+
+	public BigDecimal getValorMaterial() {
+		return valorMaterial;
+	}
+
+	public BigDecimal getValorEquipamento() {
+		return valorEquipamento;
+	}
+
+	public String getEtapaNome() {
+		return etapaNome;
+	}
 }

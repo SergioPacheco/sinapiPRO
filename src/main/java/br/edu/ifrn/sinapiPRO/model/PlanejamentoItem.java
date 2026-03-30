@@ -43,16 +43,51 @@ public class PlanejamentoItem implements Serializable {
 	@Column(name = "percentual_executado")
 	private BigDecimal percentualExecutado = BigDecimal.ZERO;
 
-	public Long getCodigo() { return codigo; }
-	public void setCodigo(Long codigo) { this.codigo = codigo; }
-	public Orcamento getOrcamento() { return orcamento; }
-	public void setOrcamento(Orcamento orcamento) { this.orcamento = orcamento; }
-	public Item getItem() { return item; }
-	public void setItem(Item item) { this.item = item; }
-	public LocalDate getDataInicio() { return dataInicio; }
-	public void setDataInicio(LocalDate dataInicio) { this.dataInicio = dataInicio; }
-	public LocalDate getDataFim() { return dataFim; }
-	public void setDataFim(LocalDate dataFim) { this.dataFim = dataFim; }
-	public BigDecimal getPercentualExecutado() { return percentualExecutado; }
-	public void setPercentualExecutado(BigDecimal percentualExecutado) { this.percentualExecutado = percentualExecutado; }
+	public Long getCodigo() {
+		return codigo;
+	}
+
+	public void setCodigo(Long codigo) {
+		this.codigo = codigo;
+	}
+
+	public Orcamento getOrcamento() {
+		return orcamento;
+	}
+
+	public void setOrcamento(Orcamento orcamento) {
+		this.orcamento = orcamento;
+	}
+
+	public Item getItem() {
+		return item;
+	}
+
+	public void setItem(Item item) {
+		this.item = item;
+	}
+
+	public LocalDate getDataInicio() {
+		return dataInicio;
+	}
+
+	public void setDataInicio(LocalDate dataInicio) {
+		this.dataInicio = dataInicio;
+	}
+
+	public LocalDate getDataFim() {
+		return dataFim;
+	}
+
+	public void setDataFim(LocalDate dataFim) {
+		this.dataFim = dataFim;
+	}
+
+	public BigDecimal getPercentualExecutado() {
+		return percentualExecutado;
+	}
+
+	public void setPercentualExecutado(BigDecimal percentualExecutado) {
+		this.percentualExecutado = percentualExecutado;
+	}
 }

@@ -38,7 +38,6 @@ public class ItemService {
 		} catch (PersistenceException e) {
 			
 			throw new ImpossivelExcluirEntidadeException("Impossível apagar o item.");
-
 		}
 	}
 	

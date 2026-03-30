@@ -31,5 +31,4 @@ public class SinapiPRODialect extends AbstractProcessorDialect {
 		processadores.add(new MenuAttributeTagProcessor(dialectPrefix));
 		return processadores;
 	}
-
 }

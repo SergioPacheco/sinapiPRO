@@ -36,18 +36,59 @@ public class AuditLog implements Serializable {
 
 	private String detalhes;
 
-	public Long getCodigo() { return codigo; }
-	public void setCodigo(Long codigo) { this.codigo = codigo; }
-	public String getEntidade() { return entidade; }
-	public void setEntidade(String entidade) { this.entidade = entidade; }
-	public Long getCodigoEntidade() { return codigoEntidade; }
-	public void setCodigoEntidade(Long codigoEntidade) { this.codigoEntidade = codigoEntidade; }
-	public String getAcao() { return acao; }
-	public void setAcao(String acao) { this.acao = acao; }
-	public String getUsuario() { return usuario; }
-	public void setUsuario(String usuario) { this.usuario = usuario; }
-	public LocalDateTime getDataHora() { return dataHora; }
-	public void setDataHora(LocalDateTime dataHora) { this.dataHora = dataHora; }
-	public String getDetalhes() { return detalhes; }
-	public void setDetalhes(String detalhes) { this.detalhes = detalhes; }
+	public Long getCodigo() {
+		return codigo;
+	}
+
+	public void setCodigo(Long codigo) {
+		this.codigo = codigo;
+	}
+
+	public String getEntidade() {
+		return entidade;
+	}
+
+	public void setEntidade(String entidade) {
+		this.entidade = entidade;
+	}
+
+	public Long getCodigoEntidade() {
+		return codigoEntidade;
+	}
+
+	public void setCodigoEntidade(Long codigoEntidade) {
+		this.codigoEntidade = codigoEntidade;
+	}
+
+	public String getAcao() {
+		return acao;
+	}
+
+	public void setAcao(String acao) {
+		this.acao = acao;
+	}
+
+	public String getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(String usuario) {
+		this.usuario = usuario;
+	}
+
+	public LocalDateTime getDataHora() {
+		return dataHora;
+	}
+
+	public void setDataHora(LocalDateTime dataHora) {
+		this.dataHora = dataHora;
+	}
+
+	public String getDetalhes() {
+		return detalhes;
+	}
+
+	public void setDetalhes(String detalhes) {
+		this.detalhes = detalhes;
+	}
 }

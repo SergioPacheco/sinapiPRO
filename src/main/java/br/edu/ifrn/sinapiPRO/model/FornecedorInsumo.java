@@ -41,14 +41,43 @@ public class FornecedorInsumo implements Serializable {
 	@Column(name = "data_cotacao")
 	private LocalDate dataCotacao;
 
-	public Long getCodigo() { return codigo; }
-	public void setCodigo(Long codigo) { this.codigo = codigo; }
-	public Fornecedor getFornecedor() { return fornecedor; }
-	public void setFornecedor(Fornecedor fornecedor) { this.fornecedor = fornecedor; }
-	public Insumo getInsumo() { return insumo; }
-	public void setInsumo(Insumo insumo) { this.insumo = insumo; }
-	public BigDecimal getPreco() { return preco; }
-	public void setPreco(BigDecimal preco) { this.preco = preco; }
-	public LocalDate getDataCotacao() { return dataCotacao; }
-	public void setDataCotacao(LocalDate dataCotacao) { this.dataCotacao = dataCotacao; }
+	public Long getCodigo() {
+		return codigo;
+	}
+
+	public void setCodigo(Long codigo) {
+		this.codigo = codigo;
+	}
+
+	public Fornecedor getFornecedor() {
+		return fornecedor;
+	}
+
+	public void setFornecedor(Fornecedor fornecedor) {
+		this.fornecedor = fornecedor;
+	}
+
+	public Insumo getInsumo() {
+		return insumo;
+	}
+
+	public void setInsumo(Insumo insumo) {
+		this.insumo = insumo;
+	}
+
+	public BigDecimal getPreco() {
+		return preco;
+	}
+
+	public void setPreco(BigDecimal preco) {
+		this.preco = preco;
+	}
+
+	public LocalDate getDataCotacao() {
+		return dataCotacao;
+	}
+
+	public void setDataCotacao(LocalDate dataCotacao) {
+		this.dataCotacao = dataCotacao;
+	}
 }

@@ -64,5 +64,4 @@ public class ListaComposicoes {
 	public void setNomeUsuario(String nomeUsuario) {
 		this.nomeUsuario = nomeUsuario;
 	} 
-
 }

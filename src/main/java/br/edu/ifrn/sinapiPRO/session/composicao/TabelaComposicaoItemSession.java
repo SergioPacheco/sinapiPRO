@@ -50,6 +50,4 @@ public class TabelaComposicaoItemSession {
 				.orElse(new TabelaComposicaoItem(uuid));
 		return tabela;
 	}
-
-
 }

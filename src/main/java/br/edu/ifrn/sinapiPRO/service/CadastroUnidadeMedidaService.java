@@ -17,7 +17,8 @@ import br.edu.ifrn.sinapiPRO.service.exception.JaCadastradoException;
 @Service
 public class CadastroUnidadeMedidaService {
 
-	@Autowired private UnidadesMedidaRepository repository;
+	@Autowired
+	private UnidadesMedidaRepository repository;
 
 	@Transactional
 	public UnidadeMedida salvar(UnidadeMedida u) {
@@ -29,12 +30,22 @@ public class CadastroUnidadeMedidaService {
 
 	@Transactional
 	public void excluir(Long codigo) {
-		try { repository.deleteById(codigo); repository.flush(); }
-		catch (PersistenceException e) { throw new ImpossivelExcluirEntidadeException("Impossível apagar. Já está em uso."); }
+		try { repository.deleteById(codigo); repository.flush();
+	}
+		catch (PersistenceException e) { throw new ImpossivelExcluirEntidadeException("Impossível apagar. Já está em uso.");
+	}
 	}
 
 	@Transactional(readOnly = true)
-	public Page<UnidadeMedida> filtrar(UnidadeMedidaFilter filtro, Pageable pageable) { return repository.filtrar(filtro, pageable); }
-	public List<UnidadeMedida> findAll() { return repository.findAll(); }
-	public UnidadeMedida getOne(Long codigo) { return repository.getOne(codigo); }
+	public Page<UnidadeMedida> filtrar(UnidadeMedidaFilter filtro, Pageable pageable) {
+		return repository.filtrar(filtro, pageable);
+	}
+
+	public List<UnidadeMedida> findAll() {
+		return repository.findAll();
+	}
+
+	public UnidadeMedida getOne(Long codigo) {
+		return repository.getOne(codigo);
+	}
 }

@@ -52,23 +52,79 @@ public class OrcamentoExportDTO {
 				.collect(Collectors.toList());
 	}
 
-	public Long getCodigo() { return codigo; }
-	public String getNome() { return nome; }
-	public String getDataCriacao() { return dataCriacao; }
-	public String getSituacao() { return situacao; }
-	public String getDesoneracao() { return desoneracao; }
-	public String getEstadoNome() { return estadoNome; }
-	public String getClienteNome() { return clienteNome; }
-	public String getObraNome() { return obraNome; }
-	public String getObservacao() { return observacao; }
-	public BigDecimal getValorTotal() { return valorTotal; }
-	public BigDecimal getSubTotal() { return subTotal; }
-	public BigDecimal getTotalBDI() { return totalBDI; }
-	public BigDecimal getTotalLeisSociais() { return totalLeisSociais; }
-	public BigDecimal getTotalTaxaAdm() { return totalTaxaAdm; }
-	public BigDecimal getTotalTaxas() { return totalTaxas; }
-	public BigDecimal getPercentualBdi() { return percentualBdi; }
-	public BigDecimal getPercentualLeisSociais() { return percentualLeisSociais; }
-	public BigDecimal getPercentualTaxaAdm() { return percentualTaxaAdm; }
-	public List<ItemExportDTO> getItens() { return itens; }
+	public Long getCodigo() {
+		return codigo;
+	}
+
+	public String getNome() {
+		return nome;
+	}
+
+	public String getDataCriacao() {
+		return dataCriacao;
+	}
+
+	public String getSituacao() {
+		return situacao;
+	}
+
+	public String getDesoneracao() {
+		return desoneracao;
+	}
+
+	public String getEstadoNome() {
+		return estadoNome;
+	}
+
+	public String getClienteNome() {
+		return clienteNome;
+	}
+
+	public String getObraNome() {
+		return obraNome;
+	}
+
+	public String getObservacao() {
+		return observacao;
+	}
+
+	public BigDecimal getValorTotal() {
+		return valorTotal;
+	}
+
+	public BigDecimal getSubTotal() {
+		return subTotal;
+	}
+
+	public BigDecimal getTotalBDI() {
+		return totalBDI;
+	}
+
+	public BigDecimal getTotalLeisSociais() {
+		return totalLeisSociais;
+	}
+
+	public BigDecimal getTotalTaxaAdm() {
+		return totalTaxaAdm;
+	}
+
+	public BigDecimal getTotalTaxas() {
+		return totalTaxas;
+	}
+
+	public BigDecimal getPercentualBdi() {
+		return percentualBdi;
+	}
+
+	public BigDecimal getPercentualLeisSociais() {
+		return percentualLeisSociais;
+	}
+
+	public BigDecimal getPercentualTaxaAdm() {
+		return percentualTaxaAdm;
+	}
+
+	public List<ItemExportDTO> getItens() {
+		return itens;
+	}
 }

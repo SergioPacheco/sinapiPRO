@@ -40,7 +40,6 @@ public class ObraService {
 		} catch (PersistenceException e) {
 			
 			throw new ImpossivelExcluirEntidadeException("Impossível apagar a obra. Já esta sendo usada em algum orçamento");
-
 		}
 	}
 }

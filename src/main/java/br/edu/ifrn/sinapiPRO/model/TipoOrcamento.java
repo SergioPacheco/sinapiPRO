@@ -15,5 +15,4 @@ public enum TipoOrcamento {
 	public String getDescricao() {
 		return descricao;
 	}
-
 }

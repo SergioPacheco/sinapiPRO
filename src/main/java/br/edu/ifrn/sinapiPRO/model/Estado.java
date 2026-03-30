@@ -76,5 +76,4 @@ public class Estado implements Serializable {
 			return false;
 		return true;
 	}
-
 }

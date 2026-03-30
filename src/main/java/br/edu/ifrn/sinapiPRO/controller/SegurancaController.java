@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import br.edu.ifrn.sinapiPRO.model.Usuario;
 import br.edu.ifrn.sinapiPRO.repository.UsuariosRepository;
 
-
-
 @Controller
 public class SegurancaController {
 	

@@ -28,13 +28,33 @@ public class TipoUnidade implements Serializable {
 	@NotBlank(message = "Sigla é obrigatória")
 	private String sigla;
 
-	public Long getCodigo() { return codigo; }
-	public void setCodigo(Long codigo) { this.codigo = codigo; }
-	public String getNome() { return nome; }
-	public void setNome(String nome) { this.nome = nome; }
-	public String getSigla() { return sigla; }
-	public void setSigla(String sigla) { this.sigla = sigla; }
-	public boolean isNovo() { return codigo == null; }
+	public Long getCodigo() {
+		return codigo;
+	}
+
+	public void setCodigo(Long codigo) {
+		this.codigo = codigo;
+	}
+
+	public String getNome() {
+		return nome;
+	}
+
+	public void setNome(String nome) {
+		this.nome = nome;
+	}
+
+	public String getSigla() {
+		return sigla;
+	}
+
+	public void setSigla(String sigla) {
+		this.sigla = sigla;
+	}
+
+	public boolean isNovo() {
+		return codigo == null;
+	}
 
 	@Override
 	public int hashCode() {

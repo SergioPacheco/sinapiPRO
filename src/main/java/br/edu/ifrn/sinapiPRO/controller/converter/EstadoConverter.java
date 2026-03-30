@@ -19,5 +19,4 @@ public class EstadoConverter implements Converter<String, Estado> {
 		
 		return null;
 	}
-
 }

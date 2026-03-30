@@ -17,15 +17,41 @@ public class CronogramaMes {
 		this.periodo = String.format("%02d/%d", mes, ano);
 	}
 
-	public int getAno() { return ano; }
-	public int getMes() { return mes; }
-	public String getPeriodo() { return periodo; }
-	public BigDecimal getValorPlanejado() { return valorPlanejado; }
-	public void setValorPlanejado(BigDecimal v) { this.valorPlanejado = v; }
-	public BigDecimal getValorAcumulado() { return valorAcumulado; }
-	public void setValorAcumulado(BigDecimal v) { this.valorAcumulado = v; }
-	public BigDecimal getPercentual() { return percentual; }
-	public void setPercentual(BigDecimal v) { this.percentual = v; }
+	public int getAno() {
+		return ano;
+	}
+
+	public int getMes() {
+		return mes;
+	}
+
+	public String getPeriodo() {
+		return periodo;
+	}
+
+	public BigDecimal getValorPlanejado() {
+		return valorPlanejado;
+	}
+
+	public void setValorPlanejado(BigDecimal valorPlanejado) {
+		this.valorPlanejado = valorPlanejado;
+	}
+
+	public BigDecimal getValorAcumulado() {
+		return valorAcumulado;
+	}
+
+	public void setValorAcumulado(BigDecimal valorAcumulado) {
+		this.valorAcumulado = valorAcumulado;
+	}
+
+	public BigDecimal getPercentual() {
+		return percentual;
+	}
+
+	public void setPercentual(BigDecimal percentual) {
+		this.percentual = percentual;
+	}
 
 	public void adicionarValor(BigDecimal valor) {
 		this.valorPlanejado = this.valorPlanejado.add(valor);

@@ -1,12 +1,19 @@
 package br.edu.ifrn.sinapiPRO.repository.helper.cargo;
-import javax.persistence.EntityManager; import javax.persistence.PersistenceContext;
-import org.hibernate.Criteria; import org.hibernate.Session; import org.hibernate.criterion.*;
-import org.springframework.beans.factory.annotation.Autowired; import org.springframework.data.domain.*;
-import org.springframework.transaction.annotation.Transactional; import org.springframework.util.StringUtils;
-import br.edu.ifrn.sinapiPRO.model.Cargo; import br.edu.ifrn.sinapiPRO.repository.filter.CargoFilter;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.criterion.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import br.edu.ifrn.sinapiPRO.model.Cargo;
+import br.edu.ifrn.sinapiPRO.repository.filter.CargoFilter;
 import br.edu.ifrn.sinapiPRO.repository.paginacao.PaginacaoUtil;
 public class CargosRepositoryImpl implements CargosRepositoryQueries {
-	@PersistenceContext private EntityManager manager; @Autowired private PaginacaoUtil paginacaoUtil;
+	@PersistenceContext
+	private EntityManager manager; @Autowired private PaginacaoUtil paginacaoUtil;
 	@SuppressWarnings("unchecked") @Override @Transactional(readOnly = true)
 	public Page<Cargo> filtrar(CargoFilter f, Pageable p) {
 		Criteria c = manager.unwrap(Session.class).createCriteria(Cargo.class); paginacaoUtil.preparar(c, p);

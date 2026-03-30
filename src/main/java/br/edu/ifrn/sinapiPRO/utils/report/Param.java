@@ -8,5 +8,4 @@ public class Param {
 	public String text;
 	public boolean lInvertido = false;
 	public List<ParamField> listField = new ArrayList<ParamField>();
-
 }

@@ -4,5 +4,4 @@ public class ParamField {
 
 	public Object value;
 	public String text;
-
 }

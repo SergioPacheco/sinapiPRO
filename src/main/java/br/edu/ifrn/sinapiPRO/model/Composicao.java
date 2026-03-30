@@ -267,14 +267,37 @@ public class Composicao  {
 		this.percEquipamento = percEquipamento;
 	}
 
-	public BigDecimal getPercentualTaxacao() { return percentualTaxacao; }
-	public void setPercentualTaxacao(BigDecimal percentualTaxacao) { this.percentualTaxacao = percentualTaxacao; }
-	public BigDecimal getPercentualTributacao() { return percentualTributacao; }
-	public void setPercentualTributacao(BigDecimal percentualTributacao) { this.percentualTributacao = percentualTributacao; }
-	public BigDecimal getPercentualPerdas() { return percentualPerdas; }
-	public void setPercentualPerdas(BigDecimal percentualPerdas) { this.percentualPerdas = percentualPerdas; }
-	public BigDecimal getPercentualBonificacao() { return percentualBonificacao; }
-	public void setPercentualBonificacao(BigDecimal percentualBonificacao) { this.percentualBonificacao = percentualBonificacao; }
+	public BigDecimal getPercentualTaxacao() {
+		return percentualTaxacao;
+	}
+
+	public void setPercentualTaxacao(BigDecimal percentualTaxacao) {
+		this.percentualTaxacao = percentualTaxacao;
+	}
+
+	public BigDecimal getPercentualTributacao() {
+		return percentualTributacao;
+	}
+
+	public void setPercentualTributacao(BigDecimal percentualTributacao) {
+		this.percentualTributacao = percentualTributacao;
+	}
+
+	public BigDecimal getPercentualPerdas() {
+		return percentualPerdas;
+	}
+
+	public void setPercentualPerdas(BigDecimal percentualPerdas) {
+		this.percentualPerdas = percentualPerdas;
+	}
+
+	public BigDecimal getPercentualBonificacao() {
+		return percentualBonificacao;
+	}
+
+	public void setPercentualBonificacao(BigDecimal percentualBonificacao) {
+		this.percentualBonificacao = percentualBonificacao;
+	}
 
 	public Usuario getUsuario() {
 		return usuario;
@@ -342,8 +365,13 @@ public class Composicao  {
 		inverseJoinColumns = @JoinColumn(name = "codigo_tributo"))
 	private List<Tributo> tributos = new ArrayList<>();
 
-	public List<Tributo> getTributos() { return tributos; }
-	public void setTributos(List<Tributo> tributos) { this.tributos = tributos; }
+	public List<Tributo> getTributos() {
+		return tributos;
+	}
+
+	public void setTributos(List<Tributo> tributos) {
+		this.tributos = tributos;
+	}
 
 	public boolean getSinapi() {
 		if (isNova()) {
@@ -376,5 +404,4 @@ public class Composicao  {
 			return false;
 		return true;
 	}
-
 }

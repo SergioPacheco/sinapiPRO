@@ -41,7 +41,6 @@ public class EtapaService {
 		} catch (PersistenceException e) {
 			
 			throw new ImpossivelExcluirEntidadeException("Impossível apagar etapa. Já foi usado em alguma cerveja.");
-
 		}
 	}
 	

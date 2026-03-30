@@ -28,5 +28,4 @@ public class ClassForErrorAttributeTagProcessor extends AbstractAttributeTagProc
 			structureHandler.setAttribute("class", classesExistentes + " has-error");
 		}
 	}
-
 }

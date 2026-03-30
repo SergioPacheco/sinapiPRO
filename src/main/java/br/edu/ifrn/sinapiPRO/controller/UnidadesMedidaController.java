@@ -22,16 +22,21 @@ import br.edu.ifrn.sinapiPRO.service.exception.JaCadastradoException;
 @RequestMapping("/unidadesMedida")
 public class UnidadesMedidaController {
 
-	@Autowired private CadastroUnidadeMedidaService service;
+	@Autowired
+	private CadastroUnidadeMedidaService service;
 
 	@GetMapping("/novo")
-	public ModelAndView novo(UnidadeMedida u) { return new ModelAndView("unidademedida/CadastroUnidadeMedida"); }
+	public ModelAndView novo(UnidadeMedida u) {
+		return new ModelAndView("unidademedida/CadastroUnidadeMedida");
+	}
 
 	@PostMapping({"/novo", "{\\d+}"})
 	public ModelAndView cadastrar(@Valid UnidadeMedida u, BindingResult result, RedirectAttributes attributes) {
 		if (result.hasErrors()) return novo(u);
-		try { service.salvar(u); }
-		catch (JaCadastradoException e) { result.rejectValue("nome", e.getMessage(), e.getMessage()); return novo(u); }
+		try { service.salvar(u);
+	}
+		catch (JaCadastradoException e) { result.rejectValue("nome", e.getMessage(), e.getMessage()); return novo(u);
+	}
 		attributes.addFlashAttribute("mensagem", "Unidade de medida salva com sucesso!");
 		return new ModelAndView("redirect:/unidadesMedida/novo");
 	}
@@ -53,8 +58,10 @@ public class UnidadesMedidaController {
 
 	@DeleteMapping("/{codigo}")
 	public @ResponseBody ResponseEntity<?> excluir(@PathVariable Long codigo) {
-		try { service.excluir(codigo); }
-		catch (ImpossivelExcluirEntidadeException e) { return ResponseEntity.badRequest().body(e.getMessage()); }
+		try { service.excluir(codigo);
+	}
+		catch (ImpossivelExcluirEntidadeException e) { return ResponseEntity.badRequest().body(e.getMessage());
+	}
 		return ResponseEntity.ok().build();
 	}
 }

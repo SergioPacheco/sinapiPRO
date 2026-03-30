@@ -1,6 +1,5 @@
 package br.edu.ifrn.sinapiPRO.service;
 
-
 import java.time.LocalDateTime;
 
 import javax.persistence.PersistenceException;

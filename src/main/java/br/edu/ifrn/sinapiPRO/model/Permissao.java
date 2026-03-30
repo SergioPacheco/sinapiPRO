@@ -63,5 +63,4 @@ public class Permissao implements Serializable {
 			return false;
 		return true;
 	}
-
 }

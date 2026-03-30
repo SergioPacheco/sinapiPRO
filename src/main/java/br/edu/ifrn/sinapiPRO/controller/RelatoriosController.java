@@ -222,8 +222,13 @@ public class RelatoriosController {
 				.body(bytes);
 	}
 
-	private String val(Object o) { return o != null ? o.toString() : ""; }
-	private String dec(BigDecimal v) { return v != null ? v.toPlainString() : "0"; }
+	private String val(Object o) {
+		return o != null ? o.toString() : "";
+	}
+
+	private String dec(BigDecimal v) {
+		return v != null ? v.toPlainString() : "0";
+	}
 
 	@GetMapping("/cronograma/{codigo}")
 	public ResponseEntity<byte[]> relatorioCronograma(@PathVariable Long codigo) {

@@ -19,5 +19,4 @@ public class BasePrecoItemFilter {
 	public void setCodigoInsumo(String codigoInsumo) {
 		this.codigoInsumo = codigoInsumo;
 	}
-
 }

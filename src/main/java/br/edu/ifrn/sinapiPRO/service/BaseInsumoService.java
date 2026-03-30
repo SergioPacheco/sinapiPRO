@@ -43,13 +43,11 @@ public class BaseInsumoService  {
 		} catch (PersistenceException e) {
 			
 			throw new ImpossivelExcluirEntidadeException("Impossível apagar base. Já foi usado em alguma cerveja.");
-
 		}
 	}
 	
 	public List<BaseInsumo> findAll() {
 		return baseInsumosRepository.findAll();
 	}
-
 }
  

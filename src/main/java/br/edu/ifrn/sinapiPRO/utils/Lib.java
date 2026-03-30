@@ -49,11 +49,9 @@ public class Lib {
 				if (((Number) value).doubleValue() != 0) {
 
 					return false;
-
 				} else {
 
 					return true;
-
 				}
 			} else if (value instanceof List) {
 				return ((List<?>) value).isEmpty();
@@ -79,11 +77,9 @@ public class Lib {
 				if (((Number) value).doubleValue() != 0) {
 
 					return false;
-
 				} else {
 
 					return true;
-
 				}
 			} else if (value instanceof List) {
 				return ((List<?>) value).isEmpty();
@@ -355,7 +351,6 @@ public class Lib {
 			}
 
 			retorno = new StringBuilder(new DecimalFormat(cAux2.toString()).format(new BigDecimal(valor.toString()).setScale(decimais, BigDecimal.ROUND_HALF_UP)).replace(",", "."));
-
 		} else if (new Double(0).equals(valor.doubleValue())) {
 			retorno = new StringBuilder("0");
 		} else {
@@ -378,11 +373,9 @@ public class Lib {
 					}
 
 					retorno.append(new BigInteger(aRetorno[1]).toString());
-
 				} else {
 					retorno.append("." + new BigInteger(aRetorno[1]).toString());
 				}
-
 			}
 		}
 
@@ -626,7 +619,6 @@ public class Lib {
 		retorno = nf.format(campo);
 
 		return retorno.replaceAll(",", "");
-
 	}
 
 	/**
@@ -663,7 +655,6 @@ public class Lib {
 			}
 
 			return String.valueOf(cTarget).substring(nStart, nStart + nCount);
-
 		} catch (StringIndexOutOfBoundsException e) {
 			return "";
 		}
@@ -734,11 +725,9 @@ public class Lib {
 				cal.setLenient(false);
 				return cal.getTime();
 			}
-
 		} catch (Exception e) {
 			return null;
 		}
-
 	}
 
 	/**
@@ -769,7 +758,6 @@ public class Lib {
 		}
 
 		return cData;
-
 	}
 
 	/**
@@ -941,7 +929,6 @@ public class Lib {
 					nMes = 12;
 				}
 			}
-
 		} else {
 
 			nNumDat = (12 * nAno) + Month(data) - nQtdMes;
@@ -953,7 +940,6 @@ public class Lib {
 				nMes = Mod(nNumDat, 12);
 				nAno = nNumDat / 12;
 			}
-
 		}
 
 		if (diasmes(nMes, nAno) < nDia) {
@@ -1027,7 +1013,6 @@ public class Lib {
 		Calendar cal = Calendar.getInstance();
 		cal.set(ano, mes - 1, 1, 0, 0, 0);
 		return cal.getActualMaximum(Calendar.DAY_OF_MONTH);
-
 	}
 
 	/**
@@ -1062,15 +1047,12 @@ public class Lib {
 		if (lista instanceof Map) {
 
 			return ((Map) lista).size();
-
 		} else if (lista instanceof List) {
 
 			return ((List) lista).size();
-
 		} else if (lista instanceof Object[]) {
 
 			return ((Object[]) lista).length;
-
 		}
 		return null;
 	}
@@ -1105,7 +1087,6 @@ public class Lib {
 		} catch (NumberFormatException e) {
 			return 0d;
 		}
-
 	}
 
 	/**
@@ -1121,7 +1102,6 @@ public class Lib {
 		} else {
 			return "";
 		}
-
 	}
 
 	public static String UpperCase(String conteudo) {
@@ -1327,7 +1307,6 @@ public class Lib {
 							}
 						}
 					}
-
 				} else if (Len(cInteiroPar) == 2) {
 					if (Val(cInteiroPar) >= 10 && Val(cInteiroPar) <= 19) {
 						cValorPar += " e " + aEspeciais.get(Val(Lib.Substr(cInteiroPar, 1, 2)).intValue());
@@ -1337,7 +1316,6 @@ public class Lib {
 							cValorPar += " e " + aUnidade.get(Val(Lib.Substr(cInteiroPar, 2, 1)).intValue());
 						}
 					}
-
 				} else if (Len(cInteiroPar) == 1) {
 					if (Val(cInteiroPar) != 0) {
 						cValorPar += " e " + aUnidade.get(Val(Lib.Substr(cInteiroPar, 1, 1)).intValue());
@@ -1353,7 +1331,6 @@ public class Lib {
 				cCasas = " " + Lib.AllTrim(Lib.Str(Val(cCasas) + 1)) + " ";
 				cInteiroPar = "";
 			}
-
 		}
 
 		// Se sobrou número para processar
@@ -1372,7 +1349,6 @@ public class Lib {
 						cValorPar += " e " + aUnidade.get(Val(Lib.Substr(cInteiroPar, 2, 1)).intValue());
 					}
 				}
-
 			} else if (Len(cInteiroPar) == 1) {
 				if (Val(cInteiroPar) != 0) {
 
@@ -1400,7 +1376,6 @@ public class Lib {
 			} else {
 				cValor += " reais";
 			}
-
 		} else if (Upper(cIndice).equals("O") && Val(cInteiro) != 0) {
 			if (lInteiroSing) {
 				cValor += " inteiro";
@@ -1423,7 +1398,6 @@ public class Lib {
 				if (SLen(cFloat) == 2 && Lib.Substr(cFloat, 2, 1).equals("0")) {
 					cFloat = Lib.Substr(cFloat, 1, 1);
 				}
-
 			} else {
 				cValorPar = (Val(cInteiro) != 0 ? " e " : "");
 			}
@@ -1431,7 +1405,6 @@ public class Lib {
 			if (SLen(cFloat) == 2) {
 				if (Val(cFloat) >= 10 && Val(cFloat) <= 19) {
 					cValorPar += aEspeciais.get(Val(Lib.Substr(cFloat, 1, 2)).intValue());
-
 				} else {
 					cValorPar += aDezenas.get(Val(Lib.Substr(cFloat, 1, 1)).intValue());
 
@@ -1439,7 +1412,6 @@ public class Lib {
 						cValorPar += " e " + aUnidade.get(Val(Lib.Substr(cFloat, 2, 1)).intValue());
 					}
 				}
-
 			} else if (SLen(cFloat) == 1) {
 				if (Val(cFloat) != 0) {
 
@@ -1457,7 +1429,6 @@ public class Lib {
 				} else {
 					cValorPar += " centavos";
 				}
-
 			} else if (Upper(cIndice).equals("O")) {
 				if (lFloatSing) {
 					cValorPar += " milesimo";
@@ -1489,7 +1460,6 @@ public class Lib {
 		} else {
 			return campo.substring(0, campo.length());
 		}
-
 	}
 
 	/**
@@ -1521,7 +1491,6 @@ public class Lib {
 
 			if (mascara.charAt(1) == '!') {
 				return valor.toUpperCase();
-
 			} else if (mascara.charAt(1) == 'E') {
 
 				mascara = mascara.substring(2).trim();
@@ -1556,11 +1525,9 @@ public class Lib {
 				df.setMaximumIntegerDigits(inteiroMascara);
 				df.setMinimumIntegerDigits(inteiroCampo);
 				return df.format(campo);
-
 			} else if (mascara.charAt(1) == 'D') {
 
 				return SetaData(Today());
-
 			} else if (mascara.charAt(1) == 'S') {
 
 				mascara = mascara.substring(2).trim();
@@ -1594,7 +1561,6 @@ public class Lib {
 
 				return strCampo;
 			}
-
 		} else {
 
 			mascara = mascara.trim();
@@ -1624,7 +1590,6 @@ public class Lib {
 			df.setMinimumIntegerDigits(inteiroCampo);
 
 			return df.format(campo);
-
 		}
 
 		return "";
@@ -1644,7 +1609,6 @@ public class Lib {
 		} else {
 			return "";
 		}
-
 	}
 
 	/**
@@ -1698,13 +1662,11 @@ public class Lib {
 			if ((Long) campo >= (Long) valor1 && (Long) campo <= (Long) valor2) {
 				return true;
 			}
-
 		} else if (campo instanceof Double) {
 
 			if ((Double) campo >= (Double) valor1 && (Double) campo <= (Double) valor2) {
 				return true;
 			}
-
 		}
 		return false;
 	}
@@ -1820,7 +1782,6 @@ public class Lib {
 
 		DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 		return dateFormat.format(data);
-
 	}
 
 	/**
@@ -1837,7 +1798,6 @@ public class Lib {
 
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		return "'" + dateFormat.format(data) + "'";
-
 	}
 
 	/**
@@ -1854,7 +1814,6 @@ public class Lib {
 
 		DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 		return "'" + dateFormat.format(data) + "'";
-
 	}
 
 	/**
@@ -1871,7 +1830,6 @@ public class Lib {
 
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		return "'" + dateFormat.format(data) + "'";
-
 	}
 
 	/**
@@ -1888,7 +1846,6 @@ public class Lib {
 
 		DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 		return dateFormat.format(data);
-
 	}
 
 	/**
@@ -2151,7 +2108,6 @@ public class Lib {
 		Long retorno = Math.round(((m2.doubleValue() - m1.doubleValue()) / (24d * 60d * 60d * 1000d)));
 
 		return retorno;
-
 	}
 
 	/**
@@ -2261,7 +2217,6 @@ public class Lib {
 		return cal.getTime();
 	}
 
-
 	/**
 	 * Função que converte mes em extenso para um inteiro janeiro = 1 e assim por diante
 	 * */
@@ -2294,10 +2249,8 @@ public class Lib {
 			cReturn = 11;
 		} else if ("DEZEMBRO".equalsIgnoreCase(value)) {
 			cReturn = 12;
-
 		} else {
 			cReturn = 1;
-
 		}
 		return cReturn;
 	}
@@ -2326,13 +2279,11 @@ public class Lib {
 			while (leitor.ready()) {
 				retorno.append(leitor.readLine().replace("</br>", Lib.CRTL));
 			}
-
 		} finally {
 			leitor.close();
 		}
 
 		return retorno.toString();
-
 	}
 
 	
@@ -2364,7 +2315,6 @@ public class Lib {
 		}
 
 		return cTamanho;
-
 	}
 
 	/**
@@ -2425,9 +2375,7 @@ public class Lib {
 			DecimalFormat dfm = new DecimalFormat("###,###,##0.00######");
 			return dfm.format(valor);
 		}
-
 	}
-
 
 	/**
 	 * 
@@ -2448,7 +2396,6 @@ public class Lib {
 		df.setMaximumIntegerDigits(12);
 		df.setRoundingMode(RoundingMode.HALF_UP);
 		return df.format(numero);
-
 	}
 
 	public static int getArredondamento(char arr) {
@@ -2533,7 +2480,6 @@ public class Lib {
 
 		calendar.add(Calendar.DAY_OF_MONTH, -1);
 		return Lib.DiaInicioSemana(calendar.getTime());
-
 	}
 
 	/**
@@ -2557,7 +2503,6 @@ public class Lib {
 
 		calendar.add(Calendar.DAY_OF_MONTH, 1);
 		return Lib.DiaFimSemana(calendar.getTime());
-
 	}
 
 	public static String RetiraAcentuacao(String cText) {
@@ -2587,11 +2532,9 @@ public class Lib {
 			Lib.mapTipoDado.put(8L, "Text");
 			Lib.mapTipoDado.put(9L, "Decimal");
 			Lib.mapTipoDado.put(10L, "Varchar");
-
 		}
 
 		return Lib.mapTipoDado.get(nTipo);
-
 	}
 
 	/**
@@ -2647,7 +2590,6 @@ public class Lib {
 		}
 
 		return nRetorno;
-
 	}
 
 	/**
@@ -2688,7 +2630,6 @@ public class Lib {
 		}
 
 		return nRetorno;
-
 	}
 	
 
@@ -2710,7 +2651,6 @@ public class Lib {
 
 		SimpleDateFormat formatter = new SimpleDateFormat(formato);
 		return formatter.parse(data);
-
 	}
 
 	/**
@@ -2733,7 +2673,6 @@ public class Lib {
 		cal.set(Calendar.MILLISECOND, 0);
 
 		return cal.getTime();
-
 	}
 
 	/**
@@ -2756,7 +2695,6 @@ public class Lib {
 		cal.set(Calendar.MILLISECOND, 0);
 
 		return cal;
-
 	}
 
 	public static Date asDate(LocalDate localDate) {
@@ -2787,11 +2725,8 @@ public class Lib {
 				}
 
 				file.delete();
-
 			}
-
 		}
-
 	}
 
 	

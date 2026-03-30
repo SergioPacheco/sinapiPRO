@@ -38,21 +38,65 @@ public class Fornecedor implements Serializable {
 	@JoinColumn(name = "codigo_estado")
 	private Estado estado;
 
-	public Long getCodigo() { return codigo; }
-	public void setCodigo(Long codigo) { this.codigo = codigo; }
-	public String getNome() { return nome; }
-	public void setNome(String nome) { this.nome = nome; }
-	public String getCnpj() { return cnpj; }
-	public void setCnpj(String cnpj) { this.cnpj = cnpj; }
-	public String getTelefone() { return telefone; }
-	public void setTelefone(String telefone) { this.telefone = telefone; }
-	public String getEmail() { return email; }
-	public void setEmail(String email) { this.email = email; }
-	public String getCidade() { return cidade; }
-	public void setCidade(String cidade) { this.cidade = cidade; }
-	public Estado getEstado() { return estado; }
-	public void setEstado(Estado estado) { this.estado = estado; }
-	public boolean isNovo() { return codigo == null; }
+	public Long getCodigo() {
+		return codigo;
+	}
+
+	public void setCodigo(Long codigo) {
+		this.codigo = codigo;
+	}
+
+	public String getNome() {
+		return nome;
+	}
+
+	public void setNome(String nome) {
+		this.nome = nome;
+	}
+
+	public String getCnpj() {
+		return cnpj;
+	}
+
+	public void setCnpj(String cnpj) {
+		this.cnpj = cnpj;
+	}
+
+	public String getTelefone() {
+		return telefone;
+	}
+
+	public void setTelefone(String telefone) {
+		this.telefone = telefone;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getCidade() {
+		return cidade;
+	}
+
+	public void setCidade(String cidade) {
+		this.cidade = cidade;
+	}
+
+	public Estado getEstado() {
+		return estado;
+	}
+
+	public void setEstado(Estado estado) {
+		this.estado = estado;
+	}
+
+	public boolean isNovo() {
+		return codigo == null;
+	}
 
 	@Override
 	public int hashCode() {

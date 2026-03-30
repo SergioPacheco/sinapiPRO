@@ -1,7 +1,5 @@
 package br.edu.ifrn.sinapiPRO.repository.helper.baseprecos;
 
-
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -12,5 +10,4 @@ public interface BasePrecosRepositoryQueries {
 	
 	public Page<BasePreco> filtrar(BasePrecoFilter filtro, Pageable pageable);
 	
-
 }

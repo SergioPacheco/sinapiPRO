@@ -13,5 +13,4 @@ public interface ObrasRepository extends JpaRepository<Obra, Long>, ObrasReposit
 	public List<Obra> findByNomeStartingWithIgnoreCase(String nome);
 
 	public Optional<Obra> findByCei(String cei);
-
 }

@@ -10,9 +10,35 @@ public class DivisaoInsumo implements Serializable {
 	@GenericGenerator(name = "native", strategy = "native")
 	private Long codigo;
 	@NotBlank(message = "Nome é obrigatório") private String nome;
-	public Long getCodigo() { return codigo; } public void setCodigo(Long c) { this.codigo = c; }
-	public String getNome() { return nome; } public void setNome(String n) { this.nome = n; }
-	public boolean isNovo() { return codigo == null; }
-	@Override public int hashCode() { return codigo == null ? 0 : codigo.hashCode(); }
-	@Override public boolean equals(Object o) { if (!(o instanceof DivisaoInsumo)) return false; DivisaoInsumo x = (DivisaoInsumo) o; return codigo != null && codigo.equals(x.codigo); }
+	public Long getCodigo() {
+		return codigo;
+	}
+
+	public void setCodigo(Long codigo) {
+		this.codigo = codigo;
+	}
+
+	public String getNome() {
+		return nome;
+	}
+
+	public void setNome(String nome) {
+		this.nome = nome;
+	}
+
+	public boolean isNovo() {
+		return codigo == null;
+	}
+
+	@Override
+	public int hashCode() {
+		return codigo == null ? 0 : codigo.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof DivisaoInsumo)) return false;
+		DivisaoInsumo x = (DivisaoInsumo) o;
+		return codigo != null && codigo.equals(x.codigo);
+	}
 }

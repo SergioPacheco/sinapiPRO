@@ -299,7 +299,6 @@ public class ComposicaoController {
 		orcamentoService.salvar(orcamentoAtual.get()); 
 
 		return new ModelAndView("redirect:/atual");
-
 	}
 	
 }

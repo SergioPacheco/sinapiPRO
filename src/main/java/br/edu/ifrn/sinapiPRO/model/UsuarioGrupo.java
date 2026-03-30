@@ -43,5 +43,4 @@ public class UsuarioGrupo {
 			return false;
 		return true;
 	}
-
 }

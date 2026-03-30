@@ -1,6 +1,5 @@
 package br.edu.ifrn.sinapiPRO.repository;
 
-
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,8 +14,6 @@ public interface BasePrecoItemRepository extends JpaRepository<BasePrecoItem, Lo
 	public Optional<BasePrecoItem> findByBasePrecoAndCodigoInsumo(BasePreco basePreco, String codigoInsumo);
 	
 }
-
-
 
 /*
 @Query("  SELECT YEAR(bp.data_referencia), MONTH(bp.data_referencia), it.preco "

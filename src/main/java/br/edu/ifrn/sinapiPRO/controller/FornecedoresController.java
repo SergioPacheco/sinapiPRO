@@ -67,8 +67,10 @@ public class FornecedoresController {
 
 	@DeleteMapping("/{codigo}")
 	public @ResponseBody ResponseEntity<?> excluir(@PathVariable("codigo") Long codigo) {
-		try { service.excluir(codigo); }
-		catch (ImpossivelExcluirEntidadeException e) { return ResponseEntity.badRequest().body(e.getMessage()); }
+		try { service.excluir(codigo);
+	}
+		catch (ImpossivelExcluirEntidadeException e) { return ResponseEntity.badRequest().body(e.getMessage());
+	}
 		return ResponseEntity.ok().build();
 	}
 }

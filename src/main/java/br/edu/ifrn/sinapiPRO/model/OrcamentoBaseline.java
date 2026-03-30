@@ -33,16 +33,51 @@ public class OrcamentoBaseline {
 	@OneToMany(mappedBy = "baseline", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<OrcamentoBaselineItem> itens = new ArrayList<>();
 
-	public Long getCodigo() { return codigo; }
-	public void setCodigo(Long codigo) { this.codigo = codigo; }
-	public Orcamento getOrcamento() { return orcamento; }
-	public void setOrcamento(Orcamento orcamento) { this.orcamento = orcamento; }
-	public String getDescricao() { return descricao; }
-	public void setDescricao(String descricao) { this.descricao = descricao; }
-	public LocalDateTime getDataGravacao() { return dataGravacao; }
-	public void setDataGravacao(LocalDateTime dataGravacao) { this.dataGravacao = dataGravacao; }
-	public BigDecimal getValorTotal() { return valorTotal; }
-	public void setValorTotal(BigDecimal valorTotal) { this.valorTotal = valorTotal; }
-	public List<OrcamentoBaselineItem> getItens() { return itens; }
-	public void setItens(List<OrcamentoBaselineItem> itens) { this.itens = itens; }
+	public Long getCodigo() {
+		return codigo;
+	}
+
+	public void setCodigo(Long codigo) {
+		this.codigo = codigo;
+	}
+
+	public Orcamento getOrcamento() {
+		return orcamento;
+	}
+
+	public void setOrcamento(Orcamento orcamento) {
+		this.orcamento = orcamento;
+	}
+
+	public String getDescricao() {
+		return descricao;
+	}
+
+	public void setDescricao(String descricao) {
+		this.descricao = descricao;
+	}
+
+	public LocalDateTime getDataGravacao() {
+		return dataGravacao;
+	}
+
+	public void setDataGravacao(LocalDateTime dataGravacao) {
+		this.dataGravacao = dataGravacao;
+	}
+
+	public BigDecimal getValorTotal() {
+		return valorTotal;
+	}
+
+	public void setValorTotal(BigDecimal valorTotal) {
+		this.valorTotal = valorTotal;
+	}
+
+	public List<OrcamentoBaselineItem> getItens() {
+		return itens;
+	}
+
+	public void setItens(List<OrcamentoBaselineItem> itens) {
+		this.itens = itens;
+	}
 }

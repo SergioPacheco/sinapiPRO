@@ -75,7 +75,6 @@ public class OrcamentoService {
 		} catch (PersistenceException e) {
 			
 			throw new ImpossivelExcluirEntidadeException("Impossível excluir Orcamento.");
-
 		}
 	}
 	
