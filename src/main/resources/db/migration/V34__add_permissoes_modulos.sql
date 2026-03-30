@@ -1,7 +1,7 @@
 -- Adiciona permissões para os novos módulos
 -- Módulos: FINANCEIRO, COMERCIAL, SUPRIMENTOS, OBRAS, RH, ATENDIMENTO, ADMIN
 
-INSERT IGNORE INTO permissao (descricao) VALUES
+INSERT IGNORE INTO permissao (nome) VALUES
 ('ROLE_FINANCEIRO'),
 ('ROLE_COMERCIAL'),
 ('ROLE_SUPRIMENTOS'),
@@ -18,7 +18,7 @@ INSERT IGNORE INTO grupo_permissao (codigo_grupo, codigo_permissao)
 SELECT g.codigo, p.codigo
 FROM grupo g, permissao p
 WHERE g.nome = 'Administradores'
-  AND p.descricao IN ('ROLE_ADMIN', 'ROLE_FINANCEIRO', 'ROLE_COMERCIAL',
+  AND p.nome IN ('ROLE_ADMIN', 'ROLE_FINANCEIRO', 'ROLE_COMERCIAL',
                       'ROLE_SUPRIMENTOS', 'ROLE_OBRAS', 'ROLE_RH',
                       'ROLE_ATENDIMENTO', 'ROLE_CADASTRAR_ORCAMENTO',
                       'ROLE_CADASTRAR_USUARIO');
@@ -27,34 +27,34 @@ WHERE g.nome = 'Administradores'
 INSERT IGNORE INTO grupo_permissao (codigo_grupo, codigo_permissao)
 SELECT g.codigo, p.codigo
 FROM grupo g, permissao p
-WHERE g.nome = 'Financeiro' AND p.descricao = 'ROLE_FINANCEIRO';
+WHERE g.nome = 'Financeiro' AND p.nome = 'ROLE_FINANCEIRO';
 
 -- Associa permissão ao grupo Comercial
 INSERT IGNORE INTO grupo_permissao (codigo_grupo, codigo_permissao)
 SELECT g.codigo, p.codigo
 FROM grupo g, permissao p
-WHERE g.nome = 'Comercial' AND p.descricao = 'ROLE_COMERCIAL';
+WHERE g.nome = 'Comercial' AND p.nome = 'ROLE_COMERCIAL';
 
 -- Associa permissão ao grupo Suprimentos
 INSERT IGNORE INTO grupo_permissao (codigo_grupo, codigo_permissao)
 SELECT g.codigo, p.codigo
 FROM grupo g, permissao p
-WHERE g.nome = 'Suprimentos' AND p.descricao = 'ROLE_SUPRIMENTOS';
+WHERE g.nome = 'Suprimentos' AND p.nome = 'ROLE_SUPRIMENTOS';
 
 -- Associa permissão ao grupo Obras
 INSERT IGNORE INTO grupo_permissao (codigo_grupo, codigo_permissao)
 SELECT g.codigo, p.codigo
 FROM grupo g, permissao p
-WHERE g.nome = 'Obras' AND p.descricao = 'ROLE_OBRAS';
+WHERE g.nome = 'Obras' AND p.nome = 'ROLE_OBRAS';
 
 -- Associa permissão ao grupo RH
 INSERT IGNORE INTO grupo_permissao (codigo_grupo, codigo_permissao)
 SELECT g.codigo, p.codigo
 FROM grupo g, permissao p
-WHERE g.nome = 'RH' AND p.descricao = 'ROLE_RH';
+WHERE g.nome = 'RH' AND p.nome = 'ROLE_RH';
 
 -- Associa permissão ao grupo Atendimento
 INSERT IGNORE INTO grupo_permissao (codigo_grupo, codigo_permissao)
 SELECT g.codigo, p.codigo
 FROM grupo g, permissao p
-WHERE g.nome = 'Atendimento' AND p.descricao = 'ROLE_ATENDIMENTO';
+WHERE g.nome = 'Atendimento' AND p.nome = 'ROLE_ATENDIMENTO';
