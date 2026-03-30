@@ -39,3 +39,22 @@
 - **Verified:** Yes — BUILD SUCCESS
 
 <!-- Add new entries above this line -->
+
+### [2026-03-29] Migração Strato → SinapiPRO — COMPLETA (Fases 1-11)
+- **Spec:** plano-migracao-completa.md
+- **Task:** Sprints 9-37 (29 sprints)
+- **Files changed:** ~350 novos arquivos Java + ~120 templates + 19 migrations Flyway (V14-V32)
+- **What changed:** Implementação completa de todos os 11 módulos do Strato:
+  Orçamento Avançado, Cadastros, Operacional, Suprimentos, Financeiro,
+  Comercial, Mão de Obra, Financeiro Avançado, Atendimento/CRM, Faturamento, GED/Frota
+- **Why:** Migração incremental do sistema legado Strato para SinapiPRO (Spring Boot + Thymeleaf)
+- **Verified:** Yes — BUILD SUCCESS (498 source files, 0 errors)
+
+### [2026-03-29] Refatoração: formatação IntelliJ standard
+- **Spec:** coding-standards
+- **Task:** Reformatação de 289 arquivos Java
+- **Files changed:** 289 arquivos Java
+- **What changed:** Métodos expandidos, anotações em linhas separadas, getters/setters expandidos,
+  try-catch expandidos, parâmetros de setters renomeados para corresponder ao campo
+- **Why:** Padronização do código para o formato IntelliJ
+- **Verified:** Yes — BUILD SUCCESS (498 source files, 0 errors)
