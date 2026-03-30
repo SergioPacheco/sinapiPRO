@@ -54,9 +54,14 @@ public class EstoqueController {
 	
 	@PostMapping("/{codigo}/movimentar")
 	public ModelAndView movimentar(@PathVariable Long codigo,
-			@Valid MovimentoEstoque movimento, BindingResult r, RedirectAttributes a) {
-		service.movimentar(codigo, movimento);
-		a.addFlashAttribute("mensagem", "Movimento registrado!");
+			@Valid MovimentoEstoque movimento, BindingResult r, RedirectAttributes a,
+			@RequestParam(required = false) java.math.BigDecimal custoUnitario) {
+		try {
+			service.movimentar(codigo, movimento, custoUnitario);
+			a.addFlashAttribute("mensagem", "Movimento registrado com sucesso!");
+		} catch (RuntimeException ex) {
+			a.addFlashAttribute("erro", ex.getMessage());
+		}
 		return new ModelAndView("redirect:/estoque/" + codigo);
 	}
 }

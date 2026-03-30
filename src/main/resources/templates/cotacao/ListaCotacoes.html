@@ -30,7 +30,7 @@
 					<td th:text="${c.itens.size()}"></td>
 					<td th:text="${c.fornecedores.size()}"></td>
 					<td><span class="label" th:classappend="${c.situacao == 'ABERTA'} ? 'label-warning' : 'label-success'" th:text="${c.situacao}"></span></td>
-					<td class="text-center"><a class="btn btn-link btn-xs" th:href="@{/cotacoes/{c}(c=${c.codigo})}"><i class="glyphicon glyphicon-pencil"></i></a></td>
+					<td class="text-center"><a class="btn btn-link btn-xs" th:href="@{/cotacoes/{c}(c=${c.codigo})}"><i class="glyphicon glyphicon-pencil"></i></a> <a class="btn btn-link btn-xs" th:href="@{/cotacoes/{c}/analise(c=${c.codigo})}" title="Análise"><i class="glyphicon glyphicon-stats"></i></a></td>
 				</tr>
 				<tr th:if="${cotacoes.isEmpty()}"><td colspan="7">Nenhuma cotação encontrada</td></tr>
 			</tbody>

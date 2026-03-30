@@ -14,6 +14,7 @@ public class Estoque implements Serializable {
 	@NotNull @ManyToOne @JoinColumn(name = "codigo_insumo") private Insumo insumo;
 	@Column(name = "quantidade_atual") private BigDecimal quantidadeAtual = BigDecimal.ZERO;
 	@Column(name = "quantidade_minima") private BigDecimal quantidadeMinima = BigDecimal.ZERO;
+	@Column(name = "custo_medio") private BigDecimal custoMedio = BigDecimal.ZERO;
 	private String localizacao;
 	@OneToMany(mappedBy = "estoque", cascade = CascadeType.ALL, orphanRemoval = true) private List<MovimentoEstoque> movimentos = new ArrayList<>();
 	public Long getCodigo() {
@@ -68,6 +69,8 @@ public class Estoque implements Serializable {
 		return movimentos;
 	}
 
+	public BigDecimal getCustoMedio() { return custoMedio; }
+	public void setCustoMedio(BigDecimal custoMedio) { this.custoMedio = custoMedio; }
 	public boolean isNovo() {
 		return codigo == null;
 	}
