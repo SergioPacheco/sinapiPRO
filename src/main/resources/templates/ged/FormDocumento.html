@@ -3,8 +3,63 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/LayoutPadrao}">
 <head><title>Documento GED</title></head>
 <body><section layout:fragment="conteudo">
-<div class="page-header"><div class="container-fluid"><h1>Documento GED</h1></div></div>
+<div class="page-header"><div class="container-fluid"><div class="row">
+    <div class="col-sm-10">
+        <h1 th:if="${documentoGed.novo}">Novo Documento</h1>
+        <h1 th:unless="${documentoGed.novo}" th:text="|Documento: ${documentoGed.nome}|">Documento</h1>
+    </div>
+    <div class="col-sm-2"><a class="btn btn-default" th:href="@{/ged}"><i class="glyphicon glyphicon-arrow-left"></i></a></div>
+</div></div></div>
 <div class="container-fluid">
-<p class="text-muted">Módulo Documento GED — implementação básica. Acesse <a th:href="@{/ged}">/ged</a></p>
+<form method="POST" th:object="${documentoGed}"
+      th:action="${documentoGed.novo} ? @{/ged/novo} : @{/ged/{c}(c=${documentoGed.codigo})}">
+    <sinapiPRO:message/>
+    <input type="hidden" th:field="*{codigo}"/>
+    <div class="row">
+        <div class="form-group col-sm-6 sn-required" sinapiPRO:classforerror="nome">
+            <label class="control-label">Nome do Documento</label>
+            <input type="text" class="form-control" th:field="*{nome}"/>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="control-label">Tipo de Arquivo</label>
+            <select class="form-control" th:field="*{tipoArquivo}">
+                <option value="">Selecione...</option>
+                <option value="application/pdf">PDF</option>
+                <option value="image/jpeg">Imagem JPEG</option>
+                <option value="image/png">Imagem PNG</option>
+                <option value="application/vnd.ms-excel">Excel</option>
+                <option value="application/msword">Word</option>
+                <option value="text/plain">Texto</option>
+                <option value="application/zip">ZIP</option>
+            </select>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-sm-4">
+            <label class="control-label">Obra</label>
+            <select class="form-control" th:field="*{obra}">
+                <option value="">Nenhuma</option>
+                <option th:each="o : ${obras}" th:value="${o.codigo}" th:text="${o.nome}"></option>
+            </select>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="control-label">Cliente</label>
+            <select class="form-control" th:field="*{cliente}">
+                <option value="">Nenhum</option>
+                <option th:each="c : ${clientes}" th:value="${c.codigo}" th:text="${c.nome}"></option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label">Descrição</label>
+        <input type="text" class="form-control" th:field="*{descricao}"/>
+    </div>
+    <div class="form-group">
+        <label class="control-label">Caminho / URL do Arquivo</label>
+        <input type="text" class="form-control" th:field="*{caminho}"
+               placeholder="Ex: /documentos/obra1/contrato.pdf"/>
+    </div>
+    <button class="btn btn-primary" type="submit">Salvar</button>
+</form>
 </div>
 </section></body></html>

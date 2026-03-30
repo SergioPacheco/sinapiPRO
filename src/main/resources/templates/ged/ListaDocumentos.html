@@ -1,10 +1,58 @@
 <!DOCTYPE html>
 <html lang="pt" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/LayoutPadrao}">
-<head><title>GED - Documentos</title></head>
+<head><title>GED — Documentos</title></head>
 <body><section layout:fragment="conteudo">
-<div class="page-header"><div class="container-fluid"><h1>GED - Documentos</h1></div></div>
+<div class="page-header"><div class="container-fluid"><div class="row">
+    <div class="col-sm-8"><h1>GED — Gestão de Documentos</h1></div>
+    <div class="col-sm-4 text-right" style="margin-top:20px;">
+        <a class="btn btn-success" th:href="@{/ged/novo}"><i class="glyphicon glyphicon-plus"></i> Novo</a>
+    </div>
+</div></div></div>
 <div class="container-fluid">
-<p class="text-muted">Módulo GED - Documentos — implementação básica. Acesse <a th:href="@{/ged}">/ged</a></p>
+    <form method="GET" class="form-inline" style="margin-bottom:15px;">
+        <div class="form-group">
+            <label>Obra</label>
+            <select name="codigoObra" class="form-control" onchange="this.form.submit()">
+                <option value="">Todas as obras</option>
+                <option th:each="o : ${obras}" th:value="${o.codigo}" th:text="${o.nome}"
+                    th:selected="${codigoObra != null and codigoObra == o.codigo}"></option>
+            </select>
+        </div>
+    </form>
+    <div th:if="${documentos != null}">
+        <table class="table table-hover table-bordered">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Tipo</th>
+                    <th>Descrição</th>
+                    <th>Upload</th>
+                    <th class="text-right">Tamanho</th>
+                    <th class="table-col-acoes"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="d : ${documentos}">
+                    <td>
+                        <i class="glyphicon"
+                           th:classappend="${d.tipoArquivo != null and d.tipoArquivo.contains('pdf')} ? 'glyphicon-file' : 'glyphicon-paperclip'"></i>
+                        <span th:text="${d.nome}"></span>
+                    </td>
+                    <td th:text="${d.tipoArquivo}"></td>
+                    <td th:text="${d.descricao}"></td>
+                    <td th:text="${#temporals.format(d.dataUpload,'dd/MM/yyyy HH:mm')}"></td>
+                    <td class="text-right"
+                        th:text="${d.tamanho != null} ? ${#numbers.formatDecimal(d.tamanho / 1024.0, 1, 1) + ' KB'} : ''"></td>
+                    <td class="text-center">
+                        <a class="btn btn-link btn-xs" th:href="@{/ged/{c}(c=${d.codigo})}">
+                            <i class="glyphicon glyphicon-pencil"></i>
+                        </a>
+                    </td>
+                </tr>
+                <tr th:if="${documentos.isEmpty()}"><td colspan="6">Nenhum documento encontrado</td></tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 </section></body></html>

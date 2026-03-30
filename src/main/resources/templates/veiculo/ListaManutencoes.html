@@ -3,8 +3,51 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/LayoutPadrao}">
 <head><title>Manutenções</title></head>
 <body><section layout:fragment="conteudo">
-<div class="page-header"><div class="container-fluid"><h1>Manutenções</h1></div></div>
+<div class="page-header"><div class="container-fluid"><div class="row">
+    <div class="col-sm-8">
+        <h1>Manutenções — <small th:text="${veiculo.placa + ' ' + veiculo.modelo}"></small></h1>
+    </div>
+    <div class="col-sm-4 text-right" style="margin-top:20px;">
+        <a class="btn btn-default" th:href="@{/frota}"><i class="glyphicon glyphicon-arrow-left"></i></a>
+        <a class="btn btn-success" th:href="@{/frota/{c}/manutencao/novo(c=${veiculo.codigo})}">
+            <i class="glyphicon glyphicon-plus"></i> Agendar
+        </a>
+    </div>
+</div></div></div>
 <div class="container-fluid">
-<p class="text-muted">Módulo Manutenções — implementação básica. Acesse <a th:href="@{/frota}">/frota</a></p>
+<table class="table table-hover table-bordered">
+    <thead>
+        <tr>
+            <th>Tipo</th>
+            <th>Agendamento</th>
+            <th>Realização</th>
+            <th>KM</th>
+            <th class="text-right">Valor</th>
+            <th>Situação</th>
+            <th class="table-col-acoes"></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="a : ${agendamentos}"
+            th:classappend="${a.situacao == 'AGENDADO' and a.dataAgendamento.isBefore(T(java.time.LocalDate).now())} ? 'warning' : ''">
+            <td th:text="${a.tipoManutencao}"></td>
+            <td th:text="${#temporals.format(a.dataAgendamento,'dd/MM/yyyy')}"></td>
+            <td th:text="${a.dataRealizacao != null} ? ${#temporals.format(a.dataRealizacao,'dd/MM/yyyy')} : ''"></td>
+            <td th:text="${a.kmAtual}"></td>
+            <td class="text-right" th:text="${#numbers.formatDecimal(a.valor,1,2)}"></td>
+            <td>
+                <span class="label"
+                      th:classappend="${a.situacao == 'REALIZADO'} ? 'label-success' : (${a.situacao == 'AGENDADO'} ? 'label-warning' : 'label-default')"
+                      th:text="${a.situacao}"></span>
+            </td>
+            <td class="text-center">
+                <a class="btn btn-link btn-xs" th:href="@{/frota/{v}/manutencao/novo(v=${veiculo.codigo})}">
+                    <i class="glyphicon glyphicon-pencil"></i>
+                </a>
+            </td>
+        </tr>
+        <tr th:if="${agendamentos.isEmpty()}"><td colspan="7">Nenhuma manutenção registrada</td></tr>
+    </tbody>
+</table>
 </div>
 </section></body></html>

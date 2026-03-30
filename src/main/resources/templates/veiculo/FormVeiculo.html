@@ -3,8 +3,53 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/LayoutPadrao}">
 <head><title>Veículo</title></head>
 <body><section layout:fragment="conteudo">
-<div class="page-header"><div class="container-fluid"><h1>Veículo</h1></div></div>
+<div class="page-header"><div class="container-fluid"><div class="row">
+    <div class="col-sm-10">
+        <h1 th:if="${veiculo.novo}">Novo Veículo</h1>
+        <h1 th:unless="${veiculo.novo}" th:text="|Veículo: ${veiculo.placa}|">Veículo</h1>
+    </div>
+    <div class="col-sm-2"><a class="btn btn-default" th:href="@{/frota}"><i class="glyphicon glyphicon-arrow-left"></i></a></div>
+</div></div></div>
 <div class="container-fluid">
-<p class="text-muted">Módulo Veículo — implementação básica. Acesse <a th:href="@{/frota}">/frota</a></p>
+<form method="POST" th:object="${veiculo}"
+      th:action="${veiculo.novo} ? @{/frota/novo} : @{/frota/{c}(c=${veiculo.codigo})}">
+    <sinapiPRO:message/>
+    <input type="hidden" th:field="*{codigo}"/>
+    <div class="row">
+        <div class="form-group col-sm-2 sn-required" sinapiPRO:classforerror="placa">
+            <label class="control-label">Placa</label>
+            <input type="text" class="form-control text-uppercase" th:field="*{placa}" maxlength="10"/>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="control-label">Modelo</label>
+            <input type="text" class="form-control" th:field="*{modelo}"/>
+        </div>
+        <div class="form-group col-sm-3">
+            <label class="control-label">Marca</label>
+            <input type="text" class="form-control" th:field="*{marca}"/>
+        </div>
+        <div class="form-group col-sm-1">
+            <label class="control-label">Ano</label>
+            <input type="number" class="form-control" th:field="*{ano}" min="1990" max="2030"/>
+        </div>
+        <div class="form-group col-sm-2">
+            <label class="control-label">Tipo</label>
+            <select class="form-control" th:field="*{tipo}">
+                <option value="">Selecione...</option>
+                <option value="CARRO">Carro</option>
+                <option value="CAMINHAO">Caminhão</option>
+                <option value="MOTO">Moto</option>
+                <option value="VAN">Van</option>
+                <option value="MAQUINA">Máquina</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="checkbox-inline">
+            <input type="checkbox" th:field="*{ativo}"/> Ativo
+        </label>
+    </div>
+    <button class="btn btn-primary" type="submit">Salvar</button>
+</form>
 </div>
 </section></body></html>

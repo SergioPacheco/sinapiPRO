@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.math.BigDecimal;
@@ -30,9 +31,13 @@ import br.edu.ifrn.sinapiPRO.security.UsuarioSistema;
 import br.edu.ifrn.sinapiPRO.service.BaseInsumoService;
 import br.edu.ifrn.sinapiPRO.service.BasePrecoService;
 import br.edu.ifrn.sinapiPRO.service.ComissaoService;
+import br.edu.ifrn.sinapiPRO.service.DespesaService;
 import br.edu.ifrn.sinapiPRO.service.FreeMarkerReportService;
+import br.edu.ifrn.sinapiPRO.service.MovimentoBancarioService;
 import br.edu.ifrn.sinapiPRO.service.OrcamentoService;
 import br.edu.ifrn.sinapiPRO.service.PlanejamentoService;
+import br.edu.ifrn.sinapiPRO.service.PlanoContasService;
+import br.edu.ifrn.sinapiPRO.service.ReceitaService;
 import br.edu.ifrn.sinapiPRO.service.RelatorioService;
 import br.edu.ifrn.sinapiPRO.service.UnidadeVendaService;
 import br.edu.ifrn.sinapiPRO.service.VendaService;
@@ -453,6 +458,206 @@ public class RelatoriosController {
 		data.put("emissao", new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
 
 		byte[] pdf = freeMarkerReport.gerarPdf("resumo-corretor.ftl", data);
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE)
+				.body(pdf);
+	}
+
+	@Autowired
+	private DespesaService despesaService;
+
+	@Autowired
+	private ReceitaService receitaService;
+
+	@Autowired
+	private MovimentoBancarioService movimentoBancarioService;
+
+	@Autowired
+	private PlanoContasService planoContasService;
+
+	@GetMapping("/fluxoCaixa")
+	public ResponseEntity<byte[]> fluxoCaixa(
+			@RequestParam(required = false) Long codigoConta,
+			@RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate inicio,
+			@RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate fim) {
+
+		java.text.DecimalFormat df = new java.text.DecimalFormat("#,##0.00");
+		java.time.format.DateTimeFormatter dtf = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+		List<java.util.Map<String, String>> lancamentos = new java.util.ArrayList<>();
+		java.math.BigDecimal saldo = java.math.BigDecimal.ZERO;
+
+		// Receitas
+		receitaService.findAll().stream()
+				.filter(r -> r.getDataVencimento() != null)
+				.filter(r -> inicio == null || !r.getDataVencimento().isBefore(inicio))
+				.filter(r -> fim == null || !r.getDataVencimento().isAfter(fim))
+				.sorted(java.util.Comparator.comparing(r -> r.getDataVencimento()))
+				.forEach(r -> {
+					java.util.Map<String, String> row = new java.util.HashMap<>();
+					row.put("data", r.getDataVencimento().format(dtf));
+					row.put("descricao", r.getDescricao());
+					row.put("tipo", "CREDITO");
+					row.put("valor", df.format(r.getValor()));
+					row.put("saldo", "");
+					lancamentos.add(row);
+				});
+
+		// Despesas
+		despesaService.findAll().stream()
+				.filter(d -> d.getDataVencimento() != null)
+				.filter(d -> inicio == null || !d.getDataVencimento().isBefore(inicio))
+				.filter(d -> fim == null || !d.getDataVencimento().isAfter(fim))
+				.sorted(java.util.Comparator.comparing(d -> d.getDataVencimento()))
+				.forEach(d -> {
+					java.util.Map<String, String> row = new java.util.HashMap<>();
+					row.put("data", d.getDataVencimento().format(dtf));
+					row.put("descricao", d.getDescricao());
+					row.put("tipo", "DEBITO");
+					row.put("valor", df.format(d.getValor()));
+					row.put("saldo", "");
+					lancamentos.add(row);
+				});
+
+		// Ordena por data
+		lancamentos.sort(java.util.Comparator.comparing(m -> m.get("data")));
+
+		// Calcula saldo acumulado
+		java.math.BigDecimal saldoAcum = java.math.BigDecimal.ZERO;
+		for (java.util.Map<String, String> row : lancamentos) {
+			java.math.BigDecimal valor = new java.math.BigDecimal(row.get("valor").replace(".", "").replace(",", "."));
+			if ("CREDITO".equals(row.get("tipo"))) {
+				saldoAcum = saldoAcum.add(valor);
+			} else {
+				saldoAcum = saldoAcum.subtract(valor);
+			}
+			row.put("saldo", df.format(saldoAcum));
+		}
+
+		String periodo = (inicio != null ? inicio.format(dtf) : "Início") + " a " + (fim != null ? fim.format(dtf) : "Hoje");
+		java.util.Map<String, Object> data = new java.util.HashMap<>();
+		data.put("lancamentos", lancamentos);
+		data.put("saldoFinal", df.format(saldoAcum));
+		data.put("periodo", periodo);
+		data.put("emissao", new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
+
+		byte[] pdf = freeMarkerReport.gerarPdf("fluxo-caixa.ftl", data);
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE)
+				.body(pdf);
+	}
+
+	@GetMapping("/balancete")
+	public ResponseEntity<byte[]> balancete(
+			@RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate inicio,
+			@RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate fim) {
+
+		java.text.DecimalFormat df = new java.text.DecimalFormat("#,##0.00");
+		java.time.format.DateTimeFormatter dtf = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+		// Agrupa despesas por plano de contas
+		java.util.Map<String, java.math.BigDecimal[]> contaMap = new java.util.LinkedHashMap<>();
+
+		despesaService.findAll().forEach(d -> {
+			String conta = d.getPlanoContas() != null
+					? d.getPlanoContas().getNumero() + " - " + d.getPlanoContas().getDescricao()
+					: "Sem Conta";
+			contaMap.computeIfAbsent(conta, k -> new java.math.BigDecimal[]{java.math.BigDecimal.ZERO, java.math.BigDecimal.ZERO});
+			contaMap.get(conta)[1] = contaMap.get(conta)[1].add(d.getValor()); // débito
+		});
+
+		receitaService.findAll().forEach(r -> {
+			String conta = r.getPlanoContas() != null
+					? r.getPlanoContas().getNumero() + " - " + r.getPlanoContas().getDescricao()
+					: "Sem Conta";
+			contaMap.computeIfAbsent(conta, k -> new java.math.BigDecimal[]{java.math.BigDecimal.ZERO, java.math.BigDecimal.ZERO});
+			contaMap.get(conta)[0] = contaMap.get(conta)[0].add(r.getValor()); // crédito
+		});
+
+		java.math.BigDecimal totalDebito = java.math.BigDecimal.ZERO;
+		java.math.BigDecimal totalCredito = java.math.BigDecimal.ZERO;
+		List<java.util.Map<String, String>> contas = new java.util.ArrayList<>();
+
+		for (var entry : contaMap.entrySet()) {
+			java.util.Map<String, String> row = new java.util.HashMap<>();
+			String[] parts = entry.getKey().split(" - ", 2);
+			row.put("numero", parts[0]);
+			row.put("descricao", parts.length > 1 ? parts[1] : entry.getKey());
+			java.math.BigDecimal credito = entry.getValue()[0];
+			java.math.BigDecimal debito = entry.getValue()[1];
+			row.put("credito", df.format(credito));
+			row.put("debito", df.format(debito));
+			row.put("saldo", df.format(credito.subtract(debito)));
+			contas.add(row);
+			totalCredito = totalCredito.add(credito);
+			totalDebito = totalDebito.add(debito);
+		}
+
+		String periodo = (inicio != null ? inicio.format(dtf) : "Início") + " a " + (fim != null ? fim.format(dtf) : "Hoje");
+		java.util.Map<String, Object> data = new java.util.HashMap<>();
+		data.put("contas", contas);
+		data.put("totalCredito", df.format(totalCredito));
+		data.put("totalDebito", df.format(totalDebito));
+		data.put("saldoGeral", df.format(totalCredito.subtract(totalDebito)));
+		data.put("periodo", periodo);
+		data.put("emissao", new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
+
+		byte[] pdf = freeMarkerReport.gerarPdf("balancete.ftl", data);
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE)
+				.body(pdf);
+	}
+
+	@GetMapping("/dre")
+	public ResponseEntity<byte[]> dre(
+			@RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate inicio,
+			@RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate fim) {
+
+		java.text.DecimalFormat df = new java.text.DecimalFormat("#,##0.00");
+		java.time.format.DateTimeFormatter dtf = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+		// Agrupa receitas por plano de contas
+		java.util.Map<String, java.math.BigDecimal> receitasMap = new java.util.LinkedHashMap<>();
+		receitaService.findAll().forEach(r -> {
+			String desc = r.getPlanoContas() != null ? r.getPlanoContas().getDescricao() : "Receitas Diversas";
+			receitasMap.merge(desc, r.getValor(), java.math.BigDecimal::add);
+		});
+
+		// Agrupa despesas por plano de contas
+		java.util.Map<String, java.math.BigDecimal> despesasMap = new java.util.LinkedHashMap<>();
+		despesaService.findAll().forEach(d -> {
+			String desc = d.getPlanoContas() != null ? d.getPlanoContas().getDescricao() : "Despesas Diversas";
+			despesasMap.merge(desc, d.getValor(), java.math.BigDecimal::add);
+		});
+
+		java.math.BigDecimal totalReceitas = receitasMap.values().stream().reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+		java.math.BigDecimal totalDespesas = despesasMap.values().stream().reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+
+		List<java.util.Map<String, String>> receitas = receitasMap.entrySet().stream().map(e -> {
+			java.util.Map<String, String> row = new java.util.HashMap<>();
+			row.put("descricao", e.getKey());
+			row.put("valor", df.format(e.getValue()));
+			return row;
+		}).collect(java.util.stream.Collectors.toList());
+
+		List<java.util.Map<String, String>> despesas = despesasMap.entrySet().stream().map(e -> {
+			java.util.Map<String, String> row = new java.util.HashMap<>();
+			row.put("descricao", e.getKey());
+			row.put("valor", df.format(e.getValue()));
+			return row;
+		}).collect(java.util.stream.Collectors.toList());
+
+		String periodo = (inicio != null ? inicio.format(dtf) : "Início") + " a " + (fim != null ? fim.format(dtf) : "Hoje");
+		java.util.Map<String, Object> data = new java.util.HashMap<>();
+		data.put("receitas", receitas);
+		data.put("despesas", despesas);
+		data.put("totalReceitas", df.format(totalReceitas));
+		data.put("totalDespesas", df.format(totalDespesas));
+		data.put("resultado", df.format(totalReceitas.subtract(totalDespesas)));
+		data.put("periodo", periodo);
+		data.put("emissao", new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
+
+		byte[] pdf = freeMarkerReport.gerarPdf("dre.ftl", data);
 		return ResponseEntity.ok()
 				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE)
 				.body(pdf);
