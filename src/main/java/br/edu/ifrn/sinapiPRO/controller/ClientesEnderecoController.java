@@ -25,7 +25,7 @@ public class ClientesEnderecoController {
 		mv.addObject("codigoCliente", codigoCliente); return mv;
 	}
 	
-	@PostMapping({"/novo/{codigoCliente}","{\\d+}"})
+	@PostMapping({"/novo/{codigoCliente}", "/{codigo}"})
 	public ModelAndView cadastrar(@PathVariable Long codigoCliente, @Valid ClienteEndereco e, BindingResult r, RedirectAttributes a) {
 		if (r.hasErrors()) return novo(codigoCliente, e);
 		service.salvar(e); a.addFlashAttribute("mensagem", "Endereço salvo!"); return new ModelAndView("redirect:/clientesEndereco/cliente/" + codigoCliente);

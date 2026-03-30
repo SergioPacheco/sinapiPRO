@@ -36,7 +36,7 @@ public class FornecedoresController {
 		return mv;
 	}
 
-	@PostMapping({ "/novo", "{\\d+}" })
+	@PostMapping({ "/novo", "/{codigo}" })
 	public ModelAndView cadastrar(@Valid Fornecedor fornecedor, BindingResult result, RedirectAttributes attributes) {
 		if (result.hasErrors()) return novo(fornecedor);
 		try {

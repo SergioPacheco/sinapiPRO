@@ -27,7 +27,7 @@ public class CargosController {
 	}
 
 	
-	@PostMapping({"/novo","{\\d+}"})
+	@PostMapping({"/novo", "/{codigo}"})
 	public ModelAndView cadastrar(@Valid Cargo e, BindingResult r, RedirectAttributes a) {
 		if (r.hasErrors()) return novo(e);
 		try {

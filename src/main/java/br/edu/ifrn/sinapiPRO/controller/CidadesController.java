@@ -67,7 +67,7 @@ public class CidadesController {
 		return cidades.findByEstadoCodigo(codigoEstado);
 	}
 	
-	@RequestMapping(value = { "/nova", "{\\d+}" }, method = RequestMethod.POST)
+	@RequestMapping(value = { "/nova", "/{codigo}" }, method = RequestMethod.POST)
 	@CacheEvict(value = "cidades", //allEntries = true) 
 				key = "#cidade.estado.codigo", condition = "#cidade.temEstado()")
 	public ModelAndView salvar (@Valid Cidade cidade, BindingResult result, RedirectAttributes attributes){

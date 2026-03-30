@@ -37,7 +37,7 @@ public class TipoUnidadesController {
 		return new ModelAndView("tipounidade/CadastroTipoUnidade");
 	}
 
-	@PostMapping({ "/novo", "{\\d+}" })
+	@PostMapping({ "/novo", "/{codigo}" })
 	public ModelAndView cadastrar(@Valid TipoUnidade tipoUnidade, BindingResult result, RedirectAttributes attributes) {
 		if (result.hasErrors()) {
 			return novo(tipoUnidade);

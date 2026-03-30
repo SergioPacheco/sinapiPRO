@@ -37,7 +37,7 @@ public class EspecieInsumosController {
 		return new ModelAndView("especieinsumo/CadastroEspecieInsumo");
 	}
 
-	@PostMapping({ "/novo", "{\\d+}" })
+	@PostMapping({ "/novo", "/{codigo}" })
 	public ModelAndView cadastrar(@Valid EspecieInsumo especieInsumo, BindingResult result, RedirectAttributes attributes) {
 		if (result.hasErrors()) {
 			return novo(especieInsumo);

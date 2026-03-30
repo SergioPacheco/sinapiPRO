@@ -43,7 +43,7 @@ public class BaseInsumosController {
 		return new ModelAndView("baseInsumo/CadastroBaseInsumo");
 	}
 	
-	@RequestMapping(value = { "/nova", "{\\d+}" }, method = RequestMethod.POST)
+	@RequestMapping(value = { "/nova", "/{codigo}" }, method = RequestMethod.POST)
 	public ModelAndView cadastrar(@Valid BaseInsumo baseInsumo, BindingResult result, 
 			RedirectAttributes attributes){
 		

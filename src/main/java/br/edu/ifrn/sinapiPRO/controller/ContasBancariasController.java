@@ -29,7 +29,7 @@ public class ContasBancariasController {
 	}
 
 	
-	@PostMapping({"/novo","{\\d+}"})
+	@PostMapping({"/novo", "/{codigo}"})
 	public ModelAndView salvar(@Valid ContaBancaria c, BindingResult r, RedirectAttributes a) {
 		if (r.hasErrors()) return novo(c);
 		service.salvar(c); a.addFlashAttribute("mensagem", "Conta bancária salva!"); return new ModelAndView("redirect:/contasBancarias");

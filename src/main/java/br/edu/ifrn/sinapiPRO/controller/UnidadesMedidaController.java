@@ -30,7 +30,7 @@ public class UnidadesMedidaController {
 		return new ModelAndView("unidademedida/CadastroUnidadeMedida");
 	}
 
-	@PostMapping({"/novo", "{\\d+}"})
+	@PostMapping({"/novo", "/{codigo}"})
 	public ModelAndView cadastrar(@Valid UnidadeMedida u, BindingResult result, RedirectAttributes attributes) {
 		if (result.hasErrors()) return novo(u);
 		try { service.salvar(u);

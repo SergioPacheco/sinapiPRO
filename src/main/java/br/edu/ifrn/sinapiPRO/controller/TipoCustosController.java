@@ -37,7 +37,7 @@ public class TipoCustosController {
 		return new ModelAndView("tipocusto/CadastroTipoCusto");
 	}
 
-	@PostMapping({ "/novo", "{\\d+}" })
+	@PostMapping({ "/novo", "/{codigo}" })
 	public ModelAndView cadastrar(@Valid TipoCusto tipoCusto, BindingResult result, RedirectAttributes attributes) {
 		if (result.hasErrors()) {
 			return novo(tipoCusto);

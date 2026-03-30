@@ -66,7 +66,7 @@ public class OrcamentosController {
 		return mv;
 	}
 	 
-	@PostMapping({ "/novo", "{\\d+}" })
+	@PostMapping({ "/novo", "/{codigo}" })
 	public ModelAndView salvar(@Valid Orcamento orcamento,
 			                   BindingResult result,
 	 		                   RedirectAttributes attributes,

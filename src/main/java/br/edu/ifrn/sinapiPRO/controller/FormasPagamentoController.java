@@ -27,7 +27,7 @@ public class FormasPagamentoController {
 	}
 
 	
-	@PostMapping({"/novo","{\\d+}"})
+	@PostMapping({"/novo", "/{codigo}"})
 	public ModelAndView cadastrar(@Valid FormaPagamento fp, BindingResult r, RedirectAttributes a) {
 		if (r.hasErrors()) return novo(fp);
 		try {

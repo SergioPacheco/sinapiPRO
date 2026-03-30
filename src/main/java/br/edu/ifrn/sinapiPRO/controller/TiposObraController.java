@@ -27,7 +27,7 @@ public class TiposObraController {
 	}
 
 	
-	@PostMapping({"/novo","{\\d+}"})
+	@PostMapping({"/novo", "/{codigo}"})
 	public ModelAndView cadastrar(@Valid TipoObra t, BindingResult r, RedirectAttributes a) {
 		if (r.hasErrors()) return novo(t);
 		try {

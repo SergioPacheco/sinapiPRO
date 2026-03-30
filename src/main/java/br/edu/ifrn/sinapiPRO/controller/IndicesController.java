@@ -27,7 +27,7 @@ public class IndicesController {
 	}
 
 	
-	@PostMapping({"/novo","{\\d+}"})
+	@PostMapping({"/novo", "/{codigo}"})
 	public ModelAndView cadastrar(@Valid Indice i, BindingResult r, RedirectAttributes a) {
 		if (r.hasErrors()) return novo(i);
 		try {

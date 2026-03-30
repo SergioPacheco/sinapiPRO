@@ -27,7 +27,7 @@ public class DivisoesInsumoController {
 	}
 
 	
-	@PostMapping({"/novo","{\\d+}"})
+	@PostMapping({"/novo", "/{codigo}"})
 	public ModelAndView cadastrar(@Valid DivisaoInsumo d, BindingResult r, RedirectAttributes a) {
 		if (r.hasErrors()) return novo(d);
 		try {

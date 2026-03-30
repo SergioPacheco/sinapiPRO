@@ -43,7 +43,7 @@ public class ComposicaoClassesController {
 		return new ModelAndView("composicaoClasse/CadastroComposicaoClasse");
 	}
 	
-	@RequestMapping(value = { "/nova", "{\\d+}" }, method = RequestMethod.POST)
+	@RequestMapping(value = { "/nova", "/{codigo}" }, method = RequestMethod.POST)
 	public ModelAndView cadastrar(@Valid ComposicaoClasse composicaoClasse, BindingResult result, 
 			RedirectAttributes attributes){
 		if (result.hasErrors()) {

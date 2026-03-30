@@ -27,7 +27,7 @@ public class FuncoesController {
 	}
 
 	
-	@PostMapping({"/novo","{\\d+}"})
+	@PostMapping({"/novo", "/{codigo}"})
 	public ModelAndView cadastrar(@Valid Funcao e, BindingResult r, RedirectAttributes a) {
 		if (r.hasErrors()) return novo(e);
 		try {

@@ -84,7 +84,7 @@ public class AtualController {
 	 * SALVAR - Salva o Item do Orçamento
 	 * 
 	 */
-	@RequestMapping(value = { "/novo", "{\\d+}" }, method = RequestMethod.POST)
+	@RequestMapping(value = { "/novo", "/{codigo}" }, method = RequestMethod.POST)
 	public ModelAndView salvar(@Valid Item item,  AtualFilter filter,	
 			                          BindingResult result, Model model, 
 	 		                          RedirectAttributes attributes, 

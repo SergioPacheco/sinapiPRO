@@ -22,7 +22,7 @@ public class DiarioClimasController {
 	}
 
 	
-	@PostMapping({"/novo","{\\d+}"})
+	@PostMapping({"/novo", "/{codigo}"})
 	public ModelAndView cadastrar(@Valid DiarioClima e, BindingResult r, RedirectAttributes a) {
 		if (r.hasErrors()) return novo(e);
 		try {

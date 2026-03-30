@@ -30,7 +30,7 @@ public class SubDivisoesInsumoController {
 		mv.addObject("divisoes", divisaoService.findAll()); return mv;
 	}
 	
-	@PostMapping({"/novo","{\\d+}"})
+	@PostMapping({"/novo", "/{codigo}"})
 	public ModelAndView cadastrar(@Valid SubDivisaoInsumo s, BindingResult r, RedirectAttributes a) {
 		if (r.hasErrors()) return novo(s);
 		service.salvar(s); a.addFlashAttribute("mensagem", "Sub-divisão salva!"); return new ModelAndView("redirect:/subDivisoesInsumo/novo");

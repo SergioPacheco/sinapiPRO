@@ -59,7 +59,7 @@ public class EtapasController {
 		return mv;
 	}
 	
-	@RequestMapping(value = { "/nova", "{\\d+}" }, method = RequestMethod.POST)
+	@RequestMapping(value = { "/nova", "/{codigo}" }, method = RequestMethod.POST)
 	public ModelAndView cadastrar(@Valid Etapa etapa, BindingResult result, 
 			RedirectAttributes attributes){
 		if (result.hasErrors()) {

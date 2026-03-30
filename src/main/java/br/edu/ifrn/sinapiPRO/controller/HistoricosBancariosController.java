@@ -29,7 +29,7 @@ public class HistoricosBancariosController {
 	}
 
 	
-	@PostMapping({"/novo","{\\d+}"})
+	@PostMapping({"/novo", "/{codigo}"})
 	public ModelAndView salvar(@Valid HistoricoBancario h, BindingResult r, RedirectAttributes a) {
 		if (r.hasErrors()) return novo(h);
 		service.salvar(h); a.addFlashAttribute("mensagem", "Histórico salvo!"); return new ModelAndView("redirect:/historicosBancarios");

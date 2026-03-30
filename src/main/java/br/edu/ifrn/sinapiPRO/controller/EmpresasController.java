@@ -27,7 +27,7 @@ public class EmpresasController {
 	}
 
 	
-	@PostMapping({"/novo","{\\d+}"})
+	@PostMapping({"/novo", "/{codigo}"})
 	public ModelAndView cadastrar(@Valid Empresa e, BindingResult r, RedirectAttributes a) {
 		if (r.hasErrors()) return novo(e);
 		try {

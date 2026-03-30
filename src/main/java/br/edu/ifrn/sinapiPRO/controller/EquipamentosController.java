@@ -22,7 +22,7 @@ public class EquipamentosController {
 	}
 
 	
-	@PostMapping({"/novo","{\\d+}"})
+	@PostMapping({"/novo", "/{codigo}"})
 	public ModelAndView cadastrar(@Valid Equipamento e, BindingResult r, RedirectAttributes a) {
 		if (r.hasErrors()) return novo(e);
 		service.salvar(e); a.addFlashAttribute("mensagem", "Equipamento salvo!"); return new ModelAndView("redirect:/equipamentos/novo");

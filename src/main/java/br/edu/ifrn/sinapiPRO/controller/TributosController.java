@@ -43,7 +43,7 @@ public class TributosController {
 		return mv;
 	}
 
-	@PostMapping({ "/novo", "{\\d+}" })
+	@PostMapping({ "/novo", "/{codigo}" })
 	public ModelAndView cadastrar(@Valid Tributo tributo, BindingResult result, RedirectAttributes attributes) {
 		if (result.hasErrors()) {
 			return novo(tributo);

@@ -36,7 +36,7 @@ public class FuncionariosController {
 		return mv;
 	}
 	
-	@PostMapping({"/novo","{\\d+}"})
+	@PostMapping({"/novo", "/{codigo}"})
 	public ModelAndView cadastrar(@Valid Funcionario f, BindingResult r, RedirectAttributes a) {
 		if (r.hasErrors()) return novo(f);
 		service.salvar(f); a.addFlashAttribute("mensagem", "Funcionário salvo!"); return new ModelAndView("redirect:/funcionarios/novo");

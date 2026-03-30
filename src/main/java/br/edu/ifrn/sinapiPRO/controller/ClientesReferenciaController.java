@@ -25,7 +25,7 @@ public class ClientesReferenciaController {
 		mv.addObject("codigoCliente", codigoCliente); return mv;
 	}
 	
-	@PostMapping({"/novo/{codigoCliente}","{\\d+}"})
+	@PostMapping({"/novo/{codigoCliente}", "/{codigo}"})
 	public ModelAndView cadastrar(@PathVariable Long codigoCliente, @Valid ClienteReferencia r, BindingResult br, RedirectAttributes a) {
 		if (br.hasErrors()) return novo(codigoCliente, r);
 		service.salvar(r); a.addFlashAttribute("mensagem", "Referência salva!"); return new ModelAndView("redirect:/clientesReferencia/cliente/" + codigoCliente);

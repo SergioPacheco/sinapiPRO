@@ -37,7 +37,7 @@ public class TipoUsuariosController {
 		return new ModelAndView("tipousuario/CadastroTipoUsuario");
 	}
 
-	@PostMapping({ "/novo", "{\\d+}" })
+	@PostMapping({ "/novo", "/{codigo}" })
 	public ModelAndView cadastrar(@Valid TipoUsuario tipoUsuario, BindingResult result, RedirectAttributes attributes) {
 		if (result.hasErrors()) {
 			return novo(tipoUsuario);

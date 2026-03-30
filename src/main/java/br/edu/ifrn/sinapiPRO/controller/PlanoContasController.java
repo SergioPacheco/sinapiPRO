@@ -31,7 +31,7 @@ public class PlanoContasController {
 	}
 
 	
-	@PostMapping({"/novo","{\\d+}"})
+	@PostMapping({"/novo", "/{codigo}"})
 	public ModelAndView salvar(@Valid PlanoContas p, BindingResult r, RedirectAttributes a) {
 		if (r.hasErrors()) { ModelAndView mv = novo(p); mv.addObject(p); return mv;
 	}
