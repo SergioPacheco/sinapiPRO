@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/LayoutPadrao}">
+<head><title>Contratos</title></head>
+<body><section layout:fragment="conteudo">
+<div class="page-header"><div class="container-fluid"><div class="row">
+	<div class="col-sm-8"><h1>Contratos</h1></div>
+	<div class="col-sm-4 text-right" style="margin-top:20px;">
+		<a class="btn btn-success" th:href="@{/contratos/novo}"><i class="glyphicon glyphicon-plus"></i> Novo</a>
+	</div>
+</div></div></div>
+<div class="container-fluid">
+	<form method="GET" class="form-inline" style="margin-bottom:15px;">
+		<div class="form-group">
+			<label>Obra</label>
+			<select name="codigoObra" class="form-control" onchange="this.form.submit()">
+				<option value="">Selecione...</option>
+				<option th:each="o : ${obras}" th:value="${o.codigo}" th:text="${o.nome}"
+					th:selected="${codigoObra != null and codigoObra == o.codigo}"></option>
+			</select>
+		</div>
+	</form>
+	<div th:if="${contratos != null}">
+		<table class="table table-hover table-bordered">
+			<thead><tr><th>Número</th><th>Descrição</th><th>Início</th><th>Fim</th><th class="text-right">Valor Total</th><th>Situação</th><th class="table-col-acoes"></th></tr></thead>
+			<tbody>
+				<tr th:each="c : ${contratos}">
+					<td th:text="${c.numero}"></td><td th:text="${c.descricao}"></td>
+					<td th:text="${c.dataInicio != null} ? ${#temporals.format(c.dataInicio,'dd/MM/yyyy')} : ''"></td>
+					<td th:text="${c.dataFim != null} ? ${#temporals.format(c.dataFim,'dd/MM/yyyy')} : ''"></td>
+					<td class="text-right" th:text="${#numbers.formatDecimal(c.valorTotal,1,2)}"></td>
+					<td><span class="label" th:classappend="${c.situacao == 'ABERTO'} ? 'label-success' : 'label-default'" th:text="${c.situacao}"></span></td>
+					<td class="text-center">
+						<a class="btn btn-link btn-xs" th:href="@{/contratos/{c}(c=${c.codigo})}"><i class="glyphicon glyphicon-pencil"></i></a>
+						<a class="btn btn-link btn-xs" th:href="@{/medicoes/contrato/{c}(c=${c.codigo})}"><i class="glyphicon glyphicon-list-alt"></i> Medições</a>
+					</td>
+				</tr>
+				<tr th:if="${contratos.isEmpty()}"><td colspan="7">Nenhum contrato encontrado</td></tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+</section></body></html>

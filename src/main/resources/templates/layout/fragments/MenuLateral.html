@@ -64,6 +64,21 @@
         		
         		<li class="aw-menu__item">
           			<a href="#">
+          				<i class="fa  fa-1x  fa-file-text-o"></i><span>Contratos</span>
+            			<i class="aw-menu__navigation-icon  fa"></i>	
+          			</a>
+          			<ul class="aw-menu__list  aw-menu__list--sublist">
+          				<li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/contratos.*}">
+			            	<a th:href="@{/contratos}">Contratos</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/requisicoes.*}">
+			            	<a th:href="@{/requisicoes}">Requisições de Insumos</a>
+			            </li>
+          			</ul>
+        		</li>
+        		
+        		<li class="aw-menu__item">
+          			<a href="#">
           				<i class="fa  fa-1x  fa-book"></i><span>Diário de Obra</span>
             			<i class="aw-menu__navigation-icon  fa"></i>	
           			</a>

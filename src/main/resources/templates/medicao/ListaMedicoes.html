@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/LayoutPadrao}">
+<head><title>Medições</title></head>
+<body><section layout:fragment="conteudo">
+<div class="page-header"><div class="container-fluid"><div class="row">
+	<div class="col-sm-8"><h1>Medições — <small th:text="${contrato.descricao}"></small></h1></div>
+	<div class="col-sm-4 text-right" style="margin-top:20px;">
+		<a class="btn btn-default" th:href="@{/contratos}"><i class="glyphicon glyphicon-arrow-left"></i></a>
+		<a class="btn btn-success" th:href="@{/medicoes/novo/{c}(c=${contrato.codigo})}"><i class="glyphicon glyphicon-plus"></i> Nova Medição</a>
+	</div>
+</div></div></div>
+<div class="container-fluid">
+<table class="table table-hover table-bordered">
+	<thead><tr><th>#</th><th>Data</th><th>Período</th><th class="text-right">Valor Medido</th><th>Situação</th><th class="table-col-acoes"></th></tr></thead>
+	<tbody>
+		<tr th:each="m : ${medicoes}">
+			<td th:text="${m.numero}"></td>
+			<td th:text="${#temporals.format(m.dataMedicao,'dd/MM/yyyy')}"></td>
+			<td th:text="${m.dataInicio != null} ? ${#temporals.format(m.dataInicio,'dd/MM/yyyy') + ' a ' + #temporals.format(m.dataFim,'dd/MM/yyyy')} : ''"></td>
+			<td class="text-right" th:text="${#numbers.formatDecimal(m.valorMedido,1,2)}"></td>
+			<td><span class="label" th:classappend="${m.situacao == 'ABERTA'} ? 'label-success' : 'label-default'" th:text="${m.situacao}"></span></td>
+			<td class="text-center"><a class="btn btn-link btn-xs" th:href="@{/medicoes/{c}(c=${m.codigo})}"><i class="glyphicon glyphicon-pencil"></i></a></td>
+		</tr>
+		<tr th:if="${medicoes.isEmpty()}"><td colspan="6">Nenhuma medição encontrada</td></tr>
+	</tbody>
+</table>
+</div>
+</section></body></html>

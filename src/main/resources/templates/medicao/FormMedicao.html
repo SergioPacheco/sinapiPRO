@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/LayoutPadrao}">
+<head><title>Medição</title></head>
+<body><section layout:fragment="conteudo">
+<div class="page-header"><div class="container-fluid"><div class="row">
+	<div class="col-sm-10"><h1 th:if="${medicao.novo}">Nova Medição</h1><h1 th:unless="${medicao.novo}" th:text="|Medição #${medicao.numero}|">Medição</h1></div>
+	<div class="col-sm-2"><a class="btn btn-default" th:href="@{/medicoes/contrato/{c}(c=${contrato.codigo})}"><i class="glyphicon glyphicon-arrow-left"></i></a></div>
+</div></div></div>
+<div class="container-fluid">
+<form method="POST" th:object="${medicao}"
+	  th:action="${medicao.novo} ? @{/medicoes/novo/{c}(c=${contrato.codigo})} : @{/medicoes/{c}(c=${medicao.codigo})}">
+	<sinapiPRO:message/><input type="hidden" th:field="*{codigo}"/>
+	<input type="hidden" th:field="*{contrato.codigo}"/>
+	<input type="hidden" th:field="*{numero}"/>
+	<div class="row">
+		<div class="form-group col-sm-2 sn-required" sinapiPRO:classforerror="dataMedicao">
+			<label class="control-label">Data Medição</label><input type="date" class="form-control" th:field="*{dataMedicao}"/>
+		</div>
+		<div class="form-group col-sm-2"><label class="control-label">Início Período</label><input type="date" class="form-control" th:field="*{dataInicio}"/></div>
+		<div class="form-group col-sm-2"><label class="control-label">Fim Período</label><input type="date" class="form-control" th:field="*{dataFim}"/></div>
+		<div class="form-group col-sm-2">
+			<label class="control-label">Situação</label>
+			<select class="form-control" th:field="*{situacao}">
+				<option value="ABERTA">Aberta</option><option value="APROVADA">Aprovada</option><option value="PAGA">Paga</option>
+			</select>
+		</div>
+	</div>
+	<div class="form-group"><label class="control-label">Observação</label><textarea class="form-control" rows="2" th:field="*{observacao}"></textarea></div>
+	<h3>Itens Medidos</h3>
+	<table class="table table-bordered table-condensed">
+		<thead><tr><th>Item do Contrato</th><th>Qtd Medida</th><th>% Exec.</th><th>Valor Medido</th></tr></thead>
+		<tbody>
+			<tr th:each="item, stat : *{itens}">
+				<input type="hidden" th:field="*{itens[__${stat.index}__].codigo}"/>
+				<td>
+					<select class="form-control input-sm" th:field="*{itens[__${stat.index}__].contratoItem}">
+						<option th:each="ci : ${contrato.itens}" th:value="${ci.codigo}" th:text="${ci.descricao}"></option>
+					</select>
+				</td>
+				<td><input type="number" step="0.01" class="form-control input-sm" th:field="*{itens[__${stat.index}__].quantidadeMedida}" style="width:90px;"/></td>
+				<td><input type="number" step="0.01" class="form-control input-sm" th:field="*{itens[__${stat.index}__].percentualExecutado}" style="width:80px;"/></td>
+				<td><input type="number" step="0.01" class="form-control input-sm" th:field="*{itens[__${stat.index}__].valorMedido}" style="width:100px;"/></td>
+			</tr>
+		</tbody>
+	</table>
+	<div style="margin-top:20px;"><button class="btn btn-primary" type="submit">Salvar</button></div>
+</form>
+</div>
+</section></body></html>
