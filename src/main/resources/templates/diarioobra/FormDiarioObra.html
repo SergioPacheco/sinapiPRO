@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/LayoutPadrao}">
+<head><title>Diário de Obra</title></head>
+<body><section layout:fragment="conteudo">
+<div class="page-header"><div class="container-fluid"><div class="row">
+	<div class="col-sm-10"><h1 th:if="${diarioObra.novo}">Novo Diário de Obra</h1><h1 th:unless="${diarioObra.novo}" th:text="|Diário de ${#temporals.format(diarioObra.data, 'dd/MM/yyyy')}|">Diário</h1></div>
+	<div class="col-sm-2"><a class="btn btn-default" th:href="@{/diarioObra}"><i class="glyphicon glyphicon-arrow-left"></i></a></div>
+</div></div></div>
+<div class="container-fluid">
+<form method="POST" th:object="${diarioObra}"
+	  th:action="${diarioObra.novo} ? @{/diarioObra/novo} : @{/diarioObra/{c}(c=${diarioObra.codigo})}">
+	<sinapiPRO:message/><input type="hidden" th:field="*{codigo}"/>
+	<div class="row">
+		<div class="form-group col-sm-4 sn-required" sinapiPRO:classforerror="obra">
+			<label class="control-label">Obra</label>
+			<select class="form-control" th:field="*{obra}">
+				<option value="">Selecione...</option>
+				<option th:each="o : ${obras}" th:value="${o.codigo}" th:text="${o.nome}"></option>
+			</select>
+		</div>
+		<div class="form-group col-sm-2 sn-required" sinapiPRO:classforerror="data">
+			<label class="control-label">Data</label>
+			<input type="date" class="form-control" th:field="*{data}" />
+		</div>
+		<div class="form-group col-sm-3">
+			<label class="control-label">Clima</label>
+			<select class="form-control" th:field="*{clima}">
+				<option value="">Selecione...</option>
+				<option th:each="c : ${climas}" th:value="${c.codigo}" th:text="${c.nome}"></option>
+			</select>
+		</div>
+		<div class="form-group col-sm-3">
+			<label class="control-label">Área</label>
+			<select class="form-control" th:field="*{area}">
+				<option value="">Selecione...</option>
+				<option th:each="a : ${areas}" th:value="${a.codigo}" th:text="${a.nome}"></option>
+			</select>
+		</div>
+	</div>
+	<div class="row">
+		<div class="form-group col-sm-2"><label class="control-label">Entrada 1</label><input type="time" class="form-control" th:field="*{entrada1}" /></div>
+		<div class="form-group col-sm-2"><label class="control-label">Saída 1</label><input type="time" class="form-control" th:field="*{saida1}" /></div>
+		<div class="form-group col-sm-2"><label class="control-label">Entrada 2</label><input type="time" class="form-control" th:field="*{entrada2}" /></div>
+		<div class="form-group col-sm-2"><label class="control-label">Saída 2</label><input type="time" class="form-control" th:field="*{saida2}" /></div>
+	</div>
+	<div class="form-group">
+		<label class="control-label">Observação</label>
+		<textarea class="form-control" rows="3" th:field="*{observacao}"></textarea>
+	</div>
+
+	<!-- Aba Mão de Obra -->
+	<h3>Mão de Obra</h3>
+	<table class="table table-bordered table-condensed" id="tblMaoObra">
+		<thead><tr><th>Descrição</th><th>Qtd</th><th>Horas</th><th></th></tr></thead>
+		<tbody>
+			<tr th:each="m, stat : *{maoObra}">
+				<input type="hidden" th:field="*{maoObra[__${stat.index}__].codigo}"/>
+				<td><input type="text" class="form-control input-sm" th:field="*{maoObra[__${stat.index}__].descricao}"/></td>
+				<td><input type="number" class="form-control input-sm" th:field="*{maoObra[__${stat.index}__].quantidade}" style="width:80px;"/></td>
+				<td><input type="number" step="0.5" class="form-control input-sm" th:field="*{maoObra[__${stat.index}__].horasTrabalhadas}" style="width:80px;"/></td>
+				<td><button type="button" class="btn btn-xs btn-danger js-remove-row">×</button></td>
+			</tr>
+		</tbody>
+	</table>
+	<button type="button" class="btn btn-xs btn-default" onclick="addRow('tblMaoObra','maoObra')">+ Linha</button>
+
+	<!-- Aba Equipamentos -->
+	<h3>Equipamentos</h3>
+	<table class="table table-bordered table-condensed" id="tblEquip">
+		<thead><tr><th>Descrição</th><th>Qtd</th><th>Horas</th><th></th></tr></thead>
+		<tbody>
+			<tr th:each="e, stat : *{equipamentos}">
+				<input type="hidden" th:field="*{equipamentos[__${stat.index}__].codigo}"/>
+				<td><input type="text" class="form-control input-sm" th:field="*{equipamentos[__${stat.index}__].descricao}"/></td>
+				<td><input type="number" class="form-control input-sm" th:field="*{equipamentos[__${stat.index}__].quantidade}" style="width:80px;"/></td>
+				<td><input type="number" step="0.5" class="form-control input-sm" th:field="*{equipamentos[__${stat.index}__].horasTrabalhadas}" style="width:80px;"/></td>
+				<td><button type="button" class="btn btn-xs btn-danger js-remove-row">×</button></td>
+			</tr>
+		</tbody>
+	</table>
+	<button type="button" class="btn btn-xs btn-default" onclick="addRow('tblEquip','equipamentos')">+ Linha</button>
+
+	<!-- Aba Ocorrências -->
+	<h3>Ocorrências</h3>
+	<table class="table table-bordered table-condensed" id="tblOcorr">
+		<thead><tr><th>Descrição</th><th>Acidente</th><th></th></tr></thead>
+		<tbody>
+			<tr th:each="o, stat : *{ocorrencias}">
+				<input type="hidden" th:field="*{ocorrencias[__${stat.index}__].codigo}"/>
+				<td><textarea class="form-control input-sm" rows="2" th:field="*{ocorrencias[__${stat.index}__].descricao}"></textarea></td>
+				<td>
+					<select class="form-control input-sm" th:field="*{ocorrencias[__${stat.index}__].acidente}">
+						<option value="">Nenhum</option>
+						<option th:each="a : ${acidentes}" th:value="${a.codigo}" th:text="${a.nome}"></option>
+					</select>
+				</td>
+				<td><button type="button" class="btn btn-xs btn-danger js-remove-row">×</button></td>
+			</tr>
+		</tbody>
+	</table>
+	<button type="button" class="btn btn-xs btn-default" onclick="addRow('tblOcorr','ocorrencias')">+ Linha</button>
+
+	<!-- Aba Serviços -->
+	<h3>Serviços Executados</h3>
+	<table class="table table-bordered table-condensed" id="tblServ">
+		<thead><tr><th>Descrição</th><th>Qtd</th><th>Un</th><th>% Exec.</th><th></th></tr></thead>
+		<tbody>
+			<tr th:each="s, stat : *{servicos}">
+				<input type="hidden" th:field="*{servicos[__${stat.index}__].codigo}"/>
+				<td><input type="text" class="form-control input-sm" th:field="*{servicos[__${stat.index}__].descricao}"/></td>
+				<td><input type="number" step="0.01" class="form-control input-sm" th:field="*{servicos[__${stat.index}__].quantidade}" style="width:80px;"/></td>
+				<td><input type="text" class="form-control input-sm" th:field="*{servicos[__${stat.index}__].unidade}" style="width:60px;"/></td>
+				<td><input type="number" step="0.01" class="form-control input-sm" th:field="*{servicos[__${stat.index}__].percentualExecutado}" style="width:80px;"/></td>
+				<td><button type="button" class="btn btn-xs btn-danger js-remove-row">×</button></td>
+			</tr>
+		</tbody>
+	</table>
+	<button type="button" class="btn btn-xs btn-default" onclick="addRow('tblServ','servicos')">+ Linha</button>
+
+	<div style="margin-top:20px;">
+		<button class="btn btn-primary" type="submit">Salvar</button>
+	</div>
+</form>
+</div>
+<script>
+function addRow(tableId, prefix) {
+	var tbody = document.getElementById(tableId).querySelector('tbody');
+	var idx = tbody.rows.length;
+	var row = tbody.insertRow();
+	row.innerHTML = '<td><input type="text" class="form-control input-sm" name="' + prefix + '[' + idx + '].descricao"/></td>' +
+		'<td><input type="number" class="form-control input-sm" name="' + prefix + '[' + idx + '].quantidade" value="0" style="width:80px;"/></td>' +
+		'<td><button type="button" class="btn btn-xs btn-danger js-remove-row">×</button></td>';
+}
+document.addEventListener('click', function(e) {
+	if (e.target.classList.contains('js-remove-row')) e.target.closest('tr').remove();
+});
+</script>
+</section></body></html>

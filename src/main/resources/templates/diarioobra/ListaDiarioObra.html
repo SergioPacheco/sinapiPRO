@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/LayoutPadrao}">
+<head><title>Diário de Obra</title></head>
+<body><section layout:fragment="conteudo">
+<div class="page-header"><div class="container-fluid"><div class="row">
+	<div class="col-sm-8"><h1>Diário de Obra</h1></div>
+	<div class="col-sm-4 text-right" style="margin-top:20px;">
+		<a class="btn btn-success" th:href="@{/diarioObra/novo}"><i class="glyphicon glyphicon-plus"></i> Novo Diário</a>
+	</div>
+</div></div></div>
+<div class="container-fluid">
+	<form method="GET" class="form-inline" style="margin-bottom:15px;">
+		<div class="form-group">
+			<label>Obra</label>
+			<select name="codigoObra" class="form-control" onchange="this.form.submit()">
+				<option value="">Selecione uma obra...</option>
+				<option th:each="o : ${obras}" th:value="${o.codigo}" th:text="${o.nome}"
+					th:selected="${codigoObra != null and codigoObra == o.codigo}"></option>
+			</select>
+		</div>
+	</form>
+	<div th:if="${diarios != null}">
+		<table class="table table-hover table-bordered">
+			<thead><tr><th>Data</th><th>Clima</th><th>Área</th><th>Entrada/Saída</th><th class="table-col-acoes"></th></tr></thead>
+			<tbody>
+				<tr th:each="d : ${diarios}">
+					<td th:text="${#temporals.format(d.data, 'dd/MM/yyyy')}"></td>
+					<td th:text="${d.clima != null} ? ${d.clima.nome} : ''"></td>
+					<td th:text="${d.area != null} ? ${d.area.nome} : ''"></td>
+					<td th:text="${d.entrada1 + ' / ' + d.saida1}"></td>
+					<td class="text-center">
+						<a class="btn btn-link btn-xs" th:href="@{/diarioObra/{c}(c=${d.codigo})}"><i class="glyphicon glyphicon-pencil"></i></a>
+					</td>
+				</tr>
+				<tr th:if="${diarios.isEmpty()}"><td colspan="5">Nenhum diário encontrado para esta obra</td></tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+</section></body></html>

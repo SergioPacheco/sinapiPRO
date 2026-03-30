@@ -61,6 +61,27 @@
           			</a>
           			
         		</li>
+        		
+        		<li class="aw-menu__item">
+          			<a href="#">
+          				<i class="fa  fa-1x  fa-book"></i><span>Diário de Obra</span>
+            			<i class="aw-menu__navigation-icon  fa"></i>	
+          			</a>
+          			<ul class="aw-menu__list  aw-menu__list--sublist">
+          				<li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/diarioObra.*}">
+			            	<a th:href="@{/diarioObra}">Diários</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/diarioClimas.*}">
+			            	<a th:href="@{/diarioClimas}">Climas</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/diarioAreas.*}">
+			            	<a th:href="@{/diarioAreas}">Áreas</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/diarioAcidentes.*}">
+			            	<a th:href="@{/diarioAcidentes}">Acidentes</a>
+			            </li>
+          			</ul>
+        		</li>
        		      		
         		<li class="aw-menu__item" sinapiPRO:menu="@{/insumos.*}">
           			<a th:href="@{/insumos}">
