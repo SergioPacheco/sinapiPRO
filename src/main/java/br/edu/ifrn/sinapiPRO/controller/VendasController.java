@@ -77,4 +77,54 @@ public class VendasController {
         mv.addObject("clientes", clienteRepository.findAll());
         return mv;
     }
+
+    @Autowired
+    private br.edu.ifrn.sinapiPRO.service.VendaParcelasService vendaParcelasService;
+
+    @Autowired
+    private br.edu.ifrn.sinapiPRO.repository.IndicesRepository indicesRepository;
+
+    @GetMapping("/{codigo}/parcelas")
+    public ModelAndView formParcelas(@PathVariable Long codigo) {
+        Venda venda = service.buscarComParcelas(codigo);
+        ModelAndView mv = new ModelAndView("venda/FormGerarParcelas");
+        mv.addObject("venda", venda);
+        mv.addObject("indices", indicesRepository.findAll());
+        return mv;
+    }
+
+    @PostMapping("/{codigo}/parcelas/gerar")
+    public ModelAndView gerarParcelas(@PathVariable Long codigo,
+            @RequestParam java.math.BigDecimal percentualEntrada,
+            @RequestParam int numeroParcelas,
+            @RequestParam(defaultValue = "0") java.math.BigDecimal percentualChaves,
+            @RequestParam(defaultValue = "10") int diaVencimento,
+            @RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dataInicio,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes attributes) {
+        try {
+            java.util.List<br.edu.ifrn.sinapiPRO.model.ParcelaVenda> parcelas =
+                    vendaParcelasService.gerarParcelas(codigo, percentualEntrada,
+                            numeroParcelas, percentualChaves, diaVencimento, dataInicio);
+            attributes.addFlashAttribute("mensagem",
+                    parcelas.size() + " parcelas geradas com sucesso!");
+        } catch (RuntimeException e) {
+            attributes.addFlashAttribute("erro", e.getMessage());
+        }
+        return new ModelAndView("redirect:/vendas/" + codigo + "/parcelas");
+    }
+
+    @PostMapping("/{codigo}/parcelas/reajustar")
+    public ModelAndView reajustarParcelas(@PathVariable Long codigo,
+            @RequestParam Long codigoIndice,
+            @RequestParam java.math.BigDecimal percentualIndice,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes attributes) {
+        try {
+            int count = vendaParcelasService.reajustarParcelas(codigo, codigoIndice, percentualIndice);
+            attributes.addFlashAttribute("mensagem",
+                    count + " parcelas reajustadas em " + percentualIndice + "%");
+        } catch (RuntimeException e) {
+            attributes.addFlashAttribute("erro", e.getMessage());
+        }
+        return new ModelAndView("redirect:/vendas/" + codigo + "/parcelas");
+    }
 }

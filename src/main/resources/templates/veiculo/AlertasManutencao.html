@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/LayoutPadrao}">
+<head><title>Alertas de Manutenção</title></head>
+<body><section layout:fragment="conteudo">
+<div class="page-header"><div class="container-fluid"><div class="row">
+    <div class="col-sm-8"><h1>Alertas de Manutenção da Frota</h1></div>
+    <div class="col-sm-4 text-right" style="margin-top:20px;">
+        <a class="btn btn-default" th:href="@{/frota}"><i class="glyphicon glyphicon-arrow-left"></i></a>
+    </div>
+</div></div></div>
+<div class="container-fluid">
+    <div th:if="${alertas.isEmpty()}" class="alert alert-success">
+        <i class="glyphicon glyphicon-ok"></i> Nenhum alerta de manutenção no momento.
+    </div>
+    <div th:unless="${alertas.isEmpty()}">
+        <div class="alert alert-warning">
+            <strong th:text="${alertas.size() + ' alerta(s) de manutenção'}"></strong>
+        </div>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Nível</th>
+                    <th>Veículo</th>
+                    <th>Mensagem</th>
+                    <th>Tipo</th>
+                    <th class="table-col-acoes"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="a : ${alertas}"
+                    th:classappend="${a.nivel == 'CRITICO'} ? 'danger' : (${a.nivel == 'ALTO'} ? 'warning' : '')">
+                    <td>
+                        <span class="label"
+                              th:classappend="${a.nivel == 'CRITICO'} ? 'label-danger' : (${a.nivel == 'ALTO'} ? 'label-warning' : 'label-info')"
+                              th:text="${a.nivel}"></span>
+                    </td>
+                    <td>
+                        <strong th:text="${a.veiculo.placa}"></strong>
+                        <span class="text-muted" th:text="| ${a.veiculo.modelo}|"></span>
+                    </td>
+                    <td th:text="${a.mensagem}"></td>
+                    <td><span class="label label-default" th:text="${a.tipo}"></span></td>
+                    <td class="text-center">
+                        <a class="btn btn-xs btn-default"
+                           th:href="@{/frota/{c}/manutencao(c=${a.veiculo.codigo})}">
+                            <i class="glyphicon glyphicon-wrench"></i> Agendar
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</section></body></html>

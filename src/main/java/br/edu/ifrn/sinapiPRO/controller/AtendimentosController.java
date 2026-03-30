@@ -23,4 +23,35 @@ public class AtendimentosController {
     private ModelAndView form(Atendimento a) {
         ModelAndView mv = new ModelAndView("atendimento/FormAtendimento");
         mv.addObject("atendimento", a); mv.addObject("clientes", clienteRepository.findAll()); mv.addObject("obras", obraRepository.findAll()); return mv; }
+
+    @Autowired
+    private br.edu.ifrn.sinapiPRO.service.AtendimentoSlaService slaService;
+
+    @PostMapping("/{codigo}/encerrar")
+    public ModelAndView encerrar(@PathVariable Long codigo,
+            @RequestParam(required = false) String observacaoEncerramento,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes attrs) {
+        try {
+            slaService.encerrar(codigo, observacaoEncerramento);
+            attrs.addFlashAttribute("mensagem", "Atendimento encerrado com sucesso!");
+        } catch (RuntimeException e) {
+            attrs.addFlashAttribute("erro", e.getMessage());
+        }
+        return new ModelAndView("redirect:/atendimentos");
+    }
+
+    @PostMapping("/processarEscalacoes")
+    public ModelAndView processarEscalacoes(org.springframework.web.servlet.mvc.support.RedirectAttributes attrs) {
+        int count = slaService.processarEscalacoes();
+        attrs.addFlashAttribute("mensagem", count + " atendimento(s) escalado(s) por SLA vencido.");
+        return new ModelAndView("redirect:/atendimentos");
+    }
+
+    @GetMapping("/emRisco")
+    public ModelAndView emRisco() {
+        ModelAndView mv = new ModelAndView("atendimento/ListaAtendimentos");
+        mv.addObject("atendimentos", slaService.findAtendimentosEmRisco());
+        mv.addObject("titulo", "Atendimentos em Risco de SLA");
+        return mv;
+    }
 }

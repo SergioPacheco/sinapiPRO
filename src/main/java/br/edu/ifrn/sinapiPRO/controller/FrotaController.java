@@ -29,4 +29,14 @@ public class FrotaController {
     @DeleteMapping("/{codigo}") public @ResponseBody ResponseEntity<?> excluir(@PathVariable Long codigo) {
         try { service.excluirVeiculo(codigo); } catch (ImpossivelExcluirEntidadeException e) { return ResponseEntity.badRequest().body(e.getMessage()); }
         return ResponseEntity.ok().build(); }
+
+    @Autowired
+    private br.edu.ifrn.sinapiPRO.service.AlertaManutencaoService alertaService;
+
+    @GetMapping("/alertas")
+    public ModelAndView alertas() {
+        ModelAndView mv = new ModelAndView("veiculo/AlertasManutencao");
+        mv.addObject("alertas", alertaService.gerarAlertas());
+        return mv;
+    }
 }

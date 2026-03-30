@@ -77,4 +77,21 @@ public class DiarioObraController {
 		mv.addObject("acidentes", acidenteService.findAll());
 		return mv;
 	}
+
+	@Autowired
+	private br.edu.ifrn.sinapiPRO.service.AvancoFisicoService avancoFisicoService;
+
+	@GetMapping("/avanco/{codigoObra}")
+	public ModelAndView avanco(@PathVariable Long codigoObra,
+			@RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate inicio,
+			@RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate fim) {
+		ModelAndView mv = new ModelAndView("diarioobra/AvancoFisico");
+		mv.addObject("obra", obraRepository.findById(codigoObra).orElse(null));
+		mv.addObject("servicos", avancoFisicoService.calcularAvancoPorServico(codigoObra, inicio, fim));
+		mv.addObject("avancoGeral", avancoFisicoService.calcularAvancoGeral(codigoObra));
+		mv.addObject("curva", avancoFisicoService.gerarCurvaAvanco(codigoObra));
+		mv.addObject("inicio", inicio);
+		mv.addObject("fim", fim);
+		return mv;
+	}
 }
