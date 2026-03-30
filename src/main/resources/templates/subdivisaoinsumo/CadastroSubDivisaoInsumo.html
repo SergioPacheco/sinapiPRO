@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/LayoutPadrao}">
+<head><title>Cadastro de Sub-Divisão de Insumo</title></head>
+<body><section layout:fragment="conteudo">
+<div class="page-header"><div class="container-fluid"><div class="row">
+	<div class="col-sm-10"><h1 th:if="${subDivisaoInsumo.novo}">Cadastro de Sub-Divisão de Insumo</h1><h1 th:unless="${subDivisaoInsumo.novo}" th:text="|Edição de ${subDivisaoInsumo.nome}|">Edição</h1></div>
+	<div class="col-sm-2"><a class="btn btn-default" th:href="@{/subDivisoesInsumo}"><i class="glyphicon glyphicon-search"></i></a></div>
+</div></div></div>
+<div class="container-fluid">
+<form method="POST" th:object="${subDivisaoInsumo}" th:action="${subDivisaoInsumo.novo} ? @{/subDivisoesInsumo/novo} : @{/subDivisoesInsumo/{c}(c=${subDivisaoInsumo.codigo})}">
+	<sinapiPRO:message/><input type="hidden" th:field="*{codigo}"/>
+	<div class="row">
+		<div class="form-group col-sm-6 sn-required" sinapiPRO:classforerror="nome">
+			<label class="control-label">Nome</label><input type="text" class="form-control" th:field="*{nome}" />
+		</div>
+		<div class="form-group col-sm-4 sn-required" sinapiPRO:classforerror="divisao">
+			<label class="control-label">Divisão</label>
+			<select class="form-control" th:field="*{divisao}">
+				<option value="">Selecione...</option>
+				<option th:each="d : ${divisoes}" th:value="${d.codigo}" th:text="${d.nome}"></option>
+			</select>
+		</div>
+	</div>
+	<button class="btn btn-primary" type="submit">Salvar</button>
+</form></div>
+</section></body></html>

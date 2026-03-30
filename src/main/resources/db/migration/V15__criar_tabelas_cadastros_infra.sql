@@ -1,0 +1,40 @@
+CREATE TABLE unidade_medida (
+    codigo BIGINT NOT NULL AUTO_INCREMENT,
+    nome VARCHAR(100) NOT NULL,
+    sigla VARCHAR(20) NOT NULL,
+    PRIMARY KEY (codigo)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE divisao_insumo (
+    codigo BIGINT NOT NULL AUTO_INCREMENT,
+    nome VARCHAR(100) NOT NULL,
+    PRIMARY KEY (codigo)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE sub_divisao_insumo (
+    codigo BIGINT NOT NULL AUTO_INCREMENT,
+    nome VARCHAR(100) NOT NULL,
+    codigo_divisao BIGINT NOT NULL,
+    PRIMARY KEY (codigo),
+    FOREIGN KEY (codigo_divisao) REFERENCES divisao_insumo(codigo)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE indice (
+    codigo BIGINT NOT NULL AUTO_INCREMENT,
+    nome VARCHAR(100) NOT NULL,
+    sigla VARCHAR(20) NOT NULL,
+    tipo VARCHAR(20) NOT NULL,
+    PRIMARY KEY (codigo)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE forma_pagamento (
+    codigo BIGINT NOT NULL AUTO_INCREMENT,
+    nome VARCHAR(100) NOT NULL,
+    PRIMARY KEY (codigo)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE tipo_obra (
+    codigo BIGINT NOT NULL AUTO_INCREMENT,
+    nome VARCHAR(100) NOT NULL,
+    PRIMARY KEY (codigo)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
