@@ -67,4 +67,43 @@ public class PedidosCompraController {
 		mv.addObject("insumos", insumoRepository.findAll());
 		return mv;
 	}
+
+	@Autowired
+	private br.edu.ifrn.sinapiPRO.service.BaixaPedidoService baixaPedidoService;
+
+	@GetMapping("/{codigo}/baixa")
+	public ModelAndView formBaixa(@PathVariable Long codigo) {
+		ModelAndView mv = new ModelAndView("pedidocompra/FormBaixaPedido");
+		mv.addObject("pedido", service.buscarComItens(codigo));
+		return mv;
+	}
+
+	@PostMapping("/{codigo}/baixa")
+	public ModelAndView registrarBaixa(@PathVariable Long codigo,
+			@RequestParam java.util.Map<String, String> params,
+			org.springframework.web.servlet.mvc.support.RedirectAttributes attributes) {
+		try {
+			java.util.Map<Long, java.math.BigDecimal> qtds = new java.util.HashMap<>();
+			params.forEach((key, value) -> {
+				if (key.startsWith("qtd_") && !value.isBlank()) {
+					Long itemId = Long.valueOf(key.substring(4));
+					qtds.put(itemId, new java.math.BigDecimal(value));
+				}
+			});
+			java.time.LocalDate dataRecebimento = params.containsKey("dataRecebimento") && !params.get("dataRecebimento").isBlank()
+					? java.time.LocalDate.parse(params.get("dataRecebimento"))
+					: java.time.LocalDate.now();
+			String numeroNF = params.get("numeroNF");
+
+			br.edu.ifrn.sinapiPRO.service.BaixaPedidoService.ResultadoBaixa resultado =
+					baixaPedidoService.receberPedido(codigo, qtds, dataRecebimento, numeroNF);
+
+			attributes.addFlashAttribute("mensagem",
+					"Recebimento registrado! Situação: " + resultado.getSituacaoPedido()
+					+ ". Estoque atualizado: " + resultado.getItensAtualizados().size() + " item(ns).");
+		} catch (RuntimeException e) {
+			attributes.addFlashAttribute("erro", e.getMessage());
+		}
+		return new ModelAndView("redirect:/pedidosCompra/" + codigo + "/baixa");
+	}
 }

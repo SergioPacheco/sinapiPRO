@@ -37,10 +37,24 @@ public class CompetenciasController {
         return new ModelAndView("redirect:/competencias");
     }
 
+    @Autowired
+    private br.edu.ifrn.sinapiPRO.service.EncerrarCompetenciaService encerrarCompetenciaService;
+
     @PostMapping("/{codigo}/encerrar")
     public ModelAndView encerrar(@PathVariable Long codigo, RedirectAttributes attributes) {
-        service.encerrar(codigo);
-        attributes.addFlashAttribute("mensagem", "Competência encerrada!");
+        try {
+            br.edu.ifrn.sinapiPRO.service.EncerrarCompetenciaService.RelatorioEncerramento rel =
+                    encerrarCompetenciaService.encerrarCompetencia(codigo);
+            String msg = String.format(
+                    "Competência %s encerrada. %d funcionário(s) com saldo transferido para %s.",
+                    rel.getCompetencia(), rel.getFuncionariosTransferidos(), rel.getProximaCompetencia());
+            if (rel.getAlertasCount() > 0) {
+                msg += " ⚠️ " + rel.getAlertasCount() + " alerta(s) de saldo excessivo.";
+            }
+            attributes.addFlashAttribute("mensagem", msg);
+        } catch (RuntimeException e) {
+            attributes.addFlashAttribute("erro", e.getMessage());
+        }
         return new ModelAndView("redirect:/competencias");
     }
 }

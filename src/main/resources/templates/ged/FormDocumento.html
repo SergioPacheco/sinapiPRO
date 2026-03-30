@@ -12,26 +12,26 @@
 </div></div></div>
 <div class="container-fluid">
 <form method="POST" th:object="${documentoGed}"
-      th:action="${documentoGed.novo} ? @{/ged/novo} : @{/ged/{c}(c=${documentoGed.codigo})}">
+      th:action="${documentoGed.novo} ? @{/ged/novo} : @{/ged/{c}(c=${documentoGed.codigo})}"
+      enctype="multipart/form-data">
     <sinapiPRO:message/>
     <input type="hidden" th:field="*{codigo}"/>
     <div class="row">
         <div class="form-group col-sm-6 sn-required" sinapiPRO:classforerror="nome">
             <label class="control-label">Nome do Documento</label>
-            <input type="text" class="form-control" th:field="*{nome}"/>
+            <input type="text" class="form-control" th:field="*{nome}"
+                   placeholder="Deixe em branco para usar o nome do arquivo"/>
         </div>
-        <div class="form-group col-sm-3">
-            <label class="control-label">Tipo de Arquivo</label>
-            <select class="form-control" th:field="*{tipoArquivo}">
-                <option value="">Selecione...</option>
-                <option value="application/pdf">PDF</option>
-                <option value="image/jpeg">Imagem JPEG</option>
-                <option value="image/png">Imagem PNG</option>
-                <option value="application/vnd.ms-excel">Excel</option>
-                <option value="application/msword">Word</option>
-                <option value="text/plain">Texto</option>
-                <option value="application/zip">ZIP</option>
-            </select>
+        <div class="form-group col-sm-6">
+            <label class="control-label">Arquivo <span class="text-muted">(PDF, imagens, Office, ZIP — máx. 50 MB)</span></label>
+            <input type="file" name="arquivo" class="form-control"
+                   accept=".pdf,.jpg,.jpeg,.png,.gif,.xls,.xlsx,.doc,.docx,.txt,.zip"/>
+            <span th:if="${documentoGed.caminho != null}" class="help-block">
+                Arquivo atual: <strong th:text="${documentoGed.caminho}"></strong>
+                <a th:href="@{/ged/{c}/download(c=${documentoGed.codigo})}" class="btn btn-xs btn-default">
+                    <i class="glyphicon glyphicon-download"></i> Baixar
+                </a>
+            </span>
         </div>
     </div>
     <div class="row">
