@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/LayoutPadrao}">
+<head><title>Baselines do Orçamento</title></head>
+<body>
+<section layout:fragment="conteudo">
+	<div class="page-header">
+		<div class="container-fluid">
+			<h1>Baselines — <small th:text="${orcamento.nome}"></small></h1>
+		</div>
+	</div>
+	<div class="container-fluid">
+		<div th:if="${mensagem}" class="alert alert-success" th:text="${mensagem}"></div>
+
+		<form th:action="@{/baseline/{id}(id=${orcamento.codigo})}" method="post" class="form-inline" style="margin-bottom:15px;">
+			<div class="form-group">
+				<label>Descrição</label>
+				<input type="text" name="descricao" class="form-control" placeholder="Ex: Baseline inicial" required />
+			</div>
+			<button type="submit" class="btn btn-success" style="margin-left:10px;">
+				<i class="glyphicon glyphicon-floppy-disk"></i> Gravar Baseline
+			</button>
+		</form>
+
+		<div th:if="${baselines.isEmpty()}" class="alert alert-info">Nenhum baseline gravado.</div>
+		<table th:unless="${baselines.isEmpty()}" class="table table-bordered table-striped">
+			<thead>
+				<tr class="active">
+					<th>#</th>
+					<th>Descrição</th>
+					<th>Data</th>
+					<th class="text-right">Valor Total</th>
+					<th>Ações</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="bl : ${baselines}">
+					<td th:text="${bl.codigo}"></td>
+					<td th:text="${bl.descricao}"></td>
+					<td th:text="${#temporals.format(bl.dataGravacao, 'dd/MM/yyyy HH:mm')}"></td>
+					<td class="text-right" th:text="${bl.valorTotal != null} ? ${#numbers.formatDecimal(bl.valorTotal, 1, 2)} : '-'"></td>
+					<td>
+						<a class="btn btn-xs btn-info" th:href="@{/baseline/{oid}/{bid}(oid=${orcamento.codigo},bid=${bl.codigo})}">
+							<i class="glyphicon glyphicon-stats"></i> Comparar
+						</a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</section>
+</body>
+</html>

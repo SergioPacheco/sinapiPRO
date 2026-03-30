@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/LayoutPadrao}">
+<head><title>Comparativo Baseline</title></head>
+<body>
+<section layout:fragment="conteudo">
+	<div class="page-header">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-sm-8"><h1>Comparativo Baseline — <small th:text="${orcamento.nome}"></small></h1></div>
+				<div class="col-sm-4 text-right" style="margin-top:20px;">
+					<a class="btn btn-default" th:href="@{/baseline/{id}(id=${orcamento.codigo})}">
+						<i class="glyphicon glyphicon-arrow-left"></i> Voltar
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container-fluid">
+		<div class="table-responsive">
+			<table class="table table-bordered table-condensed table-striped">
+				<thead>
+					<tr class="active">
+						<th>Descrição</th>
+						<th class="text-right">Valor Baseline</th>
+						<th class="text-right">Valor Atual</th>
+						<th class="text-right">Diferença</th>
+						<th class="text-right">Variação %</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="c : ${comparativo}">
+						<td th:text="${c.descricao}"></td>
+						<td class="text-right" th:text="${#numbers.formatDecimal(c.valorBaseline, 1, 2)}"></td>
+						<td class="text-right" th:text="${#numbers.formatDecimal(c.valorAtual, 1, 2)}"></td>
+						<td class="text-right"
+							th:classappend="${c.diferenca.signum() > 0} ? 'text-danger' : (${c.diferenca.signum() < 0} ? 'text-success' : '')"
+							th:text="${#numbers.formatDecimal(c.diferenca, 1, 2)}"></td>
+						<td class="text-right"
+							th:classappend="${c.percentualVariacao.signum() > 0} ? 'text-danger' : (${c.percentualVariacao.signum() < 0} ? 'text-success' : '')"
+							th:text="${#numbers.formatDecimal(c.percentualVariacao, 1, 2) + '%'}"></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</section>
+</body>
+</html>

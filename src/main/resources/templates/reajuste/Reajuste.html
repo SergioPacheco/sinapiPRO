@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/LayoutPadrao}">
+<head><title>Reajuste de Preços</title></head>
+<body>
+<section layout:fragment="conteudo">
+	<div class="page-header">
+		<div class="container-fluid">
+			<h1>Reajuste de Preços — <small th:text="${orcamento.nome}"></small></h1>
+		</div>
+	</div>
+	<div class="container-fluid">
+		<div th:if="${mensagem}" class="alert alert-success" th:text="${mensagem}"></div>
+
+		<ul class="nav nav-tabs" role="tablist">
+			<li role="presentation" class="active"><a href="#percentual" data-toggle="tab">Percentual</a></li>
+			<li role="presentation"><a href="#valor" data-toggle="tab">Valor</a></li>
+			<li role="presentation"><a href="#sinapi" data-toggle="tab">SINAPI</a></li>
+		</ul>
+
+		<div class="tab-content" style="padding-top:15px;">
+			<!-- Aba Percentual -->
+			<div role="tabpanel" class="tab-pane active" id="percentual">
+				<form th:action="@{/reajuste/{id}/percentual(id=${orcamento.codigo})}" method="post" class="form-inline">
+					<div class="form-group">
+						<label>Percentual (%)</label>
+						<input type="number" step="0.01" name="percentual" class="form-control" placeholder="Ex: 5.30" required />
+					</div>
+					<div class="form-group" style="margin-left:10px;">
+						<label>Espécie (opcional)</label>
+						<select name="especie" class="form-control">
+							<option value="">Todas</option>
+							<option th:each="e : ${especies}" th:value="${e}" th:text="${e}"></option>
+						</select>
+					</div>
+					<button type="submit" class="btn btn-primary" style="margin-left:10px;">
+						<i class="glyphicon glyphicon-ok"></i> Aplicar
+					</button>
+				</form>
+			</div>
+
+			<!-- Aba Valor -->
+			<div role="tabpanel" class="tab-pane" id="valor">
+				<form th:action="@{/reajuste/{id}/valor(id=${orcamento.codigo})}" method="post" class="form-inline">
+					<div class="form-group">
+						<label>Valor (R$)</label>
+						<input type="number" step="0.01" name="valor" class="form-control" placeholder="Ex: 10.00" required />
+					</div>
+					<div class="form-group" style="margin-left:10px;">
+						<label>Códigos dos itens (separados por vírgula)</label>
+						<input type="text" name="codigosItens" class="form-control" placeholder="Ex: 1,2,3" required />
+					</div>
+					<button type="submit" class="btn btn-primary" style="margin-left:10px;">
+						<i class="glyphicon glyphicon-ok"></i> Aplicar
+					</button>
+				</form>
+			</div>
+
+			<!-- Aba SINAPI -->
+			<div role="tabpanel" class="tab-pane" id="sinapi">
+				<form th:action="@{/reajuste/{id}/aplicarSinapi(id=${orcamento.codigo})}" method="post" class="form-inline">
+					<div class="form-group">
+						<label>Base de Preço</label>
+						<select name="codigoBasePreco" class="form-control" required>
+							<option th:each="bp : ${basesPreco}" th:value="${bp.codigo}" th:text="${bp.descricao}"></option>
+						</select>
+					</div>
+					<div class="form-group" style="margin-left:10px;">
+						<label class="checkbox-inline">
+							<input type="checkbox" name="onerado" value="true" /> Onerado
+						</label>
+					</div>
+					<div class="form-group" style="margin-left:10px;">
+						<label>Espécie (opcional)</label>
+						<select name="especie" class="form-control">
+							<option value="">Todas</option>
+							<option th:each="e : ${especies}" th:value="${e}" th:text="${e}"></option>
+						</select>
+					</div>
+					<button type="submit" class="btn btn-warning" style="margin-left:10px;">
+						<i class="glyphicon glyphicon-refresh"></i> Aplicar Preço SINAPI
+					</button>
+				</form>
+			</div>
+		</div>
+
+		<!-- Tabela de itens do orçamento -->
+		<h3 style="margin-top:20px;">Itens do Orçamento</h3>
+		<div class="table-responsive">
+			<table class="table table-bordered table-condensed table-striped">
+				<thead>
+					<tr class="active">
+						<th>Cód.</th>
+						<th>Descrição</th>
+						<th>Espécie</th>
+						<th class="text-right">Vl. Unitário</th>
+						<th class="text-right">Qtd</th>
+						<th class="text-right">Total</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="item : ${orcamento.itens}">
+						<td th:text="${item.codigo}"></td>
+						<td th:text="${item.descricao}"></td>
+						<td th:text="${item.especie}"></td>
+						<td class="text-right" th:text="${item.valorUnitario != null} ? ${#numbers.formatDecimal(item.valorUnitario, 1, 4)} : '-'"></td>
+						<td class="text-right" th:text="${item.quantidade != null} ? ${#numbers.formatDecimal(item.quantidade, 1, 2)} : '-'"></td>
+						<td class="text-right" th:text="${item.valorTotal != null} ? ${#numbers.formatDecimal(item.valorTotal, 1, 2)} : '-'"></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</section>
+</body>
+</html>
