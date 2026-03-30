@@ -15,8 +15,18 @@ public class VendaService {
     @Autowired
     private VendasRepository repository;
 
+    @Autowired
+    private ValidacaoNegocioService validacao;
+
     @Transactional
     public Venda salvar(Venda venda) {
+        // Validações de negócio
+        if (venda.getUnidade() != null && venda.isNovo()) {
+            validacao.validarUnidadeDisponivel(venda.getUnidade());
+        }
+        if (!venda.getParcelas().isEmpty()) {
+            validacao.validarParcelasSemDuplicatas(venda.getParcelas());
+        }
         venda.getParcelas().forEach(p -> p.setVenda(venda));
         return repository.saveAndFlush(venda);
     }

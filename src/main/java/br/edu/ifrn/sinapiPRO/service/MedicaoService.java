@@ -12,8 +12,18 @@ import br.edu.ifrn.sinapiPRO.service.exception.*;
 public class MedicaoService {
 	@Autowired
 	private MedicoesRepository repository;
+
+	@Autowired
+	private ValidacaoNegocioService validacao;
+
 	@Transactional
 	public Medicao salvar(Medicao m) {
+		// Validações de negócio
+		if (m.isNovo()) {
+			validacao.validarContratoParaMedicao(m.getContrato().getCodigo());
+		}
+		validacao.validarNumeromedicaoUnico(m.getContrato().getCodigo(), m.getNumero(), m.getCodigo());
+
 		BigDecimal total = m.getItens().stream()
 			.map(i -> { i.setMedicao(m); return i.getValorMedido() != null ? i.getValorMedido() : BigDecimal.ZERO; })
 			.reduce(BigDecimal.ZERO, BigDecimal::add);

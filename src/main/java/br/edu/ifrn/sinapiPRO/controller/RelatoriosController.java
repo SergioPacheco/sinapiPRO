@@ -38,6 +38,7 @@ import br.edu.ifrn.sinapiPRO.service.OrcamentoService;
 import br.edu.ifrn.sinapiPRO.service.PlanejamentoService;
 import br.edu.ifrn.sinapiPRO.service.PlanoContasService;
 import br.edu.ifrn.sinapiPRO.service.ReceitaService;
+import br.edu.ifrn.sinapiPRO.service.RelatorioOperacionalService;
 import br.edu.ifrn.sinapiPRO.service.RelatorioService;
 import br.edu.ifrn.sinapiPRO.service.UnidadeVendaService;
 import br.edu.ifrn.sinapiPRO.service.VendaService;
@@ -475,6 +476,9 @@ public class RelatoriosController {
 	@Autowired
 	private PlanoContasService planoContasService;
 
+	@Autowired
+	private RelatorioOperacionalService relatorioOperacionalService;
+
 	@GetMapping("/fluxoCaixa")
 	public ResponseEntity<byte[]> fluxoCaixa(
 			@RequestParam(required = false) Long codigoConta,
@@ -658,6 +662,69 @@ public class RelatoriosController {
 		data.put("emissao", new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
 
 		byte[] pdf = freeMarkerReport.gerarPdf("dre.ftl", data);
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE)
+				.body(pdf);
+	}
+
+	@GetMapping("/inadimplencia")
+	public ResponseEntity<byte[]> inadimplencia(@RequestParam(required = false) Long codigoObra) {
+		java.text.DecimalFormat df = new java.text.DecimalFormat("#,##0.00");
+		java.time.format.DateTimeFormatter dtf = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+		var inadimplentes = relatorioOperacionalService.findInadimplentes(codigoObra);
+		BigDecimal total = relatorioOperacionalService.calcularTotalInadimplente(codigoObra);
+
+		List<java.util.Map<String, String>> rows = inadimplentes.stream().map(pi -> {
+			java.util.Map<String, String> row = new java.util.HashMap<>();
+			row.put("unidade", pi.getVenda().getUnidade().getIdentificacao());
+			row.put("cliente", pi.getVenda().getCliente().getNome());
+			row.put("numeroParcela", String.valueOf(pi.getParcela().getNumero()));
+			row.put("vencimento", pi.getParcela().getDataVencimento().format(dtf));
+			row.put("valor", df.format(pi.getParcela().getValor()));
+			row.put("diasAtraso", String.valueOf(pi.getDiasAtraso()));
+			return row;
+		}).collect(java.util.stream.Collectors.toList());
+
+		java.util.Map<String, Object> data = new java.util.HashMap<>();
+		data.put("parcelas", rows);
+		data.put("totalInadimplente", df.format(total));
+		data.put("totalParcelas", inadimplentes.size());
+		data.put("obra", codigoObra != null ? "Obra #" + codigoObra : "Todas as Obras");
+		data.put("emissao", new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
+
+		byte[] pdf = freeMarkerReport.gerarPdf("inadimplencia.ftl", data);
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE)
+				.body(pdf);
+	}
+
+	@GetMapping("/posicaoEstoque/{codigoObra}")
+	public ResponseEntity<byte[]> posicaoEstoque(@PathVariable Long codigoObra) {
+		java.text.DecimalFormat df = new java.text.DecimalFormat("#,##0.00");
+
+		var posicoes = relatorioOperacionalService.getPosicaoEstoque(codigoObra);
+		BigDecimal valorTotal = relatorioOperacionalService.calcularValorTotalEstoque(codigoObra);
+
+		List<java.util.Map<String, String>> rows = posicoes.stream().map(pos -> {
+			java.util.Map<String, String> row = new java.util.HashMap<>();
+			row.put("insumo", pos.getEstoque().getInsumo().getDescricao());
+			row.put("qtdAtual", df.format(pos.getEstoque().getQuantidadeAtual()));
+			row.put("qtdMinima", df.format(pos.getEstoque().getQuantidadeMinima()));
+			row.put("custoMedio", pos.getEstoque().getCustoMedio() != null
+					? df.format(pos.getEstoque().getCustoMedio()) : "0,00");
+			row.put("valorTotal", df.format(pos.getValorTotal()));
+			row.put("status", pos.getStatus());
+			return row;
+		}).collect(java.util.stream.Collectors.toList());
+
+		java.util.Map<String, Object> data = new java.util.HashMap<>();
+		data.put("itens", rows);
+		data.put("valorTotal", df.format(valorTotal));
+		data.put("obra", "Obra #" + codigoObra);
+		data.put("emissao", new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
+
+		byte[] pdf = freeMarkerReport.gerarPdf("posicao-estoque.ftl", data);
 		return ResponseEntity.ok()
 				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE)
 				.body(pdf);

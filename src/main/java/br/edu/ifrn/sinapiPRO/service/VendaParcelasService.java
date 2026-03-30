@@ -54,6 +54,9 @@ public class VendaParcelasService {
     @Autowired
     private IndicesRepository indiceRepository;
 
+    @Autowired
+    private ValidacaoNegocioService validacao;
+
     /**
      * Gera parcelas automaticamente para uma venda.
      *
@@ -78,6 +81,9 @@ public class VendaParcelasService {
         if (!venda.getParcelas().isEmpty()) {
             throw new RuntimeException("Esta venda já possui parcelas geradas. Exclua as existentes antes de gerar novas.");
         }
+
+        // Validação: venda deve estar em situação válida
+        validacao.validarVendaParaParcelas(venda);
 
         BigDecimal valorTotal = venda.getValorVenda();
         List<ParcelaVenda> parcelas = new ArrayList<>();

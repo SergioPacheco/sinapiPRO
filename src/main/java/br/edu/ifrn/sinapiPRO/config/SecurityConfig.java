@@ -48,10 +48,38 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http 
+		http
 			.authorizeRequests()
+				// Orçamento
 				.antMatchers("/orcamentos/novo").hasRole("CADASTRAR_ORCAMENTO")
+				// Usuários
 				.antMatchers("/usuarios/**").hasRole("CADASTRAR_USUARIO")
+				// Financeiro
+				.antMatchers("/despesas/**", "/receitas/**",
+						"/movimentosBancarios/**", "/conciliacao/**",
+						"/boletos/**", "/cheques/**",
+						"/planoContas/**", "/contasBancarias/**").hasAnyRole("FINANCEIRO", "ADMIN")
+				// Comercial
+				.antMatchers("/vendas/**", "/propostas/**",
+						"/unidadesVenda/**", "/situacoesUnidade/**",
+						"/tabelasPrecos/**", "/comissoes/**").hasAnyRole("COMERCIAL", "ADMIN")
+				// Suprimentos
+				.antMatchers("/cotacoes/**", "/pedidosCompra/**",
+						"/estoque/**", "/requisicoes/**").hasAnyRole("SUPRIMENTOS", "ADMIN")
+				// Obras / Operacional
+				.antMatchers("/contratos/**", "/medicoes/**",
+						"/diarioObra/**", "/bancoHoras/**",
+						"/competencias/**", "/prestacaoContas/**").hasAnyRole("OBRAS", "ADMIN")
+				// RH
+				.antMatchers("/funcionarios/**", "/departamentos/**",
+						"/cargos/**", "/funcoes/**").hasAnyRole("RH", "ADMIN")
+				// Frota / GED
+				.antMatchers("/frota/**", "/ged/**").hasAnyRole("OBRAS", "ADMIN")
+				// Atendimento
+				.antMatchers("/atendimentos/**").hasAnyRole("ATENDIMENTO", "ADMIN")
+				// Faturamento
+				.antMatchers("/notasFiscaisServico/**").hasAnyRole("FINANCEIRO", "ADMIN")
+				// Acesso geral autenticado
 				.antMatchers("/trocarSenha").authenticated()
 				.anyRequest().authenticated()
 				.and()
@@ -70,12 +98,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.invalidSessionUrl("/login");
 
 		http.addFilterAfter(primeiroAcessoFilter, UsernamePasswordAuthenticationFilter.class);
-		
-		/* 
-		.authorizeRequests()
-        .anyRequest().permitAll();
-        */
-		
 	}
 	
 	@Bean
