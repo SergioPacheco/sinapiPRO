@@ -15,14 +15,6 @@
 - Gráfico/tabela com valores acumulados planejados vs período
 - Percentual acumulado
 
-## Origem no Strato
-- `orcamento/planejamento/_PlanejamentoOrcamento.java`
-- `orcamento/planejamento/CalculoPlanejamento.java`
-- `orcamento/planejamento/_DistribuicaoDatasPlanejamento.java`
-- `orcamento/planejamento/_ParametroPlanejamento.java`
-- `orcamento/impressaoorcamento/_RelatorioCronogramaFinanceiro.java`
-- `orcamento/impressaoorcamento/_RelatorioCurvaS.java`
-
 ## Acceptance Criteria
 - [ ] Tela para definir datas de início/fim por item do orçamento
 - [ ] Cálculo automático de distribuição linear de custos

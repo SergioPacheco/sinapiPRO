@@ -3,10 +3,7 @@
 ## Last updated
 2026-03-30
 
-## Active spec
-none — migração completa + deploy funcionando
-
-## Current status
+## Status
 **PRODUÇÃO** — Sistema rodando em http://localhost:8090
 
 - 514 arquivos Java compilando sem erros
@@ -17,20 +14,20 @@ none — migração completa + deploy funcionando
 
 ## Sprints concluídas
 
-| Fase | Sprints | Status |
+| Fase | Sprints | Módulos |
 |---|---|---|
-| Core (pré-migração) | 1–8 | ✅ |
-| Fase 1 — Orçamento Avançado | 9–11 | ✅ |
-| Fase 2 — Cadastros Completos | 12–13 | ✅ |
-| Fase 3 — Operacional de Obra | 14–16 | ✅ |
-| Fase 4 — Suprimentos | 17–19 | ✅ |
-| Fase 5 — Financeiro | 20–23 | ✅ |
-| Fase 6 — Comercial | 24–27 | ✅ |
-| Fase 7 — Mão de Obra | 28–29 | ✅ |
-| Fase 8 — Financeiro Avançado | 30–32 | ✅ |
-| Fase 9 — Atendimento/CRM | 33–34 | ✅ |
-| Fase 10 — Faturamento/NF | 35 | ✅ |
-| Fase 11 — Módulos de Apoio | 36–37 | ✅ |
+| Core | 1–8 | Orçamento, Insumos, Composições, Segurança, Relatórios |
+| Fase 1 | 9–11 | Planejamento Físico-Financeiro, Reajuste, Baseline |
+| Fase 2 | 12–13 | Cadastros de Infraestrutura e Pessoas |
+| Fase 3 | 14–16 | Diário de Obra, Contratos, Requisições |
+| Fase 4 | 17–19 | Cotações, Pedidos de Compra, Estoque |
+| Fase 5 | 20–23 | Financeiro (Plano de Contas, Despesas, Receitas, Movimento) |
+| Fase 6 | 24–27 | Comercial (Unidades, Vendas, Tabela de Preços) |
+| Fase 7 | 28–29 | Mão de Obra (Banco de Horas, Prestação de Contas) |
+| Fase 8 | 30–32 | Boletos, Cheques, Relatórios Financeiros |
+| Fase 9 | 33–34 | Atendimento/CRM |
+| Fase 10 | 35 | Faturamento (Nota Fiscal de Serviço) |
+| Fase 11 | 36–37 | GED, Frota, Relatórios Gerais, Job Costing |
 
 ## Migrations Flyway
 
@@ -39,7 +36,7 @@ none — migração completa + deploy funcionando
 | V1–V13 | Schema core (orçamento, insumos, composições, segurança) |
 | V14 | Baseline do orçamento |
 | V15 | Cadastros infra (unidade_medida, divisao_insumo, etc.) |
-| V16 | Pessoas/empresa (empresa, departamento, cargo, funcao, funcionario) |
+| V16 | Pessoas (empresa, departamento, cargo, funcao, funcionario) |
 | V17 | Diário de obra (9 tabelas) |
 | V18 | Contrato e medição |
 | V19 | Requisição de insumos |

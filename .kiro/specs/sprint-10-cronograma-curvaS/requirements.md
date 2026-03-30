@@ -22,11 +22,6 @@ Sprint 10 expande com relatórios dedicados e cronograma interativo.
 - Células preenchidas indicam período de execução
 - Totais por mês na última linha
 
-## Origem no Strato
-- `orcamento/impressaoorcamento/_RelatorioCurvaS.java`
-- `orcamento/impressaoorcamento/_RelatorioPlanejamentoFisico.java`
-- `orcamento/impressaoorcamento/_RelatorioCronogramaFinanceiro.java` (já parcial)
-
 ## Acceptance Criteria
 - [ ] Relatório Curva S em PDF (curva-s.ftl) com acumulado + marcos
 - [ ] Relatório Planejamento Físico em PDF (planejamento-fisico.ftl) agrupado por etapa

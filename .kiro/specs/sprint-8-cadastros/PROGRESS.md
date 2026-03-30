@@ -8,7 +8,7 @@
 ### Task 2: CRUD Tipo de Unidade ✅
 - 9 arquivos: Model, Repository, Filter, RepositoryQueries, RepositoryImpl, Service, Controller, 2 templates
 - Rota: `/tiposUnidade`
-- Campos: codigo, nome, sigla (mapeado do Strato TPUN1_NOM + TPUN1_ABR)
+- Campos: codigo, nome, sigla ()
 
 ### Task 3: CRUD Espécie de Insumo ✅
 - 9 arquivos seguindo mesmo padrão

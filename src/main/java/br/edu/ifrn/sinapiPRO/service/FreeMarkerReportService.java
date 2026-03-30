@@ -19,7 +19,7 @@ import freemarker.template.TemplateExceptionHandler;
 
 /**
  * Serviço de relatórios FreeMarker + Flying Saucer.
- * Padrão adaptado do sgn3 (FreeMarkerUtils + PdfUtil).
+ * Serviço de geração de relatórios PDF usando FreeMarker + Flying Saucer.
  *
  * Fluxo: dados → FreeMarker template (.ftl) → HTML → JTidy (XHTML) → Flying Saucer → PDF bytes
  */
@@ -49,7 +49,7 @@ public class FreeMarkerReportService {
     }
 
     /**
-     * Converte HTML em PDF usando JTidy + Flying Saucer (padrão sgn3 PdfUtil).
+     * Converte HTML em PDF usando JTidy + Flying Saucer.
      */
     public byte[] htmlToPdf(String html) {
         Tidy tidy = new Tidy();

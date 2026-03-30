@@ -2,7 +2,7 @@
 
 ## Feedback loops
 ```bash
-./mvnw compile -s /tmp/settings-local.xml -o
+./mvnw compile
 ```
 
 ## Task list

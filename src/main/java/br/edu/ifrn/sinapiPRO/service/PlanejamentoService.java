@@ -43,7 +43,7 @@ public class PlanejamentoService {
 
 	/**
 	 * Calcula cronograma financeiro: distribuição linear de custos por mês.
-	 * Padrão Strato: CalculoPlanejamento + _DistribuicaoDatasPlanejamento
+	 * Distribuição linear de custos por período
 	 */
 	@Transactional(readOnly = true)
 	public List<CronogramaMes> calcularCronograma(Long codigoOrcamento) {

@@ -27,7 +27,7 @@ Abra uma [issue](https://github.com/SergioPacheco/sinapiPRO/issues/new) com:
 Abra uma issue com o label `enhancement` descrevendo:
 - O problema que a funcionalidade resolve
 - Como você imagina a solução
-- Se possível, referência a como o Strato (sistema legado) implementa
+- Se possível, referência a como outros sistemas ERP de construção civil implementam
 
 ### 3. Enviar Pull Requests
 
@@ -148,7 +148,7 @@ mysql --version # MariaDB/MySQL 8+
 ./run.sh
 
 # Compilar sem rodar
-./mvnw compile -s /tmp/settings-local.xml -o
+./mvnw compile
 
 # Testes
 ./mvnw test

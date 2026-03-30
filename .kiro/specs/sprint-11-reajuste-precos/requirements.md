@@ -29,14 +29,6 @@ Orçamentos usam preços da base SINAPI (BasePrecoItem). Atualmente os preços s
 - Listar baselines gravados
 - Comparar baseline vs valores atuais (diferença absoluta e %)
 
-## Origem no Strato
-- `orcamento/baseprecoinsumo/_ReajustePercentual.java`
-- `orcamento/baseprecoinsumo/_ReajusteValorOrcamento.java`
-- `orcamento/orcamento/_AplicarPrecoInsumoOrcamento.java`
-- `orcamento/orcamento/_AplicarPrecoClasse.java`
-- `orcamento/orcamento/_DigitacaoRapida.java`
-- `orcamento/orcamento/_GravarBaseLine.java`
-
 ## Acceptance Criteria
 - [ ] Reajuste percentual e por valor com preview
 - [ ] Aplicação de preço SINAPI em lote (onerado/desonerado)
