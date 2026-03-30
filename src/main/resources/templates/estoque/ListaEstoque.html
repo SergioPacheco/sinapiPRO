@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/LayoutPadrao}">
+<head><title>Estoque</title></head>
+<body><section layout:fragment="conteudo">
+<div class="page-header"><div class="container-fluid"><div class="row">
+	<div class="col-sm-8"><h1>Estoque</h1></div>
+	<div class="col-sm-4 text-right" style="margin-top:20px;">
+		<a class="btn btn-success" th:href="@{/estoque/novo}"><i class="glyphicon glyphicon-plus"></i> Novo Item</a>
+	</div>
+</div></div></div>
+<div class="container-fluid">
+	<form method="GET" class="form-inline" style="margin-bottom:15px;">
+		<div class="form-group"><label>Obra</label>
+			<select name="codigoObra" class="form-control" onchange="this.form.submit()">
+				<option value="">Selecione...</option>
+				<option th:each="o : ${obras}" th:value="${o.codigo}" th:text="${o.nome}"
+					th:selected="${codigoObra != null and codigoObra == o.codigo}"></option>
+			</select>
+		</div>
+	</form>
+	<div th:if="${estoques != null}">
+		<table class="table table-hover table-bordered">
+			<thead><tr><th>Insumo</th><th>Localização</th><th class="text-right">Qtd Atual</th><th class="text-right">Qtd Mínima</th><th>Status</th><th class="table-col-acoes"></th></tr></thead>
+			<tbody>
+				<tr th:each="e : ${estoques}"
+					th:classappend="${e.quantidadeAtual.compareTo(e.quantidadeMinima) < 0} ? 'danger' : ''">
+					<td th:text="${e.insumo.descricao}"></td>
+					<td th:text="${e.localizacao}"></td>
+					<td class="text-right" th:text="${#numbers.formatDecimal(e.quantidadeAtual,1,2)}"></td>
+					<td class="text-right" th:text="${#numbers.formatDecimal(e.quantidadeMinima,1,2)}"></td>
+					<td>
+						<span th:if="${e.quantidadeAtual.compareTo(e.quantidadeMinima) < 0}" class="label label-danger">Abaixo do mínimo</span>
+						<span th:unless="${e.quantidadeAtual.compareTo(e.quantidadeMinima) < 0}" class="label label-success">OK</span>
+					</td>
+					<td class="text-center"><a class="btn btn-link btn-xs" th:href="@{/estoque/{c}(c=${e.codigo})}"><i class="glyphicon glyphicon-list-alt"></i> Movimentos</a></td>
+				</tr>
+				<tr th:if="${estoques.isEmpty()}"><td colspan="6">Nenhum item em estoque</td></tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+</section></body></html>

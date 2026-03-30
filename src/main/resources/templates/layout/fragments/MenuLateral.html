@@ -64,6 +64,27 @@
         		
         		<li class="aw-menu__item">
           			<a href="#">
+          				<i class="fa  fa-1x  fa-shopping-cart"></i><span>Suprimentos</span>
+            			<i class="aw-menu__navigation-icon  fa"></i>	
+          			</a>
+          			<ul class="aw-menu__list  aw-menu__list--sublist">
+          				<li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/cotacoes.*}">
+			            	<a th:href="@{/cotacoes}">Cotações</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/pedidosCompra.*}">
+			            	<a th:href="@{/pedidosCompra}">Pedidos de Compra</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/estoque.*}">
+			            	<a th:href="@{/estoque}">Estoque</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/equipamentos.*}">
+			            	<a th:href="@{/equipamentos}">Equipamentos</a>
+			            </li>
+          			</ul>
+        		</li>
+        		
+        		<li class="aw-menu__item">
+          			<a href="#">
           				<i class="fa  fa-1x  fa-file-text-o"></i><span>Contratos</span>
             			<i class="aw-menu__navigation-icon  fa"></i>	
           			</a>
