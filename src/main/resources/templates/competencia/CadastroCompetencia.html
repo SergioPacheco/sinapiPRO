@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/LayoutPadrao}">
+<head><title>Nova Competência</title></head>
+<body><section layout:fragment="conteudo">
+<div class="page-header"><div class="container-fluid"><h1>Nova Competência</h1></div></div>
+<div class="container-fluid">
+<form method="POST" th:object="${competencia}" th:action="@{/competencias/novo}">
+    <sinapiPRO:message/><input type="hidden" th:field="*{codigo}"/>
+    <div class="row">
+        <div class="form-group col-sm-2 sn-required"><label class="control-label">Mês</label><input type="number" min="1" max="12" class="form-control" th:field="*{mes}"/></div>
+        <div class="form-group col-sm-2 sn-required"><label class="control-label">Ano</label><input type="number" min="2020" class="form-control" th:field="*{ano}"/></div>
+        <div class="form-group col-sm-4"><label class="control-label">Descrição</label><input type="text" class="form-control" th:field="*{descricao}"/></div>
+    </div>
+    <button class="btn btn-primary" type="submit">Salvar</button>
+</form>
+</div>
+</section></body></html>

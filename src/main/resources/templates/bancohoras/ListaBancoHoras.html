@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/LayoutPadrao}">
+<head><title>Banco de Horas</title></head>
+<body><section layout:fragment="conteudo">
+<div class="page-header"><div class="container-fluid"><div class="row">
+    <div class="col-sm-8"><h1>Banco de Horas</h1></div>
+    <div class="col-sm-4 text-right" style="margin-top:20px;">
+        <a class="btn btn-success" th:href="@{/bancoHoras/movimentar}"><i class="glyphicon glyphicon-plus"></i> Movimentar</a>
+    </div>
+</div></div></div>
+<div class="container-fluid">
+    <form method="GET" class="form-inline" style="margin-bottom:15px;">
+        <div class="form-group"><label>Competência</label>
+            <select name="codigoCompetencia" class="form-control" onchange="this.form.submit()">
+                <option value="">Selecione...</option>
+                <option th:each="c : ${competencias}" th:value="${c.codigo}" th:text="${c.label}"
+                    th:selected="${codigoCompetencia != null and codigoCompetencia == c.codigo}"></option>
+            </select>
+        </div>
+    </form>
+    <div th:if="${bancos != null}">
+        <table class="table table-hover table-bordered">
+            <thead><tr><th>Funcionário</th><th class="text-right">Crédito (h)</th><th class="text-right">Débito (h)</th><th class="text-right">Saldo (h)</th></tr></thead>
+            <tbody>
+                <tr th:each="b : ${bancos}" th:classappend="${b.saldo.signum() < 0} ? 'danger' : ''">
+                    <td th:text="${b.funcionario.nome}"></td>
+                    <td class="text-right" th:text="${#numbers.formatDecimal(b.horasCredito,1,2)}"></td>
+                    <td class="text-right" th:text="${#numbers.formatDecimal(b.horasDebito,1,2)}"></td>
+                    <td class="text-right" th:classappend="${b.saldo.signum() < 0} ? 'text-danger' : 'text-success'" th:text="${#numbers.formatDecimal(b.saldo,1,2)}"></td>
+                </tr>
+                <tr th:if="${bancos.isEmpty()}"><td colspan="4">Nenhum registro encontrado</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</section></body></html>

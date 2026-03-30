@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/LayoutPadrao}">
+<head><title>Competências</title></head>
+<body><section layout:fragment="conteudo">
+<div class="page-header"><div class="container-fluid"><div class="row">
+    <div class="col-xs-10"><h1>Competências</h1></div>
+    <div class="col-xs-2"><a class="btn btn-success" th:href="@{/competencias/novo}"><i class="glyphicon glyphicon-plus"></i></a></div>
+</div></div></div>
+<div class="container-fluid">
+<table class="table table-hover table-bordered">
+    <thead><tr><th>Mês/Ano</th><th>Descrição</th><th>Situação</th><th class="table-col-acoes"></th></tr></thead>
+    <tbody>
+        <tr th:each="c : ${competencias}">
+            <td th:text="${c.label}"></td>
+            <td th:text="${c.descricao}"></td>
+            <td><span th:if="${c.encerrada}" class="label label-default">Encerrada</span><span th:unless="${c.encerrada}" class="label label-success">Aberta</span></td>
+            <td class="text-center">
+                <form th:if="${!c.encerrada}" method="POST" th:action="@{/competencias/{id}/encerrar(id=${c.codigo})}" style="display:inline;">
+                    <button type="submit" class="btn btn-xs btn-warning">Encerrar</button>
+                </form>
+            </td>
+        </tr>
+        <tr th:if="${competencias.isEmpty()}"><td colspan="4">Nenhuma competência cadastrada</td></tr>
+    </tbody>
+</table>
+</div>
+</section></body></html>

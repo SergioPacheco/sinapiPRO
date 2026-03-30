@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/LayoutPadrao}">
+<head><title>Boletos</title></head>
+<body><section layout:fragment="conteudo">
+<div class="page-header"><div class="container-fluid"><div class="row">
+    <div class="col-xs-10"><h1>Boletos</h1></div>
+    <div class="col-xs-2"><a class="btn btn-success" th:href="@{/boletos/novo}"><i class="glyphicon glyphicon-plus"></i></a></div>
+</div></div></div>
+<div class="container-fluid">
+<table class="table table-hover table-bordered">
+    <thead><tr><th>Nosso Número</th><th>Banco</th><th>Vencimento</th><th class="text-right">Valor</th><th>Situação</th><th class="table-col-acoes"></th></tr></thead>
+    <tbody>
+        <tr th:each="b : ${boletos}">
+            <td th:text="${b.nossoNumero}"></td>
+            <td th:text="${b.banco}"></td>
+            <td th:text="${b.dataVencimento != null} ? ${#temporals.format(b.dataVencimento,'dd/MM/yyyy')} : ''"></td>
+            <td class="text-right" th:text="${#numbers.formatDecimal(b.valor,1,2)}"></td>
+            <td><span class="label" th:classappend="${b.situacao == 'EMITIDO'} ? 'label-warning' : (${b.situacao == 'PAGO'} ? 'label-success' : 'label-default')" th:text="${b.situacao}"></span></td>
+            <td class="text-center">
+                <a class="btn btn-link btn-xs" th:href="@{/boletos/{c}(c=${b.codigo})}"><i class="glyphicon glyphicon-pencil"></i></a>
+                <form th:if="${b.situacao == 'EMITIDO'}" method="POST" th:action="@{/boletos/{c}/cancelar(c=${b.codigo})}" style="display:inline;">
+                    <button type="submit" class="btn btn-xs btn-danger">Cancelar</button>
+                </form>
+            </td>
+        </tr>
+        <tr th:if="${boletos.isEmpty()}"><td colspan="6">Nenhum boleto encontrado</td></tr>
+    </tbody>
+</table>
+</div>
+</section></body></html>

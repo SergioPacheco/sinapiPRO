@@ -313,6 +313,78 @@
           			</ul>
         		</li>
         		
+        		<li class="aw-menu__item">
+          			<a href="#">
+          				<i class="fa  fa-1x  fa-users"></i><span>Mão de Obra</span>
+            			<i class="aw-menu__navigation-icon  fa"></i>	
+          			</a>
+          			<ul class="aw-menu__list  aw-menu__list--sublist">
+          				<li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/competencias.*}">
+			            	<a th:href="@{/competencias}">Competências</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/bancoHoras.*}">
+			            	<a th:href="@{/bancoHoras}">Banco de Horas</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/prestacaoContas.*}">
+			            	<a th:href="@{/prestacaoContas}">Prestação de Contas</a>
+			            </li>
+          			</ul>
+        		</li>
+        		
+        		<li class="aw-menu__item">
+          			<a href="#">
+          				<i class="fa  fa-1x  fa-credit-card"></i><span>Fin. Avançado</span>
+            			<i class="aw-menu__navigation-icon  fa"></i>	
+          			</a>
+          			<ul class="aw-menu__list  aw-menu__list--sublist">
+          				<li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/boletos.*}">
+			            	<a th:href="@{/boletos}">Boletos</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/cheques.*}">
+			            	<a th:href="@{/cheques}">Cheques</a>
+			            </li>
+          			</ul>
+        		</li>
+        		
+        		<li class="aw-menu__item">
+          			<a href="#">
+          				<i class="fa  fa-1x  fa-headphones"></i><span>Atendimento</span>
+            			<i class="aw-menu__navigation-icon  fa"></i>	
+          			</a>
+          			<ul class="aw-menu__list  aw-menu__list--sublist">
+          				<li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/atendimentos.*}">
+			            	<a th:href="@{/atendimentos}">Atendimentos</a>
+			            </li>
+          			</ul>
+        		</li>
+        		
+        		<li class="aw-menu__item">
+          			<a href="#">
+          				<i class="fa  fa-1x  fa-file-text"></i><span>Faturamento</span>
+            			<i class="aw-menu__navigation-icon  fa"></i>	
+          			</a>
+          			<ul class="aw-menu__list  aw-menu__list--sublist">
+          				<li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/notasFiscaisServico.*}">
+			            	<a th:href="@{/notasFiscaisServico}">Notas Fiscais de Serviço</a>
+			            </li>
+          			</ul>
+        		</li>
+        		
+        		<li class="aw-menu__item">
+          			<a href="#">
+          				<i class="fa  fa-1x  fa-folder-open"></i><span>GED / Frota</span>
+            			<i class="aw-menu__navigation-icon  fa"></i>	
+          			</a>
+          			<ul class="aw-menu__list  aw-menu__list--sublist">
+          				<li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/ged.*}">
+			            	<a th:href="@{/ged}">Documentos (GED)</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/frota.*}">
+			            	<a th:href="@{/frota}">Frota</a>
+			            </li>
+          			</ul>
+        		</li>
+        		
       		</ul>
     	</nav>
 	</div>
