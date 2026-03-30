@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/LayoutPadrao}">
+<head><title>Cadastro de Referência do Cliente</title></head>
+<body><section layout:fragment="conteudo">
+<div class="page-header"><div class="container-fluid"><div class="row">
+	<div class="col-sm-10"><h1 th:if="${clienteReferencia.novo}">Nova Referência</h1><h1 th:unless="${clienteReferencia.novo}">Editar Referência</h1></div>
+	<div class="col-sm-2"><a class="btn btn-default" th:href="@{/clientesReferencia/cliente/{c}(c=${codigoCliente})}"><i class="glyphicon glyphicon-arrow-left"></i></a></div>
+</div></div></div>
+<div class="container-fluid">
+<form method="POST" th:object="${clienteReferencia}" th:action="${clienteReferencia.novo} ? @{/clientesReferencia/novo/{c}(c=${codigoCliente})} : @{/clientesReferencia/{c}(c=${clienteReferencia.codigo})}">
+	<sinapiPRO:message/><input type="hidden" th:field="*{codigo}"/>
+	<input type="hidden" th:field="*{cliente.codigo}"/>
+	<div class="row">
+		<div class="form-group col-sm-6 sn-required" sinapiPRO:classforerror="nome">
+			<label class="control-label">Nome</label><input type="text" class="form-control" th:field="*{nome}" />
+		</div>
+		<div class="form-group col-sm-3"><label class="control-label">Telefone</label><input type="text" class="form-control" th:field="*{telefone}" /></div>
+		<div class="form-group col-sm-3"><label class="control-label">Tipo</label>
+			<select class="form-control" th:field="*{tipo}">
+				<option value="">Selecione...</option>
+				<option value="PESSOAL">Pessoal</option>
+				<option value="COMERCIAL">Comercial</option>
+				<option value="BANCARIA">Bancária</option>
+			</select>
+		</div>
+	</div>
+	<button class="btn btn-primary" type="submit">Salvar</button>
+</form></div>
+</section></body></html>
