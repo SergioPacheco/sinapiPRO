@@ -64,6 +64,33 @@
         		
         		<li class="aw-menu__item">
           			<a href="#">
+          				<i class="fa  fa-1x  fa-money"></i><span>Financeiro</span>
+            			<i class="aw-menu__navigation-icon  fa"></i>	
+          			</a>
+          			<ul class="aw-menu__list  aw-menu__list--sublist">
+          				<li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/planoContas.*}">
+			            	<a th:href="@{/planoContas}">Plano de Contas</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/contasBancarias.*}">
+			            	<a th:href="@{/contasBancarias}">Contas Bancárias</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/historicosBancarios.*}">
+			            	<a th:href="@{/historicosBancarios}">Históricos Bancários</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/despesas.*}">
+			            	<a th:href="@{/despesas}">Contas a Pagar</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/receitas.*}">
+			            	<a th:href="@{/receitas}">Contas a Receber</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/movimentosBancarios.*}">
+			            	<a th:href="@{/movimentosBancarios}">Movimento Bancário</a>
+			            </li>
+          			</ul>
+        		</li>
+        		
+        		<li class="aw-menu__item">
+          			<a href="#">
           				<i class="fa  fa-1x  fa-shopping-cart"></i><span>Suprimentos</span>
             			<i class="aw-menu__navigation-icon  fa"></i>	
           			</a>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/LayoutPadrao}">
+<head><title>Plano de Contas</title></head>
+<body><section layout:fragment="conteudo">
+<div class="page-header"><div class="container-fluid"><div class="row">
+	<div class="col-xs-10"><h1>Plano de Contas</h1></div>
+	<div class="col-xs-2"><a class="btn btn-default" th:href="@{/planoContas/novo}"><i class="glyphicon glyphicon-plus-sign"></i></a></div>
+</div></div></div>
+<div class="container-fluid">
+<table class="table table-hover table-bordered table-condensed">
+	<thead><tr><th>Número</th><th>Descrição</th><th>Tipo</th><th>Nível</th><th>Ativo</th><th class="table-col-acoes"></th></tr></thead>
+	<tbody>
+		<tr th:each="c : ${contas}">
+			<td th:text="${c.numero}" th:style="|padding-left:${(c.nivel - 1) * 20 + 8}px;|"></td>
+			<td th:text="${c.descricao}"></td>
+			<td><span class="label" th:classappend="${c.tipo == 'RECEITA'} ? 'label-success' : (${c.tipo == 'DESPESA'} ? 'label-danger' : 'label-info')" th:text="${c.tipo}"></span></td>
+			<td th:text="${c.nivel}"></td>
+			<td><span th:if="${c.ativo}" class="label label-success">Sim</span><span th:unless="${c.ativo}" class="label label-default">Não</span></td>
+			<td class="text-center"><a class="btn btn-link btn-xs" th:href="@{/planoContas/{c}(c=${c.codigo})}"><i class="glyphicon glyphicon-pencil"></i></a></td>
+		</tr>
+		<tr th:if="${contas.isEmpty()}"><td colspan="6">Nenhuma conta cadastrada</td></tr>
+	</tbody>
+</table>
+</div>
+</section></body></html>

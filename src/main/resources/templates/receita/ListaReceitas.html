@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/LayoutPadrao}">
+<head><title>Contas a Receber</title></head>
+<body><section layout:fragment="conteudo">
+<div class="page-header"><div class="container-fluid"><div class="row">
+	<div class="col-sm-8"><h1>Contas a Receber</h1></div>
+	<div class="col-sm-4 text-right" style="margin-top:20px;">
+		<a class="btn btn-default" th:href="@{/receitas(todas=!${todas})}" th:text="${todas} ? 'Ver Abertas' : 'Ver Todas'"></a>
+		<a class="btn btn-success" th:href="@{/receitas/novo}"><i class="glyphicon glyphicon-plus"></i> Nova</a>
+	</div>
+</div></div></div>
+<div class="container-fluid">
+<table class="table table-hover table-bordered">
+	<thead><tr><th>Descrição</th><th>Cliente</th><th>Vencimento</th><th class="text-right">Valor</th><th>Situação</th><th class="table-col-acoes"></th></tr></thead>
+	<tbody>
+		<tr th:each="r : ${receitas}"
+			th:classappend="${r.situacao == 'ABERTA' and r.dataVencimento.isBefore(T(java.time.LocalDate).now())} ? 'danger' : ''">
+			<td th:text="${r.descricao}"></td>
+			<td th:text="${r.cliente != null} ? ${r.cliente.nome} : ''"></td>
+			<td th:text="${#temporals.format(r.dataVencimento,'dd/MM/yyyy')}"></td>
+			<td class="text-right" th:text="${#numbers.formatDecimal(r.valor,1,2)}"></td>
+			<td><span class="label" th:classappend="${r.situacao == 'RECEBIDA'} ? 'label-success' : (${r.situacao == 'PARCIAL'} ? 'label-warning' : 'label-info')" th:text="${r.situacao}"></span></td>
+			<td class="text-center"><a class="btn btn-link btn-xs" th:href="@{/receitas/{c}(c=${r.codigo})}"><i class="glyphicon glyphicon-pencil"></i></a></td>
+		</tr>
+		<tr th:if="${receitas.isEmpty()}"><td colspan="6">Nenhuma receita encontrada</td></tr>
+	</tbody>
+</table>
+</div>
+</section></body></html>
