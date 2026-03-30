@@ -36,24 +36,70 @@ public class Comissao implements Serializable {
 
     private String situacao = "PENDENTE";
 
-    public Long getCodigo() { return codigo; }
-    public void setCodigo(Long codigo) { this.codigo = codigo; }
-    public Venda getVenda() { return venda; }
-    public void setVenda(Venda venda) { this.venda = venda; }
-    public String getNomeCorretor() { return nomeCorretor; }
-    public void setNomeCorretor(String nomeCorretor) { this.nomeCorretor = nomeCorretor; }
-    public BigDecimal getPercentual() { return percentual; }
-    public void setPercentual(BigDecimal percentual) { this.percentual = percentual; }
-    public BigDecimal getValor() { return valor; }
-    public void setValor(BigDecimal valor) { this.valor = valor; }
-    public LocalDate getDataPagamento() { return dataPagamento; }
-    public void setDataPagamento(LocalDate dataPagamento) { this.dataPagamento = dataPagamento; }
-    public String getSituacao() { return situacao; }
-    public void setSituacao(String situacao) { this.situacao = situacao; }
-    public boolean isNovo() { return codigo == null; }
+public Long getCodigo() {
+	return codigo;
+}
+
+public void setCodigo(Long codigo) {
+	this.codigo = codigo;
+}
+
+public Venda getVenda() {
+	return venda;
+}
+
+public void setVenda(Venda venda) {
+	this.venda = venda;
+}
+
+public String getNomeCorretor() {
+	return nomeCorretor;
+}
+
+public void setNomeCorretor(String nomeCorretor) {
+	this.nomeCorretor = nomeCorretor;
+}
+
+public BigDecimal getPercentual() {
+	return percentual;
+}
+
+public void setPercentual(BigDecimal percentual) {
+	this.percentual = percentual;
+}
+
+public BigDecimal getValor() {
+	return valor;
+}
+
+public void setValor(BigDecimal valor) {
+	this.valor = valor;
+}
+
+public LocalDate getDataPagamento() {
+	return dataPagamento;
+}
+
+public void setDataPagamento(LocalDate dataPagamento) {
+	this.dataPagamento = dataPagamento;
+}
+
+public String getSituacao() {
+	return situacao;
+}
+
+public void setSituacao(String situacao) {
+	this.situacao = situacao;
+}
+
+public boolean isNovo() {
+	return codigo == null;
+}
 
     @Override
-    public int hashCode() { return codigo == null ? 0 : codigo.hashCode(); }
+public int hashCode() {
+	return codigo == null ? 0 : codigo.hashCode();
+}
 
     @Override
     public boolean equals(Object o) {

@@ -109,12 +109,30 @@ public class RelatorioOperacionalService {
         private ParcelaVenda parcela;
         private int diasAtraso;
 
-        public br.edu.ifrn.sinapiPRO.model.Venda getVenda() { return venda; }
-        public void setVenda(br.edu.ifrn.sinapiPRO.model.Venda venda) { this.venda = venda; }
-        public ParcelaVenda getParcela() { return parcela; }
-        public void setParcela(ParcelaVenda parcela) { this.parcela = parcela; }
-        public int getDiasAtraso() { return diasAtraso; }
-        public void setDiasAtraso(int diasAtraso) { this.diasAtraso = diasAtraso; }
+public br.edu.ifrn.sinapiPRO.model.Venda getVenda() {
+	return venda;
+}
+
+public void setVenda(br.edu.ifrn.sinapiPRO.model.Venda venda) {
+	this.venda = venda;
+}
+
+public ParcelaVenda getParcela() {
+	return parcela;
+}
+
+public void setParcela(ParcelaVenda parcela) {
+	this.parcela = parcela;
+}
+
+public int getDiasAtraso() {
+	return diasAtraso;
+}
+
+public void setDiasAtraso(int diasAtraso) {
+	this.diasAtraso = diasAtraso;
+}
+
     }
 
     public static class PosicaoEstoque {
@@ -122,11 +140,29 @@ public class RelatorioOperacionalService {
         private BigDecimal valorTotal;
         private String status;
 
-        public Estoque getEstoque() { return estoque; }
-        public void setEstoque(Estoque estoque) { this.estoque = estoque; }
-        public BigDecimal getValorTotal() { return valorTotal; }
-        public void setValorTotal(BigDecimal valorTotal) { this.valorTotal = valorTotal; }
-        public String getStatus() { return status; }
-        public void setStatus(String status) { this.status = status; }
+public Estoque getEstoque() {
+	return estoque;
+}
+
+public void setEstoque(Estoque estoque) {
+	this.estoque = estoque;
+}
+
+public BigDecimal getValorTotal() {
+	return valorTotal;
+}
+
+public void setValorTotal(BigDecimal valorTotal) {
+	this.valorTotal = valorTotal;
+}
+
+public String getStatus() {
+	return status;
+}
+
+public void setStatus(String status) {
+	this.status = status;
+}
+
     }
 }

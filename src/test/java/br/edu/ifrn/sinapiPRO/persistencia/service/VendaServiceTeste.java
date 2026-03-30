@@ -9,11 +9,13 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import br.edu.ifrn.sinapiPRO.model.Cliente;
 import br.edu.ifrn.sinapiPRO.model.Obra;
@@ -28,8 +30,16 @@ public class VendaServiceTeste {
     @Mock
     private VendasRepository repository;
 
+    @Mock
+    private br.edu.ifrn.sinapiPRO.service.ValidacaoNegocioService validacao;
+
     @InjectMocks
     private VendaService service;
+
+    @Before
+    public void setUp() {
+        ReflectionTestUtils.setField(service, "validacao", validacao);
+    }
 
     private Venda criarVenda() {
         Obra obra = new Obra();

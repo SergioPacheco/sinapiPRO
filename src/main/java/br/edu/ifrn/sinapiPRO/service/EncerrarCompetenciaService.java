@@ -187,15 +187,45 @@ public class EncerrarCompetenciaService {
         private int alertasCount;
         private java.util.List<String> alertas = new java.util.ArrayList<>();
 
-        public String getCompetencia() { return competencia; }
-        public void setCompetencia(String competencia) { this.competencia = competencia; }
-        public String getProximaCompetencia() { return proximaCompetencia; }
-        public void setProximaCompetencia(String proximaCompetencia) { this.proximaCompetencia = proximaCompetencia; }
-        public int getFuncionariosTransferidos() { return funcionariosTransferidos; }
-        public void setFuncionariosTransferidos(int funcionariosTransferidos) { this.funcionariosTransferidos = funcionariosTransferidos; }
-        public int getAlertasCount() { return alertasCount; }
-        public void setAlertasCount(int alertasCount) { this.alertasCount = alertasCount; }
-        public java.util.List<String> getAlertas() { return alertas; }
-        public void setAlertas(java.util.List<String> alertas) { this.alertas = alertas; }
+public String getCompetencia() {
+	return competencia;
+}
+
+public void setCompetencia(String competencia) {
+	this.competencia = competencia;
+}
+
+public String getProximaCompetencia() {
+	return proximaCompetencia;
+}
+
+public void setProximaCompetencia(String proximaCompetencia) {
+	this.proximaCompetencia = proximaCompetencia;
+}
+
+public int getFuncionariosTransferidos() {
+	return funcionariosTransferidos;
+}
+
+public void setFuncionariosTransferidos(int funcionariosTransferidos) {
+	this.funcionariosTransferidos = funcionariosTransferidos;
+}
+
+public int getAlertasCount() {
+	return alertasCount;
+}
+
+public void setAlertasCount(int alertasCount) {
+	this.alertasCount = alertasCount;
+}
+
+public java.util.List<String> getAlertas() {
+	return alertas;
+}
+
+public void setAlertas(java.util.List<String> alertas) {
+	this.alertas = alertas;
+}
+
     }
 }

@@ -240,16 +240,46 @@ public class AnaliseCotacaoService {
         private String fornecedorMenorPreco;
         private BigDecimal economia;
 
-        public CotacaoItem getItem() { return item; }
-        public void setItem(CotacaoItem item) { this.item = item; }
-        public List<RespostaCotacao> getRespostas() { return respostas; }
-        public void setRespostas(List<RespostaCotacao> respostas) { this.respostas = respostas; }
-        public BigDecimal getMenorPreco() { return menorPreco; }
-        public void setMenorPreco(BigDecimal menorPreco) { this.menorPreco = menorPreco; }
-        public String getFornecedorMenorPreco() { return fornecedorMenorPreco; }
-        public void setFornecedorMenorPreco(String fornecedorMenorPreco) { this.fornecedorMenorPreco = fornecedorMenorPreco; }
-        public BigDecimal getEconomia() { return economia; }
-        public void setEconomia(BigDecimal economia) { this.economia = economia; }
+public CotacaoItem getItem() {
+	return item;
+}
+
+public void setItem(CotacaoItem item) {
+	this.item = item;
+}
+
+public List<RespostaCotacao> getRespostas() {
+	return respostas;
+}
+
+public void setRespostas(List<RespostaCotacao> respostas) {
+	this.respostas = respostas;
+}
+
+public BigDecimal getMenorPreco() {
+	return menorPreco;
+}
+
+public void setMenorPreco(BigDecimal menorPreco) {
+	this.menorPreco = menorPreco;
+}
+
+public String getFornecedorMenorPreco() {
+	return fornecedorMenorPreco;
+}
+
+public void setFornecedorMenorPreco(String fornecedorMenorPreco) {
+	this.fornecedorMenorPreco = fornecedorMenorPreco;
+}
+
+public BigDecimal getEconomia() {
+	return economia;
+}
+
+public void setEconomia(BigDecimal economia) {
+	this.economia = economia;
+}
+
     }
 
     public static class TotalFornecedor {
@@ -257,11 +287,29 @@ public class AnaliseCotacaoService {
         private BigDecimal total;
         private int itensRespondidos;
 
-        public CotacaoFornecedor getCotacaoFornecedor() { return cotacaoFornecedor; }
-        public void setCotacaoFornecedor(CotacaoFornecedor cotacaoFornecedor) { this.cotacaoFornecedor = cotacaoFornecedor; }
-        public BigDecimal getTotal() { return total; }
-        public void setTotal(BigDecimal total) { this.total = total; }
-        public int getItensRespondidos() { return itensRespondidos; }
-        public void setItensRespondidos(int itensRespondidos) { this.itensRespondidos = itensRespondidos; }
+public CotacaoFornecedor getCotacaoFornecedor() {
+	return cotacaoFornecedor;
+}
+
+public void setCotacaoFornecedor(CotacaoFornecedor cotacaoFornecedor) {
+	this.cotacaoFornecedor = cotacaoFornecedor;
+}
+
+public BigDecimal getTotal() {
+	return total;
+}
+
+public void setTotal(BigDecimal total) {
+	this.total = total;
+}
+
+public int getItensRespondidos() {
+	return itensRespondidos;
+}
+
+public void setItensRespondidos(int itensRespondidos) {
+	this.itensRespondidos = itensRespondidos;
+}
+
     }
 }

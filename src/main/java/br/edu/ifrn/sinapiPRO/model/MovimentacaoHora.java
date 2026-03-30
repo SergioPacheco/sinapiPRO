@@ -40,19 +40,64 @@ public class MovimentacaoHora implements Serializable {
 
     private String descricao;
 
-    public Long getCodigo() { return codigo; }
-    public void setCodigo(Long codigo) { this.codigo = codigo; }
-    public Funcionario getFuncionario() { return funcionario; }
-    public void setFuncionario(Funcionario funcionario) { this.funcionario = funcionario; }
-    public Competencia getCompetencia() { return competencia; }
-    public void setCompetencia(Competencia competencia) { this.competencia = competencia; }
-    public LocalDate getDataMovimentacao() { return dataMovimentacao; }
-    public void setDataMovimentacao(LocalDate dataMovimentacao) { this.dataMovimentacao = dataMovimentacao; }
-    public String getTipo() { return tipo; }
-    public void setTipo(String tipo) { this.tipo = tipo; }
-    public BigDecimal getHoras() { return horas; }
-    public void setHoras(BigDecimal horas) { this.horas = horas; }
-    public String getDescricao() { return descricao; }
-    public void setDescricao(String descricao) { this.descricao = descricao; }
-    public boolean isNovo() { return codigo == null; }
+public Long getCodigo() {
+	return codigo;
+}
+
+public void setCodigo(Long codigo) {
+	this.codigo = codigo;
+}
+
+public Funcionario getFuncionario() {
+	return funcionario;
+}
+
+public void setFuncionario(Funcionario funcionario) {
+	this.funcionario = funcionario;
+}
+
+public Competencia getCompetencia() {
+	return competencia;
+}
+
+public void setCompetencia(Competencia competencia) {
+	this.competencia = competencia;
+}
+
+public LocalDate getDataMovimentacao() {
+	return dataMovimentacao;
+}
+
+public void setDataMovimentacao(LocalDate dataMovimentacao) {
+	this.dataMovimentacao = dataMovimentacao;
+}
+
+public String getTipo() {
+	return tipo;
+}
+
+public void setTipo(String tipo) {
+	this.tipo = tipo;
+}
+
+public BigDecimal getHoras() {
+	return horas;
+}
+
+public void setHoras(BigDecimal horas) {
+	this.horas = horas;
+}
+
+public String getDescricao() {
+	return descricao;
+}
+
+public void setDescricao(String descricao) {
+	this.descricao = descricao;
+}
+
+public boolean isNovo() {
+	return codigo == null;
+}
+
 }

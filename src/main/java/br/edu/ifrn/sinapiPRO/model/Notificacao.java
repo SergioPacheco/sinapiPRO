@@ -33,18 +33,60 @@ public class Notificacao implements Serializable {
     @JoinColumn(name = "codigo_atendimento")
     private Atendimento atendimento;
 
-    public Long getCodigo() { return codigo; }
-    public void setCodigo(Long codigo) { this.codigo = codigo; }
-    public String getTitulo() { return titulo; }
-    public void setTitulo(String titulo) { this.titulo = titulo; }
-    public String getMensagem() { return mensagem; }
-    public void setMensagem(String mensagem) { this.mensagem = mensagem; }
-    public String getTipo() { return tipo; }
-    public void setTipo(String tipo) { this.tipo = tipo; }
-    public boolean isLida() { return lida; }
-    public void setLida(boolean lida) { this.lida = lida; }
-    public LocalDateTime getDataCriacao() { return dataCriacao; }
-    public void setDataCriacao(LocalDateTime dataCriacao) { this.dataCriacao = dataCriacao; }
-    public Atendimento getAtendimento() { return atendimento; }
-    public void setAtendimento(Atendimento atendimento) { this.atendimento = atendimento; }
+public Long getCodigo() {
+	return codigo;
+}
+
+public void setCodigo(Long codigo) {
+	this.codigo = codigo;
+}
+
+public String getTitulo() {
+	return titulo;
+}
+
+public void setTitulo(String titulo) {
+	this.titulo = titulo;
+}
+
+public String getMensagem() {
+	return mensagem;
+}
+
+public void setMensagem(String mensagem) {
+	this.mensagem = mensagem;
+}
+
+public String getTipo() {
+	return tipo;
+}
+
+public void setTipo(String tipo) {
+	this.tipo = tipo;
+}
+
+public boolean isLida() {
+	return lida;
+}
+
+public void setLida(boolean lida) {
+	this.lida = lida;
+}
+
+public LocalDateTime getDataCriacao() {
+	return dataCriacao;
+}
+
+public void setDataCriacao(LocalDateTime dataCriacao) {
+	this.dataCriacao = dataCriacao;
+}
+
+public Atendimento getAtendimento() {
+	return atendimento;
+}
+
+public void setAtendimento(Atendimento atendimento) {
+	this.atendimento = atendimento;
+}
+
 }

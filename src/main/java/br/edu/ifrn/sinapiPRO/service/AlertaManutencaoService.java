@@ -178,15 +178,45 @@ public class AlertaManutencaoService {
         private String nivel;  // CRITICO, ALTO, MEDIO
         private String mensagem;
 
-        public Veiculo getVeiculo() { return veiculo; }
-        public void setVeiculo(Veiculo veiculo) { this.veiculo = veiculo; }
-        public AgendamentoManutencao getAgendamento() { return agendamento; }
-        public void setAgendamento(AgendamentoManutencao agendamento) { this.agendamento = agendamento; }
-        public String getTipo() { return tipo; }
-        public void setTipo(String tipo) { this.tipo = tipo; }
-        public String getNivel() { return nivel; }
-        public void setNivel(String nivel) { this.nivel = nivel; }
-        public String getMensagem() { return mensagem; }
-        public void setMensagem(String mensagem) { this.mensagem = mensagem; }
+public Veiculo getVeiculo() {
+	return veiculo;
+}
+
+public void setVeiculo(Veiculo veiculo) {
+	this.veiculo = veiculo;
+}
+
+public AgendamentoManutencao getAgendamento() {
+	return agendamento;
+}
+
+public void setAgendamento(AgendamentoManutencao agendamento) {
+	this.agendamento = agendamento;
+}
+
+public String getTipo() {
+	return tipo;
+}
+
+public void setTipo(String tipo) {
+	this.tipo = tipo;
+}
+
+public String getNivel() {
+	return nivel;
+}
+
+public void setNivel(String nivel) {
+	this.nivel = nivel;
+}
+
+public String getMensagem() {
+	return mensagem;
+}
+
+public void setMensagem(String mensagem) {
+	this.mensagem = mensagem;
+}
+
     }
 }

@@ -48,27 +48,82 @@ public class Venda implements Serializable {
     @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ParcelaVenda> parcelas = new ArrayList<>();
 
-    public Long getCodigo() { return codigo; }
-    public void setCodigo(Long codigo) { this.codigo = codigo; }
-    public UnidadeVenda getUnidade() { return unidade; }
-    public void setUnidade(UnidadeVenda unidade) { this.unidade = unidade; }
-    public Cliente getCliente() { return cliente; }
-    public void setCliente(Cliente cliente) { this.cliente = cliente; }
-    public Proposta getProposta() { return proposta; }
-    public void setProposta(Proposta proposta) { this.proposta = proposta; }
-    public LocalDate getDataVenda() { return dataVenda; }
-    public void setDataVenda(LocalDate dataVenda) { this.dataVenda = dataVenda; }
-    public BigDecimal getValorVenda() { return valorVenda; }
-    public void setValorVenda(BigDecimal valorVenda) { this.valorVenda = valorVenda; }
-    public String getSituacao() { return situacao; }
-    public void setSituacao(String situacao) { this.situacao = situacao; }
-    public String getObservacao() { return observacao; }
-    public void setObservacao(String observacao) { this.observacao = observacao; }
-    public List<ParcelaVenda> getParcelas() { return parcelas; }
-    public boolean isNovo() { return codigo == null; }
+public Long getCodigo() {
+	return codigo;
+}
+
+public void setCodigo(Long codigo) {
+	this.codigo = codigo;
+}
+
+public UnidadeVenda getUnidade() {
+	return unidade;
+}
+
+public void setUnidade(UnidadeVenda unidade) {
+	this.unidade = unidade;
+}
+
+public Cliente getCliente() {
+	return cliente;
+}
+
+public void setCliente(Cliente cliente) {
+	this.cliente = cliente;
+}
+
+public Proposta getProposta() {
+	return proposta;
+}
+
+public void setProposta(Proposta proposta) {
+	this.proposta = proposta;
+}
+
+public LocalDate getDataVenda() {
+	return dataVenda;
+}
+
+public void setDataVenda(LocalDate dataVenda) {
+	this.dataVenda = dataVenda;
+}
+
+public BigDecimal getValorVenda() {
+	return valorVenda;
+}
+
+public void setValorVenda(BigDecimal valorVenda) {
+	this.valorVenda = valorVenda;
+}
+
+public String getSituacao() {
+	return situacao;
+}
+
+public void setSituacao(String situacao) {
+	this.situacao = situacao;
+}
+
+public String getObservacao() {
+	return observacao;
+}
+
+public void setObservacao(String observacao) {
+	this.observacao = observacao;
+}
+
+public List<ParcelaVenda> getParcelas() {
+	return parcelas;
+}
+
+public boolean isNovo() {
+	return codigo == null;
+}
 
     @Override
-    public int hashCode() { return codigo == null ? 0 : codigo.hashCode(); }
+public int hashCode() {
+	return codigo == null ? 0 : codigo.hashCode();
+}
 
     @Override
     public boolean equals(Object o) {

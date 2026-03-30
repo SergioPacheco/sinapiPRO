@@ -39,21 +39,72 @@ public class OrdemServico implements Serializable {
     private String situacao = "ABERTA";
     private BigDecimal valor = BigDecimal.ZERO;
 
-    public Long getCodigo() { return codigo; }
-    public void setCodigo(Long codigo) { this.codigo = codigo; }
-    public Atendimento getAtendimento() { return atendimento; }
-    public void setAtendimento(Atendimento atendimento) { this.atendimento = atendimento; }
-    public Integer getNumero() { return numero; }
-    public void setNumero(Integer numero) { this.numero = numero; }
-    public String getDescricao() { return descricao; }
-    public void setDescricao(String descricao) { this.descricao = descricao; }
-    public LocalDate getDataEmissao() { return dataEmissao; }
-    public void setDataEmissao(LocalDate dataEmissao) { this.dataEmissao = dataEmissao; }
-    public LocalDate getDataExecucao() { return dataExecucao; }
-    public void setDataExecucao(LocalDate dataExecucao) { this.dataExecucao = dataExecucao; }
-    public String getSituacao() { return situacao; }
-    public void setSituacao(String situacao) { this.situacao = situacao; }
-    public BigDecimal getValor() { return valor; }
-    public void setValor(BigDecimal valor) { this.valor = valor; }
-    public boolean isNovo() { return codigo == null; }
+public Long getCodigo() {
+	return codigo;
+}
+
+public void setCodigo(Long codigo) {
+	this.codigo = codigo;
+}
+
+public Atendimento getAtendimento() {
+	return atendimento;
+}
+
+public void setAtendimento(Atendimento atendimento) {
+	this.atendimento = atendimento;
+}
+
+public Integer getNumero() {
+	return numero;
+}
+
+public void setNumero(Integer numero) {
+	this.numero = numero;
+}
+
+public String getDescricao() {
+	return descricao;
+}
+
+public void setDescricao(String descricao) {
+	this.descricao = descricao;
+}
+
+public LocalDate getDataEmissao() {
+	return dataEmissao;
+}
+
+public void setDataEmissao(LocalDate dataEmissao) {
+	this.dataEmissao = dataEmissao;
+}
+
+public LocalDate getDataExecucao() {
+	return dataExecucao;
+}
+
+public void setDataExecucao(LocalDate dataExecucao) {
+	this.dataExecucao = dataExecucao;
+}
+
+public String getSituacao() {
+	return situacao;
+}
+
+public void setSituacao(String situacao) {
+	this.situacao = situacao;
+}
+
+public BigDecimal getValor() {
+	return valor;
+}
+
+public void setValor(BigDecimal valor) {
+	this.valor = valor;
+}
+
+public boolean isNovo() {
+	return codigo == null;
+}
+
 }

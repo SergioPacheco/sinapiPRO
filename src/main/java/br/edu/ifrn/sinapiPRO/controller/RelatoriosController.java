@@ -19,6 +19,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 import br.edu.ifrn.sinapiPRO.dto.ListaComposicoes;
 import br.edu.ifrn.sinapiPRO.dto.ListaInsumos;
 import br.edu.ifrn.sinapiPRO.dto.PeriodoRelatorio;
@@ -241,7 +252,7 @@ public class RelatoriosController {
 
 	@GetMapping("/cronograma/{codigo}")
 	public ResponseEntity<byte[]> relatorioCronograma(@PathVariable Long codigo) {
-		java.util.Map<String, Object> data = montarDadosCronograma(codigo);
+		Map<String, Object> data = montarDadosCronograma(codigo);
 		byte[] pdf = freeMarkerReport.gerarPdf("cronograma-financeiro.ftl", data);
 		return ResponseEntity.ok()
 				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE)
@@ -250,20 +261,20 @@ public class RelatoriosController {
 
 	@GetMapping("/curvaS/{codigo}")
 	public ResponseEntity<byte[]> relatorioCurvaS(@PathVariable Long codigo) {
-		java.util.Map<String, Object> data = montarDadosCronograma(codigo);
+		Map<String, Object> data = montarDadosCronograma(codigo);
 		byte[] pdf = freeMarkerReport.gerarPdf("curva-s.ftl", data);
 		return ResponseEntity.ok()
 				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE)
 				.body(pdf);
 	}
 
-	private java.util.Map<String, Object> montarDadosCronograma(Long codigo) {
+	private Map<String, Object> montarDadosCronograma(Long codigo) {
 		Orcamento orcamento = orcamentoService.buscarComItens(codigo);
 		var cronograma = planejamentoService.calcularCronograma(codigo);
 
-		java.text.DecimalFormat df = new java.text.DecimalFormat("#,##0.00");
-		List<java.util.Map<String, String>> rows = cronograma.stream().map(cm -> {
-			java.util.Map<String, String> m = new java.util.HashMap<>();
+		DecimalFormat df = new DecimalFormat("#,##0.00");
+		List<Map<String, String>> rows = cronograma.stream().map(cm -> {
+			Map<String, String> m = new HashMap<>();
 			m.put("periodo", cm.getPeriodo());
 			m.put("valorPlanejado", df.format(cm.getValorPlanejado()));
 			m.put("valorAcumulado", df.format(cm.getValorAcumulado()));
@@ -271,11 +282,11 @@ public class RelatoriosController {
 			return m;
 		}).collect(Collectors.toList());
 
-		java.util.Map<String, Object> data = new java.util.HashMap<>();
+		Map<String, Object> data = new HashMap<>();
 		data.put("orcamento", orcamento.getNome());
 		data.put("cronograma", rows);
 		data.put("totalGeral", df.format(orcamento.calculaValorTotalComTaxas()));
-		data.put("emissao", new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
+		data.put("emissao", new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date()));
 		return data;
 	}
 
@@ -284,23 +295,23 @@ public class RelatoriosController {
 		Orcamento orcamento = orcamentoService.buscarComItens(codigo);
 		List<PlanejamentoFisicoDTO> itens = planejamentoService.montarPlanejamentoFisico(codigo);
 
-		java.text.DecimalFormat df = new java.text.DecimalFormat("#,##0.00");
-		java.time.format.DateTimeFormatter dtf = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		DecimalFormat df = new DecimalFormat("#,##0.00");
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
 		// Agrupar por etapa
-		java.util.Map<String, List<PlanejamentoFisicoDTO>> porEtapa = new java.util.LinkedHashMap<>();
+		Map<String, List<PlanejamentoFisicoDTO>> porEtapa = new LinkedHashMap<>();
 		for (PlanejamentoFisicoDTO dto : itens) {
-			porEtapa.computeIfAbsent(dto.getEtapa(), k -> new java.util.ArrayList<>()).add(dto);
+			porEtapa.computeIfAbsent(dto.getEtapa(), k -> new ArrayList<>()).add(dto);
 		}
 
-		List<java.util.Map<String, Object>> etapas = new java.util.ArrayList<>();
+		List<Map<String, Object>> etapas = new ArrayList<>();
 		for (var entry : porEtapa.entrySet()) {
-			java.util.Map<String, Object> etapa = new java.util.HashMap<>();
+			Map<String, Object> etapa = new HashMap<>();
 			etapa.put("nome", entry.getKey());
 			BigDecimal subtotal = BigDecimal.ZERO;
-			List<java.util.Map<String, String>> rows = new java.util.ArrayList<>();
+			List<Map<String, String>> rows = new ArrayList<>();
 			for (PlanejamentoFisicoDTO dto : entry.getValue()) {
-				java.util.Map<String, String> row = new java.util.HashMap<>();
+				Map<String, String> row = new HashMap<>();
 				row.put("itemizacao", dto.getItemizacao() != null ? dto.getItemizacao() : "");
 				row.put("descricao", dto.getDescricao() != null ? dto.getDescricao() : "");
 				row.put("dataInicio", dto.getDataInicio() != null ? dto.getDataInicio().format(dtf) : "");
@@ -320,11 +331,11 @@ public class RelatoriosController {
 			etapas.add(etapa);
 		}
 
-		java.util.Map<String, Object> data = new java.util.HashMap<>();
+		Map<String, Object> data = new HashMap<>();
 		data.put("orcamento", orcamento.getNome());
 		data.put("etapas", etapas);
 		data.put("totalGeral", df.format(orcamento.calculaValorTotalComTaxas()));
-		data.put("emissao", new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
+		data.put("emissao", new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date()));
 
 		byte[] pdf = freeMarkerReport.gerarPdf("planejamento-fisico.ftl", data);
 		return ResponseEntity.ok()
@@ -343,16 +354,16 @@ public class RelatoriosController {
 
 	@GetMapping("/mapaVendas/{codigoObra}")
 	public ResponseEntity<byte[]> mapaVendas(@PathVariable Long codigoObra) {
-		java.text.DecimalFormat df = new java.text.DecimalFormat("#,##0.00");
+		DecimalFormat df = new DecimalFormat("#,##0.00");
 		var unidades = unidadeVendaService.findByObra(codigoObra);
 		var vendas = vendaService.findByObra(codigoObra);
 
-		java.util.Map<Long, br.edu.ifrn.sinapiPRO.model.Venda> vendaMap = vendas.stream()
-				.collect(java.util.stream.Collectors.toMap(
+		Map<Long, br.edu.ifrn.sinapiPRO.model.Venda> vendaMap = vendas.stream()
+				.collect(Collectors.toMap(
 						v -> v.getUnidade().getCodigo(), v -> v, (a, b) -> a));
 
-		List<java.util.Map<String, String>> rows = unidades.stream().map(u -> {
-			java.util.Map<String, String> row = new java.util.HashMap<>();
+		List<Map<String, String>> rows = unidades.stream().map(u -> {
+			Map<String, String> row = new HashMap<>();
 			row.put("identificacao", u.getIdentificacao() != null ? u.getIdentificacao() : "");
 			row.put("tipo", u.getTipo() != null ? u.getTipo() : "");
 			row.put("bloco", u.getBloco() != null ? u.getBloco() : "");
@@ -361,18 +372,18 @@ public class RelatoriosController {
 			row.put("situacao", u.getSituacao() != null ? u.getSituacao().getNome() : "Disponível");
 			br.edu.ifrn.sinapiPRO.model.Venda venda = vendaMap.get(u.getCodigo());
 			row.put("cliente", venda != null ? venda.getCliente().getNome() : "");
-			row.put("dataVenda", venda != null ? venda.getDataVenda().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "");
+			row.put("dataVenda", venda != null ? venda.getDataVenda().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "");
 			return row;
-		}).collect(java.util.stream.Collectors.toList());
+		}).collect(Collectors.toList());
 
 		long totalVendidas = vendaMap.size();
-		java.util.Map<String, Object> data = new java.util.HashMap<>();
+		Map<String, Object> data = new HashMap<>();
 		data.put("obra", unidades.isEmpty() ? "" : unidades.get(0).getObra().getNome());
 		data.put("unidades", rows);
 		data.put("totalUnidades", unidades.size());
 		data.put("totalVendidas", totalVendidas);
 		data.put("totalDisponiveis", unidades.size() - totalVendidas);
-		data.put("emissao", new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
+		data.put("emissao", new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date()));
 
 		byte[] pdf = freeMarkerReport.gerarPdf("mapa-vendas.ftl", data);
 		return ResponseEntity.ok()
@@ -382,30 +393,30 @@ public class RelatoriosController {
 
 	@GetMapping("/resumoVendas/{codigoObra}")
 	public ResponseEntity<byte[]> resumoVendas(@PathVariable Long codigoObra) {
-		java.text.DecimalFormat df = new java.text.DecimalFormat("#,##0.00");
+		DecimalFormat df = new DecimalFormat("#,##0.00");
 		var vendas = vendaService.findByObra(codigoObra);
 
-		List<java.util.Map<String, String>> rows = vendas.stream().map(v -> {
-			java.util.Map<String, String> row = new java.util.HashMap<>();
+		List<Map<String, String>> rows = vendas.stream().map(v -> {
+			Map<String, String> row = new HashMap<>();
 			row.put("unidade", v.getUnidade().getIdentificacao());
 			row.put("cliente", v.getCliente().getNome());
-			row.put("dataVenda", v.getDataVenda().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+			row.put("dataVenda", v.getDataVenda().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
 			row.put("valorVenda", df.format(v.getValorVenda()));
 			row.put("situacao", v.getSituacao());
 			row.put("totalParcelas", String.valueOf(v.getParcelas().size()));
 			return row;
-		}).collect(java.util.stream.Collectors.toList());
+		}).collect(Collectors.toList());
 
 		java.math.BigDecimal totalVendas = vendas.stream()
 				.map(br.edu.ifrn.sinapiPRO.model.Venda::getValorVenda)
 				.reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
 
-		java.util.Map<String, Object> data = new java.util.HashMap<>();
+		Map<String, Object> data = new HashMap<>();
 		data.put("obra", vendas.isEmpty() ? "" : vendas.get(0).getUnidade().getObra().getNome());
 		data.put("vendas", rows);
 		data.put("totalVendas", df.format(totalVendas));
 		data.put("periodo", "Todos");
-		data.put("emissao", new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
+		data.put("emissao", new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date()));
 
 		byte[] pdf = freeMarkerReport.gerarPdf("resumo-vendas.ftl", data);
 		return ResponseEntity.ok()
@@ -415,22 +426,22 @@ public class RelatoriosController {
 
 	@GetMapping("/resumoCorretor/{codigoObra}")
 	public ResponseEntity<byte[]> resumoCorretor(@PathVariable Long codigoObra) {
-		java.text.DecimalFormat df = new java.text.DecimalFormat("#,##0.00");
+		DecimalFormat df = new DecimalFormat("#,##0.00");
 		var vendas = vendaService.findByObra(codigoObra);
 
 		// Agrupa comissões por corretor
-		java.util.Map<String, List<java.util.Map<String, String>>> porCorretor = new java.util.LinkedHashMap<>();
-		java.util.Map<String, java.math.BigDecimal> totaisPorCorretor = new java.util.LinkedHashMap<>();
+		Map<String, List<Map<String, String>>> porCorretor = new LinkedHashMap<>();
+		Map<String, java.math.BigDecimal> totaisPorCorretor = new LinkedHashMap<>();
 
 		for (var venda : vendas) {
 			var comissoes = comissaoService.findByVenda(venda.getCodigo());
 			for (var c : comissoes) {
 				String corretor = c.getNomeCorretor();
-				porCorretor.computeIfAbsent(corretor, k -> new java.util.ArrayList<>());
-				java.util.Map<String, String> row = new java.util.HashMap<>();
+				porCorretor.computeIfAbsent(corretor, k -> new ArrayList<>());
+				Map<String, String> row = new HashMap<>();
 				row.put("unidade", venda.getUnidade().getIdentificacao());
 				row.put("cliente", venda.getCliente().getNome());
-				row.put("dataVenda", venda.getDataVenda().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+				row.put("dataVenda", venda.getDataVenda().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
 				row.put("valorVenda", df.format(venda.getValorVenda()));
 				row.put("percentual", df.format(c.getPercentual()));
 				row.put("valorComissao", df.format(c.getValor()));
@@ -440,10 +451,10 @@ public class RelatoriosController {
 			}
 		}
 
-		List<java.util.Map<String, Object>> corretores = new java.util.ArrayList<>();
+		List<Map<String, Object>> corretores = new ArrayList<>();
 		java.math.BigDecimal totalGeral = java.math.BigDecimal.ZERO;
 		for (var entry : porCorretor.entrySet()) {
-			java.util.Map<String, Object> c = new java.util.HashMap<>();
+			Map<String, Object> c = new HashMap<>();
 			c.put("nome", entry.getKey());
 			c.put("comissoes", entry.getValue());
 			java.math.BigDecimal total = totaisPorCorretor.getOrDefault(entry.getKey(), java.math.BigDecimal.ZERO);
@@ -452,11 +463,11 @@ public class RelatoriosController {
 			totalGeral = totalGeral.add(total);
 		}
 
-		java.util.Map<String, Object> data = new java.util.HashMap<>();
+		Map<String, Object> data = new HashMap<>();
 		data.put("obra", vendas.isEmpty() ? "" : vendas.get(0).getUnidade().getObra().getNome());
 		data.put("corretores", corretores);
 		data.put("totalGeralComissoes", df.format(totalGeral));
-		data.put("emissao", new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
+		data.put("emissao", new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date()));
 
 		byte[] pdf = freeMarkerReport.gerarPdf("resumo-corretor.ftl", data);
 		return ResponseEntity.ok()
@@ -482,13 +493,13 @@ public class RelatoriosController {
 	@GetMapping("/fluxoCaixa")
 	public ResponseEntity<byte[]> fluxoCaixa(
 			@RequestParam(required = false) Long codigoConta,
-			@RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate inicio,
-			@RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate fim) {
+			@RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) LocalDate inicio,
+			@RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) LocalDate fim) {
 
-		java.text.DecimalFormat df = new java.text.DecimalFormat("#,##0.00");
-		java.time.format.DateTimeFormatter dtf = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		DecimalFormat df = new DecimalFormat("#,##0.00");
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-		List<java.util.Map<String, String>> lancamentos = new java.util.ArrayList<>();
+		List<Map<String, String>> lancamentos = new ArrayList<>();
 		java.math.BigDecimal saldo = java.math.BigDecimal.ZERO;
 
 		// Receitas
@@ -496,9 +507,9 @@ public class RelatoriosController {
 				.filter(r -> r.getDataVencimento() != null)
 				.filter(r -> inicio == null || !r.getDataVencimento().isBefore(inicio))
 				.filter(r -> fim == null || !r.getDataVencimento().isAfter(fim))
-				.sorted(java.util.Comparator.comparing(r -> r.getDataVencimento()))
+				.sorted(Comparator.comparing(r -> r.getDataVencimento()))
 				.forEach(r -> {
-					java.util.Map<String, String> row = new java.util.HashMap<>();
+					Map<String, String> row = new HashMap<>();
 					row.put("data", r.getDataVencimento().format(dtf));
 					row.put("descricao", r.getDescricao());
 					row.put("tipo", "CREDITO");
@@ -512,9 +523,9 @@ public class RelatoriosController {
 				.filter(d -> d.getDataVencimento() != null)
 				.filter(d -> inicio == null || !d.getDataVencimento().isBefore(inicio))
 				.filter(d -> fim == null || !d.getDataVencimento().isAfter(fim))
-				.sorted(java.util.Comparator.comparing(d -> d.getDataVencimento()))
+				.sorted(Comparator.comparing(d -> d.getDataVencimento()))
 				.forEach(d -> {
-					java.util.Map<String, String> row = new java.util.HashMap<>();
+					Map<String, String> row = new HashMap<>();
 					row.put("data", d.getDataVencimento().format(dtf));
 					row.put("descricao", d.getDescricao());
 					row.put("tipo", "DEBITO");
@@ -524,11 +535,11 @@ public class RelatoriosController {
 				});
 
 		// Ordena por data
-		lancamentos.sort(java.util.Comparator.comparing(m -> m.get("data")));
+		lancamentos.sort(Comparator.comparing(m -> m.get("data")));
 
 		// Calcula saldo acumulado
 		java.math.BigDecimal saldoAcum = java.math.BigDecimal.ZERO;
-		for (java.util.Map<String, String> row : lancamentos) {
+		for (Map<String, String> row : lancamentos) {
 			java.math.BigDecimal valor = new java.math.BigDecimal(row.get("valor").replace(".", "").replace(",", "."));
 			if ("CREDITO".equals(row.get("tipo"))) {
 				saldoAcum = saldoAcum.add(valor);
@@ -539,11 +550,11 @@ public class RelatoriosController {
 		}
 
 		String periodo = (inicio != null ? inicio.format(dtf) : "Início") + " a " + (fim != null ? fim.format(dtf) : "Hoje");
-		java.util.Map<String, Object> data = new java.util.HashMap<>();
+		Map<String, Object> data = new HashMap<>();
 		data.put("lancamentos", lancamentos);
 		data.put("saldoFinal", df.format(saldoAcum));
 		data.put("periodo", periodo);
-		data.put("emissao", new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
+		data.put("emissao", new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date()));
 
 		byte[] pdf = freeMarkerReport.gerarPdf("fluxo-caixa.ftl", data);
 		return ResponseEntity.ok()
@@ -553,14 +564,14 @@ public class RelatoriosController {
 
 	@GetMapping("/balancete")
 	public ResponseEntity<byte[]> balancete(
-			@RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate inicio,
-			@RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate fim) {
+			@RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) LocalDate inicio,
+			@RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) LocalDate fim) {
 
-		java.text.DecimalFormat df = new java.text.DecimalFormat("#,##0.00");
-		java.time.format.DateTimeFormatter dtf = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		DecimalFormat df = new DecimalFormat("#,##0.00");
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
 		// Agrupa despesas por plano de contas
-		java.util.Map<String, java.math.BigDecimal[]> contaMap = new java.util.LinkedHashMap<>();
+		Map<String, java.math.BigDecimal[]> contaMap = new LinkedHashMap<>();
 
 		despesaService.findAll().forEach(d -> {
 			String conta = d.getPlanoContas() != null
@@ -580,10 +591,10 @@ public class RelatoriosController {
 
 		java.math.BigDecimal totalDebito = java.math.BigDecimal.ZERO;
 		java.math.BigDecimal totalCredito = java.math.BigDecimal.ZERO;
-		List<java.util.Map<String, String>> contas = new java.util.ArrayList<>();
+		List<Map<String, String>> contas = new ArrayList<>();
 
 		for (var entry : contaMap.entrySet()) {
-			java.util.Map<String, String> row = new java.util.HashMap<>();
+			Map<String, String> row = new HashMap<>();
 			String[] parts = entry.getKey().split(" - ", 2);
 			row.put("numero", parts[0]);
 			row.put("descricao", parts.length > 1 ? parts[1] : entry.getKey());
@@ -598,13 +609,13 @@ public class RelatoriosController {
 		}
 
 		String periodo = (inicio != null ? inicio.format(dtf) : "Início") + " a " + (fim != null ? fim.format(dtf) : "Hoje");
-		java.util.Map<String, Object> data = new java.util.HashMap<>();
+		Map<String, Object> data = new HashMap<>();
 		data.put("contas", contas);
 		data.put("totalCredito", df.format(totalCredito));
 		data.put("totalDebito", df.format(totalDebito));
 		data.put("saldoGeral", df.format(totalCredito.subtract(totalDebito)));
 		data.put("periodo", periodo);
-		data.put("emissao", new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
+		data.put("emissao", new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date()));
 
 		byte[] pdf = freeMarkerReport.gerarPdf("balancete.ftl", data);
 		return ResponseEntity.ok()
@@ -614,21 +625,21 @@ public class RelatoriosController {
 
 	@GetMapping("/dre")
 	public ResponseEntity<byte[]> dre(
-			@RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate inicio,
-			@RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate fim) {
+			@RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) LocalDate inicio,
+			@RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) LocalDate fim) {
 
-		java.text.DecimalFormat df = new java.text.DecimalFormat("#,##0.00");
-		java.time.format.DateTimeFormatter dtf = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		DecimalFormat df = new DecimalFormat("#,##0.00");
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
 		// Agrupa receitas por plano de contas
-		java.util.Map<String, java.math.BigDecimal> receitasMap = new java.util.LinkedHashMap<>();
+		Map<String, java.math.BigDecimal> receitasMap = new LinkedHashMap<>();
 		receitaService.findAll().forEach(r -> {
 			String desc = r.getPlanoContas() != null ? r.getPlanoContas().getDescricao() : "Receitas Diversas";
 			receitasMap.merge(desc, r.getValor(), java.math.BigDecimal::add);
 		});
 
 		// Agrupa despesas por plano de contas
-		java.util.Map<String, java.math.BigDecimal> despesasMap = new java.util.LinkedHashMap<>();
+		Map<String, java.math.BigDecimal> despesasMap = new LinkedHashMap<>();
 		despesaService.findAll().forEach(d -> {
 			String desc = d.getPlanoContas() != null ? d.getPlanoContas().getDescricao() : "Despesas Diversas";
 			despesasMap.merge(desc, d.getValor(), java.math.BigDecimal::add);
@@ -637,29 +648,29 @@ public class RelatoriosController {
 		java.math.BigDecimal totalReceitas = receitasMap.values().stream().reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
 		java.math.BigDecimal totalDespesas = despesasMap.values().stream().reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
 
-		List<java.util.Map<String, String>> receitas = receitasMap.entrySet().stream().map(e -> {
-			java.util.Map<String, String> row = new java.util.HashMap<>();
+		List<Map<String, String>> receitas = receitasMap.entrySet().stream().map(e -> {
+			Map<String, String> row = new HashMap<>();
 			row.put("descricao", e.getKey());
 			row.put("valor", df.format(e.getValue()));
 			return row;
-		}).collect(java.util.stream.Collectors.toList());
+		}).collect(Collectors.toList());
 
-		List<java.util.Map<String, String>> despesas = despesasMap.entrySet().stream().map(e -> {
-			java.util.Map<String, String> row = new java.util.HashMap<>();
+		List<Map<String, String>> despesas = despesasMap.entrySet().stream().map(e -> {
+			Map<String, String> row = new HashMap<>();
 			row.put("descricao", e.getKey());
 			row.put("valor", df.format(e.getValue()));
 			return row;
-		}).collect(java.util.stream.Collectors.toList());
+		}).collect(Collectors.toList());
 
 		String periodo = (inicio != null ? inicio.format(dtf) : "Início") + " a " + (fim != null ? fim.format(dtf) : "Hoje");
-		java.util.Map<String, Object> data = new java.util.HashMap<>();
+		Map<String, Object> data = new HashMap<>();
 		data.put("receitas", receitas);
 		data.put("despesas", despesas);
 		data.put("totalReceitas", df.format(totalReceitas));
 		data.put("totalDespesas", df.format(totalDespesas));
 		data.put("resultado", df.format(totalReceitas.subtract(totalDespesas)));
 		data.put("periodo", periodo);
-		data.put("emissao", new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
+		data.put("emissao", new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date()));
 
 		byte[] pdf = freeMarkerReport.gerarPdf("dre.ftl", data);
 		return ResponseEntity.ok()
@@ -669,14 +680,14 @@ public class RelatoriosController {
 
 	@GetMapping("/inadimplencia")
 	public ResponseEntity<byte[]> inadimplencia(@RequestParam(required = false) Long codigoObra) {
-		java.text.DecimalFormat df = new java.text.DecimalFormat("#,##0.00");
-		java.time.format.DateTimeFormatter dtf = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		DecimalFormat df = new DecimalFormat("#,##0.00");
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
 		var inadimplentes = relatorioOperacionalService.findInadimplentes(codigoObra);
 		BigDecimal total = relatorioOperacionalService.calcularTotalInadimplente(codigoObra);
 
-		List<java.util.Map<String, String>> rows = inadimplentes.stream().map(pi -> {
-			java.util.Map<String, String> row = new java.util.HashMap<>();
+		List<Map<String, String>> rows = inadimplentes.stream().map(pi -> {
+			Map<String, String> row = new HashMap<>();
 			row.put("unidade", pi.getVenda().getUnidade().getIdentificacao());
 			row.put("cliente", pi.getVenda().getCliente().getNome());
 			row.put("numeroParcela", String.valueOf(pi.getParcela().getNumero()));
@@ -684,14 +695,14 @@ public class RelatoriosController {
 			row.put("valor", df.format(pi.getParcela().getValor()));
 			row.put("diasAtraso", String.valueOf(pi.getDiasAtraso()));
 			return row;
-		}).collect(java.util.stream.Collectors.toList());
+		}).collect(Collectors.toList());
 
-		java.util.Map<String, Object> data = new java.util.HashMap<>();
+		Map<String, Object> data = new HashMap<>();
 		data.put("parcelas", rows);
 		data.put("totalInadimplente", df.format(total));
 		data.put("totalParcelas", inadimplentes.size());
 		data.put("obra", codigoObra != null ? "Obra #" + codigoObra : "Todas as Obras");
-		data.put("emissao", new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
+		data.put("emissao", new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date()));
 
 		byte[] pdf = freeMarkerReport.gerarPdf("inadimplencia.ftl", data);
 		return ResponseEntity.ok()
@@ -701,13 +712,13 @@ public class RelatoriosController {
 
 	@GetMapping("/posicaoEstoque/{codigoObra}")
 	public ResponseEntity<byte[]> posicaoEstoque(@PathVariable Long codigoObra) {
-		java.text.DecimalFormat df = new java.text.DecimalFormat("#,##0.00");
+		DecimalFormat df = new DecimalFormat("#,##0.00");
 
 		var posicoes = relatorioOperacionalService.getPosicaoEstoque(codigoObra);
 		BigDecimal valorTotal = relatorioOperacionalService.calcularValorTotalEstoque(codigoObra);
 
-		List<java.util.Map<String, String>> rows = posicoes.stream().map(pos -> {
-			java.util.Map<String, String> row = new java.util.HashMap<>();
+		List<Map<String, String>> rows = posicoes.stream().map(pos -> {
+			Map<String, String> row = new HashMap<>();
 			row.put("insumo", pos.getEstoque().getInsumo().getDescricao());
 			row.put("qtdAtual", df.format(pos.getEstoque().getQuantidadeAtual()));
 			row.put("qtdMinima", df.format(pos.getEstoque().getQuantidadeMinima()));
@@ -716,13 +727,13 @@ public class RelatoriosController {
 			row.put("valorTotal", df.format(pos.getValorTotal()));
 			row.put("status", pos.getStatus());
 			return row;
-		}).collect(java.util.stream.Collectors.toList());
+		}).collect(Collectors.toList());
 
-		java.util.Map<String, Object> data = new java.util.HashMap<>();
+		Map<String, Object> data = new HashMap<>();
 		data.put("itens", rows);
 		data.put("valorTotal", df.format(valorTotal));
 		data.put("obra", "Obra #" + codigoObra);
-		data.put("emissao", new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
+		data.put("emissao", new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date()));
 
 		byte[] pdf = freeMarkerReport.gerarPdf("posicao-estoque.ftl", data);
 		return ResponseEntity.ok()

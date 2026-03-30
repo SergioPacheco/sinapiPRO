@@ -69,8 +69,14 @@ public class Estoque implements Serializable {
 		return movimentos;
 	}
 
-	public BigDecimal getCustoMedio() { return custoMedio; }
-	public void setCustoMedio(BigDecimal custoMedio) { this.custoMedio = custoMedio; }
+	public BigDecimal getCustoMedio() {
+		return custoMedio;
+	}
+
+	public void setCustoMedio(BigDecimal custoMedio) {
+		this.custoMedio = custoMedio;
+	}
+
 	public boolean isNovo() {
 		return codigo == null;
 	}

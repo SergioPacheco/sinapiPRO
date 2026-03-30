@@ -157,9 +157,21 @@ public class BaixaPedidoService {
         private String situacaoPedido;
         private List<String> itensAtualizados;
 
-        public String getSituacaoPedido() { return situacaoPedido; }
-        public void setSituacaoPedido(String situacaoPedido) { this.situacaoPedido = situacaoPedido; }
-        public List<String> getItensAtualizados() { return itensAtualizados; }
-        public void setItensAtualizados(List<String> itensAtualizados) { this.itensAtualizados = itensAtualizados; }
+public String getSituacaoPedido() {
+	return situacaoPedido;
+}
+
+public void setSituacaoPedido(String situacaoPedido) {
+	this.situacaoPedido = situacaoPedido;
+}
+
+public List<String> getItensAtualizados() {
+	return itensAtualizados;
+}
+
+public void setItensAtualizados(List<String> itensAtualizados) {
+	this.itensAtualizados = itensAtualizados;
+}
+
     }
 }

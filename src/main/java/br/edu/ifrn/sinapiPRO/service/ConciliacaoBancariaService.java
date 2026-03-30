@@ -158,21 +158,69 @@ public class ConciliacaoBancariaService {
         private int movimentosConciliados;
         private int movimentosPendentes;
 
-        public String getConta() { return conta; }
-        public void setConta(String conta) { this.conta = conta; }
-        public BigDecimal getSaldoSistema() { return saldoSistema; }
-        public void setSaldoSistema(BigDecimal saldoSistema) { this.saldoSistema = saldoSistema; }
-        public BigDecimal getSaldoConciliado() { return saldoConciliado; }
-        public void setSaldoConciliado(BigDecimal saldoConciliado) { this.saldoConciliado = saldoConciliado; }
-        public BigDecimal getSaldoExtrato() { return saldoExtrato; }
-        public void setSaldoExtrato(BigDecimal saldoExtrato) { this.saldoExtrato = saldoExtrato; }
-        public BigDecimal getDiferenca() { return diferenca; }
-        public void setDiferenca(BigDecimal diferenca) { this.diferenca = diferenca; }
-        public int getTotalMovimentos() { return totalMovimentos; }
-        public void setTotalMovimentos(int totalMovimentos) { this.totalMovimentos = totalMovimentos; }
-        public int getMovimentosConciliados() { return movimentosConciliados; }
-        public void setMovimentosConciliados(int movimentosConciliados) { this.movimentosConciliados = movimentosConciliados; }
-        public int getMovimentosPendentes() { return movimentosPendentes; }
-        public void setMovimentosPendentes(int movimentosPendentes) { this.movimentosPendentes = movimentosPendentes; }
+public String getConta() {
+	return conta;
+}
+
+public void setConta(String conta) {
+	this.conta = conta;
+}
+
+public BigDecimal getSaldoSistema() {
+	return saldoSistema;
+}
+
+public void setSaldoSistema(BigDecimal saldoSistema) {
+	this.saldoSistema = saldoSistema;
+}
+
+public BigDecimal getSaldoConciliado() {
+	return saldoConciliado;
+}
+
+public void setSaldoConciliado(BigDecimal saldoConciliado) {
+	this.saldoConciliado = saldoConciliado;
+}
+
+public BigDecimal getSaldoExtrato() {
+	return saldoExtrato;
+}
+
+public void setSaldoExtrato(BigDecimal saldoExtrato) {
+	this.saldoExtrato = saldoExtrato;
+}
+
+public BigDecimal getDiferenca() {
+	return diferenca;
+}
+
+public void setDiferenca(BigDecimal diferenca) {
+	this.diferenca = diferenca;
+}
+
+public int getTotalMovimentos() {
+	return totalMovimentos;
+}
+
+public void setTotalMovimentos(int totalMovimentos) {
+	this.totalMovimentos = totalMovimentos;
+}
+
+public int getMovimentosConciliados() {
+	return movimentosConciliados;
+}
+
+public void setMovimentosConciliados(int movimentosConciliados) {
+	this.movimentosConciliados = movimentosConciliados;
+}
+
+public int getMovimentosPendentes() {
+	return movimentosPendentes;
+}
+
+public void setMovimentosPendentes(int movimentosPendentes) {
+	this.movimentosPendentes = movimentosPendentes;
+}
+
     }
 }

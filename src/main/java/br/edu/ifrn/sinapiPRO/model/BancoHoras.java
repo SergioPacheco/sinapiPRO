@@ -35,16 +35,52 @@ public class BancoHoras implements Serializable {
 
     private BigDecimal saldo = BigDecimal.ZERO;
 
-    public Long getCodigo() { return codigo; }
-    public void setCodigo(Long codigo) { this.codigo = codigo; }
-    public Funcionario getFuncionario() { return funcionario; }
-    public void setFuncionario(Funcionario funcionario) { this.funcionario = funcionario; }
-    public Competencia getCompetencia() { return competencia; }
-    public void setCompetencia(Competencia competencia) { this.competencia = competencia; }
-    public BigDecimal getHorasCredito() { return horasCredito; }
-    public void setHorasCredito(BigDecimal horasCredito) { this.horasCredito = horasCredito; }
-    public BigDecimal getHorasDebito() { return horasDebito; }
-    public void setHorasDebito(BigDecimal horasDebito) { this.horasDebito = horasDebito; }
-    public BigDecimal getSaldo() { return saldo; }
-    public void setSaldo(BigDecimal saldo) { this.saldo = saldo; }
+public Long getCodigo() {
+	return codigo;
+}
+
+public void setCodigo(Long codigo) {
+	this.codigo = codigo;
+}
+
+public Funcionario getFuncionario() {
+	return funcionario;
+}
+
+public void setFuncionario(Funcionario funcionario) {
+	this.funcionario = funcionario;
+}
+
+public Competencia getCompetencia() {
+	return competencia;
+}
+
+public void setCompetencia(Competencia competencia) {
+	this.competencia = competencia;
+}
+
+public BigDecimal getHorasCredito() {
+	return horasCredito;
+}
+
+public void setHorasCredito(BigDecimal horasCredito) {
+	this.horasCredito = horasCredito;
+}
+
+public BigDecimal getHorasDebito() {
+	return horasDebito;
+}
+
+public void setHorasDebito(BigDecimal horasDebito) {
+	this.horasDebito = horasDebito;
+}
+
+public BigDecimal getSaldo() {
+	return saldo;
+}
+
+public void setSaldo(BigDecimal saldo) {
+	this.saldo = saldo;
+}
+
 }

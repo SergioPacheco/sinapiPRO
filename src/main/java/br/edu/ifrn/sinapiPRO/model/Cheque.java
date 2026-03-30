@@ -41,23 +41,80 @@ public class Cheque implements Serializable {
     private String situacao = "EMITIDO";
     private String observacao;
 
-    public Long getCodigo() { return codigo; }
-    public void setCodigo(Long codigo) { this.codigo = codigo; }
-    public ContaBancaria getContaBancaria() { return contaBancaria; }
-    public void setContaBancaria(ContaBancaria contaBancaria) { this.contaBancaria = contaBancaria; }
-    public String getNumero() { return numero; }
-    public void setNumero(String numero) { this.numero = numero; }
-    public String getBeneficiario() { return beneficiario; }
-    public void setBeneficiario(String beneficiario) { this.beneficiario = beneficiario; }
-    public BigDecimal getValor() { return valor; }
-    public void setValor(BigDecimal valor) { this.valor = valor; }
-    public LocalDate getDataEmissao() { return dataEmissao; }
-    public void setDataEmissao(LocalDate dataEmissao) { this.dataEmissao = dataEmissao; }
-    public LocalDate getDataBomPara() { return dataBomPara; }
-    public void setDataBomPara(LocalDate dataBomPara) { this.dataBomPara = dataBomPara; }
-    public String getSituacao() { return situacao; }
-    public void setSituacao(String situacao) { this.situacao = situacao; }
-    public String getObservacao() { return observacao; }
-    public void setObservacao(String observacao) { this.observacao = observacao; }
-    public boolean isNovo() { return codigo == null; }
+public Long getCodigo() {
+	return codigo;
+}
+
+public void setCodigo(Long codigo) {
+	this.codigo = codigo;
+}
+
+public ContaBancaria getContaBancaria() {
+	return contaBancaria;
+}
+
+public void setContaBancaria(ContaBancaria contaBancaria) {
+	this.contaBancaria = contaBancaria;
+}
+
+public String getNumero() {
+	return numero;
+}
+
+public void setNumero(String numero) {
+	this.numero = numero;
+}
+
+public String getBeneficiario() {
+	return beneficiario;
+}
+
+public void setBeneficiario(String beneficiario) {
+	this.beneficiario = beneficiario;
+}
+
+public BigDecimal getValor() {
+	return valor;
+}
+
+public void setValor(BigDecimal valor) {
+	this.valor = valor;
+}
+
+public LocalDate getDataEmissao() {
+	return dataEmissao;
+}
+
+public void setDataEmissao(LocalDate dataEmissao) {
+	this.dataEmissao = dataEmissao;
+}
+
+public LocalDate getDataBomPara() {
+	return dataBomPara;
+}
+
+public void setDataBomPara(LocalDate dataBomPara) {
+	this.dataBomPara = dataBomPara;
+}
+
+public String getSituacao() {
+	return situacao;
+}
+
+public void setSituacao(String situacao) {
+	this.situacao = situacao;
+}
+
+public String getObservacao() {
+	return observacao;
+}
+
+public void setObservacao(String observacao) {
+	this.observacao = observacao;
+}
+
+public boolean isNovo() {
+	return codigo == null;
+}
+
 }

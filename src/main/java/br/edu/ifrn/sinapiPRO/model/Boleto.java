@@ -42,23 +42,80 @@ public class Boleto implements Serializable {
     private String situacao = "EMITIDO";
     private String banco;
 
-    public Long getCodigo() { return codigo; }
-    public void setCodigo(Long codigo) { this.codigo = codigo; }
-    public Receita getReceita() { return receita; }
-    public void setReceita(Receita receita) { this.receita = receita; }
-    public String getNossoNumero() { return nossoNumero; }
-    public void setNossoNumero(String nossoNumero) { this.nossoNumero = nossoNumero; }
-    public String getLinhaDigitavel() { return linhaDigitavel; }
-    public void setLinhaDigitavel(String linhaDigitavel) { this.linhaDigitavel = linhaDigitavel; }
-    public LocalDate getDataEmissao() { return dataEmissao; }
-    public void setDataEmissao(LocalDate dataEmissao) { this.dataEmissao = dataEmissao; }
-    public LocalDate getDataVencimento() { return dataVencimento; }
-    public void setDataVencimento(LocalDate dataVencimento) { this.dataVencimento = dataVencimento; }
-    public BigDecimal getValor() { return valor; }
-    public void setValor(BigDecimal valor) { this.valor = valor; }
-    public String getSituacao() { return situacao; }
-    public void setSituacao(String situacao) { this.situacao = situacao; }
-    public String getBanco() { return banco; }
-    public void setBanco(String banco) { this.banco = banco; }
-    public boolean isNovo() { return codigo == null; }
+public Long getCodigo() {
+	return codigo;
+}
+
+public void setCodigo(Long codigo) {
+	this.codigo = codigo;
+}
+
+public Receita getReceita() {
+	return receita;
+}
+
+public void setReceita(Receita receita) {
+	this.receita = receita;
+}
+
+public String getNossoNumero() {
+	return nossoNumero;
+}
+
+public void setNossoNumero(String nossoNumero) {
+	this.nossoNumero = nossoNumero;
+}
+
+public String getLinhaDigitavel() {
+	return linhaDigitavel;
+}
+
+public void setLinhaDigitavel(String linhaDigitavel) {
+	this.linhaDigitavel = linhaDigitavel;
+}
+
+public LocalDate getDataEmissao() {
+	return dataEmissao;
+}
+
+public void setDataEmissao(LocalDate dataEmissao) {
+	this.dataEmissao = dataEmissao;
+}
+
+public LocalDate getDataVencimento() {
+	return dataVencimento;
+}
+
+public void setDataVencimento(LocalDate dataVencimento) {
+	this.dataVencimento = dataVencimento;
+}
+
+public BigDecimal getValor() {
+	return valor;
+}
+
+public void setValor(BigDecimal valor) {
+	this.valor = valor;
+}
+
+public String getSituacao() {
+	return situacao;
+}
+
+public void setSituacao(String situacao) {
+	this.situacao = situacao;
+}
+
+public String getBanco() {
+	return banco;
+}
+
+public void setBanco(String banco) {
+	this.banco = banco;
+}
+
+public boolean isNovo() {
+	return codigo == null;
+}
+
 }

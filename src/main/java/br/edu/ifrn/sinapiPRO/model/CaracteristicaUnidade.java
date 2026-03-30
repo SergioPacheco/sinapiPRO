@@ -25,12 +25,36 @@ public class CaracteristicaUnidade implements Serializable {
 
     private String valor;
 
-    public Long getCodigo() { return codigo; }
-    public void setCodigo(Long codigo) { this.codigo = codigo; }
-    public UnidadeVenda getUnidade() { return unidade; }
-    public void setUnidade(UnidadeVenda unidade) { this.unidade = unidade; }
-    public String getDescricao() { return descricao; }
-    public void setDescricao(String descricao) { this.descricao = descricao; }
-    public String getValor() { return valor; }
-    public void setValor(String valor) { this.valor = valor; }
+public Long getCodigo() {
+	return codigo;
+}
+
+public void setCodigo(Long codigo) {
+	this.codigo = codigo;
+}
+
+public UnidadeVenda getUnidade() {
+	return unidade;
+}
+
+public void setUnidade(UnidadeVenda unidade) {
+	this.unidade = unidade;
+}
+
+public String getDescricao() {
+	return descricao;
+}
+
+public void setDescricao(String descricao) {
+	this.descricao = descricao;
+}
+
+public String getValor() {
+	return valor;
+}
+
+public void setValor(String valor) {
+	this.valor = valor;
+}
+
 }

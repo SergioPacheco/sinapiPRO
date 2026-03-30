@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/LayoutPadrao}">
+<head><title>Job Costing — EVM</title></head>
+<body><section layout:fragment="conteudo">
+<div class="page-header"><div class="container-fluid"><h1>Job Costing — Earned Value Management</h1></div></div>
+<div class="container-fluid">
+    <div th:if="${erro}" class="alert alert-danger" th:text="${erro}"></div>
+    <div class="panel panel-default" style="max-width:500px;margin:30px auto;">
+        <div class="panel-heading"><strong>Selecione a Obra</strong></div>
+        <div class="panel-body">
+            <form method="GET" th:action="@{/jobCosting/0}">
+                <div class="form-group">
+                    <label>Obra</label>
+                    <select name="codigoObra" class="form-control" id="obraSelect">
+                        <option value="">Selecione...</option>
+                        <option th:each="o : ${obras}" th:value="${o.codigo}" th:text="${o.nome}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>% Físico Realizado (informado)</label>
+                    <input type="number" step="0.1" min="0" max="100" name="percentualFisico"
+                           class="form-control" value="0" placeholder="Ex: 35.5"/>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block"
+                        onclick="this.form.action='/jobCosting/' + document.getElementById('obraSelect').value">
+                    <i class="glyphicon glyphicon-stats"></i> Calcular EVM
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+</section></body></html>

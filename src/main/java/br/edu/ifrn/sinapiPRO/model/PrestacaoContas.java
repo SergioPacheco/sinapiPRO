@@ -42,21 +42,72 @@ public class PrestacaoContas implements Serializable {
     private String tipo = "DESPESA";
     private String situacao = "PENDENTE";
 
-    public Long getCodigo() { return codigo; }
-    public void setCodigo(Long codigo) { this.codigo = codigo; }
-    public Funcionario getFuncionario() { return funcionario; }
-    public void setFuncionario(Funcionario funcionario) { this.funcionario = funcionario; }
-    public Competencia getCompetencia() { return competencia; }
-    public void setCompetencia(Competencia competencia) { this.competencia = competencia; }
-    public String getDescricao() { return descricao; }
-    public void setDescricao(String descricao) { this.descricao = descricao; }
-    public BigDecimal getValor() { return valor; }
-    public void setValor(BigDecimal valor) { this.valor = valor; }
-    public LocalDate getDataLancamento() { return dataLancamento; }
-    public void setDataLancamento(LocalDate dataLancamento) { this.dataLancamento = dataLancamento; }
-    public String getTipo() { return tipo; }
-    public void setTipo(String tipo) { this.tipo = tipo; }
-    public String getSituacao() { return situacao; }
-    public void setSituacao(String situacao) { this.situacao = situacao; }
-    public boolean isNovo() { return codigo == null; }
+public Long getCodigo() {
+	return codigo;
+}
+
+public void setCodigo(Long codigo) {
+	this.codigo = codigo;
+}
+
+public Funcionario getFuncionario() {
+	return funcionario;
+}
+
+public void setFuncionario(Funcionario funcionario) {
+	this.funcionario = funcionario;
+}
+
+public Competencia getCompetencia() {
+	return competencia;
+}
+
+public void setCompetencia(Competencia competencia) {
+	this.competencia = competencia;
+}
+
+public String getDescricao() {
+	return descricao;
+}
+
+public void setDescricao(String descricao) {
+	this.descricao = descricao;
+}
+
+public BigDecimal getValor() {
+	return valor;
+}
+
+public void setValor(BigDecimal valor) {
+	this.valor = valor;
+}
+
+public LocalDate getDataLancamento() {
+	return dataLancamento;
+}
+
+public void setDataLancamento(LocalDate dataLancamento) {
+	this.dataLancamento = dataLancamento;
+}
+
+public String getTipo() {
+	return tipo;
+}
+
+public void setTipo(String tipo) {
+	this.tipo = tipo;
+}
+
+public String getSituacao() {
+	return situacao;
+}
+
+public void setSituacao(String situacao) {
+	this.situacao = situacao;
+}
+
+public boolean isNovo() {
+	return codigo == null;
+}
+
 }

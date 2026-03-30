@@ -37,18 +37,60 @@ public class ParcelaVenda implements Serializable {
 
     private String situacao = "ABERTA";
 
-    public Long getCodigo() { return codigo; }
-    public void setCodigo(Long codigo) { this.codigo = codigo; }
-    public Venda getVenda() { return venda; }
-    public void setVenda(Venda venda) { this.venda = venda; }
-    public Integer getNumero() { return numero; }
-    public void setNumero(Integer numero) { this.numero = numero; }
-    public BigDecimal getValor() { return valor; }
-    public void setValor(BigDecimal valor) { this.valor = valor; }
-    public LocalDate getDataVencimento() { return dataVencimento; }
-    public void setDataVencimento(LocalDate dataVencimento) { this.dataVencimento = dataVencimento; }
-    public LocalDate getDataPagamento() { return dataPagamento; }
-    public void setDataPagamento(LocalDate dataPagamento) { this.dataPagamento = dataPagamento; }
-    public String getSituacao() { return situacao; }
-    public void setSituacao(String situacao) { this.situacao = situacao; }
+public Long getCodigo() {
+	return codigo;
+}
+
+public void setCodigo(Long codigo) {
+	this.codigo = codigo;
+}
+
+public Venda getVenda() {
+	return venda;
+}
+
+public void setVenda(Venda venda) {
+	this.venda = venda;
+}
+
+public Integer getNumero() {
+	return numero;
+}
+
+public void setNumero(Integer numero) {
+	this.numero = numero;
+}
+
+public BigDecimal getValor() {
+	return valor;
+}
+
+public void setValor(BigDecimal valor) {
+	this.valor = valor;
+}
+
+public LocalDate getDataVencimento() {
+	return dataVencimento;
+}
+
+public void setDataVencimento(LocalDate dataVencimento) {
+	this.dataVencimento = dataVencimento;
+}
+
+public LocalDate getDataPagamento() {
+	return dataPagamento;
+}
+
+public void setDataPagamento(LocalDate dataPagamento) {
+	this.dataPagamento = dataPagamento;
+}
+
+public String getSituacao() {
+	return situacao;
+}
+
+public void setSituacao(String situacao) {
+	this.situacao = situacao;
+}
+
 }

@@ -173,16 +173,46 @@ public class AvancoFisicoService {
         private BigDecimal percentualAcumulado;
         private List<RegistroDiario> registrosPorData;
 
-        public String getDescricao() { return descricao; }
-        public void setDescricao(String descricao) { this.descricao = descricao; }
-        public String getUnidade() { return unidade; }
-        public void setUnidade(String unidade) { this.unidade = unidade; }
-        public BigDecimal getQuantidadeTotal() { return quantidadeTotal; }
-        public void setQuantidadeTotal(BigDecimal quantidadeTotal) { this.quantidadeTotal = quantidadeTotal; }
-        public BigDecimal getPercentualAcumulado() { return percentualAcumulado; }
-        public void setPercentualAcumulado(BigDecimal percentualAcumulado) { this.percentualAcumulado = percentualAcumulado; }
-        public List<RegistroDiario> getRegistrosPorData() { return registrosPorData; }
-        public void setRegistrosPorData(List<RegistroDiario> registrosPorData) { this.registrosPorData = registrosPorData; }
+public String getDescricao() {
+	return descricao;
+}
+
+public void setDescricao(String descricao) {
+	this.descricao = descricao;
+}
+
+public String getUnidade() {
+	return unidade;
+}
+
+public void setUnidade(String unidade) {
+	this.unidade = unidade;
+}
+
+public BigDecimal getQuantidadeTotal() {
+	return quantidadeTotal;
+}
+
+public void setQuantidadeTotal(BigDecimal quantidadeTotal) {
+	this.quantidadeTotal = quantidadeTotal;
+}
+
+public BigDecimal getPercentualAcumulado() {
+	return percentualAcumulado;
+}
+
+public void setPercentualAcumulado(BigDecimal percentualAcumulado) {
+	this.percentualAcumulado = percentualAcumulado;
+}
+
+public List<RegistroDiario> getRegistrosPorData() {
+	return registrosPorData;
+}
+
+public void setRegistrosPorData(List<RegistroDiario> registrosPorData) {
+	this.registrosPorData = registrosPorData;
+}
+
     }
 
     public static class RegistroDiario {
@@ -190,21 +220,51 @@ public class AvancoFisicoService {
         private BigDecimal quantidade;
         private BigDecimal percentual;
 
-        public LocalDate getData() { return data; }
-        public void setData(LocalDate data) { this.data = data; }
-        public BigDecimal getQuantidade() { return quantidade; }
-        public void setQuantidade(BigDecimal quantidade) { this.quantidade = quantidade; }
-        public BigDecimal getPercentual() { return percentual; }
-        public void setPercentual(BigDecimal percentual) { this.percentual = percentual; }
+public LocalDate getData() {
+	return data;
+}
+
+public void setData(LocalDate data) {
+	this.data = data;
+}
+
+public BigDecimal getQuantidade() {
+	return quantidade;
+}
+
+public void setQuantidade(BigDecimal quantidade) {
+	this.quantidade = quantidade;
+}
+
+public BigDecimal getPercentual() {
+	return percentual;
+}
+
+public void setPercentual(BigDecimal percentual) {
+	this.percentual = percentual;
+}
+
     }
 
     public static class PontoCurva {
         private LocalDate data;
         private BigDecimal percentual;
 
-        public LocalDate getData() { return data; }
-        public void setData(LocalDate data) { this.data = data; }
-        public BigDecimal getPercentual() { return percentual; }
-        public void setPercentual(BigDecimal percentual) { this.percentual = percentual; }
+public LocalDate getData() {
+	return data;
+}
+
+public void setData(LocalDate data) {
+	this.data = data;
+}
+
+public BigDecimal getPercentual() {
+	return percentual;
+}
+
+public void setPercentual(BigDecimal percentual) {
+	this.percentual = percentual;
+}
+
     }
 }
