@@ -29,10 +29,13 @@ import br.edu.ifrn.sinapiPRO.model.Tipo;
 import br.edu.ifrn.sinapiPRO.security.UsuarioSistema;
 import br.edu.ifrn.sinapiPRO.service.BaseInsumoService;
 import br.edu.ifrn.sinapiPRO.service.BasePrecoService;
+import br.edu.ifrn.sinapiPRO.service.ComissaoService;
 import br.edu.ifrn.sinapiPRO.service.FreeMarkerReportService;
 import br.edu.ifrn.sinapiPRO.service.OrcamentoService;
 import br.edu.ifrn.sinapiPRO.service.PlanejamentoService;
 import br.edu.ifrn.sinapiPRO.service.RelatorioService;
+import br.edu.ifrn.sinapiPRO.service.UnidadeVendaService;
+import br.edu.ifrn.sinapiPRO.service.VendaService;
 
 @Controller
 @RequestMapping("/relatorios")
@@ -318,6 +321,138 @@ public class RelatoriosController {
 		data.put("emissao", new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
 
 		byte[] pdf = freeMarkerReport.gerarPdf("planejamento-fisico.ftl", data);
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE)
+				.body(pdf);
+	}
+
+	@Autowired
+	private UnidadeVendaService unidadeVendaService;
+
+	@Autowired
+	private VendaService vendaService;
+
+	@Autowired
+	private ComissaoService comissaoService;
+
+	@GetMapping("/mapaVendas/{codigoObra}")
+	public ResponseEntity<byte[]> mapaVendas(@PathVariable Long codigoObra) {
+		java.text.DecimalFormat df = new java.text.DecimalFormat("#,##0.00");
+		var unidades = unidadeVendaService.findByObra(codigoObra);
+		var vendas = vendaService.findByObra(codigoObra);
+
+		java.util.Map<Long, br.edu.ifrn.sinapiPRO.model.Venda> vendaMap = vendas.stream()
+				.collect(java.util.stream.Collectors.toMap(
+						v -> v.getUnidade().getCodigo(), v -> v, (a, b) -> a));
+
+		List<java.util.Map<String, String>> rows = unidades.stream().map(u -> {
+			java.util.Map<String, String> row = new java.util.HashMap<>();
+			row.put("identificacao", u.getIdentificacao() != null ? u.getIdentificacao() : "");
+			row.put("tipo", u.getTipo() != null ? u.getTipo() : "");
+			row.put("bloco", u.getBloco() != null ? u.getBloco() : "");
+			row.put("areaPrivativa", u.getAreaPrivativa() != null ? df.format(u.getAreaPrivativa()) : "");
+			row.put("valorBase", df.format(u.getValorBase()));
+			row.put("situacao", u.getSituacao() != null ? u.getSituacao().getNome() : "Disponível");
+			br.edu.ifrn.sinapiPRO.model.Venda venda = vendaMap.get(u.getCodigo());
+			row.put("cliente", venda != null ? venda.getCliente().getNome() : "");
+			row.put("dataVenda", venda != null ? venda.getDataVenda().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "");
+			return row;
+		}).collect(java.util.stream.Collectors.toList());
+
+		long totalVendidas = vendaMap.size();
+		java.util.Map<String, Object> data = new java.util.HashMap<>();
+		data.put("obra", unidades.isEmpty() ? "" : unidades.get(0).getObra().getNome());
+		data.put("unidades", rows);
+		data.put("totalUnidades", unidades.size());
+		data.put("totalVendidas", totalVendidas);
+		data.put("totalDisponiveis", unidades.size() - totalVendidas);
+		data.put("emissao", new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
+
+		byte[] pdf = freeMarkerReport.gerarPdf("mapa-vendas.ftl", data);
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE)
+				.body(pdf);
+	}
+
+	@GetMapping("/resumoVendas/{codigoObra}")
+	public ResponseEntity<byte[]> resumoVendas(@PathVariable Long codigoObra) {
+		java.text.DecimalFormat df = new java.text.DecimalFormat("#,##0.00");
+		var vendas = vendaService.findByObra(codigoObra);
+
+		List<java.util.Map<String, String>> rows = vendas.stream().map(v -> {
+			java.util.Map<String, String> row = new java.util.HashMap<>();
+			row.put("unidade", v.getUnidade().getIdentificacao());
+			row.put("cliente", v.getCliente().getNome());
+			row.put("dataVenda", v.getDataVenda().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+			row.put("valorVenda", df.format(v.getValorVenda()));
+			row.put("situacao", v.getSituacao());
+			row.put("totalParcelas", String.valueOf(v.getParcelas().size()));
+			return row;
+		}).collect(java.util.stream.Collectors.toList());
+
+		java.math.BigDecimal totalVendas = vendas.stream()
+				.map(br.edu.ifrn.sinapiPRO.model.Venda::getValorVenda)
+				.reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+
+		java.util.Map<String, Object> data = new java.util.HashMap<>();
+		data.put("obra", vendas.isEmpty() ? "" : vendas.get(0).getUnidade().getObra().getNome());
+		data.put("vendas", rows);
+		data.put("totalVendas", df.format(totalVendas));
+		data.put("periodo", "Todos");
+		data.put("emissao", new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
+
+		byte[] pdf = freeMarkerReport.gerarPdf("resumo-vendas.ftl", data);
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE)
+				.body(pdf);
+	}
+
+	@GetMapping("/resumoCorretor/{codigoObra}")
+	public ResponseEntity<byte[]> resumoCorretor(@PathVariable Long codigoObra) {
+		java.text.DecimalFormat df = new java.text.DecimalFormat("#,##0.00");
+		var vendas = vendaService.findByObra(codigoObra);
+
+		// Agrupa comissões por corretor
+		java.util.Map<String, List<java.util.Map<String, String>>> porCorretor = new java.util.LinkedHashMap<>();
+		java.util.Map<String, java.math.BigDecimal> totaisPorCorretor = new java.util.LinkedHashMap<>();
+
+		for (var venda : vendas) {
+			var comissoes = comissaoService.findByVenda(venda.getCodigo());
+			for (var c : comissoes) {
+				String corretor = c.getNomeCorretor();
+				porCorretor.computeIfAbsent(corretor, k -> new java.util.ArrayList<>());
+				java.util.Map<String, String> row = new java.util.HashMap<>();
+				row.put("unidade", venda.getUnidade().getIdentificacao());
+				row.put("cliente", venda.getCliente().getNome());
+				row.put("dataVenda", venda.getDataVenda().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+				row.put("valorVenda", df.format(venda.getValorVenda()));
+				row.put("percentual", df.format(c.getPercentual()));
+				row.put("valorComissao", df.format(c.getValor()));
+				row.put("situacao", c.getSituacao());
+				porCorretor.get(corretor).add(row);
+				totaisPorCorretor.merge(corretor, c.getValor(), java.math.BigDecimal::add);
+			}
+		}
+
+		List<java.util.Map<String, Object>> corretores = new java.util.ArrayList<>();
+		java.math.BigDecimal totalGeral = java.math.BigDecimal.ZERO;
+		for (var entry : porCorretor.entrySet()) {
+			java.util.Map<String, Object> c = new java.util.HashMap<>();
+			c.put("nome", entry.getKey());
+			c.put("comissoes", entry.getValue());
+			java.math.BigDecimal total = totaisPorCorretor.getOrDefault(entry.getKey(), java.math.BigDecimal.ZERO);
+			c.put("totalComissoes", df.format(total));
+			corretores.add(c);
+			totalGeral = totalGeral.add(total);
+		}
+
+		java.util.Map<String, Object> data = new java.util.HashMap<>();
+		data.put("obra", vendas.isEmpty() ? "" : vendas.get(0).getUnidade().getObra().getNome());
+		data.put("corretores", corretores);
+		data.put("totalGeralComissoes", df.format(totalGeral));
+		data.put("emissao", new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
+
+		byte[] pdf = freeMarkerReport.gerarPdf("resumo-corretor.ftl", data);
 		return ResponseEntity.ok()
 				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE)
 				.body(pdf);

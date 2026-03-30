@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/LayoutPadrao}">
+<head><title>Comissão</title></head>
+<body><section layout:fragment="conteudo">
+<div class="page-header"><div class="container-fluid"><div class="row">
+    <div class="col-sm-10"><h1 th:if="${comissao.novo}">Nova Comissão</h1><h1 th:unless="${comissao.novo}" th:text="|Comissão: ${comissao.nomeCorretor}|">Comissão</h1></div>
+    <div class="col-sm-2"><a class="btn btn-default" th:href="@{/comissoes}"><i class="glyphicon glyphicon-arrow-left"></i></a></div>
+</div></div></div>
+<div class="container-fluid">
+<form method="POST" th:object="${comissao}"
+      th:action="${comissao.novo} ? @{/comissoes/novo} : @{/comissoes/{c}(c=${comissao.codigo})}">
+    <sinapiPRO:message/><input type="hidden" th:field="*{codigo}"/>
+    <div class="row">
+        <div class="form-group col-sm-4 sn-required" sinapiPRO:classforerror="venda">
+            <label class="control-label">Venda</label>
+            <select class="form-control" th:field="*{venda}">
+                <option value="">Selecione...</option>
+                <option th:each="v : ${vendas}" th:value="${v.codigo}" th:text="${v.unidade.identificacao + ' - ' + v.cliente.nome}"></option>
+            </select>
+        </div>
+        <div class="form-group col-sm-4 sn-required"><label class="control-label">Corretor</label><input type="text" class="form-control" th:field="*{nomeCorretor}"/></div>
+        <div class="form-group col-sm-2"><label class="control-label">Percentual (%)</label><input type="number" step="0.01" class="form-control" th:field="*{percentual}"/></div>
+        <div class="form-group col-sm-2"><label class="control-label">Valor (R$)</label><input type="number" step="0.01" class="form-control" th:field="*{valor}"/></div>
+    </div>
+    <div class="row">
+        <div class="form-group col-sm-2"><label class="control-label">Data Pagamento</label><input type="date" class="form-control" th:field="*{dataPagamento}"/></div>
+        <div class="form-group col-sm-2">
+            <label class="control-label">Situação</label>
+            <select class="form-control" th:field="*{situacao}">
+                <option value="PENDENTE">Pendente</option><option value="PAGA">Paga</option><option value="CANCELADA">Cancelada</option>
+            </select>
+        </div>
+    </div>
+    <button class="btn btn-primary" type="submit">Salvar</button>
+</form>
+</div>
+</section></body></html>

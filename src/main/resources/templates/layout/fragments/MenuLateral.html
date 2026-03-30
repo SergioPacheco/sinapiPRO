@@ -64,6 +64,33 @@
         		
         		<li class="aw-menu__item">
           			<a href="#">
+          				<i class="fa  fa-1x  fa-building"></i><span>Comercial</span>
+            			<i class="aw-menu__navigation-icon  fa"></i>	
+          			</a>
+          			<ul class="aw-menu__list  aw-menu__list--sublist">
+          				<li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/unidadesVenda.*}">
+			            	<a th:href="@{/unidadesVenda}">Unidades de Venda</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/situacoesUnidade.*}">
+			            	<a th:href="@{/situacoesUnidade}">Situações de Unidade</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/propostas.*}">
+			            	<a th:href="@{/propostas}">Propostas</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/vendas.*}">
+			            	<a th:href="@{/vendas}">Vendas</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/tabelasPrecos.*}">
+			            	<a th:href="@{/tabelasPrecos}">Tabelas de Preços</a>
+			            </li>
+			            <li class="aw-menu__item  aw-menu__item--link" sinapiPRO:menu="@{/comissoes.*}">
+			            	<a th:href="@{/comissoes}">Comissões</a>
+			            </li>
+          			</ul>
+        		</li>
+        		
+        		<li class="aw-menu__item">
+          			<a href="#">
           				<i class="fa  fa-1x  fa-money"></i><span>Financeiro</span>
             			<i class="aw-menu__navigation-icon  fa"></i>	
           			</a>

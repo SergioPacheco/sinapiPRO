@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/LayoutPadrao}">
+<head><title>Vendas</title></head>
+<body><section layout:fragment="conteudo">
+<div class="page-header"><div class="container-fluid"><div class="row">
+    <div class="col-sm-8"><h1>Vendas</h1></div>
+    <div class="col-sm-4 text-right" style="margin-top:20px;">
+        <a class="btn btn-success" th:href="@{/vendas/novo}"><i class="glyphicon glyphicon-plus"></i> Nova Venda</a>
+    </div>
+</div></div></div>
+<div class="container-fluid">
+    <form method="GET" class="form-inline" style="margin-bottom:15px;">
+        <div class="form-group"><label>Obra</label>
+            <select name="codigoObra" class="form-control" onchange="this.form.submit()">
+                <option value="">Selecione...</option>
+                <option th:each="o : ${obras}" th:value="${o.codigo}" th:text="${o.nome}"
+                    th:selected="${codigoObra != null and codigoObra == o.codigo}"></option>
+            </select>
+        </div>
+    </form>
+    <div th:if="${vendas != null}">
+        <table class="table table-hover table-bordered">
+            <thead><tr><th>Unidade</th><th>Cliente</th><th>Data</th><th class="text-right">Valor</th><th>Situação</th><th>Parcelas</th><th class="table-col-acoes"></th></tr></thead>
+            <tbody>
+                <tr th:each="v : ${vendas}">
+                    <td th:text="${v.unidade.identificacao}"></td>
+                    <td th:text="${v.cliente.nome}"></td>
+                    <td th:text="${#temporals.format(v.dataVenda,'dd/MM/yyyy')}"></td>
+                    <td class="text-right" th:text="${#numbers.formatDecimal(v.valorVenda,1,2)}"></td>
+                    <td><span class="label" th:classappend="${v.situacao == 'ATIVA'} ? 'label-success' : 'label-default'" th:text="${v.situacao}"></span></td>
+                    <td th:text="${v.parcelas.size()}"></td>
+                    <td class="text-center"><a class="btn btn-link btn-xs" th:href="@{/vendas/{c}(c=${v.codigo})}"><i class="glyphicon glyphicon-pencil"></i></a></td>
+                </tr>
+                <tr th:if="${vendas.isEmpty()}"><td colspan="7">Nenhuma venda encontrada</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</section></body></html>
