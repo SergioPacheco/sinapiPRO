@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SecurityProperties.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sinapipro-api</a> &gt; <a href="index.source.html" class="el_package">com.sinapipro.api.config</a> &gt; <span class="el_source">SecurityProperties.java</span></div><h1>SecurityProperties.java</h1><pre class="source lang-java linenums">package com.sinapipro.api.config;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.bind.DefaultValue;
+
+import java.time.Duration;
+import java.util.List;
+
+@ConfigurationProperties(&quot;sinapipro.security&quot;)
+public record SecurityProperties(
+        @DefaultValue(&quot;sinapipro&quot;) String issuer,
+        @DefaultValue(&quot;0123456789abcdef0123456789abcdef0123456789abcdef&quot;) String secret,
+        DemoUser demoUser,
+        AccessToken accessToken,
+        RefreshToken refreshToken
+) {
+
+<span class="nc" id="L18">    public SecurityProperties {</span>
+<span class="nc bnc" id="L19" title="All 2 branches missed.">        demoUser = demoUser == null</span>
+<span class="nc" id="L20">                ? new DemoUser(&quot;admin@sinapipro.dev&quot;, &quot;SinapiPro#2026&quot;, List.of(&quot;ADMIN&quot;, &quot;USER&quot;))</span>
+<span class="nc" id="L21">                : demoUser;</span>
+<span class="nc bnc" id="L22" title="All 2 branches missed.">        accessToken = accessToken == null</span>
+<span class="nc" id="L23">                ? new AccessToken(Duration.ofMinutes(20), &quot;sinapipro.read sinapipro.write&quot;)</span>
+<span class="nc" id="L24">                : accessToken;</span>
+<span class="nc bnc" id="L25" title="All 2 branches missed.">        refreshToken = refreshToken == null</span>
+<span class="nc" id="L26">                ? new RefreshToken(Duration.ofDays(14))</span>
+<span class="nc" id="L27">                : refreshToken;</span>
+<span class="nc" id="L28">    }</span>
+
+    public record DemoUser(
+            @DefaultValue(&quot;admin@sinapipro.dev&quot;) String username,
+            @DefaultValue(&quot;SinapiPro#2026&quot;) String password,
+            List&lt;String&gt; roles
+    ) {
+<span class="nc" id="L35">        public DemoUser {</span>
+<span class="nc bnc" id="L36" title="All 4 branches missed.">            roles = roles == null || roles.isEmpty() ? List.of(&quot;ADMIN&quot;, &quot;USER&quot;) : List.copyOf(roles);</span>
+<span class="nc" id="L37">        }</span>
+    }
+
+<span class="nc" id="L40">    public record AccessToken(</span>
+            @DefaultValue(&quot;PT20M&quot;) Duration ttl,
+            @DefaultValue(&quot;sinapipro.read sinapipro.write&quot;) String scope
+    ) {
+    }
+
+<span class="nc" id="L46">    public record RefreshToken(</span>
+            @DefaultValue(&quot;P14D&quot;) Duration ttl
+    ) {
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

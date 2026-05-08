@@ -1,130 +1,150 @@
 package br.edu.ifrn.sinapiPRO.controller;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+
 import javax.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import br.edu.ifrn.sinapiPRO.controller.support.AbstractObraScopedCrudListController;
+import br.edu.ifrn.sinapiPRO.model.ParcelaVenda;
 import br.edu.ifrn.sinapiPRO.model.Venda;
 import br.edu.ifrn.sinapiPRO.repository.ClientesRepository;
+import br.edu.ifrn.sinapiPRO.repository.IndicesRepository;
 import br.edu.ifrn.sinapiPRO.repository.ObrasRepository;
 import br.edu.ifrn.sinapiPRO.service.UnidadeVendaService;
+import br.edu.ifrn.sinapiPRO.service.VendaParcelasService;
 import br.edu.ifrn.sinapiPRO.service.VendaService;
-import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
 
 @Controller
 @RequestMapping("/vendas")
-public class VendasController {
+public class VendasController extends AbstractObraScopedCrudListController<Venda> {
 
-    @Autowired
-    private VendaService service;
+	private final VendaService service;
+	private final ClientesRepository clienteRepository;
+	private final UnidadeVendaService unidadeService;
+	private final VendaParcelasService vendaParcelasService;
+	private final IndicesRepository indicesRepository;
 
-    @Autowired
-    private ObrasRepository obraRepository;
+	public VendasController(
+			VendaService service,
+			ObrasRepository obraRepository,
+			ClientesRepository clienteRepository,
+			UnidadeVendaService unidadeService,
+			VendaParcelasService vendaParcelasService,
+			IndicesRepository indicesRepository) {
+		super(
+				service,
+				"venda/FormVenda",
+				"venda/ListaVendas",
+				"/vendas",
+				"Venda registrada com sucesso!",
+				"descricao",
+				"vendas",
+				obraRepository,
+				service::findByObra,
+				venda -> venda.getUnidade().getObra().getCodigo());
+		this.service = service;
+		this.clienteRepository = clienteRepository;
+		this.unidadeService = unidadeService;
+		this.vendaParcelasService = vendaParcelasService;
+		this.indicesRepository = indicesRepository;
+	}
 
-    @Autowired
-    private ClientesRepository clienteRepository;
+	@Override
+	protected void adicionarObjetosFormularioEspecificos(ModelAndView mv) {
+		mv.addObject("unidades", unidadeService.findAll());
+		mv.addObject("clientes", clienteRepository.findAll());
+	}
 
-    @Autowired
-    private UnidadeVendaService unidadeService;
+	@GetMapping
+	public ModelAndView lista(@RequestParam(required = false) Long codigoObra) {
+		return processarListagemPorObra(codigoObra);
+	}
 
-    @GetMapping
-    public ModelAndView lista(@RequestParam(required = false) Long codigoObra) {
-        ModelAndView mv = new ModelAndView("venda/ListaVendas");
-        mv.addObject("obras", obraRepository.findAll());
-        if (codigoObra != null) {
-            mv.addObject("vendas", service.findByObra(codigoObra));
-            mv.addObject("codigoObra", codigoObra);
-        }
-        return mv;
-    }
+	@GetMapping("/novo")
+	public ModelAndView novo(Venda venda) {
+		return abrirFormulario();
+	}
 
-    @GetMapping("/novo")
-    public ModelAndView novo(Venda venda) {
-        return form(venda);
-    }
+	@GetMapping("/{codigo}")
+	public ModelAndView editar(@PathVariable Long codigo) {
+		return carregarEdicao(codigo);
+	}
 
-    @GetMapping("/{codigo}")
-    public ModelAndView editar(@PathVariable Long codigo) {
-        return form(service.buscarComParcelas(codigo));
-    }
+	@PostMapping({"/novo", "/{codigo}"})
+	public ModelAndView salvar(@Valid Venda venda, BindingResult result, RedirectAttributes attributes) {
+		return processarCadastroPorObra(venda, result, attributes);
+	}
 
-    @PostMapping({"/novo", "/{codigo}"})
-    public ModelAndView salvar(@Valid Venda venda, BindingResult result, RedirectAttributes attributes) {
-        if (result.hasErrors()) return form(venda);
-        service.salvar(venda);
-        attributes.addFlashAttribute("mensagem", "Venda registrada com sucesso!");
-        return new ModelAndView("redirect:/vendas?codigoObra=" + venda.getUnidade().getObra().getCodigo());
-    }
+	@DeleteMapping("/{codigo}")
+	public @ResponseBody ResponseEntity<?> excluir(@PathVariable Long codigo) {
+		return excluirPorCodigo(codigo);
+	}
 
-    @DeleteMapping("/{codigo}")
-    public @ResponseBody ResponseEntity<?> excluir(@PathVariable Long codigo) {
-        try {
-            service.excluir(codigo);
-        } catch (ImpossivelExcluirEntidadeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-        return ResponseEntity.ok().build();
-    }
+	@GetMapping("/{codigo}/parcelas")
+	public ModelAndView formParcelas(@PathVariable Long codigo) {
+		Venda venda = service.buscarComParcelas(codigo);
+		ModelAndView mv = new ModelAndView("venda/FormGerarParcelas");
+		mv.addObject("venda", venda);
+		mv.addObject("indices", indicesRepository.findAll());
+		return mv;
+	}
 
-    private ModelAndView form(Venda venda) {
-        ModelAndView mv = new ModelAndView("venda/FormVenda");
-        mv.addObject("venda", venda);
-        mv.addObject("unidades", unidadeService.findAll());
-        mv.addObject("clientes", clienteRepository.findAll());
-        return mv;
-    }
+	@PostMapping("/{codigo}/parcelas/gerar")
+	public ModelAndView gerarParcelas(
+			@PathVariable Long codigo,
+			@RequestParam BigDecimal percentualEntrada,
+			@RequestParam int numeroParcelas,
+			@RequestParam(defaultValue = "0") BigDecimal percentualChaves,
+			@RequestParam(defaultValue = "10") int diaVencimento,
+			@RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) LocalDate dataInicio,
+			RedirectAttributes attributes) {
+		try {
+			List<ParcelaVenda> parcelas = vendaParcelasService.gerarParcelas(
+					codigo,
+					percentualEntrada,
+					numeroParcelas,
+					percentualChaves,
+					diaVencimento,
+					dataInicio);
+			attributes.addFlashAttribute("mensagem", parcelas.size() + " parcelas geradas com sucesso!");
+		} catch (RuntimeException exception) {
+			attributes.addFlashAttribute("erro", exception.getMessage());
+		}
+		return new ModelAndView("redirect:/vendas/" + codigo + "/parcelas");
+	}
 
-    @Autowired
-    private br.edu.ifrn.sinapiPRO.service.VendaParcelasService vendaParcelasService;
+	@PostMapping("/{codigo}/parcelas/reajustar")
+	public ModelAndView reajustarParcelas(
+			@PathVariable Long codigo,
+			@RequestParam Long codigoIndice,
+			@RequestParam BigDecimal percentualIndice,
+			RedirectAttributes attributes) {
+		try {
+			int count = vendaParcelasService.reajustarParcelas(codigo, codigoIndice, percentualIndice);
+			attributes.addFlashAttribute("mensagem", count + " parcelas reajustadas em " + percentualIndice + "%");
+		} catch (RuntimeException exception) {
+			attributes.addFlashAttribute("erro", exception.getMessage());
+		}
+		return new ModelAndView("redirect:/vendas/" + codigo + "/parcelas");
+	}
 
-    @Autowired
-    private br.edu.ifrn.sinapiPRO.repository.IndicesRepository indicesRepository;
-
-    @GetMapping("/{codigo}/parcelas")
-    public ModelAndView formParcelas(@PathVariable Long codigo) {
-        Venda venda = service.buscarComParcelas(codigo);
-        ModelAndView mv = new ModelAndView("venda/FormGerarParcelas");
-        mv.addObject("venda", venda);
-        mv.addObject("indices", indicesRepository.findAll());
-        return mv;
-    }
-
-    @PostMapping("/{codigo}/parcelas/gerar")
-    public ModelAndView gerarParcelas(@PathVariable Long codigo,
-            @RequestParam java.math.BigDecimal percentualEntrada,
-            @RequestParam int numeroParcelas,
-            @RequestParam(defaultValue = "0") java.math.BigDecimal percentualChaves,
-            @RequestParam(defaultValue = "10") int diaVencimento,
-            @RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dataInicio,
-            org.springframework.web.servlet.mvc.support.RedirectAttributes attributes) {
-        try {
-            java.util.List<br.edu.ifrn.sinapiPRO.model.ParcelaVenda> parcelas =
-                    vendaParcelasService.gerarParcelas(codigo, percentualEntrada,
-                            numeroParcelas, percentualChaves, diaVencimento, dataInicio);
-            attributes.addFlashAttribute("mensagem",
-                    parcelas.size() + " parcelas geradas com sucesso!");
-        } catch (RuntimeException e) {
-            attributes.addFlashAttribute("erro", e.getMessage());
-        }
-        return new ModelAndView("redirect:/vendas/" + codigo + "/parcelas");
-    }
-
-    @PostMapping("/{codigo}/parcelas/reajustar")
-    public ModelAndView reajustarParcelas(@PathVariable Long codigo,
-            @RequestParam Long codigoIndice,
-            @RequestParam java.math.BigDecimal percentualIndice,
-            org.springframework.web.servlet.mvc.support.RedirectAttributes attributes) {
-        try {
-            int count = vendaParcelasService.reajustarParcelas(codigo, codigoIndice, percentualIndice);
-            attributes.addFlashAttribute("mensagem",
-                    count + " parcelas reajustadas em " + percentualIndice + "%");
-        } catch (RuntimeException e) {
-            attributes.addFlashAttribute("erro", e.getMessage());
-        }
-        return new ModelAndView("redirect:/vendas/" + codigo + "/parcelas");
-    }
+	@Override
+	protected Venda buscarEntidadeParaEdicao(Long codigo) {
+		return service.buscarComParcelas(codigo);
+	}
 }

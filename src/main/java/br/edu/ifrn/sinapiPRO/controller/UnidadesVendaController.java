@@ -1,76 +1,86 @@
 package br.edu.ifrn.sinapiPRO.controller;
 
 import javax.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import br.edu.ifrn.sinapiPRO.controller.support.AbstractObraScopedCrudListController;
 import br.edu.ifrn.sinapiPRO.model.UnidadeVenda;
 import br.edu.ifrn.sinapiPRO.repository.ObrasRepository;
 import br.edu.ifrn.sinapiPRO.service.SituacaoUnidadeService;
 import br.edu.ifrn.sinapiPRO.service.UnidadeVendaService;
-import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
 
 @Controller
 @RequestMapping("/unidadesVenda")
-public class UnidadesVendaController {
+public class UnidadesVendaController extends AbstractObraScopedCrudListController<UnidadeVenda> {
 
-    @Autowired
-    private UnidadeVendaService service;
+	private final SituacaoUnidadeService situacaoService;
 
-    @Autowired
-    private ObrasRepository obraRepository;
+	public UnidadesVendaController(
+			UnidadeVendaService service,
+			ObrasRepository obraRepository,
+			SituacaoUnidadeService situacaoService) {
+		super(
+				service,
+				"unidadevenda/FormUnidade",
+				"unidadevenda/ListaUnidades",
+				"/unidadesVenda",
+				"Unidade salva com sucesso!",
+				"identificacao",
+				"unidades",
+				obraRepository,
+				service::findByObra,
+				unidade -> unidade.getObra().getCodigo());
+		this.situacaoService = situacaoService;
+	}
 
-    @Autowired
-    private SituacaoUnidadeService situacaoService;
+	@Override
+	protected void adicionarObjetosFormularioEspecificos(ModelAndView modelAndView) {
+		modelAndView.addObject("situacoes", situacaoService.findAll());
+	}
 
-    @GetMapping
-    public ModelAndView lista(@RequestParam(required = false) Long codigoObra) {
-        ModelAndView mv = new ModelAndView("unidadevenda/ListaUnidades");
-        mv.addObject("obras", obraRepository.findAll());
-        if (codigoObra != null) {
-            mv.addObject("unidades", service.findByObra(codigoObra));
-            mv.addObject("codigoObra", codigoObra);
-        }
-        return mv;
-    }
+	@GetMapping
+	public ModelAndView lista(@RequestParam(required = false) Long codigoObra) {
+		return processarListagemPorObra(codigoObra);
+	}
 
-    @GetMapping("/novo")
-    public ModelAndView novo(UnidadeVenda unidade) {
-        return form(unidade);
-    }
+	@GetMapping("/novo")
+	public ModelAndView novo(UnidadeVenda unidade) {
+		return abrirFormulario();
+	}
 
-    @GetMapping("/{codigo}")
-    public ModelAndView editar(@PathVariable Long codigo) {
-        return form(service.buscarComCaracteristicas(codigo));
-    }
+	@GetMapping("/{codigo}")
+	public ModelAndView editar(@PathVariable Long codigo) {
+		return carregarEdicao(codigo);
+	}
 
-    @PostMapping({"/novo", "/{codigo}"})
-    public ModelAndView salvar(@Valid UnidadeVenda unidade, BindingResult result, RedirectAttributes attributes) {
-        if (result.hasErrors()) return form(unidade);
-        service.salvar(unidade);
-        attributes.addFlashAttribute("mensagem", "Unidade salva com sucesso!");
-        return new ModelAndView("redirect:/unidadesVenda?codigoObra=" + unidade.getObra().getCodigo());
-    }
+	@PostMapping({"/novo", "/{codigo}"})
+	public ModelAndView salvar(@Valid UnidadeVenda unidade, BindingResult result, RedirectAttributes attributes) {
+		return processarCadastroPorObra(unidade, result, attributes);
+	}
 
-    @DeleteMapping("/{codigo}")
-    public @ResponseBody ResponseEntity<?> excluir(@PathVariable Long codigo) {
-        try {
-            service.excluir(codigo);
-        } catch (ImpossivelExcluirEntidadeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-        return ResponseEntity.ok().build();
-    }
+	@DeleteMapping("/{codigo}")
+	public @ResponseBody ResponseEntity<?> excluir(@PathVariable Long codigo) {
+		return excluirPorCodigo(codigo);
+	}
 
-    private ModelAndView form(UnidadeVenda unidade) {
-        ModelAndView mv = new ModelAndView("unidadevenda/FormUnidade");
-        mv.addObject("unidadeVenda", unidade);
-        mv.addObject("obras", obraRepository.findAll());
-        mv.addObject("situacoes", situacaoService.findAll());
-        return mv;
-    }
+	private UnidadeVendaService getService() {
+		return (UnidadeVendaService) serviceRef();
+	}
+
+	@Override
+	protected UnidadeVenda buscarEntidadeParaEdicao(Long codigo) {
+		return getService().buscarComCaracteristicas(codigo);
+	}
 }

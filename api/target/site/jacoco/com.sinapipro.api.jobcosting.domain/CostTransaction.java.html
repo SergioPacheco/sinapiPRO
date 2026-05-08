@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CostTransaction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sinapipro-api</a> &gt; <a href="index.source.html" class="el_package">com.sinapipro.api.jobcosting.domain</a> &gt; <span class="el_source">CostTransaction.java</span></div><h1>CostTransaction.java</h1><pre class="source lang-java linenums">package com.sinapipro.api.jobcosting.domain;
+
+import jakarta.persistence.*;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.UUID;
+
+@Entity
+@Table(name = &quot;cost_transaction&quot;)
+public class CostTransaction {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;cost_code_id&quot;, nullable = false)
+    private CostCode costCode;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private CostTransactionType type;
+
+    @Column(nullable = false, precision = 18, scale = 2)
+    private BigDecimal amount;
+
+    @Column(length = 300)
+    private String description;
+
+    @Column(name = &quot;reference_id&quot;)
+    private UUID referenceId;
+
+    @Column(name = &quot;transaction_date&quot;, nullable = false)
+    private LocalDate transactionDate;
+
+    @Column(name = &quot;created_at&quot;, nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @PrePersist
+<span class="nc" id="L42">    void prePersist() { createdAt = Instant.now(); }</span>
+
+<span class="nc" id="L44">    protected CostTransaction() {}</span>
+
+    public CostTransaction(CostCode costCode, CostTransactionType type, BigDecimal amount,
+<span class="fc" id="L47">                           String description, UUID referenceId, LocalDate transactionDate) {</span>
+<span class="fc" id="L48">        this.costCode = costCode;</span>
+<span class="fc" id="L49">        this.type = type;</span>
+<span class="fc" id="L50">        this.amount = amount;</span>
+<span class="fc" id="L51">        this.description = description;</span>
+<span class="fc" id="L52">        this.referenceId = referenceId;</span>
+<span class="fc" id="L53">        this.transactionDate = transactionDate;</span>
+<span class="fc" id="L54">    }</span>
+
+<span class="nc" id="L56">    public UUID getId() { return id; }</span>
+<span class="nc" id="L57">    public CostCode getCostCode() { return costCode; }</span>
+<span class="nc" id="L58">    public CostTransactionType getType() { return type; }</span>
+<span class="nc" id="L59">    public BigDecimal getAmount() { return amount; }</span>
+<span class="nc" id="L60">    public String getDescription() { return description; }</span>
+<span class="nc" id="L61">    public UUID getReferenceId() { return referenceId; }</span>
+<span class="nc" id="L62">    public LocalDate getTransactionDate() { return transactionDate; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

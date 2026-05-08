@@ -1,6 +1,5 @@
 package br.edu.ifrn.sinapiPRO.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -58,23 +57,51 @@ import br.edu.ifrn.sinapiPRO.service.VendaService;
 @RequestMapping("/relatorios")
 public class RelatoriosController {
 	
-	@Autowired
-	private RelatorioService relatorioService;
+	private final RelatorioService relatorioService;
+	private final BaseInsumoService baseInsumoService;
+	private final BasePrecoService basePrecoService;
+	private final OrcamentoService orcamentoService;
+	private final PlanejamentoService planejamentoService;
+	private final FreeMarkerReportService freeMarkerReport;
+	private final UnidadeVendaService unidadeVendaService;
+	private final VendaService vendaService;
+	private final ComissaoService comissaoService;
+	private final DespesaService despesaService;
+	private final ReceitaService receitaService;
+	private final MovimentoBancarioService movimentoBancarioService;
+	private final PlanoContasService planoContasService;
+	private final RelatorioOperacionalService relatorioOperacionalService;
 	
-	@Autowired 
-	private BaseInsumoService baseInsumoService; 
-	
-	@Autowired 
-	private BasePrecoService basePrecoService;
-
-	@Autowired
-	private OrcamentoService orcamentoService;
-
-	@Autowired
-	private PlanejamentoService planejamentoService;
-
-	@Autowired
-	private FreeMarkerReportService freeMarkerReport;
+	public RelatoriosController(
+			RelatorioService relatorioService,
+			BaseInsumoService baseInsumoService,
+			BasePrecoService basePrecoService,
+			OrcamentoService orcamentoService,
+			PlanejamentoService planejamentoService,
+			FreeMarkerReportService freeMarkerReport,
+			UnidadeVendaService unidadeVendaService,
+			VendaService vendaService,
+			ComissaoService comissaoService,
+			DespesaService despesaService,
+			ReceitaService receitaService,
+			MovimentoBancarioService movimentoBancarioService,
+			PlanoContasService planoContasService,
+			RelatorioOperacionalService relatorioOperacionalService) {
+		this.relatorioService = relatorioService;
+		this.baseInsumoService = baseInsumoService;
+		this.basePrecoService = basePrecoService;
+		this.orcamentoService = orcamentoService;
+		this.planejamentoService = planejamentoService;
+		this.freeMarkerReport = freeMarkerReport;
+		this.unidadeVendaService = unidadeVendaService;
+		this.vendaService = vendaService;
+		this.comissaoService = comissaoService;
+		this.despesaService = despesaService;
+		this.receitaService = receitaService;
+		this.movimentoBancarioService = movimentoBancarioService;
+		this.planoContasService = planoContasService;
+		this.relatorioOperacionalService = relatorioOperacionalService;
+	}
 	
 	@GetMapping("/listaInsumos")
 	public ModelAndView relatorioListagemInsumos() {
@@ -343,15 +370,6 @@ public class RelatoriosController {
 				.body(pdf);
 	}
 
-	@Autowired
-	private UnidadeVendaService unidadeVendaService;
-
-	@Autowired
-	private VendaService vendaService;
-
-	@Autowired
-	private ComissaoService comissaoService;
-
 	@GetMapping("/mapaVendas/{codigoObra}")
 	public ResponseEntity<byte[]> mapaVendas(@PathVariable Long codigoObra) {
 		DecimalFormat df = new DecimalFormat("#,##0.00");
@@ -474,21 +492,6 @@ public class RelatoriosController {
 				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE)
 				.body(pdf);
 	}
-
-	@Autowired
-	private DespesaService despesaService;
-
-	@Autowired
-	private ReceitaService receitaService;
-
-	@Autowired
-	private MovimentoBancarioService movimentoBancarioService;
-
-	@Autowired
-	private PlanoContasService planoContasService;
-
-	@Autowired
-	private RelatorioOperacionalService relatorioOperacionalService;
 
 	@GetMapping("/fluxoCaixa")
 	public ResponseEntity<byte[]> fluxoCaixa(

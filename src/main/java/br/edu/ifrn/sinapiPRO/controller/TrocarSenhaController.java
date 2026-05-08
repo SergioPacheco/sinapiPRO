@@ -1,8 +1,6 @@
 package br.edu.ifrn.sinapiPRO.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,11 +16,13 @@ import br.edu.ifrn.sinapiPRO.service.UsuarioService;
 @Controller
 public class TrocarSenhaController {
 
-	@Autowired
-	private UsuariosRepository usuariosRepository;
+	private final UsuariosRepository usuariosRepository;
+	private final UsuarioService usuarioService;
 
-	@Autowired
-	private UsuarioService usuarioService;
+	public TrocarSenhaController(UsuariosRepository usuariosRepository, UsuarioService usuarioService) {
+		this.usuariosRepository = usuariosRepository;
+		this.usuarioService = usuarioService;
+	}
 
 	@GetMapping("/trocarSenha")
 	public ModelAndView form() {

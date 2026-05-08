@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Measurement.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sinapipro-api</a> &gt; <a href="index.source.html" class="el_package">com.sinapipro.api.measurement.domain</a> &gt; <span class="el_source">Measurement.java</span></div><h1>Measurement.java</h1><pre class="source lang-java linenums">package com.sinapipro.api.measurement.domain;
+
+import com.sinapipro.api.budget.domain.Budget;
+import com.sinapipro.api.shared.domain.AuditableEntity;
+import jakarta.persistence.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Table(name = &quot;measurement&quot;, uniqueConstraints = @UniqueConstraint(columnNames = {&quot;budget_id&quot;, &quot;number&quot;}))
+public class Measurement extends AuditableEntity {
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;budget_id&quot;, nullable = false)
+    private Budget budget;
+
+    @Column(nullable = false)
+    private Integer number;
+
+    @Column(name = &quot;period_start&quot;, nullable = false)
+    private LocalDate periodStart;
+
+    @Column(name = &quot;period_end&quot;, nullable = false)
+    private LocalDate periodEnd;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private MeasurementStatus status;
+
+    @Column(name = &quot;retention_pct&quot;, nullable = false, precision = 5, scale = 4)
+    private BigDecimal retentionPct;
+
+    @Column(columnDefinition = &quot;text&quot;)
+    private String notes;
+
+<span class="pc" id="L39">    @OneToMany(mappedBy = &quot;measurement&quot;, cascade = CascadeType.ALL, orphanRemoval = true)</span>
+    private List&lt;MeasurementItem&gt; items = new ArrayList&lt;&gt;();
+
+<span class="nc" id="L42">    protected Measurement() {}</span>
+
+<span class="fc" id="L44">    public Measurement(Budget budget, Integer number, LocalDate periodStart, LocalDate periodEnd, BigDecimal retentionPct) {</span>
+<span class="fc" id="L45">        this.budget = budget;</span>
+<span class="fc" id="L46">        this.number = number;</span>
+<span class="fc" id="L47">        this.periodStart = periodStart;</span>
+<span class="fc" id="L48">        this.periodEnd = periodEnd;</span>
+<span class="fc" id="L49">        this.retentionPct = retentionPct;</span>
+<span class="fc" id="L50">        this.status = MeasurementStatus.DRAFT;</span>
+<span class="fc" id="L51">    }</span>
+
+<span class="fc" id="L53">    public Budget getBudget() { return budget; }</span>
+<span class="fc" id="L54">    public Integer getNumber() { return number; }</span>
+<span class="nc" id="L55">    public LocalDate getPeriodStart() { return periodStart; }</span>
+<span class="fc" id="L56">    public LocalDate getPeriodEnd() { return periodEnd; }</span>
+<span class="fc" id="L57">    public MeasurementStatus getStatus() { return status; }</span>
+<span class="nc" id="L58">    public BigDecimal getRetentionPct() { return retentionPct; }</span>
+<span class="nc" id="L59">    public String getNotes() { return notes; }</span>
+<span class="fc" id="L60">    public List&lt;MeasurementItem&gt; getItems() { return items; }</span>
+
+    public BigDecimal getGrossAmount() {
+<span class="fc" id="L63">        return items.stream().map(MeasurementItem::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);</span>
+    }
+
+    public BigDecimal getNetAmount() {
+<span class="fc" id="L67">        BigDecimal gross = getGrossAmount();</span>
+<span class="fc" id="L68">        return gross.subtract(gross.multiply(retentionPct)).setScale(2, java.math.RoundingMode.HALF_UP);</span>
+    }
+
+    public void submit() {
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">        if (status != MeasurementStatus.DRAFT) throw new IllegalStateException(&quot;Can only submit DRAFT measurements&quot;);</span>
+<span class="fc" id="L73">        this.status = MeasurementStatus.SUBMITTED;</span>
+<span class="fc" id="L74">    }</span>
+
+    public void approve() {
+<span class="fc bfc" id="L77" title="All 2 branches covered.">        if (status != MeasurementStatus.SUBMITTED) throw new IllegalStateException(&quot;Can only approve SUBMITTED measurements&quot;);</span>
+<span class="fc" id="L78">        this.status = MeasurementStatus.APPROVED;</span>
+<span class="fc" id="L79">    }</span>
+
+    public void pay() {
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        if (status != MeasurementStatus.APPROVED) throw new IllegalStateException(&quot;Can only pay APPROVED measurements&quot;);</span>
+<span class="nc" id="L83">        this.status = MeasurementStatus.PAID;</span>
+<span class="nc" id="L84">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

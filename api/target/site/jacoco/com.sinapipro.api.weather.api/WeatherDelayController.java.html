@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WeatherDelayController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sinapipro-api</a> &gt; <a href="index.source.html" class="el_package">com.sinapipro.api.weather.api</a> &gt; <span class="el_source">WeatherDelayController.java</span></div><h1>WeatherDelayController.java</h1><pre class="source lang-java linenums">package com.sinapipro.api.weather.api;
+
+import com.sinapipro.api.weather.domain.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
+
+@Tag(name = &quot;Weather Delays&quot;, description = &quot;Weather delay tracking and schedule impact&quot;)
+@RestController
+@RequestMapping(&quot;/api/v1/budgets/{budgetId}/weather-delays&quot;)
+public class WeatherDelayController {
+
+    private final WeatherDelayRepository repository;
+<span class="nc" id="L24">    public WeatherDelayController(WeatherDelayRepository repository) { this.repository = repository; }</span>
+
+    @Operation(summary = &quot;List weather delays&quot;) @GetMapping
+    @PreAuthorize(&quot;hasAuthority('SCOPE_sinapipro.read')&quot;)
+    List&lt;WeatherDelayResponse&gt; list(@PathVariable UUID budgetId) {
+<span class="nc" id="L29">        return repository.findByBudgetIdOrderByDelayDateDesc(budgetId).stream().map(WeatherDelayResponse::from).toList();</span>
+    }
+
+    @Operation(summary = &quot;Record a weather delay&quot;) @PostMapping
+    @PreAuthorize(&quot;hasAuthority('SCOPE_sinapipro.write')&quot;) @ResponseStatus(HttpStatus.CREATED)
+    WeatherDelayResponse record(@PathVariable UUID budgetId, @Valid @RequestBody CreateWeatherDelayRequest req) {
+<span class="nc" id="L35">        WeatherDelay wd = repository.save(new WeatherDelay(budgetId, req.delayDate(), req.weatherCondition(),</span>
+<span class="nc bnc" id="L36" title="All 4 branches missed.">                req.hoursLost(), req.fullDayLost() != null &amp;&amp; req.fullDayLost(), req.impactDescription(), req.reportedBy()));</span>
+<span class="nc" id="L37">        return WeatherDelayResponse.from(wd);</span>
+    }
+
+    @Operation(summary = &quot;Weather delay impact summary&quot;) @GetMapping(&quot;/summary&quot;)
+    @PreAuthorize(&quot;hasAuthority('SCOPE_sinapipro.read')&quot;)
+    WeatherDelaySummary summary(@PathVariable UUID budgetId) {
+<span class="nc" id="L43">        return new WeatherDelaySummary(</span>
+<span class="nc" id="L44">                repository.findByBudgetIdOrderByDelayDateDesc(budgetId).size(),</span>
+<span class="nc" id="L45">                repository.countFullDaysLost(budgetId),</span>
+<span class="nc" id="L46">                repository.sumHoursLostByBudget(budgetId));</span>
+    }
+
+<span class="nc" id="L49">    record CreateWeatherDelayRequest(@NotNull LocalDate delayDate, @NotBlank String weatherCondition,</span>
+                                     @NotNull BigDecimal hoursLost, Boolean fullDayLost,
+                                     String impactDescription, String reportedBy) {}
+<span class="nc" id="L52">    record WeatherDelayResponse(UUID id, LocalDate delayDate, String weatherCondition,</span>
+                                BigDecimal hoursLost, Boolean fullDayLost, String impactDescription) {
+        static WeatherDelayResponse from(WeatherDelay w) {
+<span class="nc" id="L55">            return new WeatherDelayResponse(w.getId(), w.getDelayDate(), w.getWeatherCondition(),</span>
+<span class="nc" id="L56">                    w.getHoursLost(), w.getFullDayLost(), w.getImpactDescription());</span>
+        }
+    }
+<span class="nc" id="L59">    record WeatherDelaySummary(int totalDelays, long fullDaysLost, BigDecimal totalHoursLost) {}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

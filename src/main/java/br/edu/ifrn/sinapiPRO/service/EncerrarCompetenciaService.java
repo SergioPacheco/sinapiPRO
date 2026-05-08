@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,17 +45,21 @@ public class EncerrarCompetenciaService {
 
     private static final BigDecimal LIMITE_ALERTA_HORAS = new BigDecimal("40");
 
-    @Autowired
-    private CompetenciasRepository competenciaRepository;
+    private final CompetenciasRepository competenciaRepository;
+    private final BancoHorasRepository bancoHorasRepository;
+    private final MovimentacoesHoraRepository movimentacoesRepository;
+    private final FuncionariosRepository funcionariosRepository;
 
-    @Autowired
-    private BancoHorasRepository bancoHorasRepository;
-
-    @Autowired
-    private MovimentacoesHoraRepository movimentacoesRepository;
-
-    @Autowired
-    private FuncionariosRepository funcionariosRepository;
+    public EncerrarCompetenciaService(
+            CompetenciasRepository competenciaRepository,
+            BancoHorasRepository bancoHorasRepository,
+            MovimentacoesHoraRepository movimentacoesRepository,
+            FuncionariosRepository funcionariosRepository) {
+        this.competenciaRepository = competenciaRepository;
+        this.bancoHorasRepository = bancoHorasRepository;
+        this.movimentacoesRepository = movimentacoesRepository;
+        this.funcionariosRepository = funcionariosRepository;
+    }
 
     /**
      * Encerra uma competência e transfere saldos para a próxima.

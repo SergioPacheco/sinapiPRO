@@ -9,10 +9,13 @@ import org.springframework.stereotype.Repository;
 
 import br.edu.ifrn.sinapiPRO.model.ComposicaoClasse;
 import br.edu.ifrn.sinapiPRO.model.ComposicaoGrupo;
+import br.edu.ifrn.sinapiPRO.repository.filter.ComposicaoGrupoFilter;
 import br.edu.ifrn.sinapiPRO.repository.helper.composicaogrupo.ComposicaoGruposRepositoryQueries;
+import br.edu.ifrn.sinapiPRO.repository.support.FilterableRepository;
 
 @Repository
-public interface ComposicaoGruposRepository extends JpaRepository<ComposicaoGrupo, Long>, ComposicaoGruposRepositoryQueries {
+public interface ComposicaoGruposRepository extends JpaRepository<ComposicaoGrupo, Long>, ComposicaoGruposRepositoryQueries,
+		FilterableRepository<ComposicaoGrupo, ComposicaoGrupoFilter> {
 
 	public Optional<ComposicaoGrupo> findByNomeIgnoreCase(String nome);
 	

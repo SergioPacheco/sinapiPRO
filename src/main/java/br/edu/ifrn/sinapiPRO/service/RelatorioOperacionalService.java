@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,11 +19,13 @@ import br.edu.ifrn.sinapiPRO.repository.VendasRepository;
 @Service
 public class RelatorioOperacionalService {
 
-    @Autowired
-    private VendasRepository vendaRepository;
+    private final VendasRepository vendaRepository;
+    private final EstoqueRepository estoqueRepository;
 
-    @Autowired
-    private EstoqueRepository estoqueRepository;
+    public RelatorioOperacionalService(VendasRepository vendaRepository, EstoqueRepository estoqueRepository) {
+        this.vendaRepository = vendaRepository;
+        this.estoqueRepository = estoqueRepository;
+    }
 
     // ---- Inadimplência ----
 

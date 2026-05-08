@@ -3,11 +3,15 @@ package br.edu.ifrn.sinapiPRO.controller;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -18,18 +22,29 @@ import br.edu.ifrn.sinapiPRO.service.ContaBancariaService;
 @RequestMapping("/conciliacao")
 public class ConciliacaoBancariaController {
 
-    @Autowired
-    private ConciliacaoBancariaService service;
+    private final ConciliacaoBancariaService service;
+    private final ContaBancariaService contaService;
 
-    @Autowired
-    private ContaBancariaService contaService;
+    public ConciliacaoBancariaController(
+            ConciliacaoBancariaService service,
+            ContaBancariaService contaService) {
+        this.service = service;
+        this.contaService = contaService;
+    }
 
     @GetMapping
     public ModelAndView lista(@RequestParam(required = false) Long codigoConta,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim,
             @RequestParam(required = false) BigDecimal saldoExtrato) {
+        return criarListagem(codigoConta, inicio, fim, saldoExtrato);
+    }
 
+    private ModelAndView criarListagem(
+            Long codigoConta,
+            LocalDate inicio,
+            LocalDate fim,
+            BigDecimal saldoExtrato) {
         ModelAndView mv = new ModelAndView("conciliacao/Conciliacao");
         mv.addObject("contas", contaService.findAll());
         mv.addObject("codigoConta", codigoConta);
@@ -38,9 +53,9 @@ public class ConciliacaoBancariaController {
         mv.addObject("saldoExtrato", saldoExtrato);
 
         if (codigoConta != null) {
-            LocalDate dataFim = fim != null ? fim : LocalDate.now();
-            mv.addObject("movimentos", service.findNaoConciliados(codigoConta,
-                    inicio != null ? inicio : LocalDate.now().minusMonths(1), dataFim));
+            LocalDate dataInicio = resolveDataInicio(inicio);
+            LocalDate dataFim = resolveDataFim(fim);
+            mv.addObject("movimentos", service.findNaoConciliados(codigoConta, dataInicio, dataFim));
             if (saldoExtrato != null) {
                 mv.addObject("resumo", service.gerarResumo(codigoConta, dataFim, saldoExtrato));
             }
@@ -48,14 +63,22 @@ public class ConciliacaoBancariaController {
         return mv;
     }
 
+    private LocalDate resolveDataInicio(LocalDate inicio) {
+        return inicio != null ? inicio : LocalDate.now().minusMonths(1);
+    }
+
+    private LocalDate resolveDataFim(LocalDate fim) {
+        return fim != null ? fim : LocalDate.now();
+    }
+
     @PostMapping("/{codigo}/conciliar")
-    public @ResponseBody ResponseEntity<?> conciliar(@PathVariable Long codigo) {
+    public @ResponseBody ResponseEntity<Void> conciliar(@PathVariable Long codigo) {
         service.conciliar(codigo);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{codigo}/desconciliar")
-    public @ResponseBody ResponseEntity<?> desconciliar(@PathVariable Long codigo) {
+    public @ResponseBody ResponseEntity<Void> desconciliar(@PathVariable Long codigo) {
         service.desconciliar(codigo);
         return ResponseEntity.ok().build();
     }

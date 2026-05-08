@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OpenApiConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sinapipro-api</a> &gt; <a href="index.source.html" class="el_package">com.sinapipro.api.config</a> &gt; <span class="el_source">OpenApiConfiguration.java</span></div><h1>OpenApiConfiguration.java</h1><pre class="source lang-java linenums">package com.sinapipro.api.config;
+
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
+import io.swagger.v3.oas.models.tags.Tag;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
+
+@Configuration
+<span class="nc" id="L17">public class OpenApiConfiguration {</span>
+
+    @Bean
+    OpenAPI openApi() {
+<span class="nc" id="L21">        return new OpenAPI()</span>
+<span class="nc" id="L22">                .info(new Info()</span>
+<span class="nc" id="L23">                        .title(&quot;SinapiPRO Showcase API&quot;)</span>
+<span class="nc" id="L24">                        .version(&quot;1.0.0&quot;)</span>
+<span class="nc" id="L25">                        .description(&quot;&quot;&quot;</span>
+                                API REST para gestão de obras e orçamentos da construção civil, baseada na tabela SINAPI.
+                                
+                                ## Módulos
+                                - **Budgets** — Orçamentos com etapas, itens, BDI e Curva ABC
+                                - **SINAPI** — Composições, materiais e preços por estado/mês
+                                - **Job Costing** — Códigos de custo, variância e WIP Report
+                                - **Schedule** — Cronograma, Curva S e Caminho Crítico (CPM)
+                                - **Measurements** — Medições com workflow de aprovação
+                                - **Contracts** — Contratos e aditivos (change orders)
+                                - **Procurement** — Cotação → Pedido → Recebimento
+                                - **Equipment** — Gestão de equipamentos e alertas de manutenção
+                                - **Daily Log** — Diário de obra
+                                - **Analytics** — EVM, Fluxo de Caixa, Portfolio
+                                
+                                ## Autenticação
+                                Use `POST /api/v1/auth/token` com grant_type=password para obter um JWT.
+                                &quot;&quot;&quot;)
+<span class="nc" id="L43">                        .contact(new Contact()</span>
+<span class="nc" id="L44">                                .name(&quot;SinapiPRO&quot;)</span>
+<span class="nc" id="L45">                                .email(&quot;admin@sinapipro.dev&quot;)</span>
+<span class="nc" id="L46">                                .url(&quot;https://github.com/SergioPacheco/sinapiPRO&quot;))</span>
+<span class="nc" id="L47">                        .license(new License().name(&quot;MIT&quot;).url(&quot;https://opensource.org/licenses/MIT&quot;)))</span>
+<span class="nc" id="L48">                .servers(List.of(</span>
+<span class="nc" id="L49">                        new Server().url(&quot;http://localhost:8080&quot;).description(&quot;Development&quot;)))</span>
+<span class="nc" id="L50">                .addSecurityItem(new SecurityRequirement().addList(&quot;bearer-jwt&quot;))</span>
+<span class="nc" id="L51">                .schemaRequirement(&quot;bearer-jwt&quot;, new SecurityScheme()</span>
+<span class="nc" id="L52">                        .name(&quot;bearer-jwt&quot;)</span>
+<span class="nc" id="L53">                        .type(SecurityScheme.Type.HTTP)</span>
+<span class="nc" id="L54">                        .scheme(&quot;bearer&quot;)</span>
+<span class="nc" id="L55">                        .bearerFormat(&quot;JWT&quot;)</span>
+<span class="nc" id="L56">                        .description(&quot;JWT token obtained from POST /api/v1/auth/token&quot;))</span>
+<span class="nc" id="L57">                .tags(List.of(</span>
+<span class="nc" id="L58">                        new Tag().name(&quot;Auth&quot;).description(&quot;Authentication and token management&quot;),</span>
+<span class="nc" id="L59">                        new Tag().name(&quot;Budgets&quot;).description(&quot;Construction budget CRUD with filters and pagination&quot;),</span>
+<span class="nc" id="L60">                        new Tag().name(&quot;Budget Detail&quot;).description(&quot;Budget stages, items, BDI, ABC curve and price adjustment&quot;),</span>
+<span class="nc" id="L61">                        new Tag().name(&quot;Compositions&quot;).description(&quot;SINAPI composition catalog with cost calculation&quot;),</span>
+<span class="nc" id="L62">                        new Tag().name(&quot;Materials&quot;).description(&quot;SINAPI materials and prices by state/month&quot;),</span>
+<span class="nc" id="L63">                        new Tag().name(&quot;Job Costing&quot;).description(&quot;Cost codes, transactions, variance analysis and WIP report&quot;),</span>
+<span class="nc" id="L64">                        new Tag().name(&quot;Schedule&quot;).description(&quot;Project schedule, S-Curve and Critical Path (CPM)&quot;),</span>
+<span class="nc" id="L65">                        new Tag().name(&quot;Measurements&quot;).description(&quot;Periodic work measurements with approval workflow&quot;),</span>
+<span class="nc" id="L66">                        new Tag().name(&quot;Contracts&quot;).description(&quot;Contracts with change orders (aditivos)&quot;),</span>
+<span class="nc" id="L67">                        new Tag().name(&quot;Procurement&quot;).description(&quot;Purchase requests → quotations → orders → receiving&quot;),</span>
+<span class="nc" id="L68">                        new Tag().name(&quot;Equipment&quot;).description(&quot;Equipment management, usage tracking and maintenance alerts&quot;),</span>
+<span class="nc" id="L69">                        new Tag().name(&quot;Daily Log&quot;).description(&quot;Daily construction log (diário de obra)&quot;),</span>
+<span class="nc" id="L70">                        new Tag().name(&quot;Analytics&quot;).description(&quot;Dashboard, EVM, cash flow and portfolio analytics&quot;),</span>
+<span class="nc" id="L71">                        new Tag().name(&quot;Suppliers&quot;).description(&quot;Supplier management&quot;),</span>
+<span class="nc" id="L72">                        new Tag().name(&quot;Invoices&quot;).description(&quot;Invoice management&quot;)));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

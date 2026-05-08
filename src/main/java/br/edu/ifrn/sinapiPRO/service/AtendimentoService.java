@@ -1,43 +1,33 @@
 package br.edu.ifrn.sinapiPRO.service;
+
 import java.util.List;
-import javax.persistence.PersistenceException;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import br.edu.ifrn.sinapiPRO.model.Atendimento;
 import br.edu.ifrn.sinapiPRO.repository.AtendimentosRepository;
-import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
+import br.edu.ifrn.sinapiPRO.service.support.AbstractSimpleCrudService;
+
 @Service
-public class AtendimentoService {
-@Autowired
-private AtendimentosRepository repository;
-@Transactional
-public Atendimento salvar(Atendimento a) {
-	a.getOrdensServico().forEach(os -> os.setAtendimento(a));
-	return repository.saveAndFlush(a);
-}
+public class AtendimentoService extends AbstractSimpleCrudService<Atendimento, AtendimentosRepository> {
 
-@Transactional
-public void excluir(Long c) {
-	try {
-		repository.deleteById(c);
-		repository.flush();
-	} catch (PersistenceException e) {
-		throw new ImpossivelExcluirEntidadeException("Impossível apagar o atendimento.");
+	private final AtendimentosRepository repository;
+
+	public AtendimentoService(AtendimentosRepository repository) {
+		super(repository, "Impossível apagar o atendimento.", "Atendimento não encontrado.");
+		this.repository = repository;
 	}
-}
 
-@Transactional(readOnly = true)
+	@Override
+	@Transactional
+	public Atendimento salvar(Atendimento atendimento) {
+		atendimento.getOrdensServico().forEach(ordemServico -> ordemServico.setAtendimento(atendimento));
+		return repository.saveAndFlush(atendimento);
+	}
+
+	@Transactional(readOnly = true)
 	public List<Atendimento> findAbertos() {
-	return repository.findBySituacaoOrderByDataAberturaDesc("ABERTO");
-}
-
-public List<Atendimento> findAll() {
-	return repository.findAll();
-}
-
-public Atendimento getOne(Long c) {
-	return repository.getOne(c);
-}
-
+		return repository.findBySituacaoOrderByDataAberturaDesc("ABERTO");
+	}
 }

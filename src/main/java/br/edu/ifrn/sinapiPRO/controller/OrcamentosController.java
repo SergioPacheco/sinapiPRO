@@ -3,7 +3,6 @@ package br.edu.ifrn.sinapiPRO.controller;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +43,6 @@ public class OrcamentosController {
 	private final OrcamentoService orcamentoService;
 	private final OrcamentosRepository orcamentosRepository;
 	
-	@Autowired
 	public OrcamentosController(OrcamentoService orcamentoService, EstadoService estadoService,
 								BasePrecoService basePrecoService, BaseInsumoService baseInsumoService,
 								OrcamentosRepository orcamentosRepository) {

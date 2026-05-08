@@ -1,0 +1,9 @@
+{
+  "title": "KiroRails Security Guardrails",
+  "description": "Check critical file changes against security standards when saving migration, auth, model, or config files",
+  "event": "File Save",
+  "filePattern": ["**/migration/**", "**/db/**", "**/security/**", "**/auth/**", "**/model/**", "**/entity/**", "**/application*.yml", "**/application*.properties"],
+  "action": "Ask Kiro",
+  "instructions": "Review the saved file for security issues:\n1. For migration files: warn if DROP without comment, CREATE INDEX without CONCURRENTLY, NOT NULL without DEFAULT\n2. For security/auth files: flag hardcoded credentials, weak hashing (MD5/SHA-1), overly permissive access\n3. For model/entity files: warn if fields removed or types changed (could break contracts)\n4. For config files: flag values that look like secrets — these should be environment variables\nKeep warnings concise — one line per issue.",
+  "enabled": true
+}

@@ -7,7 +7,6 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
@@ -57,35 +56,39 @@ import br.edu.ifrn.sinapiPRO.session.composicao.TabelaComposicaoItemSession;
 @RequestMapping("/composicoes")
 public class ComposicaoController {
 	
-	@Autowired
-	private TabelaComposicaoItemSession tabelaItens;
+	private final TabelaComposicaoItemSession tabelaItens;
+	private final ComposicaoRepository composicaoRepository;
+	private final ComposicaoService composicaoService;
+	private final BasePrecoService basePrecoService;
+	private final BaseInsumoService baseInsumoService;
+	private final ComposicaoClasseService composicaoClassesService;
+	private final OrcamentoService orcamentoService;
+	private final InsumosRepository insumosRepository;
+	private final BaseInsumosRepository baseInsumosRepository;
+	private final RelatorioService relatorioService;
 	
-	@Autowired
-	private ComposicaoRepository composicaoRepository;
-	
-	@Autowired
-	private ComposicaoService composicaoService;
-	
-	@Autowired
-	private BasePrecoService basePrecoService;
-	
-	@Autowired
-	private BaseInsumoService baseInsumoService;
-	
-	@Autowired
-	private ComposicaoClasseService composicaoClassesService;
-	
-	@Autowired
-	private OrcamentoService orcamentoService;
-	
-	@Autowired
-	private InsumosRepository insumosRepository;
-	
-	@Autowired
-	private BaseInsumosRepository baseInsumosRepository;
-	
-	@Autowired
-	private RelatorioService relatorioService;
+	public ComposicaoController(
+			TabelaComposicaoItemSession tabelaItens,
+			ComposicaoRepository composicaoRepository,
+			ComposicaoService composicaoService,
+			BasePrecoService basePrecoService,
+			BaseInsumoService baseInsumoService,
+			ComposicaoClasseService composicaoClassesService,
+			OrcamentoService orcamentoService,
+			InsumosRepository insumosRepository,
+			BaseInsumosRepository baseInsumosRepository,
+			RelatorioService relatorioService) {
+		this.tabelaItens = tabelaItens;
+		this.composicaoRepository = composicaoRepository;
+		this.composicaoService = composicaoService;
+		this.basePrecoService = basePrecoService;
+		this.baseInsumoService = baseInsumoService;
+		this.composicaoClassesService = composicaoClassesService;
+		this.orcamentoService = orcamentoService;
+		this.insumosRepository = insumosRepository;
+		this.baseInsumosRepository = baseInsumosRepository;
+		this.relatorioService = relatorioService;
+	}
 	
 	@RequestMapping("/nova")
 	public ModelAndView nova(Composicao composicao) {

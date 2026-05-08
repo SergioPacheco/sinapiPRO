@@ -2,7 +2,8 @@ package br.edu.ifrn.sinapiPRO.controller;
 
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -13,24 +14,29 @@ import br.edu.ifrn.sinapiPRO.repository.UsuariosRepository;
 
 @Controller
 public class SegurancaController {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(SegurancaController.class);
 	
-	@Autowired 
-	private UsuariosRepository usu;
+	private final UsuariosRepository usuariosRepository;
+
+	public SegurancaController(UsuariosRepository usuariosRepository) {
+		this.usuariosRepository = usuariosRepository;
+	}
 
 	@GetMapping("/login")
 	public String login(@AuthenticationPrincipal UserDetails  user) {
 		
-		Optional<Usuario> usuario = usu.porEmailEAtivo("admin@sinapipro.com");
+		Optional<Usuario> usuario = usuariosRepository.porEmailEAtivo("admin@sinapipro.com");
 		if (usuario.isPresent()) {
-			System.out.println("email="+usuario.get().getEmail()+" Ativo="+usuario.get().getAtivo()+" Senha="+usuario.get().getSenha() );
+			LOGGER.debug("Usuario administrativo padrao localizado. email={}, ativo={}",
+					usuario.get().getEmail(), usuario.get().getAtivo());
 		} else {
-			System.out.println("admin@sinapipro.com nao cadastrado no banco de dados");
+			LOGGER.debug("Usuario administrativo padrao nao cadastrado no banco de dados.");
 		}
 		
 		if (user != null) {
 			return "redirect:/orcamentos";
 		}
-		System.out.println("@AuthenticationPrincipal NULL??????");
 		
 		return "Login";
 	}

@@ -5,7 +5,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
@@ -17,48 +16,53 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
+import br.edu.ifrn.sinapiPRO.controller.support.AbstractCrudPageController;
 import br.edu.ifrn.sinapiPRO.model.Cidade;
 import br.edu.ifrn.sinapiPRO.repository.CidadesRepository;
 import br.edu.ifrn.sinapiPRO.repository.EstadosRepository;
 import br.edu.ifrn.sinapiPRO.repository.filter.CidadeFilter;
 import br.edu.ifrn.sinapiPRO.service.CidadeService;
-import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
-import br.edu.ifrn.sinapiPRO.service.exception.JaCadastradoException;
 
 @Controller
 @RequestMapping("/cidades")
-public class CidadesController {
+public class CidadesController extends AbstractCrudPageController<Cidade, CidadeFilter> {
 
-	@Autowired
-	private CidadesRepository cidades;
-	
-	@Autowired
-	private EstadosRepository estados;
-	
-	@Autowired
-	private CidadeService cadastroCidadeService;
-	
-	@RequestMapping("/nova")
-	public ModelAndView nova(Cidade cidade) { 
-		ModelAndView mv = new ModelAndView("cidade/CadastroCidade");
-		mv.addObject("estados", estados.findAll());
-		return mv;
+	private final CidadesRepository cidades;
+	private final EstadosRepository estados;
+	private final CidadeService service;
+
+	public CidadesController(CidadesRepository cidades, EstadosRepository estados, CidadeService service) {
+		super(service, "cidade/CadastroCidade", "cidade/PesquisaCidades", "/cidades/nova", "Cidade salva com sucesso!", "nome");
+		this.cidades = cidades;
+		this.estados = estados;
+		this.service = service;
 	}
-	
-	
+
+	@Override
+	protected void adicionarObjetosFormulario(ModelAndView mv) {
+		mv.addObject("estados", estados.findAll());
+	}
+
+	@Override
+	protected void adicionarObjetosPesquisa(ModelAndView mv, CidadeFilter filtro) {
+		mv.addObject("estados", estados.findAll());
+	}
+
+	@GetMapping("/nova")
+	public ModelAndView nova(Cidade cidade) {
+		return abrirFormulario();
+	}
+
 	@Cacheable(value = "cidades", key = "#codigoEstado")
 	@RequestMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody List<Cidade> pesquisarPorCodigoEstado(
-			@RequestParam(name = "estado", defaultValue = "-1") Long codigoEstado){
-		
+	public @ResponseBody List<Cidade> pesquisarPorCodigoEstado(@RequestParam(name = "estado", defaultValue = "-1") Long codigoEstado) {
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
@@ -66,56 +70,30 @@ public class CidadesController {
 		}
 		return cidades.findByEstadoCodigo(codigoEstado);
 	}
-	
-	@RequestMapping(value = { "/nova", "/{codigo}" }, method = RequestMethod.POST)
-	@CacheEvict(value = "cidades", //allEntries = true) 
-				key = "#cidade.estado.codigo", condition = "#cidade.temEstado()")
-	public ModelAndView salvar (@Valid Cidade cidade, BindingResult result, RedirectAttributes attributes){
-		
-		if (result.hasErrors()) {
-			return nova(cidade);
-		}
-		
-		try {
-			cadastroCidadeService.salvar(cidade);
-			
-		} catch (JaCadastradoException e) {
-			result.rejectValue("nome", e.getMessage(), e.getMessage());
-			return nova(cidade);
-		}
-		attributes.addFlashAttribute("mensagem", "Cidade salva com sucesso!");
-		return new ModelAndView("redirect:/cidades/nova");
+
+	@PostMapping({"/nova", "/{codigo}"})
+	@CacheEvict(value = "cidades", key = "#cidade.estado.codigo", condition = "#cidade.temEstado()")
+	public ModelAndView salvar(@Valid Cidade cidade, BindingResult result, RedirectAttributes attributes) {
+		return processarCadastro(cidade, result, attributes);
 	}
-	
+
 	@GetMapping
-	public ModelAndView pesquisar(CidadeFilter cidadeFilter, BindingResult result
-			, @PageableDefault(size=10) Pageable pageable, HttpServletRequest httpServletRequest){
-		ModelAndView mv = new ModelAndView("cidade/PesquisaCidades");
-		
-		mv.addObject("estados", estados.findAll());
-		
-		PageWrapper<Cidade> paginaWrapper = new PageWrapper<>(cidades.filtrar(cidadeFilter, pageable)
-				, httpServletRequest);
-		
-		mv.addObject("pagina", paginaWrapper);
-		return mv;
+	public ModelAndView pesquisar(CidadeFilter cidadeFilter, @PageableDefault(size = 10) Pageable pageable, HttpServletRequest httpServletRequest) {
+		return processarPesquisa(cidadeFilter, pageable, httpServletRequest);
 	}
-	
+
 	@GetMapping("/{codigo}")
 	public ModelAndView editar(@PathVariable Long codigo) {
-		Cidade cidade = cidades.buscarComEstado(codigo);
-		ModelAndView mv = nova(cidade);
-		mv.addObject(cidade);
-		return mv;
+		return carregarEdicao(codigo);
 	}
-	
+
 	@DeleteMapping("/{codigo}")
 	public @ResponseBody ResponseEntity<?> excluir(@PathVariable("codigo") Long codigo) {
-		try {
-			cadastroCidadeService.excluir(codigo);
-		} catch (ImpossivelExcluirEntidadeException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
-		return ResponseEntity.ok().build();
+		return excluirPorCodigo(codigo);
+	}
+
+	@Override
+	protected Cidade buscarEntidadeParaEdicao(Long codigo) {
+		return service.buscarComEstado(codigo);
 	}
 }

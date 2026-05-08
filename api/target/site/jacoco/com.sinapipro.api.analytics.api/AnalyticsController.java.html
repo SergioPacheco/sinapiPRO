@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AnalyticsController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sinapipro-api</a> &gt; <a href="index.source.html" class="el_package">com.sinapipro.api.analytics.api</a> &gt; <span class="el_source">AnalyticsController.java</span></div><h1>AnalyticsController.java</h1><pre class="source lang-java linenums">package com.sinapipro.api.analytics.api;
+
+import com.sinapipro.api.analytics.application.CashFlowService;
+import com.sinapipro.api.analytics.application.EarnedValueService;
+import com.sinapipro.api.analytics.application.PortfolioAnalyticsService;
+import com.sinapipro.api.forecast.application.DelayForecastService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
+
+@Tag(name = &quot;Analytics&quot;, description = &quot;Dashboard, EVM, cash flow and portfolio analytics&quot;)
+@RestController
+@RequestMapping(&quot;/api/v1/analytics&quot;)
+@PreAuthorize(&quot;hasAuthority('SCOPE_sinapipro.read')&quot;)
+public class AnalyticsController {
+
+    private final PortfolioAnalyticsService portfolioService;
+    private final EarnedValueService evmService;
+    private final CashFlowService cashFlowService;
+    private final DelayForecastService forecastService;
+
+    public AnalyticsController(PortfolioAnalyticsService portfolioService, EarnedValueService evmService,
+<span class="nc" id="L26">                               CashFlowService cashFlowService, DelayForecastService forecastService) {</span>
+<span class="nc" id="L27">        this.portfolioService = portfolioService;</span>
+<span class="nc" id="L28">        this.evmService = evmService;</span>
+<span class="nc" id="L29">        this.cashFlowService = cashFlowService;</span>
+<span class="nc" id="L30">        this.forecastService = forecastService;</span>
+<span class="nc" id="L31">    }</span>
+
+    @Operation(summary = &quot;Portfolio summary (all budgets)&quot;)
+    @GetMapping(&quot;/portfolio&quot;)
+    PortfolioAnalyticsService.PortfolioSummary portfolio() {
+<span class="nc" id="L36">        return portfolioService.summary();</span>
+    }
+
+    @Operation(summary = &quot;Earned Value Management for a budget (PV, EV, AC, CPI, SPI, EAC, VAC)&quot;)
+    @GetMapping(&quot;/budgets/{budgetId}/earned-value&quot;)
+    EarnedValueService.EvmResult earnedValue(@PathVariable UUID budgetId) {
+<span class="nc" id="L42">        return evmService.calculate(budgetId);</span>
+    }
+
+    @Operation(summary = &quot;Cash flow projection (income vs expenses by month)&quot;)
+    @GetMapping(&quot;/budgets/{budgetId}/cash-flow&quot;)
+    CashFlowService.CashFlowProjection cashFlow(@PathVariable UUID budgetId) {
+<span class="nc" id="L48">        return cashFlowService.project(budgetId);</span>
+    }
+
+    @Operation(summary = &quot;AI Delay Forecast — predicts delays based on schedule performance and weather patterns&quot;)
+    @GetMapping(&quot;/budgets/{budgetId}/delay-forecast&quot;)
+    DelayForecastService.DelayForecast delayForecast(@PathVariable UUID budgetId) {
+<span class="nc" id="L54">        return forecastService.predict(budgetId);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -2,9 +2,10 @@ package br.edu.ifrn.sinapiPRO.service;
 
 import java.math.BigDecimal;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import br.edu.ifrn.sinapiPRO.model.BancoHoras;
 import br.edu.ifrn.sinapiPRO.model.MovimentacaoHora;
 import br.edu.ifrn.sinapiPRO.repository.BancoHorasRepository;
@@ -13,11 +14,15 @@ import br.edu.ifrn.sinapiPRO.repository.MovimentacoesHoraRepository;
 @Service
 public class BancoHorasService {
 
-    @Autowired
-    private BancoHorasRepository bancoHorasRepository;
+    private final BancoHorasRepository bancoHorasRepository;
+    private final MovimentacoesHoraRepository movimentacoesRepository;
 
-    @Autowired
-    private MovimentacoesHoraRepository movimentacoesRepository;
+    public BancoHorasService(
+            BancoHorasRepository bancoHorasRepository,
+            MovimentacoesHoraRepository movimentacoesRepository) {
+        this.bancoHorasRepository = bancoHorasRepository;
+        this.movimentacoesRepository = movimentacoesRepository;
+    }
 
     @Transactional
     public MovimentacaoHora registrarMovimentacao(MovimentacaoHora movimentacao) {

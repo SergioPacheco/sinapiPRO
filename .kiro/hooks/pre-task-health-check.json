@@ -1,0 +1,8 @@
+{
+  "title": "KiroRails Pre-Task Health Check",
+  "description": "Run compilation check and verify clean working tree before starting a spec task",
+  "event": "Pre Task Execution",
+  "action": "Run Command",
+  "command": ".kiro/hooks-exec/pre-task.sh",
+  "enabled": true
+}

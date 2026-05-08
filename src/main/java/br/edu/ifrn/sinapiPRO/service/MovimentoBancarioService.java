@@ -1,23 +1,32 @@
 package br.edu.ifrn.sinapiPRO.service;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import javax.persistence.PersistenceException;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import br.edu.ifrn.sinapiPRO.model.ContaBancaria;
 import br.edu.ifrn.sinapiPRO.model.MovimentoBancario;
 import br.edu.ifrn.sinapiPRO.repository.ContasBancariasRepository;
 import br.edu.ifrn.sinapiPRO.repository.MovimentosBancariosRepository;
-import br.edu.ifrn.sinapiPRO.service.exception.*;
+import br.edu.ifrn.sinapiPRO.service.support.AbstractSimpleCrudService;
+
 @Service
-public class MovimentoBancarioService {
-	@Autowired
-	private MovimentosBancariosRepository repository;
-	@Autowired
-	private ContasBancariasRepository contaRepository;
+public class MovimentoBancarioService extends AbstractSimpleCrudService<MovimentoBancario, MovimentosBancariosRepository> {
+
+	private final MovimentosBancariosRepository repository;
+	private final ContasBancariasRepository contaRepository;
+
+	public MovimentoBancarioService(MovimentosBancariosRepository repository, ContasBancariasRepository contaRepository) {
+		super(repository, "Impossível apagar o movimento.", "Movimento bancário não encontrado.");
+		this.repository = repository;
+		this.contaRepository = contaRepository;
+	}
+
 	@Transactional
+	@Override
 	public MovimentoBancario salvar(MovimentoBancario m) {
 		ContaBancaria conta = contaRepository.findById(m.getContaBancaria().getCodigo()).orElseThrow(() -> new RuntimeException("Conta não encontrada"));
 		BigDecimal novoSaldo = "CREDITO".equals(m.getTipo())
@@ -27,15 +36,6 @@ public class MovimentoBancarioService {
 		m.setSaldoApos(novoSaldo);
 		contaRepository.saveAndFlush(conta);
 		return repository.saveAndFlush(m);
-	}
-	@Transactional
-	public void excluir(Long c) {
-		try {
-			repository.deleteById(c);
-			repository.flush();
-		} catch (PersistenceException e) {
-			throw new ImpossivelExcluirEntidadeException("Impossível apagar o movimento.");
-		}
 	}
 
 	@Transactional(readOnly = true)

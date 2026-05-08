@@ -2,84 +2,95 @@ package br.edu.ifrn.sinapiPRO.controller;
 
 import java.util.List;
 import javax.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import br.edu.ifrn.sinapiPRO.model.*;
+
+import br.edu.ifrn.sinapiPRO.controller.support.AbstractObraScopedCrudListController;
+import br.edu.ifrn.sinapiPRO.model.DiarioObra;
 import br.edu.ifrn.sinapiPRO.repository.ObrasRepository;
-import br.edu.ifrn.sinapiPRO.service.*;
-import br.edu.ifrn.sinapiPRO.service.exception.*;
+import br.edu.ifrn.sinapiPRO.service.AvancoFisicoService;
+import br.edu.ifrn.sinapiPRO.service.CadastroDiarioAcidenteService;
+import br.edu.ifrn.sinapiPRO.service.CadastroDiarioAreaService;
+import br.edu.ifrn.sinapiPRO.service.CadastroDiarioClimaService;
+import br.edu.ifrn.sinapiPRO.service.DiarioObraService;
 
 @Controller
 @RequestMapping("/diarioObra")
-public class DiarioObraController {
+public class DiarioObraController extends AbstractObraScopedCrudListController<DiarioObra> {
 
-	@Autowired
-	private DiarioObraService service;
-	@Autowired
-	private ObrasRepository obraRepository;
-	@Autowired
-	private CadastroDiarioClimaService climaService;
-	@Autowired
-	private CadastroDiarioAreaService areaService;
-	@Autowired
-	private CadastroDiarioAcidenteService acidenteService;
+	private final ObrasRepository obraRepository;
+	private final CadastroDiarioClimaService climaService;
+	private final CadastroDiarioAreaService areaService;
+	private final CadastroDiarioAcidenteService acidenteService;
+	private final AvancoFisicoService avancoFisicoService;
+
+	public DiarioObraController(
+			DiarioObraService service,
+			ObrasRepository obraRepository,
+			CadastroDiarioClimaService climaService,
+			CadastroDiarioAreaService areaService,
+			CadastroDiarioAcidenteService acidenteService,
+			AvancoFisicoService avancoFisicoService) {
+		super(
+				service,
+				"diarioobra/FormDiarioObra",
+				"diarioobra/ListaDiarioObra",
+				"/diarioObra",
+				"Diário salvo com sucesso!",
+				"descricao",
+				"diarios",
+				obraRepository,
+				service::findByObra,
+				diarioObra -> diarioObra.getObra().getCodigo());
+		this.obraRepository = obraRepository;
+		this.climaService = climaService;
+		this.areaService = areaService;
+		this.acidenteService = acidenteService;
+		this.avancoFisicoService = avancoFisicoService;
+	}
+
+	@Override
+	protected void adicionarObjetosFormularioEspecificos(ModelAndView modelAndView) {
+		modelAndView.addObject("climas", climaService.findAll());
+		modelAndView.addObject("areas", areaService.findAll());
+		modelAndView.addObject("acidentes", acidenteService.findAll());
+	}
 
 	@GetMapping
 	public ModelAndView lista(@RequestParam(required = false) Long codigoObra) {
-		ModelAndView mv = new ModelAndView("diarioobra/ListaDiarioObra");
-		mv.addObject("obras", obraRepository.findAll());
-		if (codigoObra != null) {
-			mv.addObject("diarios", service.findByObra(codigoObra));
-			mv.addObject("codigoObra", codigoObra);
-		}
-		return mv;
+		return processarListagemPorObra(codigoObra);
 	}
 
 	@GetMapping("/novo")
-	public ModelAndView novo(DiarioObra d) {
-		return montarFormulario(d);
+	public ModelAndView novo(DiarioObra diarioObra) {
+		return abrirFormulario();
 	}
 
 	@GetMapping("/{codigo}")
 	public ModelAndView editar(@PathVariable Long codigo) {
-		DiarioObra d = service.buscarComItens(codigo);
-		return montarFormulario(d);
+		return carregarEdicao(codigo);
 	}
 
 	@PostMapping({"/novo", "/{codigo}"})
-	public ModelAndView salvar(@Valid DiarioObra d, BindingResult r, RedirectAttributes a) {
-		if (r.hasErrors()) return montarFormulario(d);
-		service.salvar(d);
-		a.addFlashAttribute("mensagem", "Diário salvo com sucesso!");
-		return new ModelAndView("redirect:/diarioObra?codigoObra=" + d.getObra().getCodigo());
+	public ModelAndView salvar(@Valid DiarioObra diarioObra, BindingResult result, RedirectAttributes attributes) {
+		return processarCadastroPorObra(diarioObra, result, attributes);
 	}
 
 	@DeleteMapping("/{codigo}")
 	public @ResponseBody ResponseEntity<?> excluir(@PathVariable Long codigo) {
-		try { service.excluir(codigo);
+		return excluirPorCodigo(codigo);
 	}
-		catch (ImpossivelExcluirEntidadeException e) { return ResponseEntity.badRequest().body(e.getMessage());
-	}
-		return ResponseEntity.ok().build();
-	}
-
-	private ModelAndView montarFormulario(DiarioObra d) {
-		ModelAndView mv = new ModelAndView("diarioobra/FormDiarioObra");
-		mv.addObject("diarioObra", d);
-		mv.addObject("obras", obraRepository.findAll());
-		mv.addObject("climas", climaService.findAll());
-		mv.addObject("areas", areaService.findAll());
-		mv.addObject("acidentes", acidenteService.findAll());
-		return mv;
-	}
-
-	@Autowired
-	private br.edu.ifrn.sinapiPRO.service.AvancoFisicoService avancoFisicoService;
 
 	@GetMapping("/avanco/{codigoObra}")
 	public ModelAndView avanco(@PathVariable Long codigoObra,
@@ -93,5 +104,14 @@ public class DiarioObraController {
 		mv.addObject("inicio", inicio);
 		mv.addObject("fim", fim);
 		return mv;
+	}
+
+	private DiarioObraService getService() {
+		return (DiarioObraService) serviceRef();
+	}
+
+	@Override
+	protected DiarioObra buscarEntidadeParaEdicao(Long codigo) {
+		return getService().buscarComItens(codigo);
 	}
 }

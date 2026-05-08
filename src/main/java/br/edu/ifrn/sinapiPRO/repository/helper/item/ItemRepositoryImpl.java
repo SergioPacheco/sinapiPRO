@@ -12,7 +12,6 @@ import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -29,8 +28,11 @@ public class ItemRepositoryImpl implements ItemRepositoryQueries {
 	@PersistenceContext
 	private EntityManager manager;
 	
-	@Autowired
-	private PaginacaoUtil paginacaoUtil;
+	private final PaginacaoUtil paginacaoUtil;
+
+	public ItemRepositoryImpl(PaginacaoUtil paginacaoUtil) {
+		this.paginacaoUtil = paginacaoUtil;
+	}
 	
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)

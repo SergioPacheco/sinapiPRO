@@ -2,7 +2,6 @@ package br.edu.ifrn.sinapiPRO.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -17,11 +16,13 @@ import br.edu.ifrn.sinapiPRO.service.OrcamentoService;
 @RequestMapping("/baseline")
 public class BaselineController {
 
-	@Autowired
-	private BaselineService baselineService;
+	private final BaselineService baselineService;
+	private final OrcamentoService orcamentoService;
 
-	@Autowired
-	private OrcamentoService orcamentoService;
+	public BaselineController(BaselineService baselineService, OrcamentoService orcamentoService) {
+		this.baselineService = baselineService;
+		this.orcamentoService = orcamentoService;
+	}
 
 	@GetMapping("/{codigoOrcamento}")
 	public ModelAndView listar(@PathVariable Long codigoOrcamento) {

@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,11 +19,13 @@ import br.edu.ifrn.sinapiPRO.repository.OrcamentoBaselineRepository;
 @Service
 public class BaselineService {
 
-	@Autowired
-	private OrcamentoBaselineRepository baselineRepository;
+	private final OrcamentoBaselineRepository baselineRepository;
+	private final OrcamentoService orcamentoService;
 
-	@Autowired
-	private OrcamentoService orcamentoService;
+	public BaselineService(OrcamentoBaselineRepository baselineRepository, OrcamentoService orcamentoService) {
+		this.baselineRepository = baselineRepository;
+		this.orcamentoService = orcamentoService;
+	}
 
 	@Transactional
 	public OrcamentoBaseline gravarBaseline(Long codigoOrcamento, String descricao) {

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WipReportService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sinapipro-api</a> &gt; <a href="index.source.html" class="el_package">com.sinapipro.api.jobcosting.application</a> &gt; <span class="el_source">WipReportService.java</span></div><h1>WipReportService.java</h1><pre class="source lang-java linenums">package com.sinapipro.api.jobcosting.application;
+
+import com.sinapipro.api.jobcosting.domain.CostTransactionRepository;
+import com.sinapipro.api.jobcosting.domain.CostTransactionType;
+import com.sinapipro.api.measurement.domain.Measurement;
+import com.sinapipro.api.measurement.domain.MeasurementRepository;
+import com.sinapipro.api.measurement.domain.MeasurementStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * WIP Report (Work in Progress) — REQ-1.6
+ * Compares billed amount (measurements) vs actual cost to determine over/under billing.
+ *
+ * Over-billing: billed &gt; actual cost (liability — work not yet performed)
+ * Under-billing: actual cost &gt; billed (asset — work performed but not yet billed)
+ */
+@Service
+@Transactional(readOnly = true)
+public class WipReportService {
+
+    private final CostTransactionRepository costTransactionRepository;
+    private final MeasurementRepository measurementRepository;
+
+    public WipReportService(CostTransactionRepository costTransactionRepository,
+<span class="fc" id="L31">                            MeasurementRepository measurementRepository) {</span>
+<span class="fc" id="L32">        this.costTransactionRepository = costTransactionRepository;</span>
+<span class="fc" id="L33">        this.measurementRepository = measurementRepository;</span>
+<span class="fc" id="L34">    }</span>
+
+    public WipReport calculate(UUID budgetId) {
+        // Actual costs incurred
+<span class="fc" id="L38">        BigDecimal actualCost = costTransactionRepository.sumByBudgetAndType(budgetId, CostTransactionType.ACTUAL);</span>
+
+        // Billed amount (approved/paid measurements gross)
+<span class="fc" id="L41">        List&lt;Measurement&gt; measurements = measurementRepository.findByBudgetIdOrderByNumberDesc(budgetId);</span>
+<span class="fc" id="L42">        BigDecimal billedAmount = BigDecimal.ZERO;</span>
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        for (Measurement m : measurements) {</span>
+<span class="pc bpc" id="L44" title="3 of 4 branches missed.">            if (m.getStatus() == MeasurementStatus.APPROVED || m.getStatus() == MeasurementStatus.PAID) {</span>
+<span class="fc" id="L45">                billedAmount = billedAmount.add(m.getGrossAmount());</span>
+            }
+<span class="fc" id="L47">        }</span>
+
+        // WIP calculation
+<span class="fc" id="L50">        BigDecimal wipVariance = billedAmount.subtract(actualCost);</span>
+        WipStatus status;
+<span class="fc bfc" id="L52" title="All 2 branches covered.">        if (wipVariance.compareTo(BigDecimal.ZERO) &gt; 0) {</span>
+<span class="fc" id="L53">            status = WipStatus.OVER_BILLED;</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">        } else if (wipVariance.compareTo(BigDecimal.ZERO) &lt; 0) {</span>
+<span class="fc" id="L55">            status = WipStatus.UNDER_BILLED;</span>
+        } else {
+<span class="fc" id="L57">            status = WipStatus.BALANCED;</span>
+        }
+
+        // Billing ratio
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">        BigDecimal billingRatio = actualCost.compareTo(BigDecimal.ZERO) &gt; 0</span>
+<span class="fc" id="L62">                ? billedAmount.divide(actualCost, 4, RoundingMode.HALF_UP)</span>
+<span class="pc" id="L63">                : BigDecimal.ZERO;</span>
+
+<span class="fc" id="L65">        return new WipReport(actualCost, billedAmount, wipVariance, status, billingRatio);</span>
+    }
+
+<span class="fc" id="L68">    public enum WipStatus { OVER_BILLED, UNDER_BILLED, BALANCED }</span>
+
+<span class="fc" id="L70">    public record WipReport(BigDecimal actualCost, BigDecimal billedAmount, BigDecimal wipVariance,</span>
+                            WipStatus status, BigDecimal billingRatio) {}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

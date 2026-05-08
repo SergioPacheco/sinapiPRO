@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Contract.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sinapipro-api</a> &gt; <a href="index.source.html" class="el_package">com.sinapipro.api.contract.domain</a> &gt; <span class="el_source">Contract.java</span></div><h1>Contract.java</h1><pre class="source lang-java linenums">package com.sinapipro.api.contract.domain;
+
+import com.sinapipro.api.budget.domain.Budget;
+import com.sinapipro.api.shared.domain.AuditableEntity;
+import com.sinapipro.api.supplier.domain.Supplier;
+import jakarta.persistence.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Table(name = &quot;contract&quot;)
+public class Contract extends AuditableEntity {
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;budget_id&quot;, nullable = false)
+    private Budget budget;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;supplier_id&quot;, nullable = false)
+    private Supplier supplier;
+
+    @Column(nullable = false, length = 40)
+    private String number;
+
+    @Column(nullable = false, length = 300)
+    private String description;
+
+    @Column(name = &quot;original_value&quot;, nullable = false, precision = 18, scale = 2)
+    private BigDecimal originalValue;
+
+    @Column(name = &quot;retention_pct&quot;, nullable = false, precision = 5, scale = 4)
+    private BigDecimal retentionPct;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private ContractStatus status;
+
+    @Column(name = &quot;start_date&quot;, nullable = false)
+    private LocalDate startDate;
+
+    @Column(name = &quot;end_date&quot;)
+    private LocalDate endDate;
+
+<span class="pc" id="L47">    @OneToMany(mappedBy = &quot;contract&quot;, cascade = CascadeType.ALL, orphanRemoval = true)</span>
+    private List&lt;ChangeOrder&gt; changeOrders = new ArrayList&lt;&gt;();
+
+<span class="nc" id="L50">    protected Contract() {}</span>
+
+    public Contract(Budget budget, Supplier supplier, String number, String description,
+<span class="fc" id="L53">                    BigDecimal originalValue, BigDecimal retentionPct, LocalDate startDate, LocalDate endDate) {</span>
+<span class="fc" id="L54">        this.budget = budget;</span>
+<span class="fc" id="L55">        this.supplier = supplier;</span>
+<span class="fc" id="L56">        this.number = number;</span>
+<span class="fc" id="L57">        this.description = description;</span>
+<span class="fc" id="L58">        this.originalValue = originalValue;</span>
+<span class="fc" id="L59">        this.retentionPct = retentionPct;</span>
+<span class="fc" id="L60">        this.status = ContractStatus.DRAFT;</span>
+<span class="fc" id="L61">        this.startDate = startDate;</span>
+<span class="fc" id="L62">        this.endDate = endDate;</span>
+<span class="fc" id="L63">    }</span>
+
+<span class="nc" id="L65">    public Budget getBudget() { return budget; }</span>
+<span class="nc" id="L66">    public Supplier getSupplier() { return supplier; }</span>
+<span class="nc" id="L67">    public String getNumber() { return number; }</span>
+<span class="nc" id="L68">    public String getDescription() { return description; }</span>
+<span class="fc" id="L69">    public BigDecimal getOriginalValue() { return originalValue; }</span>
+<span class="fc" id="L70">    public BigDecimal getRetentionPct() { return retentionPct; }</span>
+<span class="fc" id="L71">    public ContractStatus getStatus() { return status; }</span>
+<span class="nc" id="L72">    public LocalDate getStartDate() { return startDate; }</span>
+<span class="nc" id="L73">    public LocalDate getEndDate() { return endDate; }</span>
+<span class="fc" id="L74">    public List&lt;ChangeOrder&gt; getChangeOrders() { return changeOrders; }</span>
+
+    public BigDecimal getUpdatedValue() {
+<span class="fc" id="L77">        BigDecimal additions = changeOrders.stream()</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">                .filter(co -&gt; co.getStatus() == ChangeOrderStatus.APPROVED)</span>
+<span class="fc" id="L79">                .map(ChangeOrder::getAmount)</span>
+<span class="fc" id="L80">                .reduce(BigDecimal.ZERO, BigDecimal::add);</span>
+<span class="fc" id="L81">        return originalValue.add(additions);</span>
+    }
+
+    public void activate() {
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">        if (status != ContractStatus.DRAFT) throw new IllegalStateException(&quot;Can only activate DRAFT contracts&quot;);</span>
+<span class="fc" id="L86">        this.status = ContractStatus.ACTIVE;</span>
+<span class="fc" id="L87">    }</span>
+
+    public void complete() {
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (status != ContractStatus.ACTIVE) throw new IllegalStateException(&quot;Can only complete ACTIVE contracts&quot;);</span>
+<span class="nc" id="L91">        this.status = ContractStatus.COMPLETED;</span>
+<span class="nc" id="L92">    }</span>
+
+    public void cancel() {
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        if (status == ContractStatus.COMPLETED) throw new IllegalStateException(&quot;Cannot cancel COMPLETED contracts&quot;);</span>
+<span class="nc" id="L96">        this.status = ContractStatus.CANCELLED;</span>
+<span class="nc" id="L97">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -1,0 +1,9 @@
+{
+  "title": "KiroRails Spec Validator",
+  "description": "Validate spec completeness when spec files are created or saved",
+  "event": "File Save",
+  "filePattern": [".kiro/specs/**/*.md"],
+  "action": "Ask Kiro",
+  "instructions": "Check if this spec file has all required sections:\n- For requirements.md: Summary, Acceptance criteria, Constraints\n- For bugfix.md: Reproduction steps, Expected behavior, Actual behavior\n- For design.md: Approach, Components affected, Risks, Rollback strategy\n- For tasks.md: At least one task with Description, Files, Done criteria, Commit message\nFlag vague done criteria like 'works correctly'. Report missing sections as warnings.",
+  "enabled": true
+}

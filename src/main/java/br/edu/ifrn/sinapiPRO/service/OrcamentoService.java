@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import javax.persistence.PersistenceException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,16 +27,14 @@ public class OrcamentoService {
 	private final OrcamentosRepository orcamentosRepository;
 	private final UsuarioService usuarioService;
 	private final EtapasRepository etapasRepository;
+	private final AuditService auditService;
 
-	@Autowired
-	private AuditService auditService;
-	
-	@Autowired
 	public OrcamentoService (OrcamentosRepository orcamentoRepository, EtapasRepository etapasRepository,
-							 UsuarioService usuarioService) {
+							 UsuarioService usuarioService, AuditService auditService) {
 		this.orcamentosRepository = orcamentoRepository;
 		this.usuarioService = usuarioService;
 		this.etapasRepository = etapasRepository;
+		this.auditService = auditService;
 	}
 	
 	@Transactional
@@ -190,4 +187,3 @@ public class OrcamentoService {
 	}
 	
 }
- 

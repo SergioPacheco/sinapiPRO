@@ -1,67 +1,62 @@
 package br.edu.ifrn.sinapiPRO.controller;
 
 import javax.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import br.edu.ifrn.sinapiPRO.controller.support.AbstractCrudListController;
 import br.edu.ifrn.sinapiPRO.model.Comissao;
 import br.edu.ifrn.sinapiPRO.service.ComissaoService;
 import br.edu.ifrn.sinapiPRO.service.VendaService;
-import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
 
 @Controller
 @RequestMapping("/comissoes")
-public class ComissoesController {
+public class ComissoesController extends AbstractCrudListController<Comissao> {
 
-    @Autowired
-    private ComissaoService service;
+    private final VendaService vendaService;
 
-    @Autowired
-    private VendaService vendaService;
+    public ComissoesController(ComissaoService service, VendaService vendaService) {
+        super(service, "comissao/FormComissao", "comissao/ListaComissoes", "/comissoes", "Comissão salva!", "nomeCorretor", "comissoes");
+        this.vendaService = vendaService;
+    }
+
+    @Override
+    protected void adicionarObjetosFormulario(ModelAndView modelAndView) {
+        modelAndView.addObject("vendas", vendaService.findAll());
+    }
 
     @GetMapping
     public ModelAndView lista() {
-        ModelAndView mv = new ModelAndView("comissao/ListaComissoes");
-        mv.addObject("comissoes", service.findAll());
-        return mv;
+        return processarListagem();
     }
 
     @GetMapping("/novo")
     public ModelAndView novo(Comissao comissao) {
-        return form(comissao);
+        return abrirFormulario();
     }
 
     @GetMapping("/{codigo}")
     public ModelAndView editar(@PathVariable Long codigo) {
-        return form(service.getOne(codigo));
+        return carregarEdicao(codigo);
     }
 
     @PostMapping({"/novo", "/{codigo}"})
     public ModelAndView salvar(@Valid Comissao comissao, BindingResult result, RedirectAttributes attributes) {
-        if (result.hasErrors()) return form(comissao);
-        service.salvar(comissao);
-        attributes.addFlashAttribute("mensagem", "Comissão salva!");
-        return new ModelAndView("redirect:/comissoes");
+        return processarCadastro(comissao, result, attributes);
     }
 
     @DeleteMapping("/{codigo}")
     public @ResponseBody ResponseEntity<?> excluir(@PathVariable Long codigo) {
-        try {
-            service.excluir(codigo);
-        } catch (ImpossivelExcluirEntidadeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-        return ResponseEntity.ok().build();
-    }
-
-    private ModelAndView form(Comissao comissao) {
-        ModelAndView mv = new ModelAndView("comissao/FormComissao");
-        mv.addObject("comissao", comissao);
-        mv.addObject("vendas", vendaService.findAll());
-        return mv;
+        return excluirPorCodigo(codigo);
     }
 }

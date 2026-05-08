@@ -19,7 +19,6 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -55,32 +54,36 @@ import br.edu.ifrn.sinapiPRO.utils.Lib;
 @RequestMapping(path="/sinapi")  
 public class SinapiController {
 	
-	@Autowired  
-	private InsumosRepository insumoRepository;
+	private final InsumosRepository insumoRepository;
+	private final ComposicaoRepository composicaoRepository;
+	private final BasePrecosRepository basePrecoRepository;
+	private final BaseInsumosRepository baseInsumoRepository;
+	private final BasePrecoItemRepository basePrecoItemRepository;
+	private final ComposicaoGruposRepository composicaoGruposRepository;
+	private final ComposicaoClassesRepository composicaoClassesRepository;
+	private final ComposicaoService composicaoService;
+	private final InsumoService insumoService;
 	
-	@Autowired  
-	private ComposicaoRepository composicaoRepository;
-	
-	@Autowired
-	private BasePrecosRepository basePrecoRepository;
-	
-	@Autowired
-	private BaseInsumosRepository baseInsumoRepository;
-	
-	@Autowired
-	private BasePrecoItemRepository basePrecoItemRepository;
-				
-	@Autowired  
-	private ComposicaoGruposRepository composicaoGruposRepository;
-	
-	@Autowired  
-	private ComposicaoClassesRepository composicaoClassesRepository;
-	
-	@Autowired  
-	private ComposicaoService composicaoService;
-	
-	@Autowired
-	private InsumoService insumoService;
+	public SinapiController(
+			InsumosRepository insumoRepository,
+			ComposicaoRepository composicaoRepository,
+			BasePrecosRepository basePrecoRepository,
+			BaseInsumosRepository baseInsumoRepository,
+			BasePrecoItemRepository basePrecoItemRepository,
+			ComposicaoGruposRepository composicaoGruposRepository,
+			ComposicaoClassesRepository composicaoClassesRepository,
+			ComposicaoService composicaoService,
+			InsumoService insumoService) {
+		this.insumoRepository = insumoRepository;
+		this.composicaoRepository = composicaoRepository;
+		this.basePrecoRepository = basePrecoRepository;
+		this.baseInsumoRepository = baseInsumoRepository;
+		this.basePrecoItemRepository = basePrecoItemRepository;
+		this.composicaoGruposRepository = composicaoGruposRepository;
+		this.composicaoClassesRepository = composicaoClassesRepository;
+		this.composicaoService = composicaoService;
+		this.insumoService = insumoService;
+	}
 	
 	
 	private static Logger logger = LoggerFactory.getLogger(SinapiController.class);
@@ -907,4 +910,3 @@ public class SinapiController {
  *  http://www.caixa.gov.br/Downloads/sinapi-a-partir-jul-2009-rn/SINAPI_ref_Insumos_Composicoes_RN_082018_Desonerado.zip
  *  
  */
-

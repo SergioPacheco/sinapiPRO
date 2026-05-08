@@ -6,10 +6,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import br.edu.ifrn.sinapiPRO.model.Etapa;
+import br.edu.ifrn.sinapiPRO.repository.filter.EtapaFilter;
 import br.edu.ifrn.sinapiPRO.repository.helper.etapa.EtapasRepositoryQueries;
+import br.edu.ifrn.sinapiPRO.repository.support.FilterableRepository;
+import br.edu.ifrn.sinapiPRO.repository.support.NamedEntityRepository;
 
 @Repository
-public interface EtapasRepository extends JpaRepository<Etapa, Long>, EtapasRepositoryQueries {
+public interface EtapasRepository extends JpaRepository<Etapa, Long>, EtapasRepositoryQueries,
+		NamedEntityRepository<Etapa>, FilterableRepository<Etapa, EtapaFilter> {
 
 	public Optional<Etapa> findByNomeIgnoreCase(String nome);
 	

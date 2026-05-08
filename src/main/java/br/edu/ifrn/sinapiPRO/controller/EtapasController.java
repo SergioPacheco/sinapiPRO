@@ -7,7 +7,6 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
@@ -25,7 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
+import br.edu.ifrn.sinapiPRO.controller.support.AbstractCrudPageController;
 import br.edu.ifrn.sinapiPRO.model.Etapa;
 import br.edu.ifrn.sinapiPRO.model.Item;
 import br.edu.ifrn.sinapiPRO.model.Orcamento;
@@ -33,97 +32,69 @@ import br.edu.ifrn.sinapiPRO.model.Tipo;
 import br.edu.ifrn.sinapiPRO.repository.filter.EtapaFilter;
 import br.edu.ifrn.sinapiPRO.security.UsuarioSistema;
 import br.edu.ifrn.sinapiPRO.service.EtapaService;
-import br.edu.ifrn.sinapiPRO.service.ItemService;
 import br.edu.ifrn.sinapiPRO.service.OrcamentoService;
-import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
-import br.edu.ifrn.sinapiPRO.service.exception.JaCadastradoException;
 
 @Controller
 @RequestMapping("/etapas")
-public class EtapasController {
+public class EtapasController extends AbstractCrudPageController<Etapa, EtapaFilter> {
 
-	
-	private EtapaService etapaService;
-	private OrcamentoService orcamentoService;
-	
-	@Autowired
-	public EtapasController (EtapaService etapaService, OrcamentoService orcamentoService) {
+	private final EtapaService etapaService;
+	private final OrcamentoService orcamentoService;
+
+	public EtapasController(EtapaService etapaService, OrcamentoService orcamentoService) {
+		super(etapaService, "etapa/CadastroEtapa", "etapa/PesquisaEtapas", "/etapas/nova", "Etapa salvo com sucesso!", "nome");
 		this.etapaService = etapaService;
 		this.orcamentoService = orcamentoService;
 	}
-	
+
+	@Override
+	protected void adicionarObjetosFormulario(ModelAndView modelAndView) {
+		modelAndView.addObject("etapas", etapaService.findAll());
+	}
+
 	@RequestMapping("/nova")
 	public ModelAndView nova(Etapa etapa) {
-		ModelAndView mv = new ModelAndView("etapa/CadastroEtapa");
-		mv.addObject("etapas", etapaService.findAll());
-		return mv;
+		return abrirFormulario();
 	}
-	
+
 	@RequestMapping(value = { "/nova", "/{codigo}" }, method = RequestMethod.POST)
-	public ModelAndView cadastrar(@Valid Etapa etapa, BindingResult result, 
-			RedirectAttributes attributes){
-		if (result.hasErrors()) {
-			return nova(etapa);
-		}
-		
-		try{
-			etapaService.salvar(etapa);
-		} catch(JaCadastradoException e){
-			result.rejectValue("nome",e.getMessage(), e.getMessage());
-			return nova(etapa);
-		}
-		attributes.addFlashAttribute("mensagem", "Etapa salvo com sucesso!");
-		
-		return new ModelAndView("redirect:/etapas/nova");// Redirect
+	public ModelAndView cadastrar(@Valid Etapa etapa, BindingResult result, RedirectAttributes attributes) {
+		return processarCadastro(etapa, result, attributes);
 	}
-	
+
 	@RequestMapping(method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE})
 	public @ResponseBody ResponseEntity<?> salvar(@RequestBody @Valid Etapa etapa, BindingResult result ){
-		
 		if(result.hasErrors()){
 			return ResponseEntity.badRequest().body(result.getFieldError("nome").getDefaultMessage());
 		}
-		
-		etapa = etapaService.salvar(etapa); 
+
+		etapa = etapaService.salvar(etapa);
 		return ResponseEntity.ok(etapa);
 	}
-	
+
 	@RequestMapping(consumes = { MediaType.APPLICATION_JSON_VALUE })
 	public @ResponseBody List<Etapa> pesquisar(String nome) {
-		// validarTamanhoNome(nome);
 		return etapaService.findByNomeStartingWithIgnoreCase(nome);
 	}
-	
+
 	@GetMapping
-	public ModelAndView pesquisar(EtapaFilter etapaFilter, BindingResult result
-			,@PageableDefault(size = 25) Pageable pageable, HttpServletRequest httpServletRequest){
-		ModelAndView mv = new ModelAndView("etapa/PesquisaEtapas");
-		
-		PageWrapper<Etapa> paginaWrapper = new PageWrapper<>(etapaService.filtrar(etapaFilter, pageable)
-				, httpServletRequest);
-		
-		mv.addObject("pagina" , paginaWrapper);
-		return mv;
+	public ModelAndView pesquisar(
+			EtapaFilter etapaFilter,
+			@PageableDefault(size = 25) Pageable pageable,
+			HttpServletRequest httpServletRequest) {
+		return processarPesquisa(etapaFilter, pageable, httpServletRequest);
 	}
-	
+
 	@GetMapping("/{codigo}")
 	public ModelAndView editar(@PathVariable Long codigo) {
-		Etapa etapa = etapaService.getOne(codigo);
-		ModelAndView mv = nova(etapa);
-		mv.addObject(etapa);
-		return mv;
+		return carregarEdicao(codigo);
 	}
-	
+
 	@DeleteMapping("/{codigo}")
 	public @ResponseBody ResponseEntity<?> excluir(@PathVariable("codigo") Long codigo) {
-		try {
-			etapaService.excluir(codigo);
-		} catch (ImpossivelExcluirEntidadeException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
-		return ResponseEntity.ok().build();
+		return excluirPorCodigo(codigo);
 	}
-	
+
 	@GetMapping("/adicionarEtapa/{codigo}")
 	public ModelAndView addEtapa(@PathVariable("codigo") Etapa etapa, 
 								 @AuthenticationPrincipal UsuarioSistema usuarioSistema) {
@@ -134,25 +105,23 @@ public class EtapasController {
 			System.out.println("ADICIONA ETAPA: Orçamento Atual não está presente da variavel global");
 			return new ModelAndView("redirect:/orcamentos");
 		}
-	
+
 		Item item = new Item();
-		
-		
-		item.setTipo(Tipo.ETAPA); 
+
+		item.setTipo(Tipo.ETAPA);
 		item.setItemizacao(etapa.getCodigo().toString()+".");
 		item.setDescricao(etapa.getNome());
-		item.setEtapa( etapa);
+		item.setEtapa(etapa);
 		item.setOrcamento(orcamentoAtual.get());
 		item.setQuantidade(BigDecimal.ZERO);
 		item.setValorUnitario(BigDecimal.ZERO);
 		item.setValorEquipamento(BigDecimal.ZERO);
 		item.setValorMaterial(BigDecimal.ZERO);
 		item.setValorMaoObra(BigDecimal.ZERO);
-		
-		orcamentoAtual.get().addItem(item); 
-		orcamentoService.salvar(orcamentoAtual.get()); 
-		 
+
+		orcamentoAtual.get().addItem(item);
+		orcamentoService.salvar(orcamentoAtual.get());
+
 		return new ModelAndView("redirect:/atual");
 	}
-	
 }

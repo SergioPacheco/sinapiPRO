@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Composition.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sinapipro-api</a> &gt; <a href="index.source.html" class="el_package">com.sinapipro.api.sinapi.domain</a> &gt; <span class="el_source">Composition.java</span></div><h1>Composition.java</h1><pre class="source lang-java linenums">package com.sinapipro.api.sinapi.domain;
+
+import com.sinapipro.api.shared.domain.AuditableEntity;
+import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Table(name = &quot;composition&quot;)
+public class Composition extends AuditableEntity {
+
+    @Column(name = &quot;sinapi_code&quot;, nullable = false, unique = true, length = 20)
+    private String sinapiCode;
+
+    @Column(nullable = false, length = 500)
+    private String description;
+
+    @Column(nullable = false, length = 20)
+    private String unit;
+
+    @Column(name = &quot;group_name&quot;, length = 140)
+    private String groupName;
+
+<span class="pc" id="L25">    @OneToMany(mappedBy = &quot;composition&quot;, cascade = CascadeType.ALL, orphanRemoval = true)</span>
+    private List&lt;CompositionItem&gt; items = new ArrayList&lt;&gt;();
+
+<span class="nc" id="L28">    protected Composition() {}</span>
+
+<span class="fc" id="L30">    public Composition(String sinapiCode, String description, String unit, String groupName) {</span>
+<span class="fc" id="L31">        this.sinapiCode = sinapiCode;</span>
+<span class="fc" id="L32">        this.description = description;</span>
+<span class="fc" id="L33">        this.unit = unit;</span>
+<span class="fc" id="L34">        this.groupName = groupName;</span>
+<span class="fc" id="L35">    }</span>
+
+<span class="fc" id="L37">    public String getSinapiCode() { return sinapiCode; }</span>
+<span class="fc" id="L38">    public String getDescription() { return description; }</span>
+<span class="fc" id="L39">    public String getUnit() { return unit; }</span>
+<span class="nc" id="L40">    public String getGroupName() { return groupName; }</span>
+<span class="fc" id="L41">    public List&lt;CompositionItem&gt; getItems() { return items; }</span>
+
+    public void addItem(Material material, java.math.BigDecimal coefficient) {
+<span class="fc" id="L44">        items.add(new CompositionItem(this, material, coefficient));</span>
+<span class="fc" id="L45">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

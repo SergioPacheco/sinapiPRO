@@ -17,7 +17,6 @@ import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.edu.ifrn.sinapiPRO.dto.ListaComposicoes;
@@ -34,17 +33,21 @@ import br.edu.ifrn.sinapiPRO.repository.OrcamentosRepository;
 @Service
 public class RelatorioService {
 
-	@Autowired
-	private FreeMarkerReportService freeMarkerReport;
+	private final FreeMarkerReportService freeMarkerReport;
+	private final OrcamentosRepository orcamentosRepository;
+	private final InsumosRepository insumosRepository;
+	private final ComposicaoRepository composicaoRepository;
 
-	@Autowired
-	private OrcamentosRepository orcamentosRepository;
-
-	@Autowired
-	private InsumosRepository insumosRepository;
-
-	@Autowired
-	private ComposicaoRepository composicaoRepository;
+	public RelatorioService(
+			FreeMarkerReportService freeMarkerReport,
+			OrcamentosRepository orcamentosRepository,
+			InsumosRepository insumosRepository,
+			ComposicaoRepository composicaoRepository) {
+		this.freeMarkerReport = freeMarkerReport;
+		this.orcamentosRepository = orcamentosRepository;
+		this.insumosRepository = insumosRepository;
+		this.composicaoRepository = composicaoRepository;
+	}
 
 	private static final DecimalFormat DF = new DecimalFormat("#,##0.00");
 	private static final DecimalFormat DF4 = new DecimalFormat("#,##0.0000");

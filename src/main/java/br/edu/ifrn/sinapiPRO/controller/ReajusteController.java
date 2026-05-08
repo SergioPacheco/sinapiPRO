@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -23,14 +22,18 @@ import br.edu.ifrn.sinapiPRO.service.ReajusteService;
 @RequestMapping("/reajuste")
 public class ReajusteController {
 
-	@Autowired
-	private ReajusteService reajusteService;
+	private final ReajusteService reajusteService;
+	private final OrcamentoService orcamentoService;
+	private final BasePrecoService basePrecoService;
 
-	@Autowired
-	private OrcamentoService orcamentoService;
-
-	@Autowired
-	private BasePrecoService basePrecoService;
+	public ReajusteController(
+			ReajusteService reajusteService,
+			OrcamentoService orcamentoService,
+			BasePrecoService basePrecoService) {
+		this.reajusteService = reajusteService;
+		this.orcamentoService = orcamentoService;
+		this.basePrecoService = basePrecoService;
+	}
 
 	@GetMapping("/{codigoOrcamento}")
 	public ModelAndView reajuste(@PathVariable Long codigoOrcamento) {

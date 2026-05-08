@@ -1,0 +1,98 @@
+spring:
+  application:
+    name: sinapipro-api
+  threads:
+    virtual:
+      enabled: true
+  docker:
+    compose:
+      enabled: true
+      file: compose.yaml
+      lifecycle-management: start-and-stop
+  datasource:
+    url: jdbc:postgresql://localhost:5432/sinapipro
+    username: sinapipro
+    password: sinapipro
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 4
+      pool-name: showcase-pool
+  flyway:
+    enabled: true
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        default_batch_fetch_size: 64
+        format_sql: true
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+  mvc:
+    problemdetails:
+      enabled: true
+
+server:
+  port: 8080
+  shutdown: graceful
+
+management:
+  server:
+    port: 8081
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics,env,configprops
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      endpoint: http://localhost:4318/v1/traces
+
+logging:
+  structured:
+    format:
+      console: ecs
+  level:
+    com.sinapipro: DEBUG
+    org.springframework.security: INFO
+    org.hibernate.SQL: INFO
+
+springdoc:
+  swagger-ui:
+    operations-sorter: alpha
+    tags-sorter: alpha
+  writer-with-default-pretty-printer: true
+
+sinapipro:
+  security:
+    issuer: sinapipro
+    secret: 0123456789abcdef0123456789abcdef0123456789abcdef
+    demo-user:
+      username: admin@sinapipro.dev
+      password: SinapiPro#2026
+      roles:
+        - ADMIN
+        - USER
+    access-token:
+      ttl: PT20M
+      scope: sinapipro.read sinapipro.write
+    refresh-token:
+      ttl: P14D
+
+info:
+  app:
+    name: SinapiPRO Showcase API
+    java: 25
+    spring-boot: 4.0.5
+    style: api-first

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EarnedValueService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sinapipro-api</a> &gt; <a href="index.source.html" class="el_package">com.sinapipro.api.analytics.application</a> &gt; <span class="el_source">EarnedValueService.java</span></div><h1>EarnedValueService.java</h1><pre class="source lang-java linenums">package com.sinapipro.api.analytics.application;
+
+import com.sinapipro.api.jobcosting.domain.CostCode;
+import com.sinapipro.api.jobcosting.domain.CostCodeRepository;
+import com.sinapipro.api.jobcosting.domain.CostTransactionRepository;
+import com.sinapipro.api.jobcosting.domain.CostTransactionType;
+import com.sinapipro.api.schedule.domain.ScheduleActivity;
+import com.sinapipro.api.schedule.domain.ScheduleActivityRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.List;
+import java.util.UUID;
+
+@Service
+@Transactional(readOnly = true)
+public class EarnedValueService {
+
+    private final ScheduleActivityRepository scheduleRepository;
+    private final CostTransactionRepository costTransactionRepository;
+    private final CostCodeRepository costCodeRepository;
+
+    public EarnedValueService(ScheduleActivityRepository scheduleRepository,
+                              CostTransactionRepository costTransactionRepository,
+<span class="fc" id="L27">                              CostCodeRepository costCodeRepository) {</span>
+<span class="fc" id="L28">        this.scheduleRepository = scheduleRepository;</span>
+<span class="fc" id="L29">        this.costTransactionRepository = costTransactionRepository;</span>
+<span class="fc" id="L30">        this.costCodeRepository = costCodeRepository;</span>
+<span class="fc" id="L31">    }</span>
+
+    /**
+     * EVM calculation (PMBOK / NBR ISO 21500):
+     * BAC = Budget At Completion (sum of cost code budgeted amounts)
+     * PV = Planned Value (BAC × planned progress)
+     * EV = Earned Value (BAC × actual progress)
+     * AC = Actual Cost (sum of ACTUAL transactions)
+     * CPI = EV / AC
+     * SPI = EV / PV
+     * EAC = BAC / CPI
+     * VAC = BAC - EAC
+     */
+    public EvmResult calculate(UUID budgetId) {
+<span class="fc" id="L45">        List&lt;ScheduleActivity&gt; activities = scheduleRepository.findByBudgetIdOrderBySortOrder(budgetId);</span>
+
+        // BAC from cost codes (actual monetary value)
+<span class="fc" id="L48">        BigDecimal bac = costCodeRepository.findByBudgetIdOrderByCode(budgetId).stream()</span>
+<span class="fc" id="L49">                .map(CostCode::getBudgetedAmount)</span>
+<span class="fc" id="L50">                .reduce(BigDecimal.ZERO, BigDecimal::add);</span>
+
+<span class="fc bfc" id="L52" title="All 2 branches covered.">        if (bac.compareTo(BigDecimal.ZERO) == 0) {</span>
+<span class="fc" id="L53">            return EvmResult.empty();</span>
+        }
+
+        // Calculate progress from schedule activities
+<span class="fc" id="L57">        BigDecimal totalWeight = activities.stream().map(ScheduleActivity::getWeight).reduce(BigDecimal.ZERO, BigDecimal::add);</span>
+<span class="fc" id="L58">        BigDecimal actualProgress = BigDecimal.ZERO;</span>
+
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">        if (totalWeight.compareTo(BigDecimal.ZERO) &gt; 0) {</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">            for (ScheduleActivity a : activities) {</span>
+<span class="fc" id="L62">                BigDecimal weightFraction = a.getWeight().divide(totalWeight, 6, RoundingMode.HALF_UP);</span>
+<span class="fc" id="L63">                actualProgress = actualProgress.add(weightFraction.multiply(a.getProgressPct())</span>
+<span class="fc" id="L64">                        .divide(BigDecimal.valueOf(100), 6, RoundingMode.HALF_UP));</span>
+<span class="fc" id="L65">            }</span>
+        }
+
+        // PV = BAC (assume all planned to be done by now — simplified)
+<span class="fc" id="L69">        BigDecimal pv = bac;</span>
+        // EV = BAC × actual progress
+<span class="fc" id="L71">        BigDecimal ev = bac.multiply(actualProgress).setScale(2, RoundingMode.HALF_UP);</span>
+        // AC from cost transactions
+<span class="fc" id="L73">        BigDecimal ac = costTransactionRepository.sumByBudgetAndType(budgetId, CostTransactionType.ACTUAL);</span>
+
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">        BigDecimal cpi = ac.compareTo(BigDecimal.ZERO) &gt; 0 ? ev.divide(ac, 4, RoundingMode.HALF_UP) : BigDecimal.ZERO;</span>
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">        BigDecimal spi = pv.compareTo(BigDecimal.ZERO) &gt; 0 ? ev.divide(pv, 4, RoundingMode.HALF_UP) : BigDecimal.ZERO;</span>
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">        BigDecimal eac = cpi.compareTo(BigDecimal.ZERO) &gt; 0 ? bac.divide(cpi, 2, RoundingMode.HALF_UP) : BigDecimal.ZERO;</span>
+<span class="fc" id="L78">        BigDecimal vac = bac.subtract(eac);</span>
+
+<span class="fc" id="L80">        return new EvmResult(bac, pv, ev, ac, cpi, spi, eac, vac);</span>
+    }
+
+<span class="fc" id="L83">    public record EvmResult(BigDecimal bac, BigDecimal pv, BigDecimal ev, BigDecimal ac,</span>
+                            BigDecimal cpi, BigDecimal spi, BigDecimal eac, BigDecimal vac) {
+        static EvmResult empty() {
+<span class="fc" id="L86">            return new EvmResult(BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO,</span>
+                    BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

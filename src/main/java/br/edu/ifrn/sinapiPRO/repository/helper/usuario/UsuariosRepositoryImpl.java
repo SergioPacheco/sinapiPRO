@@ -17,7 +17,6 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
 import org.hibernate.sql.JoinType;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -35,8 +34,11 @@ public class UsuariosRepositoryImpl implements UsuariosRepositoryQueries {
 	@PersistenceContext
 	private EntityManager manager;
 
-	@Autowired
-	private PaginacaoUtil paginacaoUtil;
+	private final PaginacaoUtil paginacaoUtil;
+
+	public UsuariosRepositoryImpl(PaginacaoUtil paginacaoUtil) {
+		this.paginacaoUtil = paginacaoUtil;
+	}
 	
 	@Override
 	public Optional<Usuario> porEmailEAtivo(String email) {

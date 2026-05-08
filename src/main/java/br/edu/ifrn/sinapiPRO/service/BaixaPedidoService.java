@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,14 +42,18 @@ import br.edu.ifrn.sinapiPRO.repository.PedidosCompraRepository;
 @Service
 public class BaixaPedidoService {
 
-    @Autowired
-    private PedidosCompraRepository pedidoRepository;
+    private final PedidosCompraRepository pedidoRepository;
+    private final EstoqueRepository estoqueRepository;
+    private final EstoqueService estoqueService;
 
-    @Autowired
-    private EstoqueRepository estoqueRepository;
-
-    @Autowired
-    private EstoqueService estoqueService;
+    public BaixaPedidoService(
+            PedidosCompraRepository pedidoRepository,
+            EstoqueRepository estoqueRepository,
+            EstoqueService estoqueService) {
+        this.pedidoRepository = pedidoRepository;
+        this.estoqueRepository = estoqueRepository;
+        this.estoqueService = estoqueService;
+    }
 
     /**
      * Registra o recebimento de um pedido de compra e atualiza o estoque.

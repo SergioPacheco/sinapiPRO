@@ -1,57 +1,22 @@
 package br.edu.ifrn.sinapiPRO.service;
 
-import java.util.List;
-import java.util.Optional;
-
-import javax.persistence.PersistenceException;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import br.edu.ifrn.sinapiPRO.model.TipoCusto;
 import br.edu.ifrn.sinapiPRO.repository.TipoCustosRepository;
 import br.edu.ifrn.sinapiPRO.repository.filter.TipoCustoFilter;
-import br.edu.ifrn.sinapiPRO.service.exception.JaCadastradoException;
-import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
+import br.edu.ifrn.sinapiPRO.service.support.AbstractNamedEntityCrudService;
 
 @Service
-public class TipoCustoService {
+public class TipoCustoService extends AbstractNamedEntityCrudService<TipoCusto, TipoCustoFilter, TipoCustosRepository> {
 
-	@Autowired
-	private TipoCustosRepository repository;
-
-	@Transactional
-	public TipoCusto salvar(TipoCusto tipoCusto) {
-		Optional<TipoCusto> existente = repository.findByNomeIgnoreCase(tipoCusto.getNome());
-		if (existente.isPresent() && !existente.get().getCodigo().equals(tipoCusto.getCodigo())) {
-			throw new JaCadastradoException("Tipo de custo já cadastrado");
-		}
-		return repository.saveAndFlush(tipoCusto);
-	}
-
-	@Transactional
-	public void excluir(Long codigo) {
-		try {
-			repository.deleteById(codigo);
-			repository.flush();
-		} catch (PersistenceException e) {
-			throw new ImpossivelExcluirEntidadeException("Impossível apagar tipo de custo. Já está em uso.");
-		}
-	}
-
-	@Transactional(readOnly = true)
-	public Page<TipoCusto> filtrar(TipoCustoFilter filtro, Pageable pageable) {
-		return repository.filtrar(filtro, pageable);
-	}
-
-	public List<TipoCusto> findAll() {
-		return repository.findAll();
-	}
-
-	public TipoCusto getOne(Long codigo) {
-		return repository.getOne(codigo);
+	public TipoCustoService(TipoCustosRepository repository) {
+		super(
+				repository,
+				TipoCusto::getCodigo,
+				TipoCusto::getNome,
+				"Tipo de custo já cadastrado",
+				"Impossível apagar tipo de custo. Já está em uso.",
+				"Tipo de custo não encontrado.");
 	}
 }

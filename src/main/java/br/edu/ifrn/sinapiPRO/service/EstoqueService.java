@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,8 +42,11 @@ import br.edu.ifrn.sinapiPRO.repository.EstoqueRepository;
 @Service
 public class EstoqueService {
 
-    @Autowired
-    private EstoqueRepository repository;
+    private final EstoqueRepository repository;
+
+    public EstoqueService(EstoqueRepository repository) {
+        this.repository = repository;
+    }
 
     /**
      * Registra uma movimentação de estoque e atualiza o saldo e custo médio.

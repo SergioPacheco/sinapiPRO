@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PunchListController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sinapipro-api</a> &gt; <a href="index.source.html" class="el_package">com.sinapipro.api.punchlist.api</a> &gt; <span class="el_source">PunchListController.java</span></div><h1>PunchListController.java</h1><pre class="source lang-java linenums">package com.sinapipro.api.punchlist.api;
+
+import com.sinapipro.api.punchlist.domain.*;
+import com.sinapipro.api.shared.api.PageResponse;
+import com.sinapipro.api.shared.error.DomainNotFoundException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.UUID;
+
+@Tag(name = &quot;Punch List&quot;, description = &quot;Punch list items for project closeout&quot;)
+@RestController
+@RequestMapping(&quot;/api/v1/budgets/{budgetId}/punch-list&quot;)
+public class PunchListController {
+
+    private final PunchListRepository repository;
+
+<span class="nc" id="L29">    public PunchListController(PunchListRepository repository) {</span>
+<span class="nc" id="L30">        this.repository = repository;</span>
+<span class="nc" id="L31">    }</span>
+
+    @Operation(summary = &quot;List punch list items&quot;)
+    @GetMapping
+    @PreAuthorize(&quot;hasAuthority('SCOPE_sinapipro.read')&quot;)
+    PageResponse&lt;PunchListResponse&gt; list(@PathVariable UUID budgetId,
+                                         @RequestParam(required = false) PunchListStatus status,
+                                         @PageableDefault(size = 20) Pageable pageable) {
+<span class="nc bnc" id="L39" title="All 2 branches missed.">        if (status != null) {</span>
+<span class="nc" id="L40">            return PageResponse.from(repository.findByBudgetIdAndStatus(budgetId, status, pageable).map(PunchListResponse::from));</span>
+        }
+<span class="nc" id="L42">        return PageResponse.from(repository.findByBudgetId(budgetId, pageable).map(PunchListResponse::from));</span>
+    }
+
+    @Operation(summary = &quot;Create a punch list item&quot;)
+    @PostMapping
+    @PreAuthorize(&quot;hasAuthority('SCOPE_sinapipro.write')&quot;)
+    ResponseEntity&lt;PunchListResponse&gt; create(@PathVariable UUID budgetId, @Valid @RequestBody CreatePunchListRequest req) {
+<span class="nc" id="L49">        PunchListItem item = repository.save(new PunchListItem(budgetId, req.location(), req.description(),</span>
+<span class="nc" id="L50">                req.category(), req.priority(), req.assignedTo(), req.dueDate(), req.createdBy()));</span>
+<span class="nc" id="L51">        return ResponseEntity.created(URI.create(&quot;/api/v1/budgets/&quot; + budgetId + &quot;/punch-list/&quot; + item.getId()))</span>
+<span class="nc" id="L52">                .body(PunchListResponse.from(item));</span>
+    }
+
+    @Operation(summary = &quot;Mark item as in progress&quot;)
+    @PostMapping(&quot;/{id}/start&quot;)
+    @PreAuthorize(&quot;hasAuthority('SCOPE_sinapipro.write')&quot;)
+    @Transactional
+    PunchListResponse start(@PathVariable UUID budgetId, @PathVariable UUID id) {
+<span class="nc" id="L60">        PunchListItem item = findOrThrow(id);</span>
+<span class="nc" id="L61">        item.markInProgress();</span>
+<span class="nc" id="L62">        return PunchListResponse.from(repository.save(item));</span>
+    }
+
+    @Operation(summary = &quot;Mark item as completed&quot;)
+    @PostMapping(&quot;/{id}/complete&quot;)
+    @PreAuthorize(&quot;hasAuthority('SCOPE_sinapipro.write')&quot;)
+    @Transactional
+    PunchListResponse complete(@PathVariable UUID budgetId, @PathVariable UUID id) {
+<span class="nc" id="L70">        PunchListItem item = findOrThrow(id);</span>
+<span class="nc" id="L71">        item.complete();</span>
+<span class="nc" id="L72">        return PunchListResponse.from(repository.save(item));</span>
+    }
+
+    @Operation(summary = &quot;Verify completed item&quot;)
+    @PostMapping(&quot;/{id}/verify&quot;)
+    @PreAuthorize(&quot;hasAuthority('SCOPE_sinapipro.write')&quot;)
+    @Transactional
+    PunchListResponse verify(@PathVariable UUID budgetId, @PathVariable UUID id) {
+<span class="nc" id="L80">        PunchListItem item = findOrThrow(id);</span>
+<span class="nc" id="L81">        item.verify();</span>
+<span class="nc" id="L82">        return PunchListResponse.from(repository.save(item));</span>
+    }
+
+    @Operation(summary = &quot;Punch list summary (counts by status)&quot;)
+    @GetMapping(&quot;/summary&quot;)
+    @PreAuthorize(&quot;hasAuthority('SCOPE_sinapipro.read')&quot;)
+    PunchListSummary summary(@PathVariable UUID budgetId) {
+<span class="nc" id="L89">        return new PunchListSummary(</span>
+<span class="nc" id="L90">                repository.countByBudgetIdAndStatus(budgetId, PunchListStatus.OPEN),</span>
+<span class="nc" id="L91">                repository.countByBudgetIdAndStatus(budgetId, PunchListStatus.IN_PROGRESS),</span>
+<span class="nc" id="L92">                repository.countByBudgetIdAndStatus(budgetId, PunchListStatus.COMPLETED),</span>
+<span class="nc" id="L93">                repository.countByBudgetIdAndStatus(budgetId, PunchListStatus.VERIFIED));</span>
+    }
+
+    private PunchListItem findOrThrow(UUID id) {
+<span class="nc" id="L97">        return repository.findById(id).orElseThrow(() -&gt; new DomainNotFoundException(&quot;Punch list item not found: &quot; + id));</span>
+    }
+
+    // --- DTOs ---
+<span class="nc" id="L101">    record CreatePunchListRequest(@NotBlank String location, @NotBlank String description,</span>
+                                  String category, String priority, String assignedTo,
+                                  LocalDate dueDate, String createdBy) {}
+
+<span class="nc" id="L105">    record PunchListResponse(UUID id, String location, String description, String category,</span>
+                             String priority, PunchListStatus status, String assignedTo,
+                             LocalDate dueDate, Instant completedAt) {
+        static PunchListResponse from(PunchListItem i) {
+<span class="nc" id="L109">            return new PunchListResponse(i.getId(), i.getLocation(), i.getDescription(), i.getCategory(),</span>
+<span class="nc" id="L110">                    i.getPriority(), i.getStatus(), i.getAssignedTo(), i.getDueDate(), i.getCompletedAt());</span>
+        }
+    }
+
+<span class="nc" id="L114">    record PunchListSummary(long open, long inProgress, long completed, long verified) {}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

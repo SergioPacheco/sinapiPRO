@@ -1,6 +1,5 @@
 package br.edu.ifrn.sinapiPRO.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -23,14 +22,18 @@ import br.edu.ifrn.sinapiPRO.security.PrimeiroAcessoFilter;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-	@Autowired
-	private UserDetailsService userDetailsService;
+	private final UserDetailsService userDetailsService;
+	private final PrimeiroAcessoFilter primeiroAcessoFilter;
+	private final br.edu.ifrn.sinapiPRO.security.LoginSuccessHandler loginSuccessHandler;
 
-	@Autowired
-	private PrimeiroAcessoFilter primeiroAcessoFilter;
-
-	@Autowired
-	private br.edu.ifrn.sinapiPRO.security.LoginSuccessHandler loginSuccessHandler;
+	public SecurityConfig(
+			UserDetailsService userDetailsService,
+			PrimeiroAcessoFilter primeiroAcessoFilter,
+			br.edu.ifrn.sinapiPRO.security.LoginSuccessHandler loginSuccessHandler) {
+		this.userDetailsService = userDetailsService;
+		this.primeiroAcessoFilter = primeiroAcessoFilter;
+		this.loginSuccessHandler = loginSuccessHandler;
+	}
 	
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {

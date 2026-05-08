@@ -2,7 +2,6 @@ package br.edu.ifrn.sinapiPRO.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -17,11 +16,13 @@ import br.edu.ifrn.sinapiPRO.service.CotacaoService;
 @RequestMapping("/cotacoes/{codigoCotacao}/analise")
 public class AnaliseCotacaoController {
 
-    @Autowired
-    private AnaliseCotacaoService analiseCotacaoService;
+    private final AnaliseCotacaoService analiseCotacaoService;
+    private final CotacaoService cotacaoService;
 
-    @Autowired
-    private CotacaoService cotacaoService;
+    public AnaliseCotacaoController(AnaliseCotacaoService analiseCotacaoService, CotacaoService cotacaoService) {
+        this.analiseCotacaoService = analiseCotacaoService;
+        this.cotacaoService = cotacaoService;
+    }
 
     @GetMapping
     public ModelAndView analise(@PathVariable Long codigoCotacao) {

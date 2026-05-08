@@ -2,7 +2,6 @@ package br.edu.ifrn.sinapiPRO.controller;
 
 import java.math.BigDecimal;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -18,11 +17,13 @@ import br.edu.ifrn.sinapiPRO.service.OrcamentoService;
 @RequestMapping("/digitacaoRapida")
 public class DigitacaoRapidaController {
 
-	@Autowired
-	private OrcamentoService orcamentoService;
+	private final OrcamentoService orcamentoService;
+	private final ItemService itemService;
 
-	@Autowired
-	private ItemService itemService;
+	public DigitacaoRapidaController(OrcamentoService orcamentoService, ItemService itemService) {
+		this.orcamentoService = orcamentoService;
+		this.itemService = itemService;
+	}
 
 	@GetMapping("/{codigoOrcamento}")
 	public ModelAndView tela(@PathVariable Long codigoOrcamento) {

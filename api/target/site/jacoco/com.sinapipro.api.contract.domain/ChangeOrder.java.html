@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ChangeOrder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sinapipro-api</a> &gt; <a href="index.source.html" class="el_package">com.sinapipro.api.contract.domain</a> &gt; <span class="el_source">ChangeOrder.java</span></div><h1>ChangeOrder.java</h1><pre class="source lang-java linenums">package com.sinapipro.api.contract.domain;
+
+import jakarta.persistence.*;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.UUID;
+
+@Entity
+@Table(name = &quot;change_order&quot;, uniqueConstraints = @UniqueConstraint(columnNames = {&quot;contract_id&quot;, &quot;number&quot;}))
+public class ChangeOrder {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;contract_id&quot;, nullable = false)
+    private Contract contract;
+
+    @Column(nullable = false)
+    private Integer number;
+
+    @Column(nullable = false, length = 500)
+    private String description;
+
+    @Column(nullable = false, precision = 18, scale = 2)
+    private BigDecimal amount;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private ChangeOrderStatus status;
+
+    @Column(columnDefinition = &quot;text&quot;)
+    private String justification;
+
+    @Column(name = &quot;approved_at&quot;)
+    private Instant approvedAt;
+
+    @Column(name = &quot;created_at&quot;, nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @PrePersist
+<span class="nc" id="L44">    void prePersist() { createdAt = Instant.now(); }</span>
+
+<span class="nc" id="L46">    protected ChangeOrder() {}</span>
+
+<span class="fc" id="L48">    public ChangeOrder(Contract contract, Integer number, String description, BigDecimal amount, String justification) {</span>
+<span class="fc" id="L49">        this.contract = contract;</span>
+<span class="fc" id="L50">        this.number = number;</span>
+<span class="fc" id="L51">        this.description = description;</span>
+<span class="fc" id="L52">        this.amount = amount;</span>
+<span class="fc" id="L53">        this.justification = justification;</span>
+<span class="fc" id="L54">        this.status = ChangeOrderStatus.PENDING;</span>
+<span class="fc" id="L55">    }</span>
+
+<span class="nc" id="L57">    public UUID getId() { return id; }</span>
+<span class="nc" id="L58">    public Contract getContract() { return contract; }</span>
+<span class="nc" id="L59">    public Integer getNumber() { return number; }</span>
+<span class="nc" id="L60">    public String getDescription() { return description; }</span>
+<span class="fc" id="L61">    public BigDecimal getAmount() { return amount; }</span>
+<span class="fc" id="L62">    public ChangeOrderStatus getStatus() { return status; }</span>
+<span class="nc" id="L63">    public String getJustification() { return justification; }</span>
+<span class="nc" id="L64">    public Instant getApprovedAt() { return approvedAt; }</span>
+
+    public void approve() {
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        if (status != ChangeOrderStatus.PENDING) throw new IllegalStateException(&quot;Can only approve PENDING change orders&quot;);</span>
+<span class="fc" id="L68">        this.status = ChangeOrderStatus.APPROVED;</span>
+<span class="fc" id="L69">        this.approvedAt = Instant.now();</span>
+<span class="fc" id="L70">    }</span>
+
+    public void reject() {
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">        if (status != ChangeOrderStatus.PENDING) throw new IllegalStateException(&quot;Can only reject PENDING change orders&quot;);</span>
+<span class="fc" id="L74">        this.status = ChangeOrderStatus.REJECTED;</span>
+<span class="fc" id="L75">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

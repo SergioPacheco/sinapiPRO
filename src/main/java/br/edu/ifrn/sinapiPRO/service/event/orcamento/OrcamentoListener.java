@@ -1,6 +1,5 @@
 package br.edu.ifrn.sinapiPRO.service.event.orcamento;
 /*
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
@@ -11,8 +10,11 @@ import br.edu.ifrn.sinapiPRO.repository.Composicoes;
 @Component
 public class OrcamentoListener {
 
-	@Autowired
-	private Composicoes composicoes;
+	private final Composicoes composicoes;
+
+	public OrcamentoListener(Composicoes composicoes) {
+		this.composicoes = composicoes;
+	}
 	
 	@EventListener
 	public void orcamentoEmitido(OrcamentoEvent orcamentoEvent) {

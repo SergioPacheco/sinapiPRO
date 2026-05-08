@@ -1,67 +1,66 @@
 package br.edu.ifrn.sinapiPRO.controller;
 
 import javax.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import br.edu.ifrn.sinapiPRO.controller.support.AbstractCrudListController;
 import br.edu.ifrn.sinapiPRO.model.PrestacaoContas;
 import br.edu.ifrn.sinapiPRO.service.CadastroFuncionarioService;
 import br.edu.ifrn.sinapiPRO.service.CompetenciaService;
 import br.edu.ifrn.sinapiPRO.service.PrestacaoContasService;
-import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
 
 @Controller
 @RequestMapping("/prestacaoContas")
-public class PrestacaoContasController {
+public class PrestacaoContasController extends AbstractCrudListController<PrestacaoContas> {
 
-    @Autowired
-    private PrestacaoContasService service;
+	private final CadastroFuncionarioService funcionarioService;
+	private final CompetenciaService competenciaService;
 
-    @Autowired
-    private CadastroFuncionarioService funcionarioService;
+	public PrestacaoContasController(
+			PrestacaoContasService service,
+			CadastroFuncionarioService funcionarioService,
+			CompetenciaService competenciaService) {
+		super(service, "prestacaocontas/FormPrestacaoContas", "prestacaocontas/ListaPrestacaoContas", "/prestacaoContas", "Lançamento salvo!", "descricao", "lancamentos");
+		this.funcionarioService = funcionarioService;
+		this.competenciaService = competenciaService;
+	}
 
-    @Autowired
-    private CompetenciaService competenciaService;
+	@Override
+	protected void adicionarObjetosFormulario(ModelAndView modelAndView) {
+		modelAndView.addObject("funcionarios", funcionarioService.findAll());
+		modelAndView.addObject("competencias", competenciaService.findAbertas());
+	}
 
-    @GetMapping
-    public ModelAndView lista() {
-        ModelAndView mv = new ModelAndView("prestacaocontas/ListaPrestacaoContas");
-        mv.addObject("lancamentos", service.findPendentes());
-        return mv;
-    }
+	@GetMapping
+	public ModelAndView lista() {
+		ModelAndView mv = new ModelAndView("prestacaocontas/ListaPrestacaoContas");
+		mv.addObject("lancamentos", ((PrestacaoContasService) serviceRef()).findPendentes());
+		return mv;
+	}
 
-    @GetMapping("/novo")
-    public ModelAndView novo(PrestacaoContas prestacao) {
-        return form(prestacao);
-    }
+	@GetMapping("/novo")
+	public ModelAndView novo(PrestacaoContas prestacao) {
+		return abrirFormulario();
+	}
 
-    @PostMapping({"/novo", "/{codigo}"})
-    public ModelAndView salvar(@Valid PrestacaoContas prestacao, BindingResult result, RedirectAttributes attributes) {
-        if (result.hasErrors()) return form(prestacao);
-        service.salvar(prestacao);
-        attributes.addFlashAttribute("mensagem", "Lançamento salvo!");
-        return new ModelAndView("redirect:/prestacaoContas");
-    }
+	@PostMapping({"/novo", "/{codigo}"})
+	public ModelAndView salvar(@Valid PrestacaoContas prestacao, BindingResult result, RedirectAttributes attributes) {
+		return processarCadastro(prestacao, result, attributes);
+	}
 
-    @DeleteMapping("/{codigo}")
-    public @ResponseBody ResponseEntity<?> excluir(@PathVariable Long codigo) {
-        try {
-            service.excluir(codigo);
-        } catch (ImpossivelExcluirEntidadeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-        return ResponseEntity.ok().build();
-    }
-
-    private ModelAndView form(PrestacaoContas prestacao) {
-        ModelAndView mv = new ModelAndView("prestacaocontas/FormPrestacaoContas");
-        mv.addObject("prestacaoContas", prestacao);
-        mv.addObject("funcionarios", funcionarioService.findAll());
-        mv.addObject("competencias", competenciaService.findAbertas());
-        return mv;
-    }
+	@DeleteMapping("/{codigo}")
+	public @ResponseBody ResponseEntity<?> excluir(@PathVariable Long codigo) {
+		return excluirPorCodigo(codigo);
+	}
 }

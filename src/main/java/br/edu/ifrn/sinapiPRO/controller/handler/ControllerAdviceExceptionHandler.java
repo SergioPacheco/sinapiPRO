@@ -1,10 +1,9 @@
 package br.edu.ifrn.sinapiPRO.controller.handler;
 
-import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,104 +17,82 @@ import org.springframework.web.servlet.ModelAndView;
 
 import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
 import br.edu.ifrn.sinapiPRO.service.exception.JaCadastradoException;
+import br.edu.ifrn.sinapiPRO.service.exception.ResourceNotFoundException;
 
-/**
- * Handler global de exceções.
- *
- * Baseado em práticas do Spring Boot (Baeldung, Spring docs):
- * - Respostas padronizadas com timestamp, status, mensagem
- * - Logging de erros inesperados
- * - Separação entre erros de negócio (4xx) e erros de sistema (5xx)
- */
 @ControllerAdvice
 public class ControllerAdviceExceptionHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(ControllerAdviceExceptionHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(ControllerAdviceExceptionHandler.class);
 
-    // ---- Erros de negócio (400 Bad Request) ----
+	@ExceptionHandler(JaCadastradoException.class)
+	public Object handleJaCadastrado(JaCadastradoException exception, HttpServletRequest request) {
+		return buildResponse(HttpStatus.CONFLICT, exception.getMessage(), request);
+	}
 
-    @ExceptionHandler(JaCadastradoException.class)
-    public ResponseEntity<Map<String, Object>> handleJaCadastrado(JaCadastradoException e) {
-        return erroNegocio(HttpStatus.CONFLICT, e.getMessage());
-    }
+	@ExceptionHandler(ImpossivelExcluirEntidadeException.class)
+	public Object handleImpossivelExcluir(ImpossivelExcluirEntidadeException exception, HttpServletRequest request) {
+		return buildResponse(HttpStatus.CONFLICT, exception.getMessage(), request);
+	}
 
-    @ExceptionHandler(ImpossivelExcluirEntidadeException.class)
-    public ResponseEntity<Map<String, Object>> handleImpossivelExcluir(ImpossivelExcluirEntidadeException e) {
-        return erroNegocio(HttpStatus.CONFLICT, e.getMessage());
-    }
+	@ExceptionHandler(ResourceNotFoundException.class)
+	public Object handleResourceNotFound(ResourceNotFoundException exception, HttpServletRequest request) {
+		return buildResponse(HttpStatus.NOT_FOUND, exception.getMessage(), request);
+	}
 
-    /**
-     * Erros de validação Bean Validation (@Valid).
-     * Retorna lista de campos com erro.
-     */
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidacao(MethodArgumentNotValidException e) {
-        List<String> erros = e.getBindingResult().getFieldErrors().stream()
-                .map(FieldError::getDefaultMessage)
-                .collect(Collectors.toList());
+	@ExceptionHandler(IllegalArgumentException.class)
+	public Object handleIllegalArgument(IllegalArgumentException exception, HttpServletRequest request) {
+		return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), request);
+	}
 
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now().toString());
-        body.put("status", HttpStatus.BAD_REQUEST.value());
-        body.put("erro", "Erro de validação");
-        body.put("mensagens", erros);
-        return ResponseEntity.badRequest().body(body);
-    }
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public ResponseEntity<ApiErrorResponse> handleValidacao(MethodArgumentNotValidException exception, HttpServletRequest request) {
+		List<String> errors = exception.getBindingResult().getFieldErrors().stream()
+				.map(FieldError::getDefaultMessage)
+				.collect(Collectors.toList());
 
-    /**
-     * Erros de negócio genéricos (RuntimeException com mensagem de negócio).
-     * Usado pelos services de validação.
-     */
-    @ExceptionHandler(RuntimeException.class)
-    public Object handleRuntimeException(RuntimeException e,
-            javax.servlet.http.HttpServletRequest request) {
+		ApiErrorResponse body = ApiErrorResponse.validation(
+				HttpStatus.BAD_REQUEST.value(),
+				HttpStatus.BAD_REQUEST.getReasonPhrase(),
+				"Erro de validação",
+				errors,
+				request.getRequestURI());
 
-        // Se é uma requisição AJAX/REST, retorna JSON
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            log.warn("Erro de negócio: {}", e.getMessage());
-            return erroNegocio(HttpStatus.BAD_REQUEST, e.getMessage());
-        }
+		return ResponseEntity.badRequest().body(body);
+	}
 
-        // Para requisições de página, redireciona para página de erro
-        log.error("Erro inesperado na requisição {}: {}", request.getRequestURI(), e.getMessage(), e);
-        ModelAndView mv = new ModelAndView("error/500");
-        mv.addObject("mensagem", e.getMessage());
-        mv.addObject("uri", request.getRequestURI());
-        return mv;
-    }
+	@ExceptionHandler(Exception.class)
+	public Object handleException(Exception exception, HttpServletRequest request) {
+		log.error("Erro interno na requisição {}: {}", request.getRequestURI(), exception.getMessage(), exception);
+		return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Ocorreu um erro inesperado. Contate o administrador.", request);
+	}
 
-    /**
-     * Erros de sistema (500 Internal Server Error).
-     */
-    @ExceptionHandler(Exception.class)
-    public Object handleException(Exception e,
-            javax.servlet.http.HttpServletRequest request) {
+	private Object buildResponse(HttpStatus status, String message, HttpServletRequest request) {
+		if (status.is4xxClientError()) {
+			log.warn("Erro na requisição {}: {}", request.getRequestURI(), message);
+		}
 
-        log.error("Erro interno na requisição {}: {}", request.getRequestURI(), e.getMessage(), e);
+		if (isJsonRequest(request)) {
+			ApiErrorResponse body = ApiErrorResponse.of(status.value(), status.getReasonPhrase(), message, request.getRequestURI());
+			return ResponseEntity.status(status).body(body);
+		}
 
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            Map<String, Object> body = new LinkedHashMap<>();
-            body.put("timestamp", LocalDateTime.now().toString());
-            body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-            body.put("erro", "Erro interno do servidor");
-            body.put("mensagem", "Ocorreu um erro inesperado. Contate o administrador.");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
-        }
+		ModelAndView modelAndView = new ModelAndView(HttpStatus.NOT_FOUND.equals(status) ? "error/404" : "error/500");
+		modelAndView.addObject("mensagem", message);
+		modelAndView.addObject("uri", request.getRequestURI());
+		return modelAndView;
+	}
 
-        ModelAndView mv = new ModelAndView("error/500");
-        mv.addObject("mensagem", "Ocorreu um erro inesperado. Contate o administrador.");
-        mv.addObject("uri", request.getRequestURI());
-        return mv;
-    }
+	private boolean isJsonRequest(HttpServletRequest request) {
+		String accept = request.getHeader("Accept");
+		String contentType = request.getContentType();
+		String requestedWith = request.getHeader("X-Requested-With");
 
-    private ResponseEntity<Map<String, Object>> erroNegocio(HttpStatus status, String mensagem) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("timestamp", LocalDateTime.now().toString());
-        body.put("status", status.value());
-        body.put("erro", status.getReasonPhrase());
-        body.put("mensagem", mensagem);
-        return ResponseEntity.status(status).body(body);
-    }
+		return containsJson(accept)
+				|| containsJson(contentType)
+				|| "XMLHttpRequest".equalsIgnoreCase(requestedWith);
+	}
+
+	private boolean containsJson(String value) {
+		return value != null && value.contains("application/json");
+	}
 }

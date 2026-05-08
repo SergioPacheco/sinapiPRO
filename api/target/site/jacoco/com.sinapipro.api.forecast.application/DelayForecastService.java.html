@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DelayForecastService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sinapipro-api</a> &gt; <a href="index.source.html" class="el_package">com.sinapipro.api.forecast.application</a> &gt; <span class="el_source">DelayForecastService.java</span></div><h1>DelayForecastService.java</h1><pre class="source lang-java linenums">package com.sinapipro.api.forecast.application;
+
+import com.sinapipro.api.schedule.domain.ScheduleActivity;
+import com.sinapipro.api.schedule.domain.ScheduleActivityRepository;
+import com.sinapipro.api.weather.domain.WeatherDelay;
+import com.sinapipro.api.weather.domain.WeatherDelayRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+
+/**
+ * AI Delay Forecast — predicts project delays based on:
+ * 1. Historical weather delay patterns (frequency, avg hours lost)
+ * 2. Current schedule progress vs planned (SPI-based)
+ * 3. Remaining duration and seasonal weather risk
+ */
+@Service
+@Transactional(readOnly = true)
+public class DelayForecastService {
+
+    private final ScheduleActivityRepository scheduleRepository;
+    private final WeatherDelayRepository weatherRepository;
+
+    public DelayForecastService(ScheduleActivityRepository scheduleRepository,
+<span class="nc" id="L30">                                WeatherDelayRepository weatherRepository) {</span>
+<span class="nc" id="L31">        this.scheduleRepository = scheduleRepository;</span>
+<span class="nc" id="L32">        this.weatherRepository = weatherRepository;</span>
+<span class="nc" id="L33">    }</span>
+
+    public DelayForecast predict(UUID budgetId) {
+<span class="nc" id="L36">        List&lt;ScheduleActivity&gt; activities = scheduleRepository.findByBudgetIdOrderBySortOrder(budgetId);</span>
+<span class="nc" id="L37">        List&lt;WeatherDelay&gt; weatherDelays = weatherRepository.findByBudgetIdOrderByDelayDateDesc(budgetId);</span>
+
+<span class="nc bnc" id="L39" title="All 2 branches missed.">        if (activities.isEmpty()) {</span>
+<span class="nc" id="L40">            return new DelayForecast(0, 0, BigDecimal.ZERO, &quot;LOW&quot;, List.of(), &quot;No activities scheduled&quot;);</span>
+        }
+
+        // Calculate schedule metrics
+<span class="nc" id="L44">        LocalDate plannedEnd = activities.stream().map(ScheduleActivity::getPlannedEnd).max(LocalDate::compareTo).orElse(LocalDate.now());</span>
+<span class="nc" id="L45">        LocalDate today = LocalDate.now();</span>
+<span class="nc" id="L46">        long remainingDays = Math.max(0, ChronoUnit.DAYS.between(today, plannedEnd));</span>
+
+        // Calculate SPI (Schedule Performance Index)
+<span class="nc" id="L49">        BigDecimal totalWeight = activities.stream().map(ScheduleActivity::getWeight).reduce(BigDecimal.ZERO, BigDecimal::add);</span>
+<span class="nc" id="L50">        BigDecimal earnedProgress = BigDecimal.ZERO;</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">        for (ScheduleActivity a : activities) {</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">            if (totalWeight.compareTo(BigDecimal.ZERO) &gt; 0) {</span>
+<span class="nc" id="L53">                BigDecimal weightFraction = a.getWeight().divide(totalWeight, 6, RoundingMode.HALF_UP);</span>
+<span class="nc" id="L54">                earnedProgress = earnedProgress.add(weightFraction.multiply(a.getProgressPct()).divide(BigDecimal.valueOf(100), 6, RoundingMode.HALF_UP));</span>
+            }
+<span class="nc" id="L56">        }</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        BigDecimal spi = earnedProgress.compareTo(BigDecimal.ZERO) &gt; 0 ? earnedProgress : new BigDecimal(&quot;0.01&quot;);</span>
+
+        // Weather delay analysis
+<span class="nc" id="L60">        int totalWeatherDelays = weatherDelays.size();</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        BigDecimal avgHoursLostPerDelay = totalWeatherDelays &gt; 0</span>
+<span class="nc" id="L62">                ? weatherDelays.stream().map(WeatherDelay::getHoursLost).reduce(BigDecimal.ZERO, BigDecimal::add)</span>
+<span class="nc" id="L63">                    .divide(BigDecimal.valueOf(totalWeatherDelays), 2, RoundingMode.HALF_UP)</span>
+<span class="nc" id="L64">                : BigDecimal.ZERO;</span>
+
+        // Calculate delay frequency (delays per 30 days)
+<span class="nc" id="L67">        long projectDurationSoFar = ChronoUnit.DAYS.between(</span>
+<span class="nc" id="L68">                activities.stream().map(ScheduleActivity::getPlannedStart).min(LocalDate::compareTo).orElse(today), today);</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        double delayFrequency = projectDurationSoFar &gt; 0</span>
+<span class="nc" id="L70">                ? (double) totalWeatherDelays / projectDurationSoFar * 30 : 0;</span>
+
+        // Predict future weather delays based on historical frequency
+<span class="nc" id="L73">        int predictedWeatherDelays = (int) Math.round(delayFrequency * remainingDays / 30);</span>
+<span class="nc" id="L74">        int weatherDelayDays = (int) Math.round(predictedWeatherDelays * avgHoursLostPerDelay.doubleValue() / 8);</span>
+
+        // Schedule delay based on SPI
+<span class="nc" id="L77">        int scheduleDelayDays = 0;</span>
+<span class="nc bnc" id="L78" title="All 4 branches missed.">        if (spi.compareTo(BigDecimal.ONE) &lt; 0 &amp;&amp; remainingDays &gt; 0) {</span>
+            // If SPI &lt; 1, project is behind. Estimate delay = remaining / SPI - remaining
+<span class="nc" id="L80">            double adjustedRemaining = remainingDays / spi.doubleValue();</span>
+<span class="nc" id="L81">            scheduleDelayDays = (int) Math.round(adjustedRemaining - remainingDays);</span>
+        }
+
+<span class="nc" id="L84">        int totalPredictedDelay = scheduleDelayDays + weatherDelayDays;</span>
+
+        // Risk level
+        String riskLevel;
+<span class="nc bnc" id="L88" title="All 2 branches missed.">        if (totalPredictedDelay &lt;= 5) riskLevel = &quot;LOW&quot;;</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        else if (totalPredictedDelay &lt;= 15) riskLevel = &quot;MEDIUM&quot;;</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        else if (totalPredictedDelay &lt;= 30) riskLevel = &quot;HIGH&quot;;</span>
+<span class="nc" id="L91">        else riskLevel = &quot;CRITICAL&quot;;</span>
+
+        // Risk factors
+<span class="nc" id="L94">        List&lt;RiskFactor&gt; factors = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        if (scheduleDelayDays &gt; 0) {</span>
+<span class="nc" id="L96">            factors.add(new RiskFactor(&quot;SCHEDULE_BEHIND&quot;, &quot;Schedule is behind (SPI=&quot; + spi.setScale(2, RoundingMode.HALF_UP) + &quot;)&quot;,</span>
+                    scheduleDelayDays + &quot; days predicted delay&quot;));
+        }
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (weatherDelayDays &gt; 0) {</span>
+<span class="nc" id="L100">            factors.add(new RiskFactor(&quot;WEATHER_PATTERN&quot;, &quot;Historical weather delays (&quot; + String.format(&quot;%.1f&quot;, delayFrequency) + &quot;/month)&quot;,</span>
+                    weatherDelayDays + &quot; days predicted from weather&quot;));
+        }
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        if (remainingDays &gt; 180) {</span>
+<span class="nc" id="L104">            factors.add(new RiskFactor(&quot;LONG_DURATION&quot;, &quot;Long remaining duration increases uncertainty&quot;,</span>
+                    remainingDays + &quot; days remaining&quot;));
+        }
+
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        String summary = totalPredictedDelay == 0</span>
+<span class="nc" id="L109">                ? &quot;Project is on track. No significant delays predicted.&quot;</span>
+<span class="nc" id="L110">                : &quot;Predicted total delay: &quot; + totalPredictedDelay + &quot; days (&quot; + scheduleDelayDays + &quot; schedule + &quot; + weatherDelayDays + &quot; weather)&quot;;</span>
+
+<span class="nc" id="L112">        return new DelayForecast(totalPredictedDelay, (int) remainingDays, spi, riskLevel, factors, summary);</span>
+    }
+
+<span class="nc" id="L115">    public record DelayForecast(int predictedDelayDays, int remainingDays, BigDecimal spi,</span>
+                                String riskLevel, List&lt;RiskFactor&gt; riskFactors, String summary) {}
+<span class="nc" id="L117">    public record RiskFactor(String type, String description, String impact) {}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

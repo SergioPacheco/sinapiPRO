@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SupplierResponse.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sinapipro-api</a> &gt; <a href="index.source.html" class="el_package">com.sinapipro.api.supplier.api</a> &gt; <span class="el_source">SupplierResponse.java</span></div><h1>SupplierResponse.java</h1><pre class="source lang-java linenums">package com.sinapipro.api.supplier.api;
+
+import com.sinapipro.api.supplier.domain.Supplier;
+
+import java.time.Instant;
+import java.util.UUID;
+
+<span class="nc" id="L8">public record SupplierResponse(</span>
+        UUID id,
+        String code,
+        String name,
+        String tradeName,
+        String taxId,
+        String email,
+        String phone,
+        Integer rating,
+        Boolean active,
+        Instant createdAt,
+        Instant updatedAt
+) {
+    public static SupplierResponse from(Supplier supplier) {
+<span class="nc" id="L22">        return new SupplierResponse(</span>
+<span class="nc" id="L23">                supplier.getId(), supplier.getCode(), supplier.getName(), supplier.getTradeName(),</span>
+<span class="nc" id="L24">                supplier.getTaxId(), supplier.getEmail(), supplier.getPhone(),</span>
+<span class="nc" id="L25">                supplier.getRating(), supplier.getActive(), supplier.getCreatedAt(), supplier.getUpdatedAt());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

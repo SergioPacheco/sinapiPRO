@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,8 +39,11 @@ import br.edu.ifrn.sinapiPRO.repository.DiarioObraRepository;
 @Service
 public class AvancoFisicoService {
 
-    @Autowired
-    private DiarioObraRepository diarioRepository;
+    private final DiarioObraRepository diarioRepository;
+
+    public AvancoFisicoService(DiarioObraRepository diarioRepository) {
+        this.diarioRepository = diarioRepository;
+    }
 
     /**
      * Gera relatório de avanço físico por serviço para uma obra.

@@ -8,7 +8,6 @@ import org.hibernate.Session;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -24,13 +23,16 @@ public class EstadosRepositoryImpl implements EstadosRepositoryQueries {
 	@PersistenceContext
 	private EntityManager manager;
 	
-	@Autowired
-	private PaginacaoUtil paginacaoUtil;
+	private final PaginacaoUtil paginacaoUtil;
+
+	public EstadosRepositoryImpl(PaginacaoUtil paginacaoUtil) {
+		this.paginacaoUtil = paginacaoUtil;
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly = true)
-	public Page<Estado> filtra(EstadoFilter filtro, Pageable pageable) {
+	public Page<Estado> filtrar(EstadoFilter filtro, Pageable pageable) {
 		@SuppressWarnings("deprecation")
 		Criteria criteria = manager.unwrap(Session.class).createCriteria(Estado.class);
 		

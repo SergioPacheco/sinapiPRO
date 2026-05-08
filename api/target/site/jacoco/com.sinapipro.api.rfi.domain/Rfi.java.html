@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Rfi.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sinapipro-api</a> &gt; <a href="index.source.html" class="el_package">com.sinapipro.api.rfi.domain</a> &gt; <span class="el_source">Rfi.java</span></div><h1>Rfi.java</h1><pre class="source lang-java linenums">package com.sinapipro.api.rfi.domain;
+
+import com.sinapipro.api.shared.domain.AuditableEntity;
+import jakarta.persistence.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.UUID;
+
+@Entity
+@Table(name = &quot;rfi&quot;, uniqueConstraints = @UniqueConstraint(columnNames = {&quot;budget_id&quot;, &quot;number&quot;}))
+public class Rfi extends AuditableEntity {
+
+    @Column(name = &quot;budget_id&quot;, nullable = false)
+    private UUID budgetId;
+
+    @Column(nullable = false)
+    private Integer number;
+
+    @Column(nullable = false, length = 300)
+    private String subject;
+
+    @Column(nullable = false, columnDefinition = &quot;text&quot;)
+    private String question;
+
+    @Column(columnDefinition = &quot;text&quot;)
+    private String answer;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private RfiStatus status;
+
+    @Column(nullable = false, length = 20)
+    private String priority;
+
+    @Column(name = &quot;assigned_to&quot;, length = 140)
+    private String assignedTo;
+
+    @Column(name = &quot;created_by&quot;, length = 140)
+    private String createdBy;
+
+    @Column(name = &quot;due_date&quot;)
+    private LocalDate dueDate;
+
+    @Column(name = &quot;answered_at&quot;)
+    private Instant answeredAt;
+
+<span class="nc" id="L47">    protected Rfi() {}</span>
+
+    public Rfi(UUID budgetId, Integer number, String subject, String question,
+<span class="nc" id="L50">               String priority, String assignedTo, String createdBy, LocalDate dueDate) {</span>
+<span class="nc" id="L51">        this.budgetId = budgetId;</span>
+<span class="nc" id="L52">        this.number = number;</span>
+<span class="nc" id="L53">        this.subject = subject;</span>
+<span class="nc" id="L54">        this.question = question;</span>
+<span class="nc" id="L55">        this.priority = priority;</span>
+<span class="nc" id="L56">        this.assignedTo = assignedTo;</span>
+<span class="nc" id="L57">        this.createdBy = createdBy;</span>
+<span class="nc" id="L58">        this.dueDate = dueDate;</span>
+<span class="nc" id="L59">        this.status = RfiStatus.OPEN;</span>
+<span class="nc" id="L60">    }</span>
+
+<span class="nc" id="L62">    public UUID getBudgetId() { return budgetId; }</span>
+<span class="nc" id="L63">    public Integer getNumber() { return number; }</span>
+<span class="nc" id="L64">    public String getSubject() { return subject; }</span>
+<span class="nc" id="L65">    public String getQuestion() { return question; }</span>
+<span class="nc" id="L66">    public String getAnswer() { return answer; }</span>
+<span class="nc" id="L67">    public RfiStatus getStatus() { return status; }</span>
+<span class="nc" id="L68">    public String getPriority() { return priority; }</span>
+<span class="nc" id="L69">    public String getAssignedTo() { return assignedTo; }</span>
+<span class="nc" id="L70">    public String getCreatedBy() { return createdBy; }</span>
+<span class="nc" id="L71">    public LocalDate getDueDate() { return dueDate; }</span>
+<span class="nc" id="L72">    public Instant getAnsweredAt() { return answeredAt; }</span>
+
+    public void respond(String answer) {
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (this.status != RfiStatus.OPEN) throw new IllegalStateException(&quot;Can only answer OPEN RFIs&quot;);</span>
+<span class="nc" id="L76">        this.answer = answer;</span>
+<span class="nc" id="L77">        this.status = RfiStatus.ANSWERED;</span>
+<span class="nc" id="L78">        this.answeredAt = Instant.now();</span>
+<span class="nc" id="L79">    }</span>
+
+    public void close() {
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        if (this.status != RfiStatus.ANSWERED) throw new IllegalStateException(&quot;Can only close ANSWERED RFIs&quot;);</span>
+<span class="nc" id="L83">        this.status = RfiStatus.CLOSED;</span>
+<span class="nc" id="L84">    }</span>
+
+    public boolean isOverdue() {
+<span class="nc bnc" id="L87" title="All 6 branches missed.">        return status == RfiStatus.OPEN &amp;&amp; dueDate != null &amp;&amp; LocalDate.now().isAfter(dueDate);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

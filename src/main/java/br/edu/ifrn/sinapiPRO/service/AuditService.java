@@ -2,7 +2,6 @@ package br.edu.ifrn.sinapiPRO.service;
 
 import java.time.LocalDateTime;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -15,8 +14,11 @@ import br.edu.ifrn.sinapiPRO.repository.AuditLogRepository;
 @Service
 public class AuditService {
 
-	@Autowired
-	private AuditLogRepository auditLogRepository;
+	private final AuditLogRepository auditLogRepository;
+
+	public AuditService(AuditLogRepository auditLogRepository) {
+		this.auditLogRepository = auditLogRepository;
+	}
 
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void registrar(String entidade, Long codigoEntidade, String acao, String detalhes) {

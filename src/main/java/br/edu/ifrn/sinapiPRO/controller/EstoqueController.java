@@ -1,6 +1,6 @@
 package br.edu.ifrn.sinapiPRO.controller;
 import javax.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -12,12 +12,20 @@ import br.edu.ifrn.sinapiPRO.service.EstoqueService;
 @Controller
 @RequestMapping("/estoque")
 public class EstoqueController {
-	@Autowired
-	private EstoqueService service;
-	@Autowired
-	private ObrasRepository obraRepository;
-	@Autowired
-	private InsumosRepository insumoRepository;
+
+	private final EstoqueService service;
+	private final ObrasRepository obraRepository;
+	private final InsumosRepository insumoRepository;
+
+	public EstoqueController(
+			EstoqueService service,
+			ObrasRepository obraRepository,
+			InsumosRepository insumoRepository) {
+		this.service = service;
+		this.obraRepository = obraRepository;
+		this.insumoRepository = insumoRepository;
+	}
+
 	@GetMapping
 	public ModelAndView lista(@RequestParam(required=false) Long codigoObra) {
 		ModelAndView mv = new ModelAndView("estoque/ListaEstoque");

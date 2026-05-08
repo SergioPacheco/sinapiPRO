@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CompositionController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sinapipro-api</a> &gt; <a href="index.source.html" class="el_package">com.sinapipro.api.sinapi.api</a> &gt; <span class="el_source">CompositionController.java</span></div><h1>CompositionController.java</h1><pre class="source lang-java linenums">package com.sinapipro.api.sinapi.api;
+
+import com.sinapipro.api.shared.api.PageResponse;
+import com.sinapipro.api.shared.error.DomainNotFoundException;
+import com.sinapipro.api.sinapi.application.CompositionCostResult;
+import com.sinapipro.api.sinapi.application.CompositionCostService;
+import com.sinapipro.api.sinapi.application.SinapiImportService;
+import com.sinapipro.api.sinapi.domain.Composition;
+import com.sinapipro.api.sinapi.domain.CompositionRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.UUID;
+
+@Tag(name = &quot;Compositions&quot;, description = &quot;SINAPI composition catalog&quot;)
+@RestController
+@RequestMapping(&quot;/api/v1/compositions&quot;)
+@PreAuthorize(&quot;hasAuthority('SCOPE_sinapipro.read')&quot;)
+public class CompositionController {
+
+    private final CompositionRepository repository;
+    private final CompositionCostService costService;
+    private final SinapiImportService importService;
+
+    public CompositionController(CompositionRepository repository, CompositionCostService costService,
+<span class="nc" id="L35">                                 SinapiImportService importService) {</span>
+<span class="nc" id="L36">        this.repository = repository;</span>
+<span class="nc" id="L37">        this.costService = costService;</span>
+<span class="nc" id="L38">        this.importService = importService;</span>
+<span class="nc" id="L39">    }</span>
+
+    @Operation(summary = &quot;List compositions with optional group filter&quot;)
+    @GetMapping
+    PageResponse&lt;CompositionResponse&gt; list(@RequestParam(required = false) String groupName,
+                                           @PageableDefault(size = 20) Pageable pageable) {
+<span class="nc" id="L45">        return PageResponse.from(repository.findFiltered(groupName, pageable).map(CompositionResponse::from));</span>
+    }
+
+    @Operation(summary = &quot;Full-text search compositions by code or description&quot;)
+    @GetMapping(&quot;/search&quot;)
+    PageResponse&lt;CompositionResponse&gt; search(@RequestParam String q,
+                                             @PageableDefault(size = 20) Pageable pageable) {
+<span class="nc" id="L52">        return PageResponse.from(repository.fullTextSearch(q, pageable).map(CompositionResponse::from));</span>
+    }
+
+    @Operation(summary = &quot;Get composition by ID with items&quot;)
+    @GetMapping(&quot;/{id}&quot;)
+    CompositionResponse findById(@PathVariable UUID id) {
+<span class="nc" id="L58">        Composition c = repository.findById(id)</span>
+<span class="nc" id="L59">                .orElseThrow(() -&gt; new DomainNotFoundException(&quot;Composition not found: &quot; + id));</span>
+<span class="nc" id="L60">        return CompositionResponse.from(c);</span>
+    }
+
+    @Operation(summary = &quot;Calculate unit cost for a composition by state and reference month&quot;)
+    @GetMapping(&quot;/{id}/cost&quot;)
+    CompositionCostResult calculateCost(@PathVariable UUID id,
+                                        @RequestParam String state,
+                                        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate month) {
+<span class="nc" id="L68">        return costService.calculateCost(id, state, month);</span>
+    }
+
+    @Operation(summary = &quot;Import materials with prices from CSV&quot;)
+    @PostMapping(value = &quot;/import/materials&quot;, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize(&quot;hasAuthority('SCOPE_sinapipro.write')&quot;)
+    SinapiImportService.ImportResult importMaterials(@RequestParam(&quot;file&quot;) MultipartFile file,
+                                                     @RequestParam(defaultValue = &quot;;&quot;) String separator) throws IOException {
+<span class="nc" id="L76">        return importService.importMaterials(file.getInputStream(), separator);</span>
+    }
+
+    @Operation(summary = &quot;Import compositions from CSV&quot;)
+    @PostMapping(value = &quot;/import/compositions&quot;, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize(&quot;hasAuthority('SCOPE_sinapipro.write')&quot;)
+    SinapiImportService.ImportResult importCompositions(@RequestParam(&quot;file&quot;) MultipartFile file,
+                                                        @RequestParam(defaultValue = &quot;;&quot;) String separator) throws IOException {
+<span class="nc" id="L84">        return importService.importCompositions(file.getInputStream(), separator);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

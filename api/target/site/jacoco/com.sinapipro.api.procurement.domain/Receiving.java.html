@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Receiving.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sinapipro-api</a> &gt; <a href="index.source.html" class="el_package">com.sinapipro.api.procurement.domain</a> &gt; <span class="el_source">Receiving.java</span></div><h1>Receiving.java</h1><pre class="source lang-java linenums">package com.sinapipro.api.procurement.domain;
+
+import jakarta.persistence.*;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.UUID;
+
+@Entity
+@Table(name = &quot;receiving&quot;)
+public class Receiving {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;purchase_order_id&quot;, nullable = false)
+    private PurchaseOrder purchaseOrder;
+
+    @Column(name = &quot;quantity_received&quot;, nullable = false, precision = 14, scale = 4)
+    private BigDecimal quantityReceived;
+
+    @Column(name = &quot;received_at&quot;, nullable = false)
+    private LocalDate receivedAt;
+
+    @Column(length = 300)
+    private String notes;
+
+    @Column(name = &quot;created_at&quot;, nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @PrePersist
+<span class="nc" id="L35">    void prePersist() { createdAt = Instant.now(); }</span>
+
+<span class="nc" id="L37">    protected Receiving() {}</span>
+
+<span class="fc" id="L39">    public Receiving(PurchaseOrder purchaseOrder, BigDecimal quantityReceived, LocalDate receivedAt, String notes) {</span>
+<span class="fc" id="L40">        this.purchaseOrder = purchaseOrder;</span>
+<span class="fc" id="L41">        this.quantityReceived = quantityReceived;</span>
+<span class="fc" id="L42">        this.receivedAt = receivedAt;</span>
+<span class="fc" id="L43">        this.notes = notes;</span>
+<span class="fc" id="L44">    }</span>
+
+<span class="nc" id="L46">    public UUID getId() { return id; }</span>
+<span class="nc" id="L47">    public PurchaseOrder getPurchaseOrder() { return purchaseOrder; }</span>
+<span class="fc" id="L48">    public BigDecimal getQuantityReceived() { return quantityReceived; }</span>
+<span class="nc" id="L49">    public LocalDate getReceivedAt() { return receivedAt; }</span>
+<span class="nc" id="L50">    public String getNotes() { return notes; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

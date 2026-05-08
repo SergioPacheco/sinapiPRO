@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import javax.persistence.PersistenceException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,8 +23,11 @@ import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeExceptio
 @Service
 public class InsumoService {
 
-	@Autowired
-	private InsumosRepository insumosRepository;
+	private final InsumosRepository insumosRepository;
+
+	public InsumoService(InsumosRepository insumosRepository) {
+		this.insumosRepository = insumosRepository;
+	}
 	
 	@Transactional
 	public Insumo salvar(Insumo insumo) {

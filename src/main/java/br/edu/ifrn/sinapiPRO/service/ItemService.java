@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.persistence.PersistenceException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,8 +19,11 @@ import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeExceptio
 @Service
 public class ItemService {
 	
-	@Autowired
-	private ItemRepository itemRepository;
+	private final ItemRepository itemRepository;
+
+	public ItemService(ItemRepository itemRepository) {
+		this.itemRepository = itemRepository;
+	}
 	
 	@Transactional 
 	public Item salvar(Item item){

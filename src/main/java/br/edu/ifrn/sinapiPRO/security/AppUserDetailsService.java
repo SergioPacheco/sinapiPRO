@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,8 +19,11 @@ import br.edu.ifrn.sinapiPRO.repository.UsuariosRepository;
 @Service
 public class AppUserDetailsService implements UserDetailsService {
 
-	@Autowired
-	private UsuariosRepository usuariosRepository;
+	private final UsuariosRepository usuariosRepository;
+
+	public AppUserDetailsService(UsuariosRepository usuariosRepository) {
+		this.usuariosRepository = usuariosRepository;
+	}
 	
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {

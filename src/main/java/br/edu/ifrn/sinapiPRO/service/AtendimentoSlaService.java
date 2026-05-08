@@ -6,7 +6,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,11 +53,15 @@ public class AtendimentoSlaService {
         ESCALACAO.put("URGENTE", "URGENTE"); // já no máximo
     }
 
-    @Autowired
-    private AtendimentosRepository atendimentoRepository;
+    private final AtendimentosRepository atendimentoRepository;
+    private final NotificacoesRepository notificacaoRepository;
 
-    @Autowired
-    private NotificacoesRepository notificacaoRepository;
+    public AtendimentoSlaService(
+            AtendimentosRepository atendimentoRepository,
+            NotificacoesRepository notificacaoRepository) {
+        this.atendimentoRepository = atendimentoRepository;
+        this.notificacaoRepository = notificacaoRepository;
+    }
 
     /**
      * Calcula a data limite de resolução baseada na prioridade e data de abertura.

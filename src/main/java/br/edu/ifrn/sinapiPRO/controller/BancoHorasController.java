@@ -1,12 +1,13 @@
 package br.edu.ifrn.sinapiPRO.controller;
 
 import javax.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import br.edu.ifrn.sinapiPRO.model.MovimentacaoHora;
 import br.edu.ifrn.sinapiPRO.service.BancoHorasService;
 import br.edu.ifrn.sinapiPRO.service.CadastroFuncionarioService;
@@ -16,14 +17,18 @@ import br.edu.ifrn.sinapiPRO.service.CompetenciaService;
 @RequestMapping("/bancoHoras")
 public class BancoHorasController {
 
-    @Autowired
-    private BancoHorasService service;
+    private final BancoHorasService service;
+    private final CompetenciaService competenciaService;
+    private final CadastroFuncionarioService funcionarioService;
 
-    @Autowired
-    private CompetenciaService competenciaService;
-
-    @Autowired
-    private CadastroFuncionarioService funcionarioService;
+    public BancoHorasController(
+            BancoHorasService service,
+            CompetenciaService competenciaService,
+            CadastroFuncionarioService funcionarioService) {
+        this.service = service;
+        this.competenciaService = competenciaService;
+        this.funcionarioService = funcionarioService;
+    }
 
     @GetMapping
     public ModelAndView lista(@RequestParam(required = false) Long codigoCompetencia) {

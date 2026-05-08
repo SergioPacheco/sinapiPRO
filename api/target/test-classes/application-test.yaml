@@ -1,0 +1,14 @@
+spring:
+  docker:
+    compose:
+      enabled: false
+  datasource:
+    url: jdbc:tc:postgresql:17.5:///sinapipro_test
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+logging:
+  level:
+    root: WARN
+    com.sinapipro: INFO

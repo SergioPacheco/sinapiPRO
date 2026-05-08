@@ -1,65 +1,73 @@
 package br.edu.ifrn.sinapiPRO.controller;
 
 import javax.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import br.edu.ifrn.sinapiPRO.controller.support.AbstractCrudListController;
 import br.edu.ifrn.sinapiPRO.model.Boleto;
 import br.edu.ifrn.sinapiPRO.service.BoletoService;
 import br.edu.ifrn.sinapiPRO.service.ReceitaService;
-import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
 
 @Controller
 @RequestMapping("/boletos")
-public class BoletosController {
+public class BoletosController extends AbstractCrudListController<Boleto> {
 
-    @Autowired
-    private BoletoService service;
+	private final ReceitaService receitaService;
 
-    @Autowired
-    private ReceitaService receitaService;
+	public BoletosController(BoletoService service, ReceitaService receitaService) {
+		super(service, "boleto/FormBoleto", "boleto/ListaBoletos", "/boletos", "Boleto salvo!", "descricao", "boletos");
+		this.receitaService = receitaService;
+	}
 
-    @GetMapping
-    public ModelAndView lista() {
-        ModelAndView mv = new ModelAndView("boleto/ListaBoletos");
-        mv.addObject("boletos", service.findAll());
-        return mv;
-    }
+	@Override
+	protected void adicionarObjetosFormulario(ModelAndView modelAndView) {
+		modelAndView.addObject("receitas", receitaService.findAll());
+	}
 
-    @GetMapping("/novo")
-    public ModelAndView novo(Boleto boleto) {
-        ModelAndView mv = new ModelAndView("boleto/FormBoleto");
-        mv.addObject("boleto", boleto);
-        mv.addObject("receitas", receitaService.findAll());
-        return mv;
-    }
+	@GetMapping
+	public ModelAndView lista() {
+		return processarListagem();
+	}
 
-    @PostMapping({"/novo", "/{codigo}"})
-    public ModelAndView salvar(@Valid Boleto boleto, BindingResult result, RedirectAttributes attributes) {
-        if (result.hasErrors()) return novo(boleto);
-        service.salvar(boleto);
-        attributes.addFlashAttribute("mensagem", "Boleto salvo!");
-        return new ModelAndView("redirect:/boletos");
-    }
+	@GetMapping("/novo")
+	public ModelAndView novo(Boleto boleto) {
+		return abrirFormulario();
+	}
 
-    @PostMapping("/{codigo}/cancelar")
-    public ModelAndView cancelar(@PathVariable Long codigo, RedirectAttributes attributes) {
-        service.cancelar(codigo);
-        attributes.addFlashAttribute("mensagem", "Boleto cancelado!");
-        return new ModelAndView("redirect:/boletos");
-    }
+	@PostMapping({"/novo", "/{codigo}"})
+	public ModelAndView salvar(@Valid Boleto boleto, BindingResult result, RedirectAttributes attributes) {
+		return processarCadastro(boleto, result, attributes);
+	}
 
-    @DeleteMapping("/{codigo}")
-    public @ResponseBody ResponseEntity<?> excluir(@PathVariable Long codigo) {
-        try {
-            service.excluir(codigo);
-        } catch (ImpossivelExcluirEntidadeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-        return ResponseEntity.ok().build();
-    }
+	@GetMapping("/{codigo}")
+	public ModelAndView editar(@PathVariable Long codigo) {
+		return carregarEdicao(codigo);
+	}
+
+	@PostMapping("/{codigo}/cancelar")
+	public ModelAndView cancelar(@PathVariable Long codigo, RedirectAttributes attributes) {
+		getService().cancelar(codigo);
+		attributes.addFlashAttribute("mensagem", "Boleto cancelado!");
+		return new ModelAndView("redirect:/boletos");
+	}
+
+	@DeleteMapping("/{codigo}")
+	public @ResponseBody ResponseEntity<?> excluir(@PathVariable Long codigo) {
+		return excluirPorCodigo(codigo);
+	}
+
+	private BoletoService getService() {
+		return (BoletoService) serviceRef();
+	}
 }

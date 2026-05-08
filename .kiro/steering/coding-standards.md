@@ -1,6 +1,7 @@
 ---
-description: Coding standards — error handling, commits, feedback loops, quality rules
 inclusion: auto
+name: coding-standards
+description: Coding standards and feedback loops. Use when writing, reviewing, or committing code.
 ---
 
 # Coding Standards Steering

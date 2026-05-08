@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,11 +34,13 @@ import br.edu.ifrn.sinapiPRO.repository.PedidosCompraRepository;
 @Service
 public class AnaliseCotacaoService {
 
-    @Autowired
-    private CotacoesRepository cotacaoRepository;
+    private final CotacoesRepository cotacaoRepository;
+    private final PedidosCompraRepository pedidoRepository;
 
-    @Autowired
-    private PedidosCompraRepository pedidoRepository;
+    public AnaliseCotacaoService(CotacoesRepository cotacaoRepository, PedidosCompraRepository pedidoRepository) {
+        this.cotacaoRepository = cotacaoRepository;
+        this.pedidoRepository = pedidoRepository;
+    }
 
     /**
      * Retorna análise comparativa: para cada item, lista as respostas ordenadas por preço.

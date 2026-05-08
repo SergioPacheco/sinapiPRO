@@ -3,7 +3,6 @@ package br.edu.ifrn.sinapiPRO.controller;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -18,70 +17,52 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import br.edu.ifrn.sinapiPRO.controller.page.PageWrapper;
+import br.edu.ifrn.sinapiPRO.controller.support.AbstractCrudPageController;
 import br.edu.ifrn.sinapiPRO.model.Tributo;
 import br.edu.ifrn.sinapiPRO.repository.filter.TributoFilter;
 import br.edu.ifrn.sinapiPRO.service.EstadoService;
 import br.edu.ifrn.sinapiPRO.service.TributoService;
-import br.edu.ifrn.sinapiPRO.service.exception.JaCadastradoException;
-import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
 
 @Controller
 @RequestMapping("/tributos")
-public class TributosController {
+public class TributosController extends AbstractCrudPageController<Tributo, TributoFilter> {
 
-	@Autowired
-	private TributoService service;
+	private final EstadoService estadoService;
 
-	@Autowired
-	private EstadoService estadoService;
+	public TributosController(TributoService service, EstadoService estadoService) {
+		super(service, "tributo/CadastroTributo", "tributo/PesquisaTributos", "/tributos/novo", "Tributo salvo com sucesso!", "descricao");
+		this.estadoService = estadoService;
+	}
+
+	@Override
+	protected void adicionarObjetosFormulario(ModelAndView modelAndView) {
+		modelAndView.addObject("estados", estadoService.findAll());
+	}
 
 	@GetMapping("/novo")
 	public ModelAndView novo(Tributo tributo) {
-		ModelAndView mv = new ModelAndView("tributo/CadastroTributo");
-		mv.addObject("estados", estadoService.findAll());
-		return mv;
+		return abrirFormulario();
 	}
 
 	@PostMapping({ "/novo", "/{codigo}" })
 	public ModelAndView cadastrar(@Valid Tributo tributo, BindingResult result, RedirectAttributes attributes) {
-		if (result.hasErrors()) {
-			return novo(tributo);
-		}
-		try {
-			service.salvar(tributo);
-		} catch (JaCadastradoException e) {
-			result.rejectValue("descricao", e.getMessage(), e.getMessage());
-			return novo(tributo);
-		}
-		attributes.addFlashAttribute("mensagem", "Tributo salvo com sucesso!");
-		return new ModelAndView("redirect:/tributos/novo");
+		return processarCadastro(tributo, result, attributes);
 	}
 
 	@GetMapping
-	public ModelAndView pesquisar(TributoFilter filtro, BindingResult result,
+	public ModelAndView pesquisar(
+			TributoFilter filtro,
 			@PageableDefault(size = 25) Pageable pageable, HttpServletRequest request) {
-		ModelAndView mv = new ModelAndView("tributo/PesquisaTributos");
-		PageWrapper<Tributo> paginaWrapper = new PageWrapper<>(service.filtrar(filtro, pageable), request);
-		mv.addObject("pagina", paginaWrapper);
-		return mv;
+		return processarPesquisa(filtro, pageable, request);
 	}
 
 	@GetMapping("/{codigo}")
 	public ModelAndView editar(@PathVariable Long codigo) {
-		Tributo tributo = service.getOne(codigo);
-		ModelAndView mv = novo(tributo);
-		mv.addObject(tributo);
-		return mv;
+		return carregarEdicao(codigo);
 	}
 
 	@DeleteMapping("/{codigo}")
-	public @ResponseBody ResponseEntity<?> excluir(@PathVariable("codigo") Long codigo) {
-		try {
-			service.excluir(codigo);
-		} catch (ImpossivelExcluirEntidadeException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
-		return ResponseEntity.ok().build();
+	public @ResponseBody ResponseEntity<?> excluir(@PathVariable Long codigo) {
+		return excluirPorCodigo(codigo);
 	}
 }

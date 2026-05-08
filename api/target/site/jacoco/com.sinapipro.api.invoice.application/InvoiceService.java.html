@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InvoiceService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sinapipro-api</a> &gt; <a href="index.source.html" class="el_package">com.sinapipro.api.invoice.application</a> &gt; <span class="el_source">InvoiceService.java</span></div><h1>InvoiceService.java</h1><pre class="source lang-java linenums">package com.sinapipro.api.invoice.application;
+
+import com.sinapipro.api.budget.domain.Budget;
+import com.sinapipro.api.budget.domain.BudgetRepository;
+import com.sinapipro.api.invoice.api.CreateInvoiceRequest;
+import com.sinapipro.api.invoice.api.UpdateInvoiceRequest;
+import com.sinapipro.api.invoice.domain.Invoice;
+import com.sinapipro.api.invoice.domain.InvoiceRepository;
+import com.sinapipro.api.invoice.domain.InvoiceStatus;
+import com.sinapipro.api.shared.error.DomainNotFoundException;
+import com.sinapipro.api.shared.events.OperationEventPublisher;
+import com.sinapipro.api.shared.events.OperationEventType;
+import com.sinapipro.api.shared.observability.BusinessMetricsService;
+import com.sinapipro.api.shared.observability.BusinessObservationService;
+import com.sinapipro.api.supplier.domain.Supplier;
+import com.sinapipro.api.supplier.domain.SupplierRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
+
+@Service
+@Transactional(readOnly = true)
+public class InvoiceService {
+
+    private final InvoiceRepository invoiceRepository;
+    private final BudgetRepository budgetRepository;
+    private final SupplierRepository supplierRepository;
+    private final OperationEventPublisher eventPublisher;
+    private final BusinessMetricsService metricsService;
+    private final BusinessObservationService observationService;
+
+    public InvoiceService(InvoiceRepository invoiceRepository,
+                          BudgetRepository budgetRepository,
+                          SupplierRepository supplierRepository,
+                          OperationEventPublisher eventPublisher,
+                          BusinessMetricsService metricsService,
+<span class="nc" id="L40">                          BusinessObservationService observationService) {</span>
+<span class="nc" id="L41">        this.invoiceRepository = invoiceRepository;</span>
+<span class="nc" id="L42">        this.budgetRepository = budgetRepository;</span>
+<span class="nc" id="L43">        this.supplierRepository = supplierRepository;</span>
+<span class="nc" id="L44">        this.eventPublisher = eventPublisher;</span>
+<span class="nc" id="L45">        this.metricsService = metricsService;</span>
+<span class="nc" id="L46">        this.observationService = observationService;</span>
+<span class="nc" id="L47">    }</span>
+
+    public Page&lt;Invoice&gt; findAll(InvoiceStatus status, UUID budgetId, UUID supplierId, Pageable pageable) {
+<span class="nc" id="L50">        return observationService.observe(&quot;invoice.findAll&quot;, &quot;invoice&quot;,</span>
+<span class="nc" id="L51">                () -&gt; invoiceRepository.findFiltered(status, budgetId, supplierId, pageable));</span>
+    }
+
+    public Invoice findById(UUID id) {
+<span class="nc" id="L55">        return invoiceRepository.findById(id)</span>
+<span class="nc" id="L56">                .orElseThrow(() -&gt; new DomainNotFoundException(&quot;Invoice not found: &quot; + id));</span>
+    }
+
+    @Transactional
+    public Invoice create(CreateInvoiceRequest request) {
+<span class="nc" id="L61">        return observationService.observe(&quot;invoice.create&quot;, &quot;invoice&quot;, () -&gt; {</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">            if (invoiceRepository.existsByNumber(request.number())) {</span>
+<span class="nc" id="L63">                throw new IllegalArgumentException(&quot;Invoice number already exists: &quot; + request.number());</span>
+            }
+<span class="nc" id="L65">            Budget budget = budgetRepository.findById(request.budgetId())</span>
+<span class="nc" id="L66">                    .orElseThrow(() -&gt; new DomainNotFoundException(&quot;Budget not found: &quot; + request.budgetId()));</span>
+<span class="nc" id="L67">            Supplier supplier = supplierRepository.findById(request.supplierId())</span>
+<span class="nc" id="L68">                    .orElseThrow(() -&gt; new DomainNotFoundException(&quot;Supplier not found: &quot; + request.supplierId()));</span>
+
+<span class="nc" id="L70">            Invoice invoice = new Invoice(request.number(), budget, supplier, request.amount(),</span>
+<span class="nc" id="L71">                    request.issueDate(), request.dueDate(), request.status(), request.notes());</span>
+<span class="nc" id="L72">            Invoice saved = invoiceRepository.save(invoice);</span>
+<span class="nc" id="L73">            metricsService.record(&quot;invoice&quot;, OperationEventType.CREATED);</span>
+<span class="nc" id="L74">            eventPublisher.publish(&quot;invoice&quot;, OperationEventType.CREATED, saved.getId().toString(), &quot;Invoice created: &quot; + saved.getNumber());</span>
+<span class="nc" id="L75">            return saved;</span>
+        });
+    }
+
+    @Transactional
+    public Invoice update(UUID id, UpdateInvoiceRequest request) {
+<span class="nc" id="L81">        return observationService.observe(&quot;invoice.update&quot;, &quot;invoice&quot;, () -&gt; {</span>
+<span class="nc" id="L82">            Invoice invoice = findById(id);</span>
+<span class="nc" id="L83">            invoice.update(request.amount(), request.dueDate(), request.status(), request.notes());</span>
+<span class="nc" id="L84">            Invoice saved = invoiceRepository.save(invoice);</span>
+<span class="nc" id="L85">            metricsService.record(&quot;invoice&quot;, OperationEventType.UPDATED);</span>
+<span class="nc" id="L86">            eventPublisher.publish(&quot;invoice&quot;, OperationEventType.UPDATED, saved.getId().toString(), &quot;Invoice updated: &quot; + saved.getNumber());</span>
+<span class="nc" id="L87">            return saved;</span>
+        });
+    }
+
+    @Transactional
+    public void delete(UUID id) {
+<span class="nc" id="L93">        Invoice invoice = findById(id);</span>
+<span class="nc" id="L94">        invoiceRepository.delete(invoice);</span>
+<span class="nc" id="L95">        metricsService.record(&quot;invoice&quot;, OperationEventType.DELETED);</span>
+<span class="nc" id="L96">        eventPublisher.publish(&quot;invoice&quot;, OperationEventType.DELETED, id.toString(), &quot;Invoice deleted: &quot; + invoice.getNumber());</span>
+<span class="nc" id="L97">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

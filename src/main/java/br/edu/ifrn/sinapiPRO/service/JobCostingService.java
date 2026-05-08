@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,14 +44,18 @@ import br.edu.ifrn.sinapiPRO.repository.OrcamentosRepository;
 @Service
 public class JobCostingService {
 
-    @Autowired
-    private ObrasRepository obraRepository;
+    private final ObrasRepository obraRepository;
+    private final OrcamentosRepository orcamentoRepository;
+    private final DespesasRepository despesaRepository;
 
-    @Autowired
-    private OrcamentosRepository orcamentoRepository;
-
-    @Autowired
-    private DespesasRepository despesaRepository;
+    public JobCostingService(
+            ObrasRepository obraRepository,
+            OrcamentosRepository orcamentoRepository,
+            DespesasRepository despesaRepository) {
+        this.obraRepository = obraRepository;
+        this.orcamentoRepository = orcamentoRepository;
+        this.despesaRepository = despesaRepository;
+    }
 
     /**
      * Calcula o Job Costing completo de uma obra.

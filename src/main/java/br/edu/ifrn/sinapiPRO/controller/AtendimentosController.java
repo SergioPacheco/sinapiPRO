@@ -1,84 +1,103 @@
 package br.edu.ifrn.sinapiPRO.controller;
+
 import javax.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import br.edu.ifrn.sinapiPRO.controller.support.AbstractCrudListController;
 import br.edu.ifrn.sinapiPRO.model.Atendimento;
-import br.edu.ifrn.sinapiPRO.repository.*;
+import br.edu.ifrn.sinapiPRO.repository.ClientesRepository;
+import br.edu.ifrn.sinapiPRO.repository.ObrasRepository;
 import br.edu.ifrn.sinapiPRO.service.AtendimentoService;
-import br.edu.ifrn.sinapiPRO.service.exception.*;
-@Controller @RequestMapping("/atendimentos")
-public class AtendimentosController {
-@Autowired
-private AtendimentoService service;
-@Autowired
-private ClientesRepository clienteRepository;
-@Autowired
-private ObrasRepository obraRepository;
-@GetMapping
-public ModelAndView lista() {
-	ModelAndView mv = new ModelAndView("atendimento/ListaAtendimentos");
-	mv.addObject("atendimentos", service.findAll());
-	return mv;
-}
+import br.edu.ifrn.sinapiPRO.service.AtendimentoSlaService;
 
-@GetMapping("/novo") public ModelAndView novo(Atendimento a) {
-	return form(a);
-}
+@Controller
+@RequestMapping("/atendimentos")
+public class AtendimentosController extends AbstractCrudListController<Atendimento> {
 
-@GetMapping("/{codigo}") public ModelAndView editar(@PathVariable Long codigo) {
-	return form(service.getOne(codigo));
-}
+	private final AtendimentoSlaService slaService;
+	private final ClientesRepository clienteRepository;
+	private final ObrasRepository obraRepository;
 
-    @PostMapping({"/novo","/{codigo}"}) public ModelAndView salvar(@Valid Atendimento a, BindingResult r, RedirectAttributes attrs) {
-        if (r.hasErrors()) return form(a);
-service.salvar(a); attrs.addFlashAttribute("mensagem", "Atendimento salvo!"); return new ModelAndView("redirect:/atendimentos");
-}
-    @DeleteMapping("/{codigo}") public @ResponseBody ResponseEntity<?> excluir(@PathVariable Long codigo) {
-try {
-	service.excluir(codigo);
-} catch (ImpossivelExcluirEntidadeException e) {
-	return ResponseEntity.badRequest().body(e.getMessage());
-}
-return ResponseEntity.ok().build();
-}
-    private ModelAndView form(Atendimento a) {
-        ModelAndView mv = new ModelAndView("atendimento/FormAtendimento");
-mv.addObject("atendimento", a); mv.addObject("clientes", clienteRepository.findAll()); mv.addObject("obras", obraRepository.findAll()); return mv;
-}
+	public AtendimentosController(
+			AtendimentoService service,
+			ClientesRepository clienteRepository,
+			ObrasRepository obraRepository,
+			AtendimentoSlaService slaService) {
+		super(service, "atendimento/FormAtendimento", "atendimento/ListaAtendimentos", "/atendimentos", "Atendimento salvo!", "descricao", "atendimentos");
+		this.clienteRepository = clienteRepository;
+		this.obraRepository = obraRepository;
+		this.slaService = slaService;
+	}
 
-    @Autowired
-    private br.edu.ifrn.sinapiPRO.service.AtendimentoSlaService slaService;
+	@Override
+	protected void adicionarObjetosFormulario(ModelAndView modelAndView) {
+		modelAndView.addObject("clientes", clienteRepository.findAll());
+		modelAndView.addObject("obras", obraRepository.findAll());
+	}
 
-    @PostMapping("/{codigo}/encerrar")
-    public ModelAndView encerrar(@PathVariable Long codigo,
-            @RequestParam(required = false) String observacaoEncerramento,
-            org.springframework.web.servlet.mvc.support.RedirectAttributes attrs) {
-        try {
-            slaService.encerrar(codigo, observacaoEncerramento);
-            attrs.addFlashAttribute("mensagem", "Atendimento encerrado com sucesso!");
-        } catch (RuntimeException e) {
-            attrs.addFlashAttribute("erro", e.getMessage());
-        }
-        return new ModelAndView("redirect:/atendimentos");
-    }
+	@GetMapping
+	public ModelAndView lista() {
+		return processarListagem();
+	}
 
-    @PostMapping("/processarEscalacoes")
-    public ModelAndView processarEscalacoes(org.springframework.web.servlet.mvc.support.RedirectAttributes attrs) {
-        int count = slaService.processarEscalacoes();
-        attrs.addFlashAttribute("mensagem", count + " atendimento(s) escalado(s) por SLA vencido.");
-        return new ModelAndView("redirect:/atendimentos");
-    }
+	@GetMapping("/novo")
+	public ModelAndView novo(Atendimento atendimento) {
+		return abrirFormulario();
+	}
 
-    @GetMapping("/emRisco")
-    public ModelAndView emRisco() {
-        ModelAndView mv = new ModelAndView("atendimento/ListaAtendimentos");
-        mv.addObject("atendimentos", slaService.findAtendimentosEmRisco());
-        mv.addObject("titulo", "Atendimentos em Risco de SLA");
-        return mv;
-    }
+	@GetMapping("/{codigo}")
+	public ModelAndView editar(@PathVariable Long codigo) {
+		return carregarEdicao(codigo);
+	}
+
+	@PostMapping({"/novo", "/{codigo}"})
+	public ModelAndView salvar(@Valid Atendimento atendimento, BindingResult result, RedirectAttributes attrs) {
+		return processarCadastro(atendimento, result, attrs);
+	}
+
+	@DeleteMapping("/{codigo}")
+	public @ResponseBody ResponseEntity<?> excluir(@PathVariable Long codigo) {
+		return excluirPorCodigo(codigo);
+	}
+
+	@PostMapping("/{codigo}/encerrar")
+	public ModelAndView encerrar(
+			@PathVariable Long codigo,
+			@RequestParam(required = false) String observacaoEncerramento,
+			RedirectAttributes attrs) {
+		try {
+			slaService.encerrar(codigo, observacaoEncerramento);
+			attrs.addFlashAttribute("mensagem", "Atendimento encerrado com sucesso!");
+		} catch (RuntimeException e) {
+			attrs.addFlashAttribute("erro", e.getMessage());
+		}
+		return new ModelAndView("redirect:/atendimentos");
+	}
+
+	@PostMapping("/processarEscalacoes")
+	public ModelAndView processarEscalacoes(RedirectAttributes attrs) {
+		int count = slaService.processarEscalacoes();
+		attrs.addFlashAttribute("mensagem", count + " atendimento(s) escalado(s) por SLA vencido.");
+		return new ModelAndView("redirect:/atendimentos");
+	}
+
+	@GetMapping("/emRisco")
+	public ModelAndView emRisco() {
+		ModelAndView mv = new ModelAndView("atendimento/ListaAtendimentos");
+		mv.addObject("atendimentos", slaService.findAtendimentosEmRisco());
+		mv.addObject("titulo", "Atendimentos em Risco de SLA");
+		return mv;
+	}
 }

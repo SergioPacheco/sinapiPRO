@@ -1,33 +1,22 @@
 package br.edu.ifrn.sinapiPRO.service;
 
 import java.util.List;
-import javax.persistence.PersistenceException;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import br.edu.ifrn.sinapiPRO.model.PrestacaoContas;
 import br.edu.ifrn.sinapiPRO.repository.PrestacaoContasRepository;
-import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
+import br.edu.ifrn.sinapiPRO.service.support.AbstractSimpleCrudService;
 
 @Service
-public class PrestacaoContasService {
+public class PrestacaoContasService extends AbstractSimpleCrudService<PrestacaoContas, PrestacaoContasRepository> {
 
-    @Autowired
-    private PrestacaoContasRepository repository;
+    private final PrestacaoContasRepository repository;
 
-    @Transactional
-    public PrestacaoContas salvar(PrestacaoContas prestacao) {
-        return repository.saveAndFlush(prestacao);
-    }
-
-    @Transactional
-    public void excluir(Long codigo) {
-        try {
-            repository.deleteById(codigo);
-            repository.flush();
-        } catch (PersistenceException e) {
-            throw new ImpossivelExcluirEntidadeException("Impossível apagar o lançamento.");
-        }
+    public PrestacaoContasService(PrestacaoContasRepository repository) {
+        super(repository, "Impossível apagar o lançamento.", "Lançamento não encontrado.");
+        this.repository = repository;
     }
 
     @Transactional(readOnly = true)

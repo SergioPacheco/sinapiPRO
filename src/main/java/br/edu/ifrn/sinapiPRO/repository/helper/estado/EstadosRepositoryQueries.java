@@ -8,6 +8,6 @@ import br.edu.ifrn.sinapiPRO.repository.filter.EstadoFilter;
 
 public interface EstadosRepositoryQueries {
 	
-	public Page<Estado> filtra(EstadoFilter filtro, Pageable pageable);
+	public Page<Estado> filtrar(EstadoFilter filtro, Pageable pageable);
 	
 }

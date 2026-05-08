@@ -4,15 +4,17 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 @Component
 public class LocalDateTimeFormatter extends TemporalFormatter<LocalDateTime> {
 	
-	@Autowired
-	private Environment env;
+	private final Environment env;
+
+	public LocalDateTimeFormatter(Environment env) {
+		this.env = env;
+	}
 
 	@Override
 	public String pattern(Locale locale) {

@@ -2,15 +2,17 @@ package br.edu.ifrn.sinapiPRO.config.format;
 
 import java.util.Locale;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 @Component
 public class IntegerFormatter extends NumberFormatter<Integer> {
 	
-	@Autowired
-	private Environment env;
+	private final Environment env;
+
+	public IntegerFormatter(Environment env) {
+		this.env = env;
+	}
 
 	@Override
 	public String pattern(Locale locale) {

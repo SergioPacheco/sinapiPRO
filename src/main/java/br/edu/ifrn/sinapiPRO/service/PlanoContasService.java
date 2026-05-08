@@ -1,40 +1,24 @@
 package br.edu.ifrn.sinapiPRO.service;
+
 import java.util.List;
-import javax.persistence.PersistenceException;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
 import br.edu.ifrn.sinapiPRO.model.PlanoContas;
 import br.edu.ifrn.sinapiPRO.repository.PlanoContasRepository;
-import br.edu.ifrn.sinapiPRO.service.exception.*;
+import br.edu.ifrn.sinapiPRO.service.support.AbstractSimpleCrudService;
+
 @Service
-public class PlanoContasService {
-	@Autowired
-	private PlanoContasRepository repository;
-	@Transactional
-	public PlanoContas salvar(PlanoContas p) {
-		return repository.saveAndFlush(p);
-	}
+public class PlanoContasService extends AbstractSimpleCrudService<PlanoContas, PlanoContasRepository> {
 
-	@Transactional
-	public void excluir(Long c) {
-		try {
-			repository.deleteById(c);
-			repository.flush();
-		} catch (PersistenceException e) {
-			throw new ImpossivelExcluirEntidadeException("Impossível apagar. Possui sub-contas ou lançamentos.");
-		}
-	}
+	private final PlanoContasRepository repository;
 
-	public List<PlanoContas> findAll() {
-		return repository.findAll();
+	public PlanoContasService(PlanoContasRepository repository) {
+		super(repository, "Impossível apagar. Possui sub-contas ou lançamentos.", "Plano de contas não encontrado.");
+		this.repository = repository;
 	}
 
 	public List<PlanoContas> findRaizes() {
 		return repository.findByPaiIsNullOrderByNumeroAsc();
-	}
-
-	public PlanoContas getOne(Long c) {
-		return repository.getOne(c);
 	}
 }

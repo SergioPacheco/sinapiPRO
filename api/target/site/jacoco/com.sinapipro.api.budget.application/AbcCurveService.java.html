@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbcCurveService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sinapipro-api</a> &gt; <a href="index.source.html" class="el_package">com.sinapipro.api.budget.application</a> &gt; <span class="el_source">AbcCurveService.java</span></div><h1>AbcCurveService.java</h1><pre class="source lang-java linenums">package com.sinapipro.api.budget.application;
+
+import com.sinapipro.api.budget.domain.BudgetItem;
+import com.sinapipro.api.budget.domain.BudgetItemRepository;
+import com.sinapipro.api.sinapi.domain.CompositionItem;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Service
+@Transactional(readOnly = true)
+public class AbcCurveService {
+
+    private final BudgetItemRepository itemRepository;
+
+<span class="nc" id="L20">    public AbcCurveService(BudgetItemRepository itemRepository) {</span>
+<span class="nc" id="L21">        this.itemRepository = itemRepository;</span>
+<span class="nc" id="L22">    }</span>
+
+    public List&lt;AbcEntry&gt; calculateAbcCurve(UUID budgetId) {
+<span class="nc" id="L25">        List&lt;BudgetItem&gt; budgetItems = itemRepository.findAllByBudgetId(budgetId);</span>
+
+        // Aggregate cost by material across all compositions
+<span class="nc" id="L28">        Map&lt;String, MaterialAccumulator&gt; materialCosts = new HashMap&lt;&gt;();</span>
+
+<span class="nc bnc" id="L30" title="All 2 branches missed.">        for (BudgetItem bi : budgetItems) {</span>
+<span class="nc bnc" id="L31" title="All 2 branches missed.">            for (CompositionItem ci : bi.getComposition().getItems()) {</span>
+<span class="nc" id="L32">                String key = ci.getMaterial().getSinapiCode();</span>
+<span class="nc" id="L33">                materialCosts.computeIfAbsent(key, k -&gt; new MaterialAccumulator(</span>
+<span class="nc" id="L34">                        ci.getMaterial().getSinapiCode(),</span>
+<span class="nc" id="L35">                        ci.getMaterial().getDescription(),</span>
+<span class="nc" id="L36">                        ci.getMaterial().getUnit()</span>
+<span class="nc" id="L37">                )).addCost(bi.getQuantity().multiply(ci.getCoefficient()).multiply(bi.getUnitCost()));</span>
+<span class="nc" id="L38">            }</span>
+<span class="nc" id="L39">        }</span>
+
+<span class="nc" id="L41">        BigDecimal totalCost = materialCosts.values().stream()</span>
+<span class="nc" id="L42">                .map(MaterialAccumulator::totalCost)</span>
+<span class="nc" id="L43">                .reduce(BigDecimal.ZERO, BigDecimal::add);</span>
+
+<span class="nc bnc" id="L45" title="All 2 branches missed.">        if (totalCost.compareTo(BigDecimal.ZERO) == 0) return List.of();</span>
+
+        // Sort descending by cost, calculate cumulative %
+<span class="nc" id="L48">        List&lt;MaterialAccumulator&gt; sorted = materialCosts.values().stream()</span>
+<span class="nc" id="L49">                .sorted(Comparator.comparing(MaterialAccumulator::totalCost).reversed())</span>
+<span class="nc" id="L50">                .toList();</span>
+
+<span class="nc" id="L52">        List&lt;AbcEntry&gt; result = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L53">        BigDecimal cumulative = BigDecimal.ZERO;</span>
+
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        for (MaterialAccumulator ma : sorted) {</span>
+<span class="nc" id="L56">            BigDecimal pct = ma.totalCost().multiply(BigDecimal.valueOf(100)).divide(totalCost, 2, RoundingMode.HALF_UP);</span>
+<span class="nc" id="L57">            cumulative = cumulative.add(pct);</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">            String classification = cumulative.compareTo(BigDecimal.valueOf(80)) &lt;= 0 ? &quot;A&quot;</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">                    : cumulative.compareTo(BigDecimal.valueOf(95)) &lt;= 0 ? &quot;B&quot; : &quot;C&quot;;</span>
+<span class="nc" id="L60">            result.add(new AbcEntry(ma.code, ma.description, ma.unit, ma.totalCost(), pct, cumulative, classification));</span>
+<span class="nc" id="L61">        }</span>
+<span class="nc" id="L62">        return result;</span>
+    }
+
+<span class="nc" id="L65">    public record AbcEntry(String materialCode, String description, String unit,</span>
+                           BigDecimal cost, BigDecimal percentage, BigDecimal cumulativePercentage, String classification) {}
+
+    private static class MaterialAccumulator {
+        final String code;
+        final String description;
+        final String unit;
+<span class="nc" id="L72">        private BigDecimal cost = BigDecimal.ZERO;</span>
+
+<span class="nc" id="L74">        MaterialAccumulator(String code, String description, String unit) {</span>
+<span class="nc" id="L75">            this.code = code;</span>
+<span class="nc" id="L76">            this.description = description;</span>
+<span class="nc" id="L77">            this.unit = unit;</span>
+<span class="nc" id="L78">        }</span>
+
+<span class="nc" id="L80">        void addCost(BigDecimal amount) { cost = cost.add(amount); }</span>
+<span class="nc" id="L81">        BigDecimal totalCost() { return cost; }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

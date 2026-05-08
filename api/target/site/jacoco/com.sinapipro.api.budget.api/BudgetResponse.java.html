@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BudgetResponse.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sinapipro-api</a> &gt; <a href="index.source.html" class="el_package">com.sinapipro.api.budget.api</a> &gt; <span class="el_source">BudgetResponse.java</span></div><h1>BudgetResponse.java</h1><pre class="source lang-java linenums">package com.sinapipro.api.budget.api;
+
+import com.sinapipro.api.budget.domain.Budget;
+import com.sinapipro.api.budget.domain.BudgetStatus;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.Map;
+import java.util.UUID;
+
+<span class="nc" id="L12">public record BudgetResponse(</span>
+        UUID id,
+        String code,
+        String title,
+        String customerName,
+        BigDecimal totalAmount,
+        BudgetStatus status,
+        LocalDate startDate,
+        LocalDate endDate,
+        Map&lt;String, Object&gt; metadata,
+        Instant createdAt,
+        Instant updatedAt
+) {
+    public static BudgetResponse from(Budget budget) {
+<span class="nc" id="L26">        return new BudgetResponse(</span>
+<span class="nc" id="L27">                budget.getId(), budget.getCode(), budget.getTitle(), budget.getCustomerName(),</span>
+<span class="nc" id="L28">                budget.getTotalAmount(), budget.getStatus(), budget.getStartDate(), budget.getEndDate(),</span>
+<span class="nc" id="L29">                budget.getMetadata(), budget.getCreatedAt(), budget.getUpdatedAt());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

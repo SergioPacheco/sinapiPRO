@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,14 +28,18 @@ import br.edu.ifrn.sinapiPRO.repository.VendasRepository;
 @Service
 public class ValidacaoNegocioService {
 
-    @Autowired
-    private VendasRepository vendaRepository;
+    private final VendasRepository vendaRepository;
+    private final ContratosRepository contratoRepository;
+    private final MedicoesRepository medicaoRepository;
 
-    @Autowired
-    private ContratosRepository contratoRepository;
-
-    @Autowired
-    private MedicoesRepository medicaoRepository;
+    public ValidacaoNegocioService(
+            VendasRepository vendaRepository,
+            ContratosRepository contratoRepository,
+            MedicoesRepository medicaoRepository) {
+        this.vendaRepository = vendaRepository;
+        this.contratoRepository = contratoRepository;
+        this.medicaoRepository = medicaoRepository;
+    }
 
     /**
      * Valida se uma unidade pode ser vendida.

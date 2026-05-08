@@ -9,7 +9,6 @@ import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.sql.JoinType;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -25,8 +24,11 @@ public class OrcamentosRepositoryImpl implements OrcamentosRepositoryQueries {
 	@PersistenceContext
 	private EntityManager manager;
 	
-	@Autowired
-	private PaginacaoUtil paginacaoUtil;
+	private final PaginacaoUtil paginacaoUtil;
+
+	public OrcamentosRepositoryImpl(PaginacaoUtil paginacaoUtil) {
+		this.paginacaoUtil = paginacaoUtil;
+	}
 	
 	@SuppressWarnings("unchecked")
 	@Override

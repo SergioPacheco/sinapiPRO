@@ -9,7 +9,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,11 +22,13 @@ import br.edu.ifrn.sinapiPRO.repository.PlanejamentoItemRepository;
 @Service
 public class PlanejamentoService {
 
-	@Autowired
-	private PlanejamentoItemRepository repository;
+	private final PlanejamentoItemRepository repository;
+	private final OrcamentoService orcamentoService;
 
-	@Autowired
-	private OrcamentoService orcamentoService;
+	public PlanejamentoService(PlanejamentoItemRepository repository, OrcamentoService orcamentoService) {
+		this.repository = repository;
+		this.orcamentoService = orcamentoService;
+	}
 
 	@Transactional(readOnly = true)
 	public List<PlanejamentoItem> buscarPorOrcamento(Long codigoOrcamento) {

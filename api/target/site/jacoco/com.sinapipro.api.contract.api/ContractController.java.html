@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ContractController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sinapipro-api</a> &gt; <a href="index.source.html" class="el_package">com.sinapipro.api.contract.api</a> &gt; <span class="el_source">ContractController.java</span></div><h1>ContractController.java</h1><pre class="source lang-java linenums">package com.sinapipro.api.contract.api;
+
+import com.sinapipro.api.contract.application.ContractService;
+import com.sinapipro.api.contract.application.ContractService.ContractFinancialSummary;
+import com.sinapipro.api.contract.domain.*;
+import com.sinapipro.api.shared.api.PageResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
+import java.net.URI;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
+
+@Tag(name = &quot;Contracts&quot;, description = &quot;Contracts with change orders (aditivos)&quot;)
+@RestController
+@RequestMapping(&quot;/api/v1/budgets/{budgetId}/contracts&quot;)
+public class ContractController {
+
+    private final ContractService contractService;
+    private final ContractRepository contractRepository;
+
+<span class="nc" id="L34">    public ContractController(ContractService contractService, ContractRepository contractRepository) {</span>
+<span class="nc" id="L35">        this.contractService = contractService;</span>
+<span class="nc" id="L36">        this.contractRepository = contractRepository;</span>
+<span class="nc" id="L37">    }</span>
+
+    @Operation(summary = &quot;List contracts for a budget&quot;)
+    @GetMapping
+    @PreAuthorize(&quot;hasAuthority('SCOPE_sinapipro.read')&quot;)
+    PageResponse&lt;ContractResponse&gt; list(@PathVariable UUID budgetId, @PageableDefault(size = 20) Pageable pageable) {
+<span class="nc" id="L43">        return PageResponse.from(contractRepository.findByBudgetId(budgetId, pageable).map(ContractResponse::from));</span>
+    }
+
+    @Operation(summary = &quot;Create a contract&quot;)
+    @PostMapping
+    @PreAuthorize(&quot;hasAuthority('SCOPE_sinapipro.write')&quot;)
+    ResponseEntity&lt;ContractResponse&gt; create(@PathVariable UUID budgetId, @Valid @RequestBody CreateContractRequest req) {
+<span class="nc" id="L50">        Contract contract = contractService.create(budgetId, req.supplierId(), req.number(), req.description(),</span>
+<span class="nc" id="L51">                req.originalValue(), req.retentionPct(), req.startDate(), req.endDate());</span>
+<span class="nc" id="L52">        return ResponseEntity.created(URI.create(&quot;/api/v1/budgets/&quot; + budgetId + &quot;/contracts/&quot; + contract.getId()))</span>
+<span class="nc" id="L53">                .body(ContractResponse.from(contract));</span>
+    }
+
+    @Operation(summary = &quot;Activate a contract&quot;)
+    @PostMapping(&quot;/{contractId}/activate&quot;)
+    @PreAuthorize(&quot;hasAuthority('SCOPE_sinapipro.write')&quot;)
+    ContractResponse activate(@PathVariable UUID budgetId, @PathVariable UUID contractId) {
+<span class="nc" id="L60">        return ContractResponse.from(contractService.activate(contractId));</span>
+    }
+
+    @Operation(summary = &quot;Financial summary of a contract&quot;)
+    @GetMapping(&quot;/{contractId}/financial-summary&quot;)
+    @PreAuthorize(&quot;hasAuthority('SCOPE_sinapipro.read')&quot;)
+    ContractFinancialSummary financialSummary(@PathVariable UUID budgetId, @PathVariable UUID contractId) {
+<span class="nc" id="L67">        return contractService.financialSummary(contractId);</span>
+    }
+
+    @Operation(summary = &quot;Add a change order (aditivo)&quot;)
+    @PostMapping(&quot;/{contractId}/change-orders&quot;)
+    @PreAuthorize(&quot;hasAuthority('SCOPE_sinapipro.write')&quot;)
+    @ResponseStatus(HttpStatus.CREATED)
+    ChangeOrderResponse addChangeOrder(@PathVariable UUID budgetId, @PathVariable UUID contractId,
+                                       @Valid @RequestBody CreateChangeOrderRequest req) {
+<span class="nc" id="L76">        ChangeOrder co = contractService.addChangeOrder(contractId, req.number(), req.description(),</span>
+<span class="nc" id="L77">                req.amount(), req.justification());</span>
+<span class="nc" id="L78">        return ChangeOrderResponse.from(co);</span>
+    }
+
+    @Operation(summary = &quot;Approve a change order&quot;)
+    @PostMapping(&quot;/{contractId}/change-orders/{coId}/approve&quot;)
+    @PreAuthorize(&quot;hasAuthority('SCOPE_sinapipro.write')&quot;)
+    ChangeOrderResponse approveChangeOrder(@PathVariable UUID budgetId, @PathVariable UUID contractId,
+                                           @PathVariable UUID coId) {
+<span class="nc" id="L86">        return ChangeOrderResponse.from(contractService.approveChangeOrder(contractId, coId));</span>
+    }
+
+    @Operation(summary = &quot;Reject a change order&quot;)
+    @PostMapping(&quot;/{contractId}/change-orders/{coId}/reject&quot;)
+    @PreAuthorize(&quot;hasAuthority('SCOPE_sinapipro.write')&quot;)
+    ChangeOrderResponse rejectChangeOrder(@PathVariable UUID budgetId, @PathVariable UUID contractId,
+                                          @PathVariable UUID coId) {
+<span class="nc" id="L94">        return ChangeOrderResponse.from(contractService.rejectChangeOrder(contractId, coId));</span>
+    }
+
+    // --- DTOs ---
+<span class="nc" id="L98">    record CreateContractRequest(@NotBlank String number, @NotBlank String description, @NotNull UUID supplierId,</span>
+                                 @NotNull BigDecimal originalValue, @NotNull BigDecimal retentionPct,
+                                 @NotNull LocalDate startDate, LocalDate endDate) {}
+<span class="nc" id="L101">    record CreateChangeOrderRequest(@NotNull Integer number, @NotBlank String description,</span>
+                                    @NotNull BigDecimal amount, String justification) {}
+
+<span class="nc" id="L104">    record ContractResponse(UUID id, String number, String description, String supplierName,</span>
+                            BigDecimal originalValue, BigDecimal updatedValue, BigDecimal retentionPct,
+                            ContractStatus status, LocalDate startDate, LocalDate endDate, int changeOrderCount) {
+        static ContractResponse from(Contract c) {
+<span class="nc" id="L108">            return new ContractResponse(c.getId(), c.getNumber(), c.getDescription(), c.getSupplier().getName(),</span>
+<span class="nc" id="L109">                    c.getOriginalValue(), c.getUpdatedValue(), c.getRetentionPct(), c.getStatus(),</span>
+<span class="nc" id="L110">                    c.getStartDate(), c.getEndDate(), c.getChangeOrders().size());</span>
+        }
+    }
+
+<span class="nc" id="L114">    record ChangeOrderResponse(UUID id, Integer number, String description, BigDecimal amount,</span>
+                               ChangeOrderStatus status, Instant approvedAt) {
+        static ChangeOrderResponse from(ChangeOrder co) {
+<span class="nc" id="L117">            return new ChangeOrderResponse(co.getId(), co.getNumber(), co.getDescription(),</span>
+<span class="nc" id="L118">                    co.getAmount(), co.getStatus(), co.getApprovedAt());</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

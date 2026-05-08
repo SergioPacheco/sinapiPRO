@@ -2,7 +2,6 @@ package br.edu.ifrn.sinapiPRO.controller;
 
 import java.math.BigDecimal;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -14,11 +13,13 @@ import br.edu.ifrn.sinapiPRO.service.JobCostingService;
 @RequestMapping("/jobCosting")
 public class JobCostingController {
 
-    @Autowired
-    private JobCostingService service;
+    private final JobCostingService service;
+    private final ObrasRepository obraRepository;
 
-    @Autowired
-    private ObrasRepository obraRepository;
+    public JobCostingController(JobCostingService service, ObrasRepository obraRepository) {
+        this.service = service;
+        this.obraRepository = obraRepository;
+    }
 
     @GetMapping
     public ModelAndView selecionar() {

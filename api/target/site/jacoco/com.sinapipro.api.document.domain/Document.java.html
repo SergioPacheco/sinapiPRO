@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Document.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sinapipro-api</a> &gt; <a href="index.source.html" class="el_package">com.sinapipro.api.document.domain</a> &gt; <span class="el_source">Document.java</span></div><h1>Document.java</h1><pre class="source lang-java linenums">package com.sinapipro.api.document.domain;
+
+import jakarta.persistence.*;
+import java.time.Instant;
+import java.util.UUID;
+
+@Entity
+@Table(name = &quot;document&quot;)
+public class Document {
+
+    @Id @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @Column(name = &quot;budget_id&quot;)
+    private UUID budgetId;
+
+    @Column(name = &quot;entity_type&quot;, length = 40)
+    private String entityType;
+
+    @Column(name = &quot;entity_id&quot;)
+    private UUID entityId;
+
+    @Column(nullable = false, length = 300)
+    private String title;
+
+    @Column(name = &quot;file_name&quot;, nullable = false, length = 260)
+    private String fileName;
+
+    @Column(name = &quot;content_type&quot;, nullable = false, length = 100)
+    private String contentType;
+
+    @Column(name = &quot;file_size&quot;, nullable = false)
+    private Long fileSize;
+
+    @Column(name = &quot;storage_path&quot;, nullable = false, length = 500)
+    private String storagePath;
+
+    @Column(nullable = false)
+    private Integer version;
+
+    @Column(name = &quot;uploaded_by&quot;, length = 140)
+    private String uploadedBy;
+
+    @Column(name = &quot;created_at&quot;, nullable = false, updatable = false)
+    private Instant createdAt;
+
+<span class="nc" id="L47">    @PrePersist void prePersist() { createdAt = Instant.now(); }</span>
+
+<span class="nc" id="L49">    protected Document() {}</span>
+
+    public Document(UUID budgetId, String entityType, UUID entityId, String title,
+                    String fileName, String contentType, Long fileSize, String storagePath,
+<span class="nc" id="L53">                    Integer version, String uploadedBy) {</span>
+<span class="nc" id="L54">        this.budgetId = budgetId;</span>
+<span class="nc" id="L55">        this.entityType = entityType;</span>
+<span class="nc" id="L56">        this.entityId = entityId;</span>
+<span class="nc" id="L57">        this.title = title;</span>
+<span class="nc" id="L58">        this.fileName = fileName;</span>
+<span class="nc" id="L59">        this.contentType = contentType;</span>
+<span class="nc" id="L60">        this.fileSize = fileSize;</span>
+<span class="nc" id="L61">        this.storagePath = storagePath;</span>
+<span class="nc" id="L62">        this.version = version;</span>
+<span class="nc" id="L63">        this.uploadedBy = uploadedBy;</span>
+<span class="nc" id="L64">    }</span>
+
+<span class="nc" id="L66">    public UUID getId() { return id; }</span>
+<span class="nc" id="L67">    public UUID getBudgetId() { return budgetId; }</span>
+<span class="nc" id="L68">    public String getEntityType() { return entityType; }</span>
+<span class="nc" id="L69">    public UUID getEntityId() { return entityId; }</span>
+<span class="nc" id="L70">    public String getTitle() { return title; }</span>
+<span class="nc" id="L71">    public String getFileName() { return fileName; }</span>
+<span class="nc" id="L72">    public String getContentType() { return contentType; }</span>
+<span class="nc" id="L73">    public Long getFileSize() { return fileSize; }</span>
+<span class="nc" id="L74">    public String getStoragePath() { return storagePath; }</span>
+<span class="nc" id="L75">    public Integer getVersion() { return version; }</span>
+<span class="nc" id="L76">    public String getUploadedBy() { return uploadedBy; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

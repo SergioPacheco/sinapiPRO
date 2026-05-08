@@ -5,7 +5,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,11 +43,15 @@ public class AlertaManutencaoService {
     /** Dias de antecedência para alerta por data */
     private static final int DIAS_ANTECEDENCIA = 7;
 
-    @Autowired
-    private VeiculosRepository veiculoRepository;
+    private final VeiculosRepository veiculoRepository;
+    private final AgendamentosManutencaoRepository agendamentoRepository;
 
-    @Autowired
-    private AgendamentosManutencaoRepository agendamentoRepository;
+    public AlertaManutencaoService(
+            VeiculosRepository veiculoRepository,
+            AgendamentosManutencaoRepository agendamentoRepository) {
+        this.veiculoRepository = veiculoRepository;
+        this.agendamentoRepository = agendamentoRepository;
+    }
 
     /**
      * Retorna todos os alertas de manutenção ativos.

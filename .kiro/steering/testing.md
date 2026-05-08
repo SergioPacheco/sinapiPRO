@@ -1,6 +1,7 @@
 ---
-description: Testing strategy — what to test, how to test, coverage expectations
 inclusion: auto
+name: testing-standards
+description: Testing strategy and coverage expectations. Use when writing or reviewing tests.
 ---
 
 # Testing Steering

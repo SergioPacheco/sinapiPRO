@@ -2,10 +2,8 @@ package br.edu.ifrn.sinapiPRO.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDate;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +15,7 @@ import br.edu.ifrn.sinapiPRO.model.MedicaoItem;
 import br.edu.ifrn.sinapiPRO.repository.ContratosRepository;
 import br.edu.ifrn.sinapiPRO.repository.DespesasRepository;
 import br.edu.ifrn.sinapiPRO.repository.MedicoesRepository;
+import br.edu.ifrn.sinapiPRO.service.exception.ResourceNotFoundException;
 
 /**
  * Lógica de negócio para medições de contratos de construção civil.
@@ -49,14 +48,18 @@ public class MedicaoContratoService {
     /** Percentual de retenção padrão (5%) */
     private static final BigDecimal PERCENTUAL_RETENCAO_PADRAO = new BigDecimal("5.00");
 
-    @Autowired
-    private MedicoesRepository medicaoRepository;
+    private final MedicoesRepository medicaoRepository;
+    private final ContratosRepository contratoRepository;
+    private final DespesasRepository despesaRepository;
 
-    @Autowired
-    private ContratosRepository contratoRepository;
-
-    @Autowired
-    private DespesasRepository despesaRepository;
+    public MedicaoContratoService(
+            MedicoesRepository medicaoRepository,
+            ContratosRepository contratoRepository,
+            DespesasRepository despesaRepository) {
+        this.medicaoRepository = medicaoRepository;
+        this.contratoRepository = contratoRepository;
+        this.despesaRepository = despesaRepository;
+    }
 
     /**
      * Calcula o valor de cada item da medição com base no % executado.
@@ -66,8 +69,7 @@ public class MedicaoContratoService {
      */
     @Transactional
     public Medicao calcularMedicao(Medicao medicao) {
-        Contrato contrato = contratoRepository.findById(medicao.getContrato().getCodigo())
-                .orElseThrow(() -> new RuntimeException("Contrato não encontrado"));
+        buscarContrato(medicao.getContrato().getCodigo());
 
         BigDecimal totalMedido = BigDecimal.ZERO;
 
@@ -113,11 +115,11 @@ public class MedicaoContratoService {
      */
     @Transactional
     public Despesa aprovarMedicao(Long codigoMedicao, BigDecimal percentualRetencao) {
-        Medicao medicao = medicaoRepository.findById(codigoMedicao)
-                .orElseThrow(() -> new RuntimeException("Medição não encontrada"));
+        Medicao medicao = buscarMedicao(codigoMedicao);
 
         if (!"ABERTA".equals(medicao.getSituacao())) {
-            throw new RuntimeException("Apenas medições ABERTAS podem ser aprovadas. Situação atual: " + medicao.getSituacao());
+            throw new IllegalArgumentException(
+                    "Apenas medições ABERTAS podem ser aprovadas. Situação atual: " + medicao.getSituacao());
         }
 
         BigDecimal retencao = percentualRetencao != null ? percentualRetencao : PERCENTUAL_RETENCAO_PADRAO;
@@ -128,12 +130,7 @@ public class MedicaoContratoService {
 
         // Aprova a medição
         medicao.setSituacao("APROVADA");
-        if (medicao.getObservacao() == null) {
-            medicao.setObservacao("");
-        }
-        medicao.setObservacao(medicao.getObservacao()
-                + String.format(" | Retenção: %.2f%% = R$ %.2f | Líquido: R$ %.2f",
-                retencao, valorRetido, valorLiquido));
+        medicao.setObservacao(montarObservacaoRetencao(medicao, retencao, valorRetido, valorLiquido));
         medicaoRepository.saveAndFlush(medicao);
 
         // Gera despesa automaticamente
@@ -166,8 +163,7 @@ public class MedicaoContratoService {
      */
     @Transactional(readOnly = true)
     public BigDecimal calcularPercentualAcumulado(Long codigoContrato) {
-        Contrato contrato = contratoRepository.findById(codigoContrato)
-                .orElseThrow(() -> new RuntimeException("Contrato não encontrado"));
+        Contrato contrato = buscarContrato(codigoContrato);
 
         if (contrato.getValorTotal() == null || contrato.getValorTotal().signum() == 0) {
             return BigDecimal.ZERO;
@@ -189,8 +185,7 @@ public class MedicaoContratoService {
      */
     @Transactional(readOnly = true)
     public BigDecimal calcularSaldoDisponivel(Long codigoContrato) {
-        Contrato contrato = contratoRepository.findById(codigoContrato)
-                .orElseThrow(() -> new RuntimeException("Contrato não encontrado"));
+        Contrato contrato = buscarContrato(codigoContrato);
 
         List<Medicao> medicoes = medicaoRepository.findByContratoCodigoOrderByNumeroAsc(codigoContrato);
         BigDecimal totalMedido = medicoes.stream()
@@ -198,5 +193,28 @@ public class MedicaoContratoService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return contrato.getValorTotal().subtract(totalMedido);
+    }
+
+    private Medicao buscarMedicao(Long codigoMedicao) {
+        return medicaoRepository.findById(codigoMedicao)
+                .orElseThrow(() -> new ResourceNotFoundException("Medição não encontrada."));
+    }
+
+    private Contrato buscarContrato(Long codigoContrato) {
+        return contratoRepository.findById(codigoContrato)
+                .orElseThrow(() -> new ResourceNotFoundException("Contrato não encontrado."));
+    }
+
+    private String montarObservacaoRetencao(
+            Medicao medicao,
+            BigDecimal retencao,
+            BigDecimal valorRetido,
+            BigDecimal valorLiquido) {
+        String observacaoAtual = medicao.getObservacao() == null ? "" : medicao.getObservacao();
+        return observacaoAtual + String.format(
+                " | Retenção: %.2f%% = R$ %.2f | Líquido: R$ %.2f",
+                retencao,
+                valorRetido,
+                valorLiquido);
     }
 }

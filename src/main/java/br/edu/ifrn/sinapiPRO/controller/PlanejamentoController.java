@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,11 +31,13 @@ import br.edu.ifrn.sinapiPRO.service.PlanejamentoService;
 @RequestMapping("/planejamento")
 public class PlanejamentoController {
 
-	@Autowired
-	private PlanejamentoService planejamentoService;
+	private final PlanejamentoService planejamentoService;
+	private final OrcamentoService orcamentoService;
 
-	@Autowired
-	private OrcamentoService orcamentoService;
+	public PlanejamentoController(PlanejamentoService planejamentoService, OrcamentoService orcamentoService) {
+		this.planejamentoService = planejamentoService;
+		this.orcamentoService = orcamentoService;
+	}
 
 	@GetMapping("/{codigoOrcamento}")
 	public ModelAndView planejamento(@PathVariable Long codigoOrcamento) {

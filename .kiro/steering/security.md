@@ -1,6 +1,7 @@
 ---
-description: Security rules — auth, input validation, secrets, dependency scanning
 inclusion: auto
+name: security-rules
+description: Security rules for auth, input validation, and secrets. Use when working on authentication, authorization, or handling sensitive data.
 ---
 
 # Security Steering

@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
@@ -49,24 +48,27 @@ import br.edu.ifrn.sinapiPRO.service.exception.JaCadastradoException;
 @RequestMapping("/insumos")
 public class InsumosController {
 		
-	@Autowired
-	private InsumoService insumoService;
+	private final InsumoService insumoService;
+	private final BasePrecoService basePrecoService;
+	private final BaseInsumoService baseInsumoService;
+	private final OrcamentoService orcamentoService;
+	private final BaseInsumosRepository baseInsumosRepository;
+	private final InsumosRepository insumosRepository;
 		 
-	@Autowired
-	private BasePrecoService basePrecoService;
-	
-	@Autowired
-	private BaseInsumoService baseInsumoService;
-	
-	@Autowired
-	private OrcamentoService orcamentoService;
-	
-	@Autowired
-	private BaseInsumosRepository baseInsumosRepository;
-	
-	@Autowired
-	private InsumosRepository insumosRepository;
-	
+	public InsumosController(
+			InsumoService insumoService,
+			BasePrecoService basePrecoService,
+			BaseInsumoService baseInsumoService,
+			OrcamentoService orcamentoService,
+			BaseInsumosRepository baseInsumosRepository,
+			InsumosRepository insumosRepository) {
+		this.insumoService = insumoService;
+		this.basePrecoService = basePrecoService;
+		this.baseInsumoService = baseInsumoService;
+		this.orcamentoService = orcamentoService;
+		this.baseInsumosRepository = baseInsumosRepository;
+		this.insumosRepository = insumosRepository;
+	}
 	
 	@GetMapping
 	public ModelAndView pesquisar(InsumoFilter insumoFilter, 

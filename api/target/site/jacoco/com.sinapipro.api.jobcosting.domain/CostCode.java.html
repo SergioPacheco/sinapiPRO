@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CostCode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sinapipro-api</a> &gt; <a href="index.source.html" class="el_package">com.sinapipro.api.jobcosting.domain</a> &gt; <span class="el_source">CostCode.java</span></div><h1>CostCode.java</h1><pre class="source lang-java linenums">package com.sinapipro.api.jobcosting.domain;
+
+import com.sinapipro.api.budget.domain.Budget;
+import com.sinapipro.api.shared.domain.AuditableEntity;
+import jakarta.persistence.*;
+
+import java.math.BigDecimal;
+import java.util.UUID;
+
+@Entity
+@Table(name = &quot;cost_code&quot;, uniqueConstraints = @UniqueConstraint(columnNames = {&quot;budget_id&quot;, &quot;code&quot;}))
+public class CostCode extends AuditableEntity {
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;budget_id&quot;, nullable = false)
+    private Budget budget;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;parent_id&quot;)
+    private CostCode parent;
+
+    @Column(nullable = false, length = 30)
+    private String code;
+
+    @Column(nullable = false, length = 200)
+    private String name;
+
+    @Column(name = &quot;budgeted_amount&quot;, nullable = false, precision = 18, scale = 2)
+    private BigDecimal budgetedAmount;
+
+<span class="nc" id="L31">    protected CostCode() {}</span>
+
+<span class="nc" id="L33">    public CostCode(Budget budget, CostCode parent, String code, String name, BigDecimal budgetedAmount) {</span>
+<span class="nc" id="L34">        this.budget = budget;</span>
+<span class="nc" id="L35">        this.parent = parent;</span>
+<span class="nc" id="L36">        this.code = code;</span>
+<span class="nc" id="L37">        this.name = name;</span>
+<span class="nc" id="L38">        this.budgetedAmount = budgetedAmount;</span>
+<span class="nc" id="L39">    }</span>
+
+<span class="nc" id="L41">    public Budget getBudget() { return budget; }</span>
+<span class="nc" id="L42">    public CostCode getParent() { return parent; }</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">    public UUID getParentId() { return parent != null ? parent.getId() : null; }</span>
+<span class="nc" id="L44">    public String getCode() { return code; }</span>
+<span class="nc" id="L45">    public String getName() { return name; }</span>
+<span class="nc" id="L46">    public BigDecimal getBudgetedAmount() { return budgetedAmount; }</span>
+
+    public void update(String name, BigDecimal budgetedAmount) {
+<span class="nc" id="L49">        this.name = name;</span>
+<span class="nc" id="L50">        this.budgetedAmount = budgetedAmount;</span>
+<span class="nc" id="L51">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

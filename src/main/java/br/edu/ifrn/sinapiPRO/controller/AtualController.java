@@ -11,7 +11,6 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
@@ -56,7 +55,6 @@ public class AtualController {
 	private final OrcamentoService orcamentoService; 
 	private final RelatorioService relatorioService;
 	
-	@Autowired
 	public AtualController(ItemService itemService, OrcamentoService orcamentoService, UsuarioService usuarioService, RelatorioService relatorioService ) {
 		this.itemService = itemService;
 		this.usuarioService = usuarioService;

@@ -4,9 +4,6 @@ import java.time.LocalDateTime;
 
 import javax.persistence.PersistenceException;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,11 +15,11 @@ import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeExceptio
 @Service
 public class ComposicaoService {
 
-	@Autowired
-	private ComposicaoRepository composicaoRepository;
-	
-	@Autowired
-	private ApplicationEventPublisher publisher;
+	private final ComposicaoRepository composicaoRepository;
+
+	public ComposicaoService(ComposicaoRepository composicaoRepository) {
+		this.composicaoRepository = composicaoRepository;
+	}
 	
 	@Transactional
 	public Composicao salvar(Composicao composicao) {

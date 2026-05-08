@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,17 +44,21 @@ import br.edu.ifrn.sinapiPRO.repository.VendasRepository;
 @Service
 public class VendaParcelasService {
 
-    @Autowired
-    private VendasRepository vendaRepository;
+    private final VendasRepository vendaRepository;
+    private final TabelasPrecosRepository tabelaRepository;
+    private final IndicesRepository indiceRepository;
+    private final ValidacaoNegocioService validacao;
 
-    @Autowired
-    private TabelasPrecosRepository tabelaRepository;
-
-    @Autowired
-    private IndicesRepository indiceRepository;
-
-    @Autowired
-    private ValidacaoNegocioService validacao;
+    public VendaParcelasService(
+            VendasRepository vendaRepository,
+            TabelasPrecosRepository tabelaRepository,
+            IndicesRepository indiceRepository,
+            ValidacaoNegocioService validacao) {
+        this.vendaRepository = vendaRepository;
+        this.tabelaRepository = tabelaRepository;
+        this.indiceRepository = indiceRepository;
+        this.validacao = validacao;
+    }
 
     /**
      * Gera parcelas automaticamente para uma venda.

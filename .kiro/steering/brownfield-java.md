@@ -1,6 +1,7 @@
 ---
+inclusion: fileMatch
+fileMatchPattern: ["**/*.java", "**/pom.xml", "**/build.gradle"]
 description: Brownfield Java patterns — safe refactoring, migration rules, legacy constraints
-inclusion: auto
 ---
 
 # Brownfield Java Steering

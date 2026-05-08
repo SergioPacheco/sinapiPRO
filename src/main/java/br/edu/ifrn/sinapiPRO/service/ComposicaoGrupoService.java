@@ -1,30 +1,27 @@
 package br.edu.ifrn.sinapiPRO.service;
 
-import java.util.Optional;
+import java.util.AbstractMap.SimpleEntry;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import br.edu.ifrn.sinapiPRO.model.ComposicaoClasse;
 import br.edu.ifrn.sinapiPRO.model.ComposicaoGrupo;
 import br.edu.ifrn.sinapiPRO.repository.ComposicaoGruposRepository;
-import br.edu.ifrn.sinapiPRO.service.exception.JaCadastradoException;
+import br.edu.ifrn.sinapiPRO.repository.filter.ComposicaoGrupoFilter;
+import br.edu.ifrn.sinapiPRO.service.support.AbstractFilterableUniqueFieldCrudService;
 
 @Service
-public class ComposicaoGrupoService {
+public class ComposicaoGrupoService
+		extends AbstractFilterableUniqueFieldCrudService<ComposicaoGrupo, ComposicaoGrupoFilter, ComposicaoGruposRepository, SimpleEntry<String, ComposicaoClasse>> {
 
-	@Autowired
-	private ComposicaoGruposRepository composicaoGruposRepository;
-	
-	@Transactional
-	public ComposicaoGrupo salvar(ComposicaoGrupo composicaoGrupo) {
-		Optional<ComposicaoGrupo> grupoExistente = composicaoGruposRepository.findByNomeAndComposicaoClasse(composicaoGrupo.getNome(), composicaoGrupo.getComposicaoClasse());
-		if (grupoExistente.isPresent()) {
-			throw new JaCadastradoException("Nome de Grupo já cadastrado");
-		}
-		
-		return composicaoGruposRepository.save(composicaoGrupo);
+	public ComposicaoGrupoService(ComposicaoGruposRepository repository) {
+		super(
+				repository,
+				ComposicaoGrupo::getCodigo,
+				grupo -> new SimpleEntry<>(grupo.getNome(), grupo.getComposicaoClasse()),
+				chave -> repository.findByNomeAndComposicaoClasse(chave.getKey(), chave.getValue()),
+				"Nome de Grupo já cadastrado",
+				"Impossível apagar o grupo. Já está em uso.",
+				"Grupo de composição não encontrado.");
 	}
-
-	
 }

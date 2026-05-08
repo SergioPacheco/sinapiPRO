@@ -1,0 +1,81 @@
+services:
+  postgres:
+    image: postgres:17.5
+    container_name: sinapipro-postgres
+    environment:
+      POSTGRES_DB: sinapipro
+      POSTGRES_USER: sinapipro
+      POSTGRES_PASSWORD: sinapipro
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sinapipro-app
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sinapipro
+      SPRING_DATASOURCE_USERNAME: sinapipro
+      SPRING_DATASOURCE_PASSWORD: sinapipro
+      SPRING_DOCKER_COMPOSE_ENABLED: "false"
+      MANAGEMENT_OTLP_TRACING_ENDPOINT: http://otel-lgtm:4318/v1/traces
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    container_name: sinapipro-prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - promdata:/prometheus
+    ports:
+      - "9090:9090"
+    depends_on:
+      app:
+        condition: service_started
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:12.0.2
+    container_name: sinapipro-grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafanadata:/var/lib/grafana
+    depends_on:
+      prometheus:
+        condition: service_started
+    restart: unless-stopped
+
+  otel-lgtm:
+    image: grafana/otel-lgtm:0.11.8
+    container_name: sinapipro-otel
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "3100:3100"
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  promdata:
+  grafanadata:

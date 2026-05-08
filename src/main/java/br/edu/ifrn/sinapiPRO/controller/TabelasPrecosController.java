@@ -1,76 +1,86 @@
 package br.edu.ifrn.sinapiPRO.controller;
 
 import javax.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import br.edu.ifrn.sinapiPRO.controller.support.AbstractObraScopedCrudListController;
 import br.edu.ifrn.sinapiPRO.model.TabelaPreco;
 import br.edu.ifrn.sinapiPRO.repository.ObrasRepository;
 import br.edu.ifrn.sinapiPRO.service.TabelaPrecoService;
 import br.edu.ifrn.sinapiPRO.service.UnidadeVendaService;
-import br.edu.ifrn.sinapiPRO.service.exception.ImpossivelExcluirEntidadeException;
 
 @Controller
 @RequestMapping("/tabelasPrecos")
-public class TabelasPrecosController {
+public class TabelasPrecosController extends AbstractObraScopedCrudListController<TabelaPreco> {
 
-    @Autowired
-    private TabelaPrecoService service;
+	private final UnidadeVendaService unidadeService;
 
-    @Autowired
-    private ObrasRepository obraRepository;
+	public TabelasPrecosController(
+			TabelaPrecoService service,
+			ObrasRepository obraRepository,
+			UnidadeVendaService unidadeService) {
+		super(
+				service,
+				"tabelapreco/FormTabelaPreco",
+				"tabelapreco/ListaTabelasPrecos",
+				"/tabelasPrecos",
+				"Tabela de preços salva!",
+				"descricao",
+				"tabelas",
+				obraRepository,
+				service::findByObra,
+				tabela -> tabela.getObra().getCodigo());
+		this.unidadeService = unidadeService;
+	}
 
-    @Autowired
-    private UnidadeVendaService unidadeService;
+	@Override
+	protected void adicionarObjetosFormularioEspecificos(ModelAndView modelAndView) {
+		modelAndView.addObject("unidades", unidadeService.findAll());
+	}
 
-    @GetMapping
-    public ModelAndView lista(@RequestParam(required = false) Long codigoObra) {
-        ModelAndView mv = new ModelAndView("tabelapreco/ListaTabelasPrecos");
-        mv.addObject("obras", obraRepository.findAll());
-        if (codigoObra != null) {
-            mv.addObject("tabelas", service.findByObra(codigoObra));
-            mv.addObject("codigoObra", codigoObra);
-        }
-        return mv;
-    }
+	@GetMapping
+	public ModelAndView lista(@RequestParam(required = false) Long codigoObra) {
+		return processarListagemPorObra(codigoObra);
+	}
 
-    @GetMapping("/novo")
-    public ModelAndView novo(TabelaPreco tabela) {
-        return form(tabela);
-    }
+	@GetMapping("/novo")
+	public ModelAndView novo(TabelaPreco tabela) {
+		return abrirFormulario();
+	}
 
-    @GetMapping("/{codigo}")
-    public ModelAndView editar(@PathVariable Long codigo) {
-        return form(service.buscarComItens(codigo));
-    }
+	@GetMapping("/{codigo}")
+	public ModelAndView editar(@PathVariable Long codigo) {
+		return carregarEdicao(codigo);
+	}
 
-    @PostMapping({"/novo", "/{codigo}"})
-    public ModelAndView salvar(@Valid TabelaPreco tabela, BindingResult result, RedirectAttributes attributes) {
-        if (result.hasErrors()) return form(tabela);
-        service.salvar(tabela);
-        attributes.addFlashAttribute("mensagem", "Tabela de preços salva!");
-        return new ModelAndView("redirect:/tabelasPrecos?codigoObra=" + tabela.getObra().getCodigo());
-    }
+	@PostMapping({"/novo", "/{codigo}"})
+	public ModelAndView salvar(@Valid TabelaPreco tabela, BindingResult result, RedirectAttributes attributes) {
+		return processarCadastroPorObra(tabela, result, attributes);
+	}
 
-    @DeleteMapping("/{codigo}")
-    public @ResponseBody ResponseEntity<?> excluir(@PathVariable Long codigo) {
-        try {
-            service.excluir(codigo);
-        } catch (ImpossivelExcluirEntidadeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-        return ResponseEntity.ok().build();
-    }
+	@DeleteMapping("/{codigo}")
+	public @ResponseBody ResponseEntity<?> excluir(@PathVariable Long codigo) {
+		return excluirPorCodigo(codigo);
+	}
 
-    private ModelAndView form(TabelaPreco tabela) {
-        ModelAndView mv = new ModelAndView("tabelapreco/FormTabelaPreco");
-        mv.addObject("tabelaPreco", tabela);
-        mv.addObject("obras", obraRepository.findAll());
-        mv.addObject("unidades", unidadeService.findAll());
-        return mv;
-    }
+	private TabelaPrecoService getService() {
+		return (TabelaPrecoService) serviceRef();
+	}
+
+	@Override
+	protected TabelaPreco buscarEntidadeParaEdicao(Long codigo) {
+		return getService().buscarComItens(codigo);
+	}
 }

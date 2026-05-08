@@ -1,6 +1,5 @@
 package br.edu.ifrn.sinapiPRO.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -12,35 +11,38 @@ import br.edu.ifrn.sinapiPRO.repository.OrcamentosRepository;
 import br.edu.ifrn.sinapiPRO.service.AlertaManutencaoService;
 import br.edu.ifrn.sinapiPRO.service.AtendimentoSlaService;
 import br.edu.ifrn.sinapiPRO.service.DespesaService;
-import br.edu.ifrn.sinapiPRO.service.EstoqueService;
 import br.edu.ifrn.sinapiPRO.service.ReceitaService;
 
 @Controller
 public class DashboardController {
 
-    @Autowired
-    private OrcamentosRepository orcamentosRepository;
+    private final OrcamentosRepository orcamentosRepository;
+    private final InsumosRepository insumosRepository;
+    private final ComposicaoRepository composicoesRepository;
+    private final ClientesRepository clientesRepository;
+    private final DespesaService despesaService;
+    private final ReceitaService receitaService;
+    private final AtendimentoSlaService atendimentoSlaService;
+    private final AlertaManutencaoService alertaManutencaoService;
 
-    @Autowired
-    private InsumosRepository insumosRepository;
-
-    @Autowired
-    private ComposicaoRepository composicoesRepository;
-
-    @Autowired
-    private ClientesRepository clientesRepository;
-
-    @Autowired
-    private DespesaService despesaService;
-
-    @Autowired
-    private ReceitaService receitaService;
-
-    @Autowired
-    private AtendimentoSlaService atendimentoSlaService;
-
-    @Autowired
-    private AlertaManutencaoService alertaManutencaoService;
+    public DashboardController(
+            OrcamentosRepository orcamentosRepository,
+            InsumosRepository insumosRepository,
+            ComposicaoRepository composicoesRepository,
+            ClientesRepository clientesRepository,
+            DespesaService despesaService,
+            ReceitaService receitaService,
+            AtendimentoSlaService atendimentoSlaService,
+            AlertaManutencaoService alertaManutencaoService) {
+        this.orcamentosRepository = orcamentosRepository;
+        this.insumosRepository = insumosRepository;
+        this.composicoesRepository = composicoesRepository;
+        this.clientesRepository = clientesRepository;
+        this.despesaService = despesaService;
+        this.receitaService = receitaService;
+        this.atendimentoSlaService = atendimentoSlaService;
+        this.alertaManutencaoService = alertaManutencaoService;
+    }
 
     @GetMapping("/")
     public ModelAndView dashboard() {

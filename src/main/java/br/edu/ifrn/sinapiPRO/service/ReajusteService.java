@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,17 +23,21 @@ import br.edu.ifrn.sinapiPRO.repository.OrcamentosRepository;
 @Service
 public class ReajusteService {
 
-	@Autowired
-	private OrcamentoService orcamentoService;
+	private final OrcamentoService orcamentoService;
+	private final OrcamentosRepository orcamentosRepository;
+	private final BasePrecosRepository basePrecosRepository;
+	private final BasePrecoItemRepository basePrecoItemRepository;
 
-	@Autowired
-	private OrcamentosRepository orcamentosRepository;
-
-	@Autowired
-	private BasePrecosRepository basePrecosRepository;
-
-	@Autowired
-	private BasePrecoItemRepository basePrecoItemRepository;
+	public ReajusteService(
+			OrcamentoService orcamentoService,
+			OrcamentosRepository orcamentosRepository,
+			BasePrecosRepository basePrecosRepository,
+			BasePrecoItemRepository basePrecoItemRepository) {
+		this.orcamentoService = orcamentoService;
+		this.orcamentosRepository = orcamentosRepository;
+		this.basePrecosRepository = basePrecosRepository;
+		this.basePrecoItemRepository = basePrecoItemRepository;
+	}
 
 	@Transactional(readOnly = true)
 	public List<ReajustePreviewDTO> previewReajuste(Long codigoOrcamento, BigDecimal percentual, Especie especie) {
