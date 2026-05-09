@@ -15,8 +15,12 @@
     {
       "route": "sinapi",
       "name": "SINAPI",
-      "type": "link",
-      "icon": "construction"
+      "type": "sub",
+      "icon": "construction",
+      "children": [
+        { "route": "compositions", "name": "Composições", "type": "link" },
+        { "route": "materials", "name": "Insumos", "type": "link" }
+      ]
     },
     {
       "route": "measurements",

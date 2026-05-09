@@ -1,6 +1,9 @@
 import { Routes } from '@angular/router';
-import { SinapiListComponent } from './sinapi-list';
+import { CompositionListComponent } from './composition-list/composition-list';
+import { MaterialListComponent } from './material-list/material-list';
 
 export const routes: Routes = [
-  { path: '', component: SinapiListComponent },
+  { path: '', redirectTo: 'compositions', pathMatch: 'full' },
+  { path: 'compositions', component: CompositionListComponent },
+  { path: 'materials', component: MaterialListComponent },
 ];

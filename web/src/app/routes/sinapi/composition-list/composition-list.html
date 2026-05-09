@@ -1,0 +1,25 @@
+<page-header title="Composições SINAPI" subtitle="Catálogo de composições de serviço" />
+
+<div class="action-bar">
+  <mat-form-field appearance="outline" style="width: 300px; margin-right: 8px;">
+    <mat-label>Buscar composição</mat-label>
+    <input matInput [(ngModel)]="search" (keyup.enter)="onSearch()" placeholder="Código ou descrição" />
+    <mat-icon matSuffix>search</mat-icon>
+  </mat-form-field>
+  <button mat-raised-button color="primary" (click)="onSearch()">Buscar</button>
+</div>
+
+<mtx-grid
+  [columns]="columns"
+  [data]="list"
+  [length]="total"
+  [loading]="isLoading"
+  [pageOnFront]="false"
+  [pageIndex]="query.page"
+  [pageSize]="query.size"
+  [pageSizeOptions]="[10, 20, 50]"
+  [sortOnFront]="false"
+  [showToolbar]="true"
+  [columnResizable]="true"
+  (page)="onPageChange($event)"
+/>
