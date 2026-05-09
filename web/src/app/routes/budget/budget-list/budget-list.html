@@ -1,0 +1,23 @@
+<page-header title="Orçamentos" subtitle="Gestão de orçamentos de obra" />
+
+<div class="action-bar">
+  <button mat-raised-button color="primary" (click)="create()">
+    <mat-icon>add</mat-icon> Novo Orçamento
+  </button>
+</div>
+
+<mtx-grid
+  [columns]="columns"
+  [data]="list"
+  [length]="total"
+  [loading]="isLoading"
+  [pageOnFront]="false"
+  [pageIndex]="query.page"
+  [pageSize]="query.size"
+  [pageSizeOptions]="[10, 20, 50]"
+  [sortOnFront]="false"
+  [showToolbar]="true"
+  [columnResizable]="true"
+  (page)="onPageChange($event)"
+  (sortChange)="loadData()"
+/>

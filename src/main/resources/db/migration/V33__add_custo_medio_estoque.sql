@@ -1,1 +1,0 @@
-ALTER TABLE estoque ADD COLUMN custo_medio DECIMAL(19,4) DEFAULT 0;

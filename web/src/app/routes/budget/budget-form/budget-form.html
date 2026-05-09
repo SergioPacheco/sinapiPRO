@@ -1,0 +1,53 @@
+<page-header [title]="isEdit ? 'Editar Orçamento' : 'Novo Orçamento'" />
+
+<mat-card>
+  <mat-card-content>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-grid">
+      <mat-form-field appearance="outline">
+        <mat-label>Código</mat-label>
+        <input matInput formControlName="code" placeholder="ORC-001" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Título</mat-label>
+        <input matInput formControlName="title" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Cliente</mat-label>
+        <input matInput formControlName="customerName" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Valor Total (R$)</mat-label>
+        <input matInput formControlName="totalAmount" type="number" step="0.01" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Status</mat-label>
+        <mat-select formControlName="status">
+          @for (s of statuses; track s.value) {
+            <mat-option [value]="s.value">{{ s.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Data Início</mat-label>
+        <input matInput formControlName="startDate" type="date" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Data Fim</mat-label>
+        <input matInput formControlName="endDate" type="date" />
+      </mat-form-field>
+
+      <div class="form-actions">
+        <button mat-button type="button" (click)="cancel()">Cancelar</button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
+          {{ isEdit ? 'Atualizar' : 'Criar' }}
+        </button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

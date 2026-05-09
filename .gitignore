@@ -1,30 +1,23 @@
-/target/
-!.mvn/wrapper/maven-wrapper.jar
+# Java
+/api/target/
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+# Angular
+/web/node_modules/
+/web/dist/
+/web/.angular/
 
-### IntelliJ IDEA ###
-.idea
+# IDE
+.idea/
 *.iws
 *.iml
 *.ipr
+.vscode/
 
-### NetBeans ###
-/nbproject/private/
-/build/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-
-### AI Agents ###
+# AI Agents
 .kiro/
 .codex/
 .agents/
+
+# OS
+.DS_Store
+Thumbs.db

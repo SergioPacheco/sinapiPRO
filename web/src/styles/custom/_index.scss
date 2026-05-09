@@ -1,0 +1,22 @@
+@use 'material';
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 16px 0;
+}
+
+.form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 16px;
+}
+
+.action-bar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}

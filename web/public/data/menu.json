@@ -1,0 +1,93 @@
+{
+  "menu": [
+    {
+      "route": "dashboard",
+      "name": "Dashboard",
+      "type": "link",
+      "icon": "dashboard"
+    },
+    {
+      "route": "budgets",
+      "name": "Orçamentos",
+      "type": "link",
+      "icon": "request_quote"
+    },
+    {
+      "route": "sinapi",
+      "name": "SINAPI",
+      "type": "link",
+      "icon": "construction"
+    },
+    {
+      "route": "measurements",
+      "name": "Medições",
+      "type": "link",
+      "icon": "straighten"
+    },
+    {
+      "route": "contracts",
+      "name": "Contratos",
+      "type": "link",
+      "icon": "description"
+    },
+    {
+      "route": "procurement",
+      "name": "Suprimentos",
+      "type": "sub",
+      "icon": "shopping_cart",
+      "children": [
+        { "route": "procurement", "name": "Cotações", "type": "link" },
+        { "route": "procurement/orders", "name": "Pedidos", "type": "link" },
+        { "route": "procurement/inventory", "name": "Estoque", "type": "link" }
+      ]
+    },
+    {
+      "route": "schedule",
+      "name": "Cronograma",
+      "type": "link",
+      "icon": "event_note"
+    },
+    {
+      "route": "daily-log",
+      "name": "Diário de Obra",
+      "type": "link",
+      "icon": "edit_note"
+    },
+    {
+      "route": "equipment",
+      "name": "Equipamentos",
+      "type": "link",
+      "icon": "precision_manufacturing"
+    },
+    {
+      "route": "job-costing",
+      "name": "Job Costing",
+      "type": "link",
+      "icon": "account_balance"
+    },
+    {
+      "route": "analytics",
+      "name": "Analytics",
+      "type": "link",
+      "icon": "analytics"
+    },
+    {
+      "route": "suppliers",
+      "name": "Fornecedores",
+      "type": "link",
+      "icon": "store"
+    },
+    {
+      "route": "safety",
+      "name": "Segurança",
+      "type": "link",
+      "icon": "health_and_safety"
+    },
+    {
+      "route": "settings",
+      "name": "Configurações",
+      "type": "link",
+      "icon": "settings"
+    }
+  ]
+}
