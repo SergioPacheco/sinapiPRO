@@ -22,6 +22,10 @@ export class ContractService {
     return this.http.post<Contract>(this.baseUrl, request);
   }
 
+  update(id: string, request: Partial<Contract>) {
+    return this.http.put<Contract>(`${this.baseUrl}/${id}`, request);
+  }
+
   addChangeOrder(contractId: string, changeOrder: any) {
     return this.http.post(`${this.baseUrl}/${contractId}/change-orders`, changeOrder);
   }

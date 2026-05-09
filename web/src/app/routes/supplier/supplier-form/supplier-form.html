@@ -1,0 +1,42 @@
+<page-header [title]="isEdit ? 'Editar Fornecedor' : 'Novo Fornecedor'" />
+<mat-card>
+  <mat-card-content>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-grid">
+      <mat-form-field appearance="outline">
+        <mat-label>Código</mat-label>
+        <input matInput formControlName="code" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Razão Social</mat-label>
+        <input matInput formControlName="name" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Nome Fantasia</mat-label>
+        <input matInput formControlName="tradeName" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>CNPJ/CPF</mat-label>
+        <input matInput formControlName="taxId" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>E-mail</mat-label>
+        <input matInput formControlName="email" type="email" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Telefone</mat-label>
+        <input matInput formControlName="phone" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Avaliação (1-10)</mat-label>
+        <input matInput formControlName="rating" type="number" min="1" max="10" />
+      </mat-form-field>
+      <mat-checkbox formControlName="active">Ativo</mat-checkbox>
+      <div class="form-actions">
+        <button mat-button type="button" (click)="router.navigate(['/suppliers'])">Cancelar</button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
+          {{ isEdit ? 'Atualizar' : 'Criar' }}
+        </button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>
