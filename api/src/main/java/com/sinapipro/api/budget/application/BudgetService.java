@@ -1,5 +1,7 @@
 package com.sinapipro.api.budget.application;
 
+import module java.base;
+
 import com.sinapipro.api.budget.api.BudgetFilter;
 import com.sinapipro.api.budget.api.CreateBudgetRequest;
 import com.sinapipro.api.budget.api.UpdateBudgetRequest;
@@ -14,8 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
@@ -57,13 +57,14 @@ public class BudgetService {
             if (repository.existsByCode(request.code())) {
                 throw new BudgetCodeAlreadyExistsException(request.code());
             }
-            Budget budget = new Budget(
+            var budget = new Budget(
                     request.code(), request.title(), request.customerName(),
                     request.totalAmount(), request.status(), request.startDate(),
                     request.endDate(), request.metadata());
-            Budget saved = repository.save(budget);
+            var saved = repository.save(budget);
             metricsService.record("budget", OperationEventType.CREATED);
-            eventPublisher.publish("budget", OperationEventType.CREATED, saved.getId().toString(), "Budget created: " + saved.getCode());
+            eventPublisher.publish("budget", OperationEventType.CREATED,
+                    saved.getId().toString(), "Budget created: " + saved.getCode());
             return saved;
         });
     }
@@ -71,21 +72,23 @@ public class BudgetService {
     @Transactional
     public Budget update(UUID id, UpdateBudgetRequest request) {
         return observationService.observe("budget.update", "budget", () -> {
-            Budget budget = findById(id);
+            var budget = findById(id);
             budget.update(request.title(), request.customerName(), request.totalAmount(),
                     request.status(), request.startDate(), request.endDate(), request.metadata());
-            Budget saved = repository.save(budget);
+            var saved = repository.save(budget);
             metricsService.record("budget", OperationEventType.UPDATED);
-            eventPublisher.publish("budget", OperationEventType.UPDATED, saved.getId().toString(), "Budget updated: " + saved.getCode());
+            eventPublisher.publish("budget", OperationEventType.UPDATED,
+                    saved.getId().toString(), "Budget updated: " + saved.getCode());
             return saved;
         });
     }
 
     @Transactional
     public void delete(UUID id) {
-        Budget budget = findById(id);
+        var budget = findById(id);
         repository.delete(budget);
         metricsService.record("budget", OperationEventType.DELETED);
-        eventPublisher.publish("budget", OperationEventType.DELETED, id.toString(), "Budget deleted: " + budget.getCode());
+        eventPublisher.publish("budget", OperationEventType.DELETED,
+                id.toString(), "Budget deleted: " + budget.getCode());
     }
 }

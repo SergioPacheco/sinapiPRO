@@ -3,7 +3,7 @@
 <configuration>
     <include resource="org/springframework/boot/logging/logback/base.xml" />
 
-    <logger name="br.edu.ifrn" level="debug" />
+    <logger name="com.sinapipro" level="debug" />
 
     <springProfile name="default">      
         <logger name="org.hibernate.SQL" level="debug" />

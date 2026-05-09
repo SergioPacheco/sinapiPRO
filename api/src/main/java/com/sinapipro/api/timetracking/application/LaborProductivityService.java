@@ -1,14 +1,11 @@
 package com.sinapipro.api.timetracking.application;
 
+import module java.base;
+
 import com.sinapipro.api.timetracking.domain.TimesheetEntry;
 import com.sinapipro.api.timetracking.domain.TimesheetRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -21,28 +18,27 @@ public class LaborProductivityService {
     }
 
     public ProductivityReport calculate(UUID budgetId) {
-        BigDecimal totalHours = repository.sumTotalHoursByBudget(budgetId);
-        BigDecimal totalUnits = repository.sumUnitsProducedByBudget(budgetId);
+        var totalHours = repository.sumTotalHoursByBudget(budgetId);
+        var totalUnits = repository.sumUnitsProducedByBudget(budgetId);
 
-        BigDecimal hoursPerUnit = totalUnits.compareTo(BigDecimal.ZERO) > 0
+        var hoursPerUnit = totalUnits.compareTo(BigDecimal.ZERO) > 0
                 ? totalHours.divide(totalUnits, 4, RoundingMode.HALF_UP)
                 : BigDecimal.ZERO;
 
-        BigDecimal unitsPerHour = totalHours.compareTo(BigDecimal.ZERO) > 0
+        var unitsPerHour = totalHours.compareTo(BigDecimal.ZERO) > 0
                 ? totalUnits.divide(totalHours, 4, RoundingMode.HALF_UP)
                 : BigDecimal.ZERO;
 
-        // Productivity by role
-        List<TimesheetEntry> all = repository.findByBudgetId(budgetId, org.springframework.data.domain.Pageable.unpaged()).getContent();
-        Map<String, RoleStats> byRole = new LinkedHashMap<>();
-        for (TimesheetEntry e : all) {
-            byRole.computeIfAbsent(e.getRole(), k -> new RoleStats()).add(e);
+        var all = repository.findByBudgetId(budgetId, org.springframework.data.domain.Pageable.unpaged()).getContent();
+        var byRole = new LinkedHashMap<String, RoleStats>();
+        for (var e : all) {
+            byRole.computeIfAbsent(e.getRole(), _ -> new RoleStats()).add(e);
         }
 
-        List<RoleProductivity> roleMetrics = byRole.entrySet().stream()
+        var roleMetrics = byRole.entrySet().stream()
                 .map(entry -> {
-                    RoleStats stats = entry.getValue();
-                    BigDecimal roleHoursPerUnit = stats.units.compareTo(BigDecimal.ZERO) > 0
+                    var stats = entry.getValue();
+                    var roleHoursPerUnit = stats.units.compareTo(BigDecimal.ZERO) > 0
                             ? stats.hours.divide(stats.units, 4, RoundingMode.HALF_UP) : BigDecimal.ZERO;
                     return new RoleProductivity(entry.getKey(), stats.hours, stats.units, stats.cost, roleHoursPerUnit);
                 })

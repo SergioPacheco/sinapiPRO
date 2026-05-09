@@ -1,5 +1,7 @@
 package com.sinapipro.api.budget.domain;
 
+import module java.base;
+
 import com.sinapipro.api.shared.domain.AuditableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,10 +10,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Map;
 
 @Entity
 @Table(name = "budget")

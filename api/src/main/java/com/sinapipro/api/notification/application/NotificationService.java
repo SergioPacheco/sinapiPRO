@@ -1,5 +1,7 @@
 package com.sinapipro.api.notification.application;
 
+import module java.base;
+
 import com.sinapipro.api.contract.domain.Contract;
 import com.sinapipro.api.contract.domain.ContractRepository;
 import com.sinapipro.api.contract.domain.ContractStatus;
@@ -14,11 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 public class NotificationService {
@@ -36,16 +33,13 @@ public class NotificationService {
         this.contractRepository = contractRepository;
     }
 
-    /**
-     * Generate alerts by scanning cross-module data for actionable conditions.
-     */
     @Transactional
     public List<Notification> generateAlerts(UUID budgetId) {
-        List<Notification> alerts = new ArrayList<>();
+        var alerts = new ArrayList<Notification>();
 
         // RFI overdue alerts
-        List<Rfi> openRfis = rfiRepository.findByBudgetIdAndStatus(budgetId, RfiStatus.OPEN);
-        for (Rfi rfi : openRfis) {
+        var openRfis = rfiRepository.findByBudgetIdAndStatus(budgetId, RfiStatus.OPEN);
+        for (var rfi : openRfis) {
             if (rfi.isOverdue() && !notificationRepository.existsByEntityTypeAndEntityIdAndType("RFI", rfi.getId(), "RFI_OVERDUE")) {
                 alerts.add(new Notification(budgetId, "RFI_OVERDUE", "WARNING",
                         "RFI #" + rfi.getNumber() + " is overdue",
@@ -55,13 +49,13 @@ public class NotificationService {
         }
 
         // Equipment maintenance due
-        for (Equipment eq : equipmentRepository.findMaintenanceDueByHours()) {
+        for (var eq : equipmentRepository.findMaintenanceDueByHours()) {
             alerts.add(new Notification(null, "MAINTENANCE_DUE", "WARNING",
                     "Equipment " + eq.getCode() + " needs maintenance",
                     eq.getName() + " has exceeded maintenance hours limit",
                     "EQUIPMENT", eq.getId(), null));
         }
-        for (Equipment eq : equipmentRepository.findMaintenanceDueByDate()) {
+        for (var eq : equipmentRepository.findMaintenanceDueByDate()) {
             alerts.add(new Notification(null, "MAINTENANCE_DUE", "WARNING",
                     "Equipment " + eq.getCode() + " maintenance overdue",
                     eq.getName() + " maintenance was due on " + eq.getNextMaintenanceDate(),
@@ -69,8 +63,8 @@ public class NotificationService {
         }
 
         // Contracts expiring within 30 days
-        List<Contract> contracts = contractRepository.findByBudgetIdOrderByNumberAsc(budgetId);
-        for (Contract c : contracts) {
+        var contracts = contractRepository.findByBudgetIdOrderByNumberAsc(budgetId);
+        for (var c : contracts) {
             if (c.getStatus() == ContractStatus.ACTIVE && c.getEndDate() != null
                     && c.getEndDate().isBefore(LocalDate.now().plusDays(30))) {
                 alerts.add(new Notification(budgetId, "CONTRACT_EXPIRING", "INFO",

@@ -1,16 +1,13 @@
 package com.sinapipro.api.dailylog.application;
 
+import module java.base;
+
 import com.sinapipro.api.budget.domain.Budget;
 import com.sinapipro.api.budget.domain.BudgetRepository;
 import com.sinapipro.api.dailylog.domain.*;
 import com.sinapipro.api.shared.error.DomainNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
@@ -30,13 +27,13 @@ public class DailyLogService {
     public DailyLog create(UUID budgetId, LocalDate logDate, String weatherMorning, String weatherAfternoon,
                            String observations, List<LaborInput> labor, List<EquipmentInput> equipment,
                            List<OccurrenceInput> occurrences) {
-        Budget budget = budgetRepository.findById(budgetId)
+        var budget = budgetRepository.findById(budgetId)
                 .orElseThrow(() -> new DomainNotFoundException("Budget not found: " + budgetId));
 
         validateLogDate(logDate);
         validateUniqueDate(budgetId, logDate);
 
-        DailyLog log = new DailyLog(budget, logDate, weatherMorning, weatherAfternoon, observations);
+        var log = new DailyLog(budget, logDate, weatherMorning, weatherAfternoon, observations);
         if (labor != null) {
             labor.forEach(l -> log.getLaborEntries().add(new DailyLogLabor(log, l.workerName(), l.role(), l.hours())));
         }
@@ -50,17 +47,17 @@ public class DailyLogService {
     }
 
     public DailyLogSummary summary(UUID budgetId) {
-        List<DailyLog> logs = dailyLogRepository.findByBudgetIdOrderByLogDateDesc(budgetId);
+        var logs = dailyLogRepository.findByBudgetIdOrderByLogDateDesc(budgetId);
 
-        BigDecimal totalLaborHours = BigDecimal.ZERO;
-        BigDecimal totalEquipmentHours = BigDecimal.ZERO;
-        int totalOccurrences = 0;
+        var totalLaborHours = BigDecimal.ZERO;
+        var totalEquipmentHours = BigDecimal.ZERO;
+        var totalOccurrences = 0;
 
-        for (DailyLog log : logs) {
-            for (DailyLogLabor l : log.getLaborEntries()) {
+        for (var log : logs) {
+            for (var l : log.getLaborEntries()) {
                 totalLaborHours = totalLaborHours.add(l.getHours());
             }
-            for (DailyLogEquipment e : log.getEquipmentEntries()) {
+            for (var e : log.getEquipmentEntries()) {
                 totalEquipmentHours = totalEquipmentHours.add(e.getHoursUsed());
             }
             totalOccurrences += log.getOccurrences().size();
@@ -83,7 +80,7 @@ public class DailyLogService {
     }
 
     private void validateUniqueDate(UUID budgetId, LocalDate logDate) {
-        List<DailyLog> existing = dailyLogRepository.findByBudgetIdOrderByLogDateDesc(budgetId);
+        var existing = dailyLogRepository.findByBudgetIdOrderByLogDateDesc(budgetId);
         boolean duplicate = existing.stream().anyMatch(l -> l.getLogDate().equals(logDate));
         if (duplicate) {
             throw new IllegalArgumentException("A daily log already exists for date " + logDate + " in this budget");

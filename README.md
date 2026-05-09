@@ -2,8 +2,9 @@
 
 > Sistema de Gestão de Obras e Orçamentos baseado na tabela SINAPI
 
-[![Java](https://img.shields.io/badge/Java-11-orange.svg)](https://openjdk.org/projects/jdk/11/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.7.18-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![Java](https://img.shields.io/badge/Java-25-orange.svg)](https://openjdk.org/projects/jdk/25/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.5-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue.svg)](https://www.postgresql.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
@@ -30,189 +31,240 @@ SinapiPRO é um sistema ERP open source para gestão de obras e orçamentos da c
 - Estoque com **Custo Médio Ponderado** (NBC TG 16)
 - Requisições de Insumos
 
-### Financeiro
-- Plano de Contas hierárquico
-- Contas a Pagar e Receber com situação automática
-- Movimento Bancário com atualização de saldo
-- Conciliação Bancária
-- Boletos e Cheques
-- Relatórios: Fluxo de Caixa, Balancete, DRE, Inadimplência
-
-### Comercial (Incorporação)
-- Espelho de Vendas com situação colorida
-- Propostas e Vendas de Unidades
-- Geração automática de parcelas (entrada + mensais + chaves)
-- Reajuste por índice (INCC, IPCA, CUB)
-- Tabela de Preços e Comissões
-- Relatórios: Mapa de Vendas, Resumo por Corretor
+### Medições & Contratos
+- Medições com workflow: DRAFT → SUBMITTED → APPROVED → PAID
+- Contratos com aditivos (change orders) e retenção configurável
+- Progress Billing automático (medição aprovada → fatura)
+- Acumulado, saldo e percentual medido
 
 ### Operacional
 - Diário de Obra (MO, Equipamentos, Ocorrências, Serviços)
-- Relatório de Avanço Físico com Curva de Avanço
-- Contratos e Medições com retenção configurável
-- Aprovação de medição gera Despesa automaticamente
+- Cronograma com Caminho Crítico (CPM) e Curva S
+- Equipamentos com controle de utilização e manutenção
+- Segurança do Trabalho (inspeções, incidentes, checklists)
+- RFI (Request for Information) e Punch List
+- Submittals e Documentos
+- Timesheet com produtividade de mão de obra
+- Previsão de atrasos por clima (Weather Delays)
 
-### Outros Módulos
-- **Atendimento/CRM** com SLA por prioridade e escalação automática
-- **Banco de Horas** com encerramento de competência (CLT)
-- **GED** — upload real de arquivos com validação OWASP
-- **Frota** — alertas de manutenção por KM e data
-- **Faturamento** — Nota Fiscal de Serviço com cálculo de ISS
-- **Relatórios** em PDF (FreeMarker + Flying Saucer)
+### Analytics & Relatórios
+- **EVM** (Earned Value Management): PV, EV, AC, CPI, SPI, EAC, VAC
+- Fluxo de Caixa projetado
+- Portfolio Analytics (multi-projeto)
+- Notificações em tempo real via SSE
 
 ---
 
 ## 🚀 Como Executar
 
 ### Pré-requisitos
-- Java 11+
-- MariaDB / MySQL 8+
-- Maven 3.x (ou use o `./mvnw` incluído)
+- Java 25 (Temurin)
+- Docker (para PostgreSQL via Docker Compose)
+- Maven 3.9+ (ou SDKMAN: `sdk install maven`)
 
 ### Início Rápido
 
 ```bash
 # 1. Clone o repositório
 git clone https://github.com/SergioPacheco/sinapiPRO.git
-cd sinapiPRO
+cd sinapiPRO/api
 
-# 2. Inicia o sistema (cria banco automaticamente)
-./run.sh
+# 2. Inicia o sistema (PostgreSQL sobe automaticamente via Docker Compose)
+mvn spring-boot:run -s .mvn/settings.xml
 ```
 
-O script `run.sh` faz tudo automaticamente:
-- Cria o banco de dados `sinapipro` se não existir
-- Compila o projeto se o JAR não existir
-- Executa as migrations Flyway (V1→V36)
-- Aguarda o startup e confirma disponibilidade
+O Spring Boot Docker Compose inicia o PostgreSQL automaticamente. Flyway executa as migrations no startup.
 
 ### Acesso
 
 ```
-URL:   http://localhost:8090
-Email: admin@sinapipro.com
-Senha: admin123
+API:     http://localhost:8080
+Swagger: http://localhost:8080/swagger-ui.html
+Health:  http://localhost:8080/actuator/health
 ```
 
-### Comandos do run.sh
-
+**Autenticação (JWT):**
 ```bash
-./run.sh          # inicia em background
-./run.sh stop     # para o servidor
-./run.sh restart  # reinicia
-./run.sh logs     # acompanha logs em tempo real
-./run.sh build    # só compila
-./run.sh status   # verifica se está rodando
+# Obter token
+curl -X POST http://localhost:8080/api/v1/auth/token \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin@sinapipro.com","password":"admin123","grantType":"PASSWORD"}'
 ```
 
-### Com Docker
+### Stack Completa (Observabilidade)
 
 ```bash
-./mvnw package -DskipTests
-docker-compose up -d
+docker compose -f compose.showcase.yaml up -d
+```
+
+Inclui: App + PostgreSQL + Prometheus + Grafana + OpenTelemetry Collector
+
+### Comandos Maven
+
+```bash
+cd api
+mvn compile -s .mvn/settings.xml          # compilar
+mvn test -s .mvn/settings.xml             # testes (requer Docker/Testcontainers)
+mvn spring-boot:run -s .mvn/settings.xml  # executar
+mvn package -s .mvn/settings.xml          # gerar JAR
+mvn package -Pnative                      # GraalVM Native Image
 ```
 
 ---
 
 ## 🗄️ Banco de Dados
 
-O sistema usa **Flyway** para gerenciar o schema. As migrations são executadas automaticamente no startup.
+O sistema usa **PostgreSQL 17** com **Flyway** para migrations automáticas.
 
 | Migration | Descrição |
 |---|---|
-| V1–V13 | Schema core (orçamento, insumos, composições, segurança) |
-| V14–V19 | Baseline, cadastros, diário de obra, contratos, requisições |
-| V20–V26 | Cotações, pedidos, estoque, financeiro completo |
-| V27–V32 | Comercial, mão de obra, boletos, atendimento, GED, frota |
-| V33–V34 | Custo médio estoque, permissões por módulo |
-| V35 | Dados iniciais (admin, grupos, permissões) |
-| V36 | Dados de demonstração (seed) |
+| V1 | Schema core (budget, supplier, invoice, security) |
+| V2 | Dados de demonstração (seed) |
+| V3 | Composições SINAPI (catálogo) |
+| V4 | Dados SINAPI (insumos, preços, composições) |
+| V5 | Orçamento detalhado (stages, items, BDI) |
+| V6 | Job Costing (cost codes, transactions) |
+| V7 | Cronograma (activities, dependencies) |
+| V8 | Medições (measurements, items) |
+| V9 | Contratos (contracts, change orders) |
+| V10 | Suprimentos (purchase requests, quotations, orders) |
+| V11 | Diário de Obra |
+| V12 | Equipamentos |
+| V13 | Documentos, RFI, Punch List, Segurança |
+| V14 | Submittals, Weather, Timesheet, Notificações |
 
-**Credenciais padrão do banco:**
-```
-Host:     localhost
-Database: sinapipro
-User:     sinapipro
-Password: sinapipro123
-```
+**Features PostgreSQL utilizadas:**
+- UUID como primary key (distributed-friendly)
+- JSONB para metadata flexível
+- `tsvector` para full-text search
+- Índices parciais e compostos
 
 ---
 
 ## 🏗️ Arquitetura
 
 ```
-src/main/java/br/edu/ifrn/sinapiPRO/
-├── config/          ← Spring Security, formatters
-├── controller/      ← Spring MVC (Thymeleaf views)
-│   ├── handler/     ← @ControllerAdvice exception handler
-│   └── page/        ← Pagination wrapper
-├── dto/             ← Data transfer objects
-├── model/           ← JPA entities (514 classes)
-├── repository/      ← Spring Data JPA + Criteria API
-├── security/        ← Spring Security config
-├── service/         ← Business logic (lógica de negócio real)
-│   ├── AnaliseCotacaoService    ← análise comparativa, geração de pedidos
-│   ├── MedicaoContratoService   ← cálculo, retenção, aprovação
-│   ├── EstoqueService           ← custo médio ponderado (NBC TG 16)
-│   ├── VendaParcelasService     ← parcelas automáticas, reajuste por índice
-│   ├── AtendimentoSlaService    ← SLA, escalação automática
-│   ├── JobCostingService        ← EVM (PMBOK/NBR ISO 21500)
-│   └── ...
-└── thymeleaf/       ← Custom Thymeleaf processors
+api/src/main/java/com/sinapipro/api/
+├── config/              ← Security (JWT/OAuth2), OpenAPI, Rate Limiting
+├── shared/              ← Cross-cutting concerns
+│   ├── domain/          ← AuditableEntity (UUID + timestamps)
+│   ├── error/           ← ProblemDetail (RFC 9457) exception handler
+│   ├── events/          ← SSE event publisher (Reactor)
+│   ├── observability/   ← Micrometer Observations + metrics
+│   └── api/             ← PageResponse, EventStreamController
+├── budget/              ← Orçamentos (CRUD + BDI + Curva ABC + Reajuste)
+├── supplier/            ← Fornecedores
+├── invoice/             ← Faturas/Notas Fiscais
+├── sinapi/              ← Catálogo SINAPI (composições + insumos + preços)
+├── measurement/         ← Medições de Obra
+├── contract/            ← Contratos e Aditivos
+├── procurement/         ← Suprimentos (cotação → pedido → recebimento)
+├── jobcosting/          ← Job Costing & EVM
+├── schedule/            ← Cronograma (CPM + Curva S)
+├── dailylog/            ← Diário de Obra
+├── equipment/           ← Equipamentos e Utilização
+├── safety/              ← Segurança do Trabalho
+├── rfi/                 ← Request for Information
+├── punchlist/           ← Punch List
+├── document/            ← Gestão de Documentos
+├── submittal/           ← Submittals
+├── weather/             ← Weather Delays
+├── timetracking/        ← Timesheet e Produtividade
+├── notification/        ← Notificações (SSE)
+├── analytics/           ← EVM, Cash Flow, Portfolio
+├── forecast/            ← Previsão de Atrasos
+└── security/            ← JWT Token Service
 ```
 
-**Stack:**
-- **Backend:** Java 11, Spring Boot 2.7.18, Spring MVC, Spring Security 5
-- **Persistência:** Spring Data JPA, Hibernate, Flyway
-- **Frontend:** Thymeleaf 3, Bootstrap 3
-- **Relatórios:** FreeMarker + Flying Saucer (PDF)
-- **Banco:** MariaDB / MySQL
+### Padrão por Módulo (Vertical Slicing)
+```
+{module}/
+├── api/            ← @RestController + request/response records
+├── application/    ← @Service + business logic
+└── domain/         ← @Entity + Repository interface
+```
+
+---
+
+## ⚡ Stack Tecnológica
+
+| Camada | Tecnologia |
+|--------|-----------|
+| **Linguagem** | Java 25 (Virtual Threads, Structured Concurrency, String Templates, Gatherers, Sealed Classes, Pattern Matching) |
+| **Framework** | Spring Boot 4.0.5, Spring Framework 7, Spring Security 7 |
+| **API** | REST + OpenAPI 3 (SpringDoc), ProblemDetail (RFC 9457) |
+| **Persistência** | Spring Data JPA, Hibernate 7, Flyway |
+| **Banco** | PostgreSQL 17 (UUID PKs, JSONB, tsvector) |
+| **Segurança** | OAuth2 Resource Server, JWT (HMAC-SHA256), stateless |
+| **Observabilidade** | Micrometer + Prometheus + OpenTelemetry + Grafana |
+| **Eventos** | Server-Sent Events (Reactor Flux) |
+| **Testes** | JUnit 5, Testcontainers, Spring Security Test |
+| **Build** | Maven 3.9+, JaCoCo (coverage), GraalVM Native Image |
+| **Deploy** | Docker, Docker Compose |
+
+### Features Java 25 Utilizadas
+
+| Feature | JEP | Uso no Projeto |
+|---------|-----|----------------|
+| Virtual Threads | 444 | `spring.threads.virtual.enabled=true` — todas as requests |
+| Structured Concurrency | 480 | Operações paralelas em services (cotações, analytics) |
+| String Templates | 465 | Mensagens de log, construção de strings |
+| Gatherers (Stream API) | 485 | Operações de stream customizadas (sliding windows, folding) |
+| Sealed Classes | 409 | Hierarquias de exceção, domain events |
+| Pattern Matching (switch) | 441 | Exception handler, validações |
+| Pattern Matching (instanceof) | 394 | Type checks sem cast explícito |
+| Records | 395 | DTOs, value objects, resultados de cálculo |
+| Sequenced Collections | 431 | `.getFirst()`, `.getLast()` |
+| Unnamed Variables | 456 | Lambdas com `_` para params não usados |
+| Scoped Values | 487 | Contexto de request sem ThreadLocal |
+| Flexible Constructor Bodies | 492 | Validação antes de `this()`/`super()` |
+| Module Imports | 476 | `import module java.base` |
 
 ---
 
 ## 🔐 Segurança
 
-O sistema usa **Spring Security** com autenticação por formulário e controle de acesso por roles:
+API stateless com JWT (OAuth2 Resource Server):
 
-| Role | Módulos |
+| Scope/Role | Acesso |
 |---|---|
-| `ROLE_ADMIN` | Acesso total |
-| `ROLE_FINANCEIRO` | Despesas, receitas, movimento bancário, boletos |
-| `ROLE_COMERCIAL` | Vendas, propostas, unidades, tabelas de preços |
-| `ROLE_SUPRIMENTOS` | Cotações, pedidos, estoque, requisições |
-| `ROLE_OBRAS` | Contratos, medições, diário de obra, banco de horas |
-| `ROLE_RH` | Funcionários, departamentos, cargos |
-| `ROLE_ATENDIMENTO` | Atendimentos e ordens de serviço |
+| `SCOPE_sinapipro.read` | Leitura em todos os endpoints |
+| `SCOPE_sinapipro.write` | Criação, atualização, exclusão |
+| `ROLE_ADMIN` | Actuator endpoints |
 
 ---
 
 ## 🧪 Testes
 
 ```bash
-# Executar todos os testes
-./mvnw test
-
-# Testes específicos
-./mvnw test -Dtest="DespesaServiceTeste,EstoqueServiceTeste"
+cd api
+mvn test -s .mvn/settings.xml
 ```
 
-**39 testes unitários** cobrindo os services críticos:
-- `OrcamentoService`, `DespesaService`, `ReajusteService`, `VendaService`
-- `AnaliseCotacaoService`, `MedicaoContratoService`, `EstoqueService`
-- `BaixaPedidoService`, `AtendimentoSlaService`
+- **Testcontainers** — PostgreSQL real nos testes de integração
+- **Spring Security Test** — testes com JWT mockado
+- **JaCoCo** — relatório de cobertura em `target/site/jacoco/`
+
+---
+
+## 📊 Observabilidade
+
+| Ferramenta | Endpoint/Porta |
+|---|---|
+| Prometheus metrics | `/actuator/prometheus` |
+| Health check | `/actuator/health` |
+| Grafana dashboards | `http://localhost:3000` (via compose.showcase.yaml) |
+| OpenTelemetry traces | Exportados via OTLP |
+| SSE events | `/api/v1/events/stream` |
 
 ---
 
 ## 🤝 Como Contribuir
 
-Contribuições são muito bem-vindas! Este é um projeto open source voltado para a comunidade da construção civil brasileira.
-
-### Passos para contribuir
-
 1. **Fork** o repositório
 2. Crie uma branch: `git checkout -b feat/minha-funcionalidade`
-3. Faça suas alterações seguindo os padrões do projeto
-4. Execute os testes: `./mvnw test`
+3. Trabalhe no diretório `api/` (módulo ativo)
+4. Execute os testes: `cd api && mvn test -s .mvn/settings.xml`
 5. Commit: `git commit -m "feat(modulo): descrição da mudança"`
 6. Push: `git push origin feat/minha-funcionalidade`
 7. Abra um **Pull Request**
@@ -225,40 +277,7 @@ fix(modulo): correção de bug
 refactor(modulo): refatoração sem mudança de comportamento
 test(modulo): adição/correção de testes
 docs: atualização de documentação
-chore: tarefas de manutenção
 ```
-
-### O que precisa de ajuda
-
-- [ ] Testes de integração com banco H2
-- [ ] Melhorar templates das telas de Atendimento e GED
-- [ ] API REST para integração com apps mobile
-- [ ] Exportação XLS dos relatórios operacionais
-- [ ] Importação de planilhas SINAPI mais recentes
-- [ ] Documentação da API (OpenAPI/Swagger)
-- [ ] Internacionalização (i18n)
-- [ ] Testes end-to-end (Selenium/Playwright)
-
-### Reportar bugs
-
-Abra uma [issue](https://github.com/SergioPacheco/sinapiPRO/issues) com:
-- Descrição do problema
-- Passos para reproduzir
-- Comportamento esperado vs atual
-- Versão do sistema e ambiente
-
----
-
-## 📊 Estatísticas do Projeto
-
-| Métrica | Valor |
-|---|---|
-| Arquivos Java | 514 |
-| Templates Thymeleaf/FTL | 214 |
-| Migrations Flyway | 36 |
-| Testes unitários | 39 |
-| Módulos | 11 fases (Sprints 1–37) |
-| Tabelas no banco | ~100 |
 
 ---
 
@@ -266,35 +285,11 @@ Abra uma [issue](https://github.com/SergioPacheco/sinapiPRO/issues) com:
 
 Este projeto está licenciado sob a **MIT License** — veja o arquivo [LICENSE](LICENSE) para detalhes.
 
-```
-MIT License
-
-Copyright (c) 2026 Sergio Pacheco
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
-
 ---
 
 ## 👥 Autores
 
-- **Sergio Pacheco** — *Desenvolvimento inicial* — [@SergioPacheco](https://github.com/SergioPacheco)
+- **Sergio Pacheco** — *Desenvolvimento* — [@SergioPacheco](https://github.com/SergioPacheco)
 
 ---
 
@@ -302,8 +297,8 @@ SOFTWARE.
 
 - [SINAPI/CEF](https://www.caixa.gov.br/poder-publico/modernizacao-gestao/sinapi) — Base de dados de custos da construção civil
 - [Spring Boot](https://spring.io/projects/spring-boot) — Framework principal
-- [Thymeleaf](https://www.thymeleaf.org/) — Template engine
-- [Flyway](https://flywaydb.org/) — Migrations de banco de dados
+- [OpenJDK](https://openjdk.org/) — Java 25 com features modernas
+- [PostgreSQL](https://www.postgresql.org/) — Banco de dados
 - Comunidade da construção civil brasileira
 
 ---

@@ -1,0 +1,37 @@
+package com.sinapipro.repository.filter;
+
+import com.sinapipro.model.BaseInsumo;
+import com.sinapipro.model.Especie;
+
+public class InsumoFilter {
+
+	private BaseInsumo baseInsumo; 
+	private String codigoInsumo;
+	private String descricao;
+	private Especie especie;
+	
+	public BaseInsumo getBaseInsumo() {
+		return baseInsumo;
+	}
+	public void setBaseInsumo(BaseInsumo baseInsumo) {
+		this.baseInsumo = baseInsumo;
+	}
+	public String getCodigoInsumo() {
+		return codigoInsumo;
+	}
+	public void setCodigoInsumo(String codigoInsumo) {
+		this.codigoInsumo = codigoInsumo;
+	}
+	public String getDescricao() {
+		return descricao;
+	}
+	public void setDescricao(String descricao) {
+		this.descricao = descricao;
+	}
+	public Especie getEspecie() {
+		return especie;
+	}
+	public void setEspecie(Especie especie) {
+		this.especie = especie;
+	}
+}

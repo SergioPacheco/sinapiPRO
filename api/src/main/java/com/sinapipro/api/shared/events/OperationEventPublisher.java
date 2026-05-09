@@ -1,28 +1,36 @@
 package com.sinapipro.api.shared.events;
 
+import module java.base;
+
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
-import java.time.Duration;
-import java.time.Instant;
-
 @Component
 public class OperationEventPublisher {
 
-    private final Sinks.Many<OperationEvent> sink = Sinks.many().multicast().onBackpressureBuffer();
+    private final Sinks.Many<DomainEvent> sink = Sinks.many().multicast().onBackpressureBuffer();
 
     public void publish(String domain, OperationEventType type, String entityId, String message) {
-        sink.tryEmitNext(new OperationEvent(Instant.now(), type, domain, entityId, message));
+        var event = switch (type) {
+            case CREATED   -> new DomainEvent.Created(Instant.now(), domain, entityId, message);
+            case UPDATED   -> new DomainEvent.Updated(Instant.now(), domain, entityId, message);
+            case DELETED   -> new DomainEvent.Deleted(Instant.now(), domain, entityId, message);
+            case SNAPSHOT  -> new DomainEvent.Snapshot(Instant.now(), domain, entityId, message);
+            case HEARTBEAT -> DomainEvent.heartbeat();
+        };
+        sink.tryEmitNext(event);
     }
 
-    public Flux<ServerSentEvent<OperationEvent>> stream() {
-        Flux<OperationEvent> heartbeat = Flux.interval(Duration.ofSeconds(15)).map(ignored -> OperationEvent.heartbeat());
+    public Flux<ServerSentEvent<DomainEvent>> stream() {
+        Flux<DomainEvent> heartbeat = Flux.interval(Duration.ofSeconds(15))
+                .map(_ -> DomainEvent.heartbeat());
+
         return Flux.merge(sink.asFlux(), heartbeat)
-                .map(event -> ServerSentEvent.<OperationEvent>builder()
+                .map(event -> ServerSentEvent.<DomainEvent>builder()
                         .id(event.entityId() + ":" + event.timestamp().toEpochMilli())
-                        .event(event.type().name().toLowerCase())
+                        .event(event.eventName())
                         .data(event)
                         .build());
     }

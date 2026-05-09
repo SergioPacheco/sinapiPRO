@@ -1,8 +1,0 @@
-{
-  "title": "KiroRails Post-Task Verification",
-  "description": "Run compile, test, lint checks and phantom detection after completing a spec task.",
-  "event": "Post Task Execution",
-  "action": "Run Command",
-  "command": ".kiro/hooks-exec/post-task.sh && kirorails check-phantom --commits 5",
-  "enabled": true
-}

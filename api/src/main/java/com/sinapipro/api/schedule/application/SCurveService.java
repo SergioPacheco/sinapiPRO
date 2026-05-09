@@ -1,15 +1,11 @@
 package com.sinapipro.api.schedule.application;
 
+import module java.base;
+
 import com.sinapipro.api.schedule.domain.ScheduleActivity;
 import com.sinapipro.api.schedule.domain.ScheduleActivityRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -22,38 +18,36 @@ public class SCurveService {
     }
 
     public SCurveData calculate(UUID budgetId) {
-        List<ScheduleActivity> activities = repository.findByBudgetIdOrderBySortOrder(budgetId);
+        var activities = repository.findByBudgetIdOrderBySortOrder(budgetId);
         if (activities.isEmpty()) return new SCurveData(List.of());
 
-        LocalDate minDate = activities.stream().map(ScheduleActivity::getPlannedStart).min(LocalDate::compareTo).orElse(LocalDate.now());
-        LocalDate maxDate = activities.stream().map(ScheduleActivity::getPlannedEnd).max(LocalDate::compareTo).orElse(LocalDate.now());
+        var minDate = activities.stream().map(ScheduleActivity::getPlannedStart).min(LocalDate::compareTo).orElse(LocalDate.now());
+        var maxDate = activities.stream().map(ScheduleActivity::getPlannedEnd).max(LocalDate::compareTo).orElse(LocalDate.now());
 
-        List<SCurvePoint> points = new ArrayList<>();
-        BigDecimal cumulativePlanned = BigDecimal.ZERO;
-        BigDecimal cumulativeActual = BigDecimal.ZERO;
+        var points = new ArrayList<SCurvePoint>();
+        var cumulativePlanned = BigDecimal.ZERO;
+        var cumulativeActual = BigDecimal.ZERO;
 
-        LocalDate current = minDate.withDayOfMonth(1);
+        var current = minDate.withDayOfMonth(1);
         while (!current.isAfter(maxDate)) {
-            LocalDate periodEnd = current.plusMonths(1).minusDays(1);
+            var periodEnd = current.plusMonths(1).minusDays(1);
 
-            for (ScheduleActivity a : activities) {
-                BigDecimal weight = a.getWeight();
-                long totalDays = ChronoUnit.DAYS.between(a.getPlannedStart(), a.getPlannedEnd());
+            for (var a : activities) {
+                var weight = a.getWeight();
+                var totalDays = ChronoUnit.DAYS.between(a.getPlannedStart(), a.getPlannedEnd());
                 if (totalDays <= 0) continue;
 
-                // Planned progress in this period
-                LocalDate overlapStart = current.isBefore(a.getPlannedStart()) ? a.getPlannedStart() : current;
-                LocalDate overlapEnd = periodEnd.isAfter(a.getPlannedEnd()) ? a.getPlannedEnd() : periodEnd;
+                var overlapStart = current.isBefore(a.getPlannedStart()) ? a.getPlannedStart() : current;
+                var overlapEnd = periodEnd.isAfter(a.getPlannedEnd()) ? a.getPlannedEnd() : periodEnd;
                 if (!overlapStart.isAfter(overlapEnd)) {
-                    long daysInPeriod = ChronoUnit.DAYS.between(overlapStart, overlapEnd) + 1;
-                    BigDecimal fraction = BigDecimal.valueOf(daysInPeriod).divide(BigDecimal.valueOf(totalDays), 6, RoundingMode.HALF_UP);
+                    var daysInPeriod = ChronoUnit.DAYS.between(overlapStart, overlapEnd) + 1;
+                    var fraction = BigDecimal.valueOf(daysInPeriod).divide(BigDecimal.valueOf(totalDays), 6, RoundingMode.HALF_UP);
                     cumulativePlanned = cumulativePlanned.add(weight.multiply(fraction));
                 }
             }
 
-            // Actual = sum(weight × progressPct) for activities that started before periodEnd
-            BigDecimal actualSnapshot = BigDecimal.ZERO;
-            for (ScheduleActivity a : activities) {
+            var actualSnapshot = BigDecimal.ZERO;
+            for (var a : activities) {
                 if (a.getActualStart() != null && !a.getActualStart().isAfter(periodEnd)) {
                     actualSnapshot = actualSnapshot.add(a.getWeight().multiply(a.getProgressPct()).divide(BigDecimal.valueOf(100), 6, RoundingMode.HALF_UP));
                 }

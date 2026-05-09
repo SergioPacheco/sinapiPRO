@@ -1,15 +1,13 @@
 package com.sinapipro.api.schedule.application;
 
+import module java.base;
+
 import com.sinapipro.api.schedule.domain.ActivityDependency;
 import com.sinapipro.api.schedule.domain.ActivityDependencyRepository;
 import com.sinapipro.api.schedule.domain.ScheduleActivity;
 import com.sinapipro.api.schedule.domain.ScheduleActivityRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -25,29 +23,29 @@ public class CriticalPathService {
     }
 
     public CriticalPathResult calculate(UUID budgetId) {
-        List<ScheduleActivity> activities = activityRepository.findByBudgetIdOrderBySortOrder(budgetId);
-        List<ActivityDependency> dependencies = dependencyRepository.findByBudgetId(budgetId);
+        var activities = activityRepository.findByBudgetIdOrderBySortOrder(budgetId);
+        var dependencies = dependencyRepository.findByBudgetId(budgetId);
 
         if (activities.isEmpty()) {
             return new CriticalPathResult(List.of(), 0);
         }
 
         // Build adjacency structures
-        Map<UUID, ScheduleActivity> activityMap = new HashMap<>();
-        Map<UUID, List<UUID>> successors = new HashMap<>();
-        Map<UUID, List<UUID>> predecessors = new HashMap<>();
-        Map<UUID, Integer> duration = new HashMap<>();
+        var activityMap = new HashMap<UUID, ScheduleActivity>();
+        var successors = new HashMap<UUID, List<UUID>>();
+        var predecessors = new HashMap<UUID, List<UUID>>();
+        var duration = new HashMap<UUID, Integer>();
 
-        for (ScheduleActivity a : activities) {
+        for (var a : activities) {
             activityMap.put(a.getId(), a);
             successors.put(a.getId(), new ArrayList<>());
             predecessors.put(a.getId(), new ArrayList<>());
             duration.put(a.getId(), (int) ChronoUnit.DAYS.between(a.getPlannedStart(), a.getPlannedEnd()) + 1);
         }
 
-        for (ActivityDependency d : dependencies) {
-            UUID predId = d.getPredecessor().getId();
-            UUID succId = d.getSuccessor().getId();
+        for (var d : dependencies) {
+            var predId = d.getPredecessor().getId();
+            var succId = d.getSuccessor().getId();
             if (activityMap.containsKey(predId) && activityMap.containsKey(succId)) {
                 successors.get(predId).add(succId);
                 predecessors.get(succId).add(predId);
@@ -55,34 +53,33 @@ public class CriticalPathService {
         }
 
         // Topological sort (Kahn's algorithm)
-        List<UUID> topoOrder = topologicalSort(activities, predecessors, successors);
+        var topoOrder = topologicalSort(activities, predecessors, successors);
 
-        // Forward pass: calculate Early Start (ES) and Early Finish (EF)
-        Map<UUID, Integer> earlyStart = new HashMap<>();
-        Map<UUID, Integer> earlyFinish = new HashMap<>();
+        // Forward pass: Early Start (ES) and Early Finish (EF)
+        var earlyStart = new HashMap<UUID, Integer>();
+        var earlyFinish = new HashMap<UUID, Integer>();
 
-        for (UUID id : topoOrder) {
-            int es = 0;
-            for (UUID predId : predecessors.get(id)) {
+        for (var id : topoOrder) {
+            var es = 0;
+            for (var predId : predecessors.get(id)) {
                 es = Math.max(es, earlyFinish.getOrDefault(predId, 0));
             }
             earlyStart.put(id, es);
             earlyFinish.put(id, es + duration.get(id));
         }
 
-        // Project duration
         int projectDuration = earlyFinish.values().stream().mapToInt(Integer::intValue).max().orElse(0);
 
-        // Backward pass: calculate Late Start (LS) and Late Finish (LF)
-        Map<UUID, Integer> lateFinish = new HashMap<>();
-        Map<UUID, Integer> lateStart = new HashMap<>();
+        // Backward pass: Late Start (LS) and Late Finish (LF)
+        var lateFinish = new HashMap<UUID, Integer>();
+        var lateStart = new HashMap<UUID, Integer>();
 
-        List<UUID> reverseOrder = new ArrayList<>(topoOrder);
+        var reverseOrder = new ArrayList<>(topoOrder);
         Collections.reverse(reverseOrder);
 
-        for (UUID id : reverseOrder) {
-            int lf = projectDuration;
-            for (UUID succId : successors.get(id)) {
+        for (var id : reverseOrder) {
+            var lf = projectDuration;
+            for (var succId : successors.get(id)) {
                 lf = Math.min(lf, lateStart.getOrDefault(succId, projectDuration));
             }
             lateFinish.put(id, lf);
@@ -90,11 +87,11 @@ public class CriticalPathService {
         }
 
         // Calculate float and identify critical path
-        List<CriticalActivity> criticalActivities = new ArrayList<>();
-        for (UUID id : topoOrder) {
-            int totalFloat = lateStart.get(id) - earlyStart.get(id);
-            ScheduleActivity a = activityMap.get(id);
-            boolean isCritical = totalFloat == 0;
+        var criticalActivities = new ArrayList<CriticalActivity>();
+        for (var id : topoOrder) {
+            var totalFloat = lateStart.get(id) - earlyStart.get(id);
+            var a = activityMap.get(id);
+            var isCritical = totalFloat == 0;
             criticalActivities.add(new CriticalActivity(
                     a.getId(), a.getName(), duration.get(id),
                     earlyStart.get(id), earlyFinish.get(id),
@@ -108,21 +105,21 @@ public class CriticalPathService {
     private List<UUID> topologicalSort(List<ScheduleActivity> activities,
                                         Map<UUID, List<UUID>> predecessors,
                                         Map<UUID, List<UUID>> successors) {
-        Map<UUID, Integer> inDegree = new HashMap<>();
-        for (ScheduleActivity a : activities) {
+        var inDegree = new HashMap<UUID, Integer>();
+        for (var a : activities) {
             inDegree.put(a.getId(), predecessors.get(a.getId()).size());
         }
 
-        Queue<UUID> queue = new LinkedList<>();
+        var queue = new LinkedList<UUID>();
         for (var entry : inDegree.entrySet()) {
             if (entry.getValue() == 0) queue.add(entry.getKey());
         }
 
-        List<UUID> result = new ArrayList<>();
+        var result = new ArrayList<UUID>();
         while (!queue.isEmpty()) {
-            UUID current = queue.poll();
+            var current = queue.poll();
             result.add(current);
-            for (UUID succId : successors.get(current)) {
+            for (var succId : successors.get(current)) {
                 inDegree.put(succId, inDegree.get(succId) - 1);
                 if (inDegree.get(succId) == 0) queue.add(succId);
             }

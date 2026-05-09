@@ -2,13 +2,11 @@
 
 Obrigado por querer contribuir com o SinapiPRO! 🏗️
 
-Este documento explica como participar do projeto de forma eficiente.
-
 ---
 
 ## Código de Conduta
 
-Seja respeitoso. Contribuições de todos os níveis são bem-vindas — desde correções de typo até novos módulos.
+Seja respeitoso. Contribuições de todos os níveis são bem-vindas.
 
 ---
 
@@ -17,49 +15,110 @@ Seja respeitoso. Contribuições de todos os níveis são bem-vindas — desde c
 ### 1. Reportar Bugs
 
 Abra uma [issue](https://github.com/SergioPacheco/sinapiPRO/issues/new) com:
-- **Título claro** descrevendo o problema
-- **Passos para reproduzir**
-- **Comportamento esperado** vs **comportamento atual**
-- **Ambiente**: OS, Java version, banco de dados
+- Título claro descrevendo o problema
+- Passos para reproduzir
+- Comportamento esperado vs atual
+- Ambiente: OS, Java version
 
 ### 2. Sugerir Funcionalidades
 
-Abra uma issue com o label `enhancement` descrevendo:
-- O problema que a funcionalidade resolve
-- Como você imagina a solução
-- Se possível, referência a como outros sistemas ERP de construção civil implementam
+Abra uma issue com label `enhancement` descrevendo o problema que resolve.
 
-### 3. Enviar Pull Requests
+### 3. Enviar Código
 
 ```bash
-# Fork e clone
-git clone https://github.com/SEU_USUARIO/sinapiPRO.git
-cd sinapiPRO
+# Fork + clone
+git clone https://github.com/SEU_USER/sinapiPRO.git
+cd sinapiPRO/api
 
-# Crie uma branch descritiva
-git checkout -b feat/analise-cotacao-melhorias
+# Crie uma branch
+git checkout -b feat/minha-funcionalidade
 
-# Faça suas alterações
-# ...
+# Desenvolva e teste
+mvn test -s .mvn/settings.xml
 
-# Execute os testes
-./mvnw test
+# Commit e push
+git commit -m "feat(modulo): descrição da mudança"
+git push origin feat/minha-funcionalidade
+```
 
-# Compile para verificar
-./mvnw compile
+Abra um Pull Request para `main`.
 
-# Commit seguindo o padrão
-git commit -m "feat(cotacao): adicionar filtro por fornecedor na análise"
+---
 
-# Push e abra o PR
-git push origin feat/analise-cotacao-melhorias
+## Pré-requisitos
+
+```bash
+java -version   # Java 25 (Temurin)
+mvn -version    # Maven 3.9+
+docker -v       # Docker (para PostgreSQL via Testcontainers)
+```
+
+Instale via [SDKMAN](https://sdkman.io/):
+```bash
+sdk install java 25-tem
+sdk install maven
 ```
 
 ---
 
-## Padrões do Projeto
+## Estrutura do Projeto
 
-### Commits (Conventional Commits)
+```
+sinapiPRO/
+├── api/                    ← MÓDULO ATIVO (Java 25 + Spring Boot 4)
+│   ├── pom.xml
+│   ├── compose.yaml        ← PostgreSQL para dev
+│   └── src/
+├── docs/                   ← Documentação (Mermaid, arquitetura, domínio)
+└── src/                    ← Módulo legado (somente referência, não alterar)
+```
+
+**Todo desenvolvimento acontece em `api/`.**
+
+---
+
+## Comandos
+
+```bash
+cd api
+mvn compile -s .mvn/settings.xml          # compilar
+mvn test -s .mvn/settings.xml             # testes (requer Docker)
+mvn spring-boot:run -s .mvn/settings.xml  # executar
+```
+
+---
+
+## Padrões de Código
+
+### Arquitetura (Vertical Slicing)
+```
+{module}/
+├── api/            ← Controllers + DTOs (records)
+├── application/    ← Services + business logic
+└── domain/         ← Entities + Repositories
+```
+
+### Java 25 Features (usar sempre que possível)
+- `import module java.base;` — substitui imports de java.util.*, java.time.*, etc
+- `var` — inferência de tipo em variáveis locais
+- `_` — unnamed variables em lambdas
+- Sealed classes/interfaces para hierarquias
+- Pattern matching em switch
+- Records para DTOs e value objects
+- Structured Concurrency para operações paralelas
+- Gatherers para agregações em stream
+
+### Convenções
+- Entities: singular em inglês (`Budget`, `Supplier`)
+- DTOs: `Create{Entity}Request`, `{Entity}Response`
+- Exceptions: `{Domain}NotFoundException`
+- Valores monetários: `BigDecimal` + `numeric(18,2)` no banco
+- PKs: UUID (nunca sequencial)
+
+---
+
+## Padrões de Commit
 
 ```
 feat(modulo): nova funcionalidade
@@ -67,101 +126,27 @@ fix(modulo): correção de bug
 refactor(modulo): refatoração sem mudança de comportamento
 test(modulo): adição/correção de testes
 docs: atualização de documentação
-chore: tarefas de manutenção
-migration: nova migration Flyway
-```
-
-**Módulos válidos:** `orcamento`, `cotacao`, `estoque`, `financeiro`, `comercial`, `obras`, `atendimento`, `frota`, `ged`, `seguranca`, `relatorios`
-
-### Estrutura de Código
-
-Siga o padrão existente:
-- **Model**: `src/main/java/.../model/`
-- **Repository**: `src/main/java/.../repository/` + `helper/`
-- **Service**: `src/main/java/.../service/` — lógica de negócio aqui
-- **Controller**: `src/main/java/.../controller/` — apenas HTTP + view binding
-- **Templates**: `src/main/resources/templates/`
-
-### Formatação Java (IntelliJ Standard)
-
-- Cada método em sua própria linha
-- Cada anotação em linha separada (`@Service`, `@Transactional`, etc.)
-- Getters/setters expandidos
-- try-catch em múltiplas linhas
-- Sem imports inline (`java.util.Map` → import no topo)
-
-### Testes
-
-Todo novo service deve ter testes unitários com Mockito:
-
-```java
-@RunWith(MockitoJUnitRunner.class)
-public class MeuServiceTeste {
-
-    @Mock
-    private MeuRepository repository;
-
-    @InjectMocks
-    private MeuService service;
-
-    @Test
-    public void should_resultado_when_condicao() {
-        // Arrange
-        // Act
-        // Assert
-    }
-}
-```
-
-### Migrations Flyway
-
-- Arquivo: `V{N}__descricao_snake_case.sql`
-- Use `INSERT IGNORE` para dados iniciais
-- Sempre teste rollback manual antes de submeter
-- Documente o propósito no comentário inicial
-
----
-
-## Áreas que Precisam de Ajuda
-
-| Área | Dificuldade | Descrição |
-|---|---|---|
-| Testes H2 | Média | Testes de integração com banco em memória |
-| API REST | Média | Endpoints JSON para apps mobile |
-| Exportação XLS | Fácil | Apache POI nos relatórios operacionais |
-| Swagger/OpenAPI | Fácil | Documentação automática da API |
-| i18n | Média | Internacionalização (pt-BR já é padrão) |
-| Selenium/Playwright | Alta | Testes end-to-end |
-| Templates Atendimento | Fácil | Melhorar UI do módulo CRM |
-| Importação SINAPI | Média | Atualizar planilhas SINAPI mais recentes |
-
----
-
-## Ambiente de Desenvolvimento
-
-```bash
-# Requisitos
-java -version   # Java 11+
-mysql --version # MariaDB/MySQL 8+
-
-# Iniciar
-./run.sh
-
-# Compilar sem rodar
-./mvnw compile
-
-# Testes
-./mvnw test
-
-# Acesso
-http://localhost:8090
-admin@sinapipro.com / admin123
 ```
 
 ---
 
-## Dúvidas?
+## Banco de Dados
 
-Abra uma [issue](https://github.com/SergioPacheco/sinapiPRO/issues) com o label `question`.
+- **PostgreSQL 17** (sobe automaticamente via Docker Compose)
+- Migrations via **Flyway** em `api/src/main/resources/db/migration/`
+- Nunca alterar migrations existentes — criar nova migration
 
-Obrigado por contribuir! 🙏
+---
+
+## Testes
+
+- **Testcontainers** — PostgreSQL real nos testes de integração
+- **Spring Security Test** — JWT mockado
+- Todo novo service deve ter testes unitários
+- Bug fixes devem incluir teste de regressão
+
+---
+
+## Licença
+
+Ao contribuir, você concorda que suas contribuições serão licenciadas sob a [MIT License](LICENSE).

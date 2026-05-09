@@ -1,5 +1,7 @@
 package com.sinapipro.api.contract.application;
 
+import module java.base;
+
 import com.sinapipro.api.budget.domain.Budget;
 import com.sinapipro.api.budget.domain.BudgetRepository;
 import com.sinapipro.api.contract.domain.*;
@@ -8,12 +10,6 @@ import com.sinapipro.api.supplier.domain.Supplier;
 import com.sinapipro.api.supplier.domain.SupplierRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
@@ -33,17 +29,17 @@ public class ContractService {
     @Transactional
     public Contract create(UUID budgetId, UUID supplierId, String number, String description,
                            BigDecimal originalValue, BigDecimal retentionPct, LocalDate startDate, LocalDate endDate) {
-        Budget budget = budgetRepository.findById(budgetId)
+        var budget = budgetRepository.findById(budgetId)
                 .orElseThrow(() -> new DomainNotFoundException("Budget not found: " + budgetId));
-        Supplier supplier = supplierRepository.findById(supplierId)
+        var supplier = supplierRepository.findById(supplierId)
                 .orElseThrow(() -> new DomainNotFoundException("Supplier not found: " + supplierId));
-        Contract contract = new Contract(budget, supplier, number, description, originalValue, retentionPct, startDate, endDate);
+        var contract = new Contract(budget, supplier, number, description, originalValue, retentionPct, startDate, endDate);
         return contractRepository.save(contract);
     }
 
     @Transactional
     public Contract activate(UUID contractId) {
-        Contract contract = findOrThrow(contractId);
+        var contract = findOrThrow(contractId);
         contract.activate();
         return contractRepository.save(contract);
     }
@@ -51,11 +47,11 @@ public class ContractService {
     @Transactional
     public ChangeOrder addChangeOrder(UUID contractId, Integer number, String description,
                                       BigDecimal amount, String justification) {
-        Contract contract = findOrThrow(contractId);
+        var contract = findOrThrow(contractId);
         if (contract.getStatus() != ContractStatus.ACTIVE) {
             throw new IllegalStateException("Can only add change orders to ACTIVE contracts");
         }
-        ChangeOrder co = new ChangeOrder(contract, number, description, amount, justification);
+        var co = new ChangeOrder(contract, number, description, amount, justification);
         contract.getChangeOrders().add(co);
         contractRepository.save(contract);
         return co;
@@ -63,8 +59,8 @@ public class ContractService {
 
     @Transactional
     public ChangeOrder approveChangeOrder(UUID contractId, UUID changeOrderId) {
-        Contract contract = findOrThrow(contractId);
-        ChangeOrder co = contract.getChangeOrders().stream()
+        var contract = findOrThrow(contractId);
+        var co = contract.getChangeOrders().stream()
                 .filter(c -> c.getId().equals(changeOrderId)).findFirst()
                 .orElseThrow(() -> new DomainNotFoundException("Change order not found: " + changeOrderId));
         co.approve();
@@ -74,8 +70,8 @@ public class ContractService {
 
     @Transactional
     public ChangeOrder rejectChangeOrder(UUID contractId, UUID changeOrderId) {
-        Contract contract = findOrThrow(contractId);
-        ChangeOrder co = contract.getChangeOrders().stream()
+        var contract = findOrThrow(contractId);
+        var co = contract.getChangeOrders().stream()
                 .filter(c -> c.getId().equals(changeOrderId)).findFirst()
                 .orElseThrow(() -> new DomainNotFoundException("Change order not found: " + changeOrderId));
         co.reject();
@@ -84,13 +80,13 @@ public class ContractService {
     }
 
     public ContractFinancialSummary financialSummary(UUID contractId) {
-        Contract contract = findOrThrow(contractId);
-        BigDecimal updatedValue = contract.getUpdatedValue();
-        BigDecimal retentionAmount = updatedValue.multiply(contract.getRetentionPct()).setScale(2, RoundingMode.HALF_UP);
-        BigDecimal netPayable = updatedValue.subtract(retentionAmount);
-        long approvedChangeOrders = contract.getChangeOrders().stream()
+        var contract = findOrThrow(contractId);
+        var updatedValue = contract.getUpdatedValue();
+        var retentionAmount = updatedValue.multiply(contract.getRetentionPct()).setScale(2, RoundingMode.HALF_UP);
+        var netPayable = updatedValue.subtract(retentionAmount);
+        var approvedChangeOrders = contract.getChangeOrders().stream()
                 .filter(co -> co.getStatus() == ChangeOrderStatus.APPROVED).count();
-        BigDecimal changeOrderTotal = contract.getChangeOrders().stream()
+        var changeOrderTotal = contract.getChangeOrders().stream()
                 .filter(co -> co.getStatus() == ChangeOrderStatus.APPROVED)
                 .map(ChangeOrder::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);

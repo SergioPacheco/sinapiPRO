@@ -121,7 +121,11 @@
 /home/user-sn-387444/Documentos/code/java/sinapiPRO/api/src/main/java/com/sinapipro/api/shared/api/PageResponse.java
 /home/user-sn-387444/Documentos/code/java/sinapiPRO/api/src/main/java/com/sinapipro/api/shared/domain/AuditableEntity.java
 /home/user-sn-387444/Documentos/code/java/sinapiPRO/api/src/main/java/com/sinapipro/api/shared/error/ApiExceptionHandler.java
+/home/user-sn-387444/Documentos/code/java/sinapiPRO/api/src/main/java/com/sinapipro/api/shared/error/DomainConflictException.java
+/home/user-sn-387444/Documentos/code/java/sinapiPRO/api/src/main/java/com/sinapipro/api/shared/error/DomainException.java
 /home/user-sn-387444/Documentos/code/java/sinapiPRO/api/src/main/java/com/sinapipro/api/shared/error/DomainNotFoundException.java
+/home/user-sn-387444/Documentos/code/java/sinapiPRO/api/src/main/java/com/sinapipro/api/shared/error/DomainValidationException.java
+/home/user-sn-387444/Documentos/code/java/sinapiPRO/api/src/main/java/com/sinapipro/api/shared/events/DomainEvent.java
 /home/user-sn-387444/Documentos/code/java/sinapiPRO/api/src/main/java/com/sinapipro/api/shared/events/OperationEvent.java
 /home/user-sn-387444/Documentos/code/java/sinapiPRO/api/src/main/java/com/sinapipro/api/shared/events/OperationEventPublisher.java
 /home/user-sn-387444/Documentos/code/java/sinapiPRO/api/src/main/java/com/sinapipro/api/shared/events/OperationEventType.java

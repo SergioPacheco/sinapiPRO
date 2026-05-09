@@ -1,16 +1,10 @@
 package com.sinapipro.api.sinapi.application;
 
+import module java.base;
+
 import com.sinapipro.api.sinapi.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class SinapiImportService {
@@ -23,35 +17,32 @@ public class SinapiImportService {
         this.compositionRepository = compositionRepository;
     }
 
-    /**
-     * Import materials with prices from CSV.
-     * Expected format: sinapi_code;description;unit;origin;state;reference_month;price
-     */
     @Transactional
     public ImportResult importMaterials(InputStream csvStream, String separator) {
-        List<String> lines = readLines(csvStream);
-        int created = 0, updated = 0, errors = 0;
-        List<String> errorMessages = new ArrayList<>();
+        var lines = readLines(csvStream);
+        var created = 0;
+        var updated = 0;
+        var errors = 0;
+        var errorMessages = new ArrayList<String>();
 
-        for (int i = 1; i < lines.size(); i++) { // skip header
-            String line = lines.get(i).trim();
+        for (int i = 1; i < lines.size(); i++) {
+            var line = lines.get(i).trim();
             if (line.isEmpty()) continue;
             try {
-                String[] parts = line.split(separator, -1);
+                var parts = line.split(separator, -1);
                 if (parts.length < 7) { errors++; errorMessages.add("Line " + (i+1) + ": insufficient columns"); continue; }
 
-                String code = parts[0].trim();
-                String description = parts[1].trim();
-                String unit = parts[2].trim();
-                String origin = parts[3].trim();
-                String state = parts[4].trim();
-                LocalDate refMonth = LocalDate.parse(parts[5].trim());
-                BigDecimal price = new BigDecimal(parts[6].trim().replace(",", "."));
+                var code = parts[0].trim();
+                var description = parts[1].trim();
+                var unit = parts[2].trim();
+                var origin = parts[3].trim();
+                var state = parts[4].trim();
+                var refMonth = LocalDate.parse(parts[5].trim());
+                var price = new BigDecimal(parts[6].trim().replace(",", "."));
 
-                Material material = materialRepository.findBySinapiCode(code)
+                var material = materialRepository.findBySinapiCode(code)
                         .orElseGet(() -> materialRepository.save(new Material(code, description, unit, origin)));
 
-                // Add price if not exists
                 boolean priceExists = material.getPrices().stream()
                         .anyMatch(p -> p.getState().equals(state) && p.getReferenceMonth().equals(refMonth));
                 if (!priceExists) {
@@ -69,34 +60,32 @@ public class SinapiImportService {
         return new ImportResult("materials", created, updated, errors, errorMessages);
     }
 
-    /**
-     * Import compositions from CSV.
-     * Expected format: sinapi_code;description;unit;group;material_code;coefficient
-     */
     @Transactional
     public ImportResult importCompositions(InputStream csvStream, String separator) {
-        List<String> lines = readLines(csvStream);
-        int created = 0, updated = 0, errors = 0;
-        List<String> errorMessages = new ArrayList<>();
+        var lines = readLines(csvStream);
+        var created = 0;
+        var updated = 0;
+        var errors = 0;
+        var errorMessages = new ArrayList<String>();
 
         for (int i = 1; i < lines.size(); i++) {
-            String line = lines.get(i).trim();
+            var line = lines.get(i).trim();
             if (line.isEmpty()) continue;
             try {
-                String[] parts = line.split(separator, -1);
+                var parts = line.split(separator, -1);
                 if (parts.length < 6) { errors++; errorMessages.add("Line " + (i+1) + ": insufficient columns"); continue; }
 
-                String compCode = parts[0].trim();
-                String description = parts[1].trim();
-                String unit = parts[2].trim();
-                String group = parts[3].trim();
-                String materialCode = parts[4].trim();
-                BigDecimal coefficient = new BigDecimal(parts[5].trim().replace(",", "."));
+                var compCode = parts[0].trim();
+                var description = parts[1].trim();
+                var unit = parts[2].trim();
+                var group = parts[3].trim();
+                var materialCode = parts[4].trim();
+                var coefficient = new BigDecimal(parts[5].trim().replace(",", "."));
 
-                Composition composition = compositionRepository.findBySinapiCode(compCode)
+                var composition = compositionRepository.findBySinapiCode(compCode)
                         .orElseGet(() -> compositionRepository.save(new Composition(compCode, description, unit, group)));
 
-                Material material = materialRepository.findBySinapiCode(materialCode).orElse(null);
+                var material = materialRepository.findBySinapiCode(materialCode).orElse(null);
                 if (material == null) {
                     errors++;
                     errorMessages.add("Line " + (i+1) + ": material not found: " + materialCode);
@@ -121,7 +110,7 @@ public class SinapiImportService {
     }
 
     private List<String> readLines(InputStream stream) {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
+        try (var reader = new BufferedReader(new InputStreamReader(stream))) {
             return reader.lines().toList();
         } catch (Exception e) {
             throw new IllegalArgumentException("Failed to read CSV: " + e.getMessage(), e);

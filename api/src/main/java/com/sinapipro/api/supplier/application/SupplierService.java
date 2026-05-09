@@ -1,5 +1,7 @@
 package com.sinapipro.api.supplier.application;
 
+import module java.base;
+
 import com.sinapipro.api.shared.error.DomainNotFoundException;
 import com.sinapipro.api.shared.events.OperationEventPublisher;
 import com.sinapipro.api.shared.events.OperationEventType;
@@ -13,8 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
@@ -54,9 +54,9 @@ public class SupplierService {
             if (repository.existsByTaxId(request.taxId())) {
                 throw new IllegalArgumentException("Tax ID already registered: " + request.taxId());
             }
-            Supplier supplier = new Supplier(request.code(), request.name(), request.tradeName(),
+            var supplier = new Supplier(request.code(), request.name(), request.tradeName(),
                     request.taxId(), request.email(), request.phone(), request.rating(), request.active());
-            Supplier saved = repository.save(supplier);
+            var saved = repository.save(supplier);
             metricsService.record("supplier", OperationEventType.CREATED);
             eventPublisher.publish("supplier", OperationEventType.CREATED, saved.getId().toString(), "Supplier created: " + saved.getCode());
             return saved;
@@ -66,10 +66,10 @@ public class SupplierService {
     @Transactional
     public Supplier update(UUID id, UpdateSupplierRequest request) {
         return observationService.observe("supplier.update", "supplier", () -> {
-            Supplier supplier = findById(id);
+            var supplier = findById(id);
             supplier.update(request.name(), request.tradeName(), request.email(),
                     request.phone(), request.rating(), request.active());
-            Supplier saved = repository.save(supplier);
+            var saved = repository.save(supplier);
             metricsService.record("supplier", OperationEventType.UPDATED);
             eventPublisher.publish("supplier", OperationEventType.UPDATED, saved.getId().toString(), "Supplier updated: " + saved.getCode());
             return saved;
@@ -78,7 +78,7 @@ public class SupplierService {
 
     @Transactional
     public void delete(UUID id) {
-        Supplier supplier = findById(id);
+        var supplier = findById(id);
         repository.delete(supplier);
         metricsService.record("supplier", OperationEventType.DELETED);
         eventPublisher.publish("supplier", OperationEventType.DELETED, id.toString(), "Supplier deleted: " + supplier.getCode());

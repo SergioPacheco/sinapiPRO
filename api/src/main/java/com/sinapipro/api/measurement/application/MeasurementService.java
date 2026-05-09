@@ -1,5 +1,9 @@
 package com.sinapipro.api.measurement.application;
 
+import module java.base;
+
+import java.util.stream.Gatherers;
+
 import com.sinapipro.api.budget.domain.Budget;
 import com.sinapipro.api.budget.domain.BudgetRepository;
 import com.sinapipro.api.invoice.domain.Invoice;
@@ -14,11 +18,6 @@ import com.sinapipro.api.measurement.domain.*;
 import com.sinapipro.api.shared.error.DomainNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
@@ -43,9 +42,9 @@ public class MeasurementService {
     @Transactional
     public Measurement create(UUID budgetId, Integer number, LocalDate periodStart, LocalDate periodEnd,
                               BigDecimal retentionPct, List<ItemInput> items) {
-        Budget budget = budgetRepository.findById(budgetId)
+        var budget = budgetRepository.findById(budgetId)
                 .orElseThrow(() -> new DomainNotFoundException("Budget not found: " + budgetId));
-        Measurement m = new Measurement(budget, number, periodStart, periodEnd, retentionPct);
+        var m = new Measurement(budget, number, periodStart, periodEnd, retentionPct);
         for (var item : items) {
             m.getItems().add(new MeasurementItem(m, item.costCodeId(), item.description(), item.quantity(), item.unitPrice()));
         }
@@ -54,24 +53,46 @@ public class MeasurementService {
 
     @Transactional
     public Measurement submit(UUID measurementId) {
-        Measurement m = findOrThrow(measurementId);
+        var m = findOrThrow(measurementId);
         m.submit();
         return measurementRepository.save(m);
     }
 
     @Transactional
     public Measurement approve(UUID measurementId) {
-        Measurement m = findOrThrow(measurementId);
+        var m = findOrThrow(measurementId);
         m.approve();
-        Measurement saved = measurementRepository.save(m);
+        var saved = measurementRepository.save(m);
 
-        // Generate ACTUAL cost transactions for each item with a cost code (idempotent)
-        for (MeasurementItem item : saved.getItems()) {
+        // Virtual threads: cost transactions and invoice generation run in parallel
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            var costFuture = executor.submit(() -> {
+                generateCostTransactions(saved);
+                return null;
+            });
+            var invoiceFuture = executor.submit(() -> {
+                generateInvoiceFromMeasurement(saved);
+                return null;
+            });
+            costFuture.get();
+            invoiceFuture.get();
+        } catch (ExecutionException e) {
+            throw new RuntimeException("Approval failed for measurement: " + measurementId, e.getCause());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Approval interrupted for measurement: " + measurementId, e);
+        }
+
+        return saved;
+    }
+
+    private void generateCostTransactions(Measurement saved) {
+        for (var item : saved.getItems()) {
             if (item.getCostCodeId() != null) {
                 costCodeRepository.findById(item.getCostCodeId()).ifPresent(costCode -> {
                     if (!costTransactionRepository.existsByReferenceIdAndType(saved.getId(), CostTransactionType.ACTUAL)) {
-                        CostTransaction tx = new CostTransaction(costCode, CostTransactionType.ACTUAL,
-                                item.getAmount().setScale(2, java.math.RoundingMode.HALF_UP),
+                        var tx = new CostTransaction(costCode, CostTransactionType.ACTUAL,
+                                item.getAmount().setScale(2, RoundingMode.HALF_UP),
                                 "Measurement #" + saved.getNumber() + ": " + item.getDescription(),
                                 saved.getId(), saved.getPeriodEnd());
                         costTransactionRepository.save(tx);
@@ -79,20 +100,15 @@ public class MeasurementService {
                 });
             }
         }
-
-        // Progress Billing: auto-generate invoice from approved measurement
-        generateInvoiceFromMeasurement(saved);
-
-        return saved;
     }
 
     private void generateInvoiceFromMeasurement(Measurement measurement) {
-        String invoiceNumber = "MED-" + measurement.getBudget().getId().toString().substring(0, 8)
+        var invoiceNumber = "MED-" + measurement.getBudget().getId().toString().substring(0, 8)
                 + "-" + measurement.getNumber();
         if (invoiceRepository.existsByNumber(invoiceNumber)) return;
 
-        Invoice invoice = new Invoice(invoiceNumber, measurement.getBudget(), null,
-                measurement.getNetAmount().setScale(2, java.math.RoundingMode.HALF_UP),
+        var invoice = new Invoice(invoiceNumber, measurement.getBudget(), null,
+                measurement.getNetAmount().setScale(2, RoundingMode.HALF_UP),
                 measurement.getPeriodEnd(), measurement.getPeriodEnd().plusDays(30),
                 InvoiceStatus.PENDING,
                 "Auto-generated from Measurement #" + measurement.getNumber());
@@ -100,56 +116,53 @@ public class MeasurementService {
     }
 
     public MeasurementSummary summary(UUID budgetId) {
-        List<Measurement> all = measurementRepository.findByBudgetIdOrderByNumberDesc(budgetId);
+        var all = measurementRepository.findByBudgetIdOrderByNumberDesc(budgetId);
 
-        BigDecimal totalGross = BigDecimal.ZERO;
-        BigDecimal totalNet = BigDecimal.ZERO;
-        BigDecimal totalRetention = BigDecimal.ZERO;
+        record Totals(BigDecimal gross, BigDecimal net, BigDecimal retention) {}
 
-        for (Measurement m : all) {
-            if (m.getStatus() == MeasurementStatus.APPROVED || m.getStatus() == MeasurementStatus.PAID) {
-                BigDecimal gross = m.getGrossAmount();
-                BigDecimal net = m.getNetAmount();
-                totalGross = totalGross.add(gross);
-                totalNet = totalNet.add(net);
-                totalRetention = totalRetention.add(gross.subtract(net));
-            }
-        }
+        var totals = all.stream()
+                .filter(m -> m.getStatus() == MeasurementStatus.APPROVED || m.getStatus() == MeasurementStatus.PAID)
+                .gather(Gatherers.fold(
+                        () -> new Totals(BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO),
+                        (acc, m) -> {
+                            var gross = m.getGrossAmount();
+                            var net = m.getNetAmount();
+                            return new Totals(acc.gross().add(gross), acc.net().add(net), acc.retention().add(gross.subtract(net)));
+                        }
+                ))
+                .findFirst()
+                .orElse(new Totals(BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO));
 
-        return new MeasurementSummary(all.size(), totalGross, totalNet, totalRetention);
+        return new MeasurementSummary(all.size(), totals.gross(), totals.net(), totals.retention());
     }
 
     public CumulativeResult cumulative(UUID budgetId, UUID measurementId) {
-        List<Measurement> all = measurementRepository.findByBudgetIdOrderByNumberDesc(budgetId);
-        Measurement current = findOrThrow(measurementId);
+        var all = measurementRepository.findByBudgetIdOrderByNumberDesc(budgetId);
+        var current = findOrThrow(measurementId);
 
-        BigDecimal previousCumulative = BigDecimal.ZERO;
-        for (Measurement m : all) {
-            if (m.getNumber() < current.getNumber()
-                    && (m.getStatus() == MeasurementStatus.APPROVED || m.getStatus() == MeasurementStatus.PAID)) {
-                previousCumulative = previousCumulative.add(m.getGrossAmount());
-            }
-        }
+        var previousCumulative = all.stream()
+                .filter(m -> m.getNumber() < current.getNumber()
+                        && (m.getStatus() == MeasurementStatus.APPROVED || m.getStatus() == MeasurementStatus.PAID))
+                .map(Measurement::getGrossAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        BigDecimal currentGross = current.getGrossAmount();
-        BigDecimal totalCumulative = previousCumulative.add(currentGross);
+        var currentGross = current.getGrossAmount();
+        var totalCumulative = previousCumulative.add(currentGross);
 
         return new CumulativeResult(previousCumulative, currentGross, totalCumulative);
     }
 
     public BalanceResult balance(UUID budgetId, BigDecimal contractedTotal) {
-        List<Measurement> all = measurementRepository.findByBudgetIdOrderByNumberDesc(budgetId);
+        var all = measurementRepository.findByBudgetIdOrderByNumberDesc(budgetId);
 
-        BigDecimal measured = BigDecimal.ZERO;
-        for (Measurement m : all) {
-            if (m.getStatus() == MeasurementStatus.APPROVED || m.getStatus() == MeasurementStatus.PAID) {
-                measured = measured.add(m.getGrossAmount());
-            }
-        }
+        var measured = all.stream()
+                .filter(m -> m.getStatus() == MeasurementStatus.APPROVED || m.getStatus() == MeasurementStatus.PAID)
+                .map(Measurement::getGrossAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        BigDecimal remaining = contractedTotal.subtract(measured);
-        BigDecimal percentMeasured = contractedTotal.compareTo(BigDecimal.ZERO) > 0
-                ? measured.multiply(BigDecimal.valueOf(100)).divide(contractedTotal, 2, java.math.RoundingMode.HALF_UP)
+        var remaining = contractedTotal.subtract(measured);
+        var percentMeasured = contractedTotal.compareTo(BigDecimal.ZERO) > 0
+                ? measured.multiply(BigDecimal.valueOf(100)).divide(contractedTotal, 2, RoundingMode.HALF_UP)
                 : BigDecimal.ZERO;
 
         return new BalanceResult(contractedTotal, measured, remaining, percentMeasured);

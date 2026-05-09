@@ -19,11 +19,14 @@ com/sinapipro/api/procurement/domain/QuotationResponse.class
 com/sinapipro/api/jobcosting/domain/CostTransaction.class
 com/sinapipro/api/shared/observability/BusinessMetricsService.class
 com/sinapipro/api/shared/error/ApiExceptionHandler$Violation.class
+com/sinapipro/api/shared/events/DomainEvent$Heartbeat.class
 com/sinapipro/api/safety/domain/SafetyInspection.class
 com/sinapipro/api/budget/application/BudgetCalculationService$BudgetSummary.class
 com/sinapipro/api/jobcosting/application/WipReportService.class
 com/sinapipro/api/document/domain/DocumentRepository.class
 com/sinapipro/api/submittal/api/SubmittalController$SubmittalResponse.class
+com/sinapipro/api/shared/events/DomainEvent$Created.class
+com/sinapipro/api/shared/error/DomainValidationException.class
 com/sinapipro/api/dailylog/application/DailyLogService$LaborInput.class
 com/sinapipro/api/budget/domain/Budget.class
 com/sinapipro/api/safety/domain/SafetyChecklistTemplateRepository.class
@@ -77,6 +80,7 @@ com/sinapipro/api/rfi/api/RfiController$CreateRfiRequest.class
 com/sinapipro/api/procurement/domain/PurchaseRequestStatus.class
 com/sinapipro/api/notification/api/NotificationController.class
 com/sinapipro/api/sinapi/application/SinapiImportService$ImportResult.class
+com/sinapipro/api/shared/error/DomainConflictException.class
 com/sinapipro/api/contract/domain/ContractStatus.class
 com/sinapipro/api/sinapi/domain/MaterialRepository.class
 com/sinapipro/api/budget/api/BudgetDetailController$BdiRequest.class
@@ -130,6 +134,7 @@ com/sinapipro/api/jobcosting/api/JobCostingController$TransactionResponse.class
 com/sinapipro/api/submittal/domain/SubmittalRepository.class
 com/sinapipro/api/measurement/api/MeasurementController$ItemRequest.class
 com/sinapipro/api/dailylog/domain/DailyLogRepository.class
+com/sinapipro/api/shared/events/OperationEventPublisher$1.class
 com/sinapipro/api/timetracking/api/TimeTrackingController.class
 com/sinapipro/api/procurement/api/ProcurementController$AddQuotationResponseReq.class
 com/sinapipro/api/document/application/DocumentService.class
@@ -202,6 +207,7 @@ com/sinapipro/api/dailylog/domain/DailyLogLabor.class
 com/sinapipro/api/dailylog/application/DailyLogService$DailyLogSummary.class
 com/sinapipro/api/analytics/application/CashFlowService.class
 com/sinapipro/api/equipment/domain/EquipmentRepository.class
+com/sinapipro/api/shared/events/DomainEvent$Deleted.class
 com/sinapipro/api/budget/domain/BudgetStatus.class
 com/sinapipro/api/shared/events/OperationEvent.class
 com/sinapipro/api/procurement/domain/Receiving.class
@@ -212,12 +218,15 @@ com/sinapipro/api/timetracking/application/LaborProductivityService$Productivity
 com/sinapipro/api/safety/domain/SafetyIncidentRepository.class
 com/sinapipro/api/contract/domain/ContractRepository.class
 com/sinapipro/api/budget/application/AbcCurveService$MaterialAccumulator.class
+com/sinapipro/api/shared/events/DomainEvent.class
 com/sinapipro/api/measurement/application/MeasurementService$ItemInput.class
 com/sinapipro/api/budget/application/PriceAdjustmentService$AdjustmentType.class
+com/sinapipro/api/measurement/application/MeasurementService$1Totals.class
 com/sinapipro/api/invoice/api/UpdateInvoiceRequest.class
 com/sinapipro/api/dailylog/domain/DailyLogEquipment.class
 com/sinapipro/api/procurement/application/ProcurementService$SupplierQuote.class
 com/sinapipro/api/sinapi/domain/Composition.class
+com/sinapipro/api/shared/events/DomainEvent$Snapshot.class
 com/sinapipro/api/rfi/domain/RfiRepository.class
 com/sinapipro/api/forecast/application/DelayForecastService$DelayForecast.class
 com/sinapipro/api/equipment/api/EquipmentController$UsageResponse.class
@@ -225,6 +234,7 @@ com/sinapipro/api/procurement/api/ProcurementController$CreatePurchaseRequestReq
 com/sinapipro/api/budget/application/AbcCurveService$AbcEntry.class
 com/sinapipro/api/contract/application/ContractService.class
 com/sinapipro/api/measurement/domain/MeasurementRepository.class
+com/sinapipro/api/shared/events/DomainEvent$Updated.class
 com/sinapipro/api/rfi/domain/Rfi.class
 com/sinapipro/api/measurement/domain/MeasurementStatus.class
 com/sinapipro/api/security/application/JwtTokenService.class
@@ -253,6 +263,7 @@ com/sinapipro/api/supplier/api/SupplierController.class
 com/sinapipro/api/forecast/application/DelayForecastService.class
 com/sinapipro/api/notification/domain/NotificationRepository.class
 com/sinapipro/api/equipment/application/EquipmentService$MaintenanceAlert.class
+com/sinapipro/api/shared/error/DomainException.class
 com/sinapipro/api/shared/error/DomainNotFoundException.class
 com/sinapipro/api/notification/domain/Notification.class
 com/sinapipro/api/sinapi/domain/CompositionItem.class

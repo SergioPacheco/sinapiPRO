@@ -1,12 +1,10 @@
 package com.sinapipro.api.jobcosting.application;
 
+import module java.base;
+
 import com.sinapipro.api.jobcosting.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
@@ -21,11 +19,11 @@ public class JobCostingService {
     }
 
     public CostCodeSummary summarize(UUID costCodeId) {
-        CostCode code = codeRepository.findById(costCodeId).orElseThrow();
-        BigDecimal actual = transactionRepository.sumByCodeAndType(costCodeId, CostTransactionType.ACTUAL);
-        BigDecimal committed = transactionRepository.sumByCodeAndType(costCodeId, CostTransactionType.COMMITTED);
-        BigDecimal budgeted = code.getBudgetedAmount();
-        BigDecimal variance = budgeted.subtract(actual).subtract(committed);
+        var code = codeRepository.findById(costCodeId).orElseThrow();
+        var actual = transactionRepository.sumByCodeAndType(costCodeId, CostTransactionType.ACTUAL);
+        var committed = transactionRepository.sumByCodeAndType(costCodeId, CostTransactionType.COMMITTED);
+        var budgeted = code.getBudgetedAmount();
+        var variance = budgeted.subtract(actual).subtract(committed);
         return new CostCodeSummary(code.getCode(), code.getName(), budgeted, actual, committed, variance);
     }
 
@@ -36,11 +34,11 @@ public class JobCostingService {
     }
 
     public BudgetCostSummary budgetSummary(UUID budgetId) {
-        List<CostCode> codes = codeRepository.findByBudgetIdOrderByCode(budgetId);
-        BigDecimal totalBudgeted = codes.stream().map(CostCode::getBudgetedAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal totalActual = transactionRepository.sumByBudgetAndType(budgetId, CostTransactionType.ACTUAL);
-        BigDecimal totalCommitted = transactionRepository.sumByBudgetAndType(budgetId, CostTransactionType.COMMITTED);
-        BigDecimal totalVariance = totalBudgeted.subtract(totalActual).subtract(totalCommitted);
+        var codes = codeRepository.findByBudgetIdOrderByCode(budgetId);
+        var totalBudgeted = codes.stream().map(CostCode::getBudgetedAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        var totalActual = transactionRepository.sumByBudgetAndType(budgetId, CostTransactionType.ACTUAL);
+        var totalCommitted = transactionRepository.sumByBudgetAndType(budgetId, CostTransactionType.COMMITTED);
+        var totalVariance = totalBudgeted.subtract(totalActual).subtract(totalCommitted);
         return new BudgetCostSummary(totalBudgeted, totalActual, totalCommitted, totalVariance);
     }
 

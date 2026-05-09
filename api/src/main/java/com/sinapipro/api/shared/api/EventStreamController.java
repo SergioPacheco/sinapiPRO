@@ -1,6 +1,6 @@
 package com.sinapipro.api.shared.api;
 
-import com.sinapipro.api.shared.events.OperationEvent;
+import com.sinapipro.api.shared.events.DomainEvent;
 import com.sinapipro.api.shared.events.OperationEventPublisher;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,7 +26,7 @@ public class EventStreamController {
     @Operation(summary = "Subscribe to real-time domain events via SSE")
     @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
-    Flux<ServerSentEvent<OperationEvent>> stream() {
+    Flux<ServerSentEvent<DomainEvent>> stream() {
         return eventPublisher.stream();
     }
 }

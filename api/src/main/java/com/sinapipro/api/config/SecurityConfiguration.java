@@ -1,5 +1,7 @@
 package com.sinapipro.api.config;
 
+import module java.base;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
@@ -8,6 +10,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -23,13 +26,8 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.proc.SecurityContext;
@@ -40,7 +38,7 @@ public class SecurityConfiguration {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                    Converter<Jwt, JwtAuthenticationToken> jwtAuthenticationConverter) throws Exception {
+                                            Converter<Jwt, JwtAuthenticationToken> jwtAuthenticationConverter) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
@@ -68,15 +66,15 @@ public class SecurityConfiguration {
 
     @Bean
     AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+        var provider = new DaoAuthenticationProvider(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder);
         return provider;
     }
 
     @Bean
     UserDetailsService userDetailsService(SecurityProperties properties, PasswordEncoder passwordEncoder) {
-        SecurityProperties.DemoUser demoUser = properties.demoUser();
-        return new org.springframework.security.provisioning.InMemoryUserDetailsManager(
+        var demoUser = properties.demoUser();
+        return new InMemoryUserDetailsManager(
                 User.withUsername(demoUser.username())
                         .password(passwordEncoder.encode(demoUser.password()))
                         .roles(demoUser.roles().toArray(String[]::new))
@@ -84,8 +82,7 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    AuthenticationManager authenticationManager(org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration configuration)
-            throws Exception {
+    AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
 
@@ -96,24 +93,24 @@ public class SecurityConfiguration {
 
     @Bean
     JwtEncoder jwtEncoder(SecurityProperties properties) {
-        SecretKey secretKey = new SecretKeySpec(properties.secret().getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+        var secretKey = new SecretKeySpec(properties.secret().getBytes(StandardCharsets.UTF_8), "HmacSHA256");
         return new NimbusJwtEncoder(new ImmutableSecret<SecurityContext>(secretKey));
     }
 
     @Bean
     JwtDecoder jwtDecoder(SecurityProperties properties) {
-        SecretKey secretKey = new SecretKeySpec(properties.secret().getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+        var secretKey = new SecretKeySpec(properties.secret().getBytes(StandardCharsets.UTF_8), "HmacSHA256");
         return NimbusJwtDecoder.withSecretKey(secretKey).build();
     }
 
     @Bean
     Converter<Jwt, JwtAuthenticationToken> jwtAuthenticationConverter() {
-        JwtGrantedAuthoritiesConverter scopesConverter = new JwtGrantedAuthoritiesConverter();
+        var scopesConverter = new JwtGrantedAuthoritiesConverter();
         return jwt -> {
-            List<SimpleGrantedAuthority> authorities = new ArrayList<>(scopesConverter.convert(jwt).stream()
-                    .map(SimpleGrantedAuthority.class::cast)
+            var authorities = new ArrayList<>(scopesConverter.convert(jwt).stream()
+                    .map(ga -> (SimpleGrantedAuthority) ga)
                     .toList());
-            List<String> roles = jwt.getClaimAsStringList("roles");
+            var roles = jwt.getClaimAsStringList("roles");
             if (roles != null) {
                 roles.stream()
                         .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)

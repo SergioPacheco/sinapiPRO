@@ -1,37 +1,33 @@
-# Documentação — SinapiPRO
+# 📚 Documentação — SinapiPRO
 
-## Estrutura
+> Sistema de Gestão de Obras e Orçamentos | Java 25 + Spring Boot 4 + PostgreSQL 17
 
-```
-docs/
-├── levantamento-de-requisitos/
-│   └── sinapiPRO.md          ← Regras de negócio do domínio (obras, orçamentos, SINAPI)
-├── modelagem/
-│   ├── [SinapiPRO]EER.mwb    ← Diagrama EER (MySQL Workbench)
-│   └── [SinapiPRO]MER.mwb    ← Diagrama MER (MySQL Workbench)
-└── requisitos/
-    ├── [SinapiPRO] Requisitos.md              ← Requisitos funcionais completos
-    ├── [SinapiPRO]Telas.md                    ← Especificação de telas
-    ├── [SinapiPRO]Relatorios.md               ← Relatórios gerais
-    ├── [SinapiPRO]Relatorios - Composicao.md  ← Relatórios de composições
-    ├── [SinapiPRO]Relatorios - Insumos.md     ← Relatórios de insumos
-    ├── [SinapiPRO]Relatorios - Insumos do Orçamento.md
-    └── [SinapiPRO]Relatorios - Orcamento.md   ← Relatórios de orçamento
-```
+## Índice
 
-## Schema do Banco
+| Documento | Descrição |
+|-----------|-----------|
+| [architecture.md](architecture.md) | Arquitetura do sistema (C4, componentes, deploy) |
+| [database.md](database.md) | Modelo de dados PostgreSQL (ER com Mermaid) |
+| [api-flows.md](api-flows.md) | Diagramas de sequência dos fluxos principais |
+| [domain.md](domain.md) | Regras de negócio e glossário do domínio |
+| [deployment.md](deployment.md) | Deploy, observabilidade e operação |
 
-O schema atual é gerenciado pelo **Flyway** — consulte as migrations em:
+## Stack
 
 ```
-src/main/resources/db/migration/
-├── V1–V13   Schema core
-├── V14–V32  Módulos operacionais
-├── V33–V34  Estoque e permissões
-├── V35      Dados iniciais (admin)
-└── V36      Dados de demonstração
+Java 25 (Virtual Threads, Structured Concurrency, Sealed Classes, Gatherers)
+Spring Boot 4.0.5 / Spring Framework 7 / Spring Security 7
+PostgreSQL 17 (UUID PKs, JSONB, tsvector, índices parciais)
+Flyway (migrations V1–V14)
+Micrometer + Prometheus + OpenTelemetry + Grafana
+Docker Compose (dev + showcase)
 ```
 
-## Modelagem
+## Quick Start
 
-Para abrir os arquivos `.mwb` use o [MySQL Workbench](https://www.mysql.com/products/workbench/).
+```bash
+cd api
+mvn spring-boot:run -s .mvn/settings.xml
+# PostgreSQL sobe automaticamente via Docker Compose
+# Swagger: http://localhost:8080/swagger-ui.html
+```

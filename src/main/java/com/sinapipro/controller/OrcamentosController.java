@@ -1,0 +1,175 @@
+package com.sinapipro.controller;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.sinapipro.controller.page.PageWrapper;
+import com.sinapipro.dto.OrcamentoExportDTO;
+import com.sinapipro.model.Desoneracao;
+import com.sinapipro.model.Orcamento;
+import com.sinapipro.model.TipoOrcamento;
+import com.sinapipro.repository.filter.OrcamentoFilter;
+import com.sinapipro.repository.OrcamentosRepository;
+import com.sinapipro.security.UsuarioSistema;
+import com.sinapipro.service.BaseInsumoService;
+import com.sinapipro.service.BasePrecoService;
+import com.sinapipro.service.EstadoService;
+import com.sinapipro.service.OrcamentoService;
+import com.sinapipro.service.exception.ImpossivelExcluirEntidadeException;
+import com.sinapipro.service.exception.ResourceNotFoundException;
+
+@Controller
+@RequestMapping("/orcamentos")
+public class OrcamentosController {
+
+	private final EstadoService estadoService;
+	private final BasePrecoService basePrecoService;
+	private final BaseInsumoService baseInsumoService;
+	private final OrcamentoService orcamentoService;
+	private final OrcamentosRepository orcamentosRepository;
+	
+	public OrcamentosController(OrcamentoService orcamentoService, EstadoService estadoService,
+								BasePrecoService basePrecoService, BaseInsumoService baseInsumoService,
+								OrcamentosRepository orcamentosRepository) {
+		this.orcamentoService = orcamentoService;
+		this.estadoService = estadoService; 
+		this.basePrecoService = basePrecoService;
+		this.baseInsumoService = baseInsumoService;
+		this.orcamentosRepository = orcamentosRepository;
+	}
+	
+	@GetMapping("/novo")
+	public ModelAndView novo(Orcamento orcamento) {
+		ModelAndView mv = new ModelAndView("orcamento/CadastroOrcamento");
+		mv.addObject("estados", estadoService.findAll());
+		mv.addObject("basePrecos", basePrecoService.findAll());
+		mv.addObject("baseInsumos", baseInsumoService.findAll());
+		mv.addObject("desoneracoes", Desoneracao.values());
+		mv.addObject("tiposOrcamento", TipoOrcamento.values());
+		return mv;
+	}
+	 
+	@PostMapping({ "/novo", "/{codigo}" })
+	public ModelAndView salvar(@Valid Orcamento orcamento,
+			                   BindingResult result,
+	 		                   RedirectAttributes attributes,
+	 		                   @AuthenticationPrincipal UsuarioSistema usuarioSistema) {
+		if (result.hasErrors()) {
+			return novo(orcamento);
+		}
+		try {
+			orcamento.setUsuario(usuarioSistema.getUsuario());
+			orcamentoService.salvar(orcamento);
+		} catch(ResourceNotFoundException e){
+			result.rejectValue("nome",e.getMessage(), e.getMessage());
+			return novo(orcamento);
+		}
+		attributes.addFlashAttribute("mensagem", "Orcamento salvo com sucesso!");
+		return new ModelAndView("redirect:/atual");
+	}
+	
+	@GetMapping
+	public ModelAndView pesquisar(OrcamentoFilter orcamentoFilter, BindingResult result, 
+								  @PageableDefault(size = 10) Pageable pageable, 
+			                      HttpServletRequest httpServletRequest){
+		ModelAndView mv = new ModelAndView("orcamento/PesquisaOrcamentos");
+		PageWrapper<Orcamento> paginaWrapper = new PageWrapper<>(orcamentoService
+									.filtrar(orcamentoFilter, pageable), httpServletRequest);
+		mv.addObject("pagina" , paginaWrapper);
+		return mv;
+	}
+	
+	@DeleteMapping("/{codigo}")
+	public @ResponseBody ResponseEntity<?> excluir(@PathVariable("codigo") Orcamento orcamento) {
+		try {
+			orcamentoService.excluir(orcamento);
+		} catch (ImpossivelExcluirEntidadeException e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+		return ResponseEntity.ok().build();
+	} 
+	
+	@GetMapping("/{codigo}")
+	public ModelAndView editar(@PathVariable Long codigo) {
+		Orcamento orcamento = orcamentoService.buscarComItens(codigo);
+		if (orcamento == null) {
+			return new ModelAndView("redirect:/orcamentos");
+		}
+		ModelAndView mv = novo(orcamento);
+		mv.addObject(orcamento);
+		return mv;
+	}
+
+	@GetMapping("/{codigo}/export")
+	public @ResponseBody ResponseEntity<OrcamentoExportDTO> exportar(@PathVariable Long codigo) {
+		Orcamento orcamento = orcamentoService.buscarComItens(codigo);
+		if (orcamento == null) {
+			return ResponseEntity.notFound().build();
+		}
+		return ResponseEntity.ok(new OrcamentoExportDTO(orcamento));
+	}
+
+	/**
+	 *  Redireciona para o Orçamento Atual
+	 */
+	@GetMapping("/atual")
+	public ModelAndView atual(@AuthenticationPrincipal UsuarioSistema usuarioSistema) {
+		return orcamentoService.getCodigoOrcamentoAtual(usuarioSistema.getUsername())
+				.map(codigo -> new ModelAndView("redirect:/atual/" + codigo))
+				.orElse(new ModelAndView("redirect:/orcamentos"));
+	}	
+	
+	/**
+	 *  Seleciona este Orçamento como Atual
+	 */
+	@GetMapping("/acessaOrcamento/{codigo}")
+	public ModelAndView acessaOrcamento(@PathVariable Long codigo,
+										@AuthenticationPrincipal UsuarioSistema usuarioSistema) {
+		orcamentoService.selecionarOrcamento(usuarioSistema.getUsername(), codigo);
+		return new ModelAndView("redirect:/atual/" + codigo);
+	}	
+
+	@PostMapping("/gerarVenda/{codigo}")
+	public ModelAndView gerarVenda(@PathVariable Long codigo, RedirectAttributes attributes) {
+		Orcamento venda = orcamentoService.copiarOrcamento(codigo, TipoOrcamento.VENDA);
+		attributes.addFlashAttribute("mensagem", "Orçamento de Venda gerado com sucesso! Código: " + venda.getCodigo());
+		return new ModelAndView("redirect:/orcamentos");
+	}
+
+	@PostMapping("/gerarExecucao/{codigo}")
+	public ModelAndView gerarExecucao(@PathVariable Long codigo, RedirectAttributes attributes) {
+		Orcamento exec = orcamentoService.copiarOrcamento(codigo, TipoOrcamento.EXECUCAO);
+		attributes.addFlashAttribute("mensagem", "Orçamento de Execução gerado com sucesso! Código: " + exec.getCodigo());
+		return new ModelAndView("redirect:/orcamentos");
+	}
+
+	@GetMapping("/comparativo")
+	public ModelAndView comparativo(@org.springframework.web.bind.annotation.RequestParam(required = false) Long codigoVenda,
+									@org.springframework.web.bind.annotation.RequestParam(required = false) Long codigoExecucao) {
+		ModelAndView mv = new ModelAndView("orcamento/ComparativoVendaExecucao");
+		mv.addObject("orcamentosVenda", orcamentosRepository.findByTipoOrcamento(TipoOrcamento.VENDA));
+		mv.addObject("orcamentosExecucao", orcamentosRepository.findByTipoOrcamento(TipoOrcamento.EXECUCAO));
+		if (codigoVenda != null) {
+			mv.addObject("venda", orcamentoService.buscarComItens(codigoVenda));
+		}
+		if (codigoExecucao != null) {
+			mv.addObject("execucao", orcamentoService.buscarComItens(codigoExecucao));
+		}
+		return mv;
+	}
+}

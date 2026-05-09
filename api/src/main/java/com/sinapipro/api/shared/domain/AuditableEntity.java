@@ -1,5 +1,7 @@
 package com.sinapipro.api.shared.domain;
 
+import module java.base;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -7,9 +9,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
-
-import java.time.Instant;
-import java.util.UUID;
 
 @MappedSuperclass
 public abstract class AuditableEntity {
@@ -26,7 +25,7 @@ public abstract class AuditableEntity {
 
     @PrePersist
     void prePersist() {
-        Instant now = Instant.now();
+        var now = Instant.now();
         createdAt = now;
         updatedAt = now;
     }
@@ -36,15 +35,7 @@ public abstract class AuditableEntity {
         updatedAt = Instant.now();
     }
 
-    public UUID getId() {
-        return id;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
+    public UUID getId() { return id; }
+    public Instant getCreatedAt() { return createdAt; }
+    public Instant getUpdatedAt() { return updatedAt; }
 }

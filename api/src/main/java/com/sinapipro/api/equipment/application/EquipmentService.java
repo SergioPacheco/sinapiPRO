@@ -1,17 +1,13 @@
 package com.sinapipro.api.equipment.application;
 
+import module java.base;
+
 import com.sinapipro.api.equipment.domain.*;
 import com.sinapipro.api.shared.error.DomainNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
@@ -37,28 +33,28 @@ public class EquipmentService {
     @Transactional
     public EquipmentUsage recordUsage(UUID equipmentId, UUID budgetId, LocalDate usageDate,
                                       BigDecimal hoursUsed, BigDecimal kmUsed, String operator, String notes) {
-        Equipment equipment = findOrThrow(equipmentId);
+        var equipment = findOrThrow(equipmentId);
         equipment.addUsage(hoursUsed, kmUsed);
         equipmentRepository.save(equipment);
 
-        EquipmentUsage usage = new EquipmentUsage(equipment, budgetId, usageDate, hoursUsed, kmUsed, operator, notes);
+        var usage = new EquipmentUsage(equipment, budgetId, usageDate, hoursUsed, kmUsed, operator, notes);
         return usageRepository.save(usage);
     }
 
     @Transactional
     public Equipment scheduleMaintenace(UUID equipmentId, BigDecimal nextHours, LocalDate nextDate) {
-        Equipment equipment = findOrThrow(equipmentId);
+        var equipment = findOrThrow(equipmentId);
         equipment.setMaintenanceSchedule(nextHours, nextDate);
         return equipmentRepository.save(equipment);
     }
 
     public List<MaintenanceAlert> getMaintenanceAlerts() {
-        List<MaintenanceAlert> alerts = new ArrayList<>();
-        for (Equipment e : equipmentRepository.findMaintenanceDueByHours()) {
+        var alerts = new ArrayList<MaintenanceAlert>();
+        for (var e : equipmentRepository.findMaintenanceDueByHours()) {
             alerts.add(new MaintenanceAlert(e.getId(), e.getCode(), e.getName(), "HOURS",
                     "Current: " + e.getCurrentHours() + "h, Limit: " + e.getNextMaintenanceHours() + "h"));
         }
-        for (Equipment e : equipmentRepository.findMaintenanceDueByDate()) {
+        for (var e : equipmentRepository.findMaintenanceDueByDate()) {
             if (alerts.stream().noneMatch(a -> a.equipmentId().equals(e.getId()))) {
                 alerts.add(new MaintenanceAlert(e.getId(), e.getCode(), e.getName(), "DATE",
                         "Due: " + e.getNextMaintenanceDate()));
@@ -72,10 +68,10 @@ public class EquipmentService {
     }
 
     public EquipmentCostSummary costSummary(UUID budgetId) {
-        List<EquipmentUsage> usages = usageRepository.findByBudgetIdOrderByUsageDateDesc(budgetId);
-        BigDecimal totalHours = BigDecimal.ZERO;
-        BigDecimal totalCost = BigDecimal.ZERO;
-        for (EquipmentUsage u : usages) {
+        var usages = usageRepository.findByBudgetIdOrderByUsageDateDesc(budgetId);
+        var totalHours = BigDecimal.ZERO;
+        var totalCost = BigDecimal.ZERO;
+        for (var u : usages) {
             totalHours = totalHours.add(u.getHoursUsed());
             totalCost = totalCost.add(u.getCost());
         }

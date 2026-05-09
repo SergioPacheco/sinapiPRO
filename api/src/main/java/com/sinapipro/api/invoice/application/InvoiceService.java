@@ -1,5 +1,7 @@
 package com.sinapipro.api.invoice.application;
 
+import module java.base;
+
 import com.sinapipro.api.budget.domain.Budget;
 import com.sinapipro.api.budget.domain.BudgetRepository;
 import com.sinapipro.api.invoice.api.CreateInvoiceRequest;
@@ -18,8 +20,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
@@ -62,14 +62,14 @@ public class InvoiceService {
             if (invoiceRepository.existsByNumber(request.number())) {
                 throw new IllegalArgumentException("Invoice number already exists: " + request.number());
             }
-            Budget budget = budgetRepository.findById(request.budgetId())
+            var budget = budgetRepository.findById(request.budgetId())
                     .orElseThrow(() -> new DomainNotFoundException("Budget not found: " + request.budgetId()));
-            Supplier supplier = supplierRepository.findById(request.supplierId())
+            var supplier = supplierRepository.findById(request.supplierId())
                     .orElseThrow(() -> new DomainNotFoundException("Supplier not found: " + request.supplierId()));
 
-            Invoice invoice = new Invoice(request.number(), budget, supplier, request.amount(),
+            var invoice = new Invoice(request.number(), budget, supplier, request.amount(),
                     request.issueDate(), request.dueDate(), request.status(), request.notes());
-            Invoice saved = invoiceRepository.save(invoice);
+            var saved = invoiceRepository.save(invoice);
             metricsService.record("invoice", OperationEventType.CREATED);
             eventPublisher.publish("invoice", OperationEventType.CREATED, saved.getId().toString(), "Invoice created: " + saved.getNumber());
             return saved;
@@ -79,9 +79,9 @@ public class InvoiceService {
     @Transactional
     public Invoice update(UUID id, UpdateInvoiceRequest request) {
         return observationService.observe("invoice.update", "invoice", () -> {
-            Invoice invoice = findById(id);
+            var invoice = findById(id);
             invoice.update(request.amount(), request.dueDate(), request.status(), request.notes());
-            Invoice saved = invoiceRepository.save(invoice);
+            var saved = invoiceRepository.save(invoice);
             metricsService.record("invoice", OperationEventType.UPDATED);
             eventPublisher.publish("invoice", OperationEventType.UPDATED, saved.getId().toString(), "Invoice updated: " + saved.getNumber());
             return saved;
@@ -90,7 +90,7 @@ public class InvoiceService {
 
     @Transactional
     public void delete(UUID id) {
-        Invoice invoice = findById(id);
+        var invoice = findById(id);
         invoiceRepository.delete(invoice);
         metricsService.record("invoice", OperationEventType.DELETED);
         eventPublisher.publish("invoice", OperationEventType.DELETED, id.toString(), "Invoice deleted: " + invoice.getNumber());

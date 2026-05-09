@@ -14,6 +14,9 @@ public class BusinessMetricsService {
     }
 
     public void record(String domain, OperationEventType type) {
-        meterRegistry.counter("sinapipro.business.operations", "domain", domain, "type", type.name().toLowerCase()).increment();
+        meterRegistry.counter("sinapipro.business.operations",
+                "domain", domain,
+                "type", type.name().toLowerCase())
+                .increment();
     }
 }

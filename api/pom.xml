@@ -22,6 +22,7 @@
         <springdoc.version>3.0.3</springdoc.version>
         <testcontainers.version>1.20.6</testcontainers.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
+        <maven.compiler.enablePreview>true</maven.compiler.enablePreview>
     </properties>
 
     <dependencies>

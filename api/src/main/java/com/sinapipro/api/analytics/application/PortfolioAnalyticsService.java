@@ -1,12 +1,12 @@
 package com.sinapipro.api.analytics.application;
 
+import module java.base;
+
 import com.sinapipro.api.budget.domain.BudgetRepository;
 import com.sinapipro.api.invoice.domain.InvoiceRepository;
 import com.sinapipro.api.supplier.domain.SupplierRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
 
 @Service
 @Transactional(readOnly = true)
@@ -24,9 +24,9 @@ public class PortfolioAnalyticsService {
     }
 
     public PortfolioSummary summary() {
-        long totalBudgets = budgetRepository.count();
-        long activeSuppliers = supplierRepository.count();
-        long totalInvoices = invoiceRepository.count();
+        var totalBudgets = budgetRepository.count();
+        var activeSuppliers = supplierRepository.count();
+        var totalInvoices = invoiceRepository.count();
         return new PortfolioSummary(totalBudgets, activeSuppliers, totalInvoices);
     }
 

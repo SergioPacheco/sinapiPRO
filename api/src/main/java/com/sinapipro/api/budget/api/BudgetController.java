@@ -7,7 +7,6 @@ import com.sinapipro.api.shared.api.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -36,7 +35,7 @@ public class BudgetController {
             @RequestParam(required = false) BudgetStatus status,
             @RequestParam(required = false) String customerName,
             @PageableDefault(size = 20) Pageable pageable) {
-        Page<Budget> page = budgetService.findAll(new BudgetFilter(status, customerName), pageable);
+        var page = budgetService.findAll(new BudgetFilter(status, customerName), pageable);
         return PageResponse.from(page.map(BudgetResponse::from));
     }
 
@@ -58,8 +57,8 @@ public class BudgetController {
     @PostMapping
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
     ResponseEntity<BudgetResponse> create(@Valid @RequestBody CreateBudgetRequest request) {
-        Budget budget = budgetService.create(request);
-        BudgetResponse response = BudgetResponse.from(budget);
+        var budget = budgetService.create(request);
+        var response = BudgetResponse.from(budget);
         return ResponseEntity.created(URI.create("/api/v1/budgets/" + budget.getId())).body(response);
     }
 
