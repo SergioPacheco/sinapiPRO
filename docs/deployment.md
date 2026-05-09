@@ -27,8 +27,17 @@ graph LR
 ## Development (Local)
 
 ```bash
+# Terminal 1 — Backend (API + PostgreSQL)
 cd api
 mvn spring-boot:run -s .mvn/settings.xml
+# http://localhost:8080 (Swagger: /swagger-ui.html)
+
+# Terminal 2 — Frontend (Angular)
+cd web
+nvm use 22
+npx ng serve
+# http://localhost:4200 (proxy /api/v1 → :8080)
+# Login: admin@sinapipro.com / admin123
 ```
 
 O Spring Boot Docker Compose inicia o PostgreSQL automaticamente (`compose.yaml`):

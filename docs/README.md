@@ -1,33 +1,35 @@
 # 📚 Documentação — SinapiPRO
 
-> Sistema de Gestão de Obras e Orçamentos | Java 25 + Spring Boot 4 + PostgreSQL 17
+> Sistema de Gestão de Obras e Orçamentos | Java 25 + Angular 20 + PostgreSQL 17
 
 ## Índice
 
 | Documento | Descrição |
 |-----------|-----------|
-| [architecture.md](architecture.md) | Arquitetura do sistema (C4, componentes, deploy) |
+| [architecture.md](architecture.md) | Arquitetura do sistema (C4, componentes, decisões) |
 | [database.md](database.md) | Modelo de dados PostgreSQL (ER com Mermaid) |
 | [api-flows.md](api-flows.md) | Diagramas de sequência dos fluxos principais |
 | [domain.md](domain.md) | Regras de negócio e glossário do domínio |
 | [deployment.md](deployment.md) | Deploy, observabilidade e operação |
+| [frontend-plan.md](frontend-plan.md) | Arquitetura Angular (Feature-Shell + Clean Architecture) |
 
 ## Stack
 
 ```
-Java 25 (Virtual Threads, Structured Concurrency, Sealed Classes, Gatherers)
-Spring Boot 4.0.5 / Spring Framework 7 / Spring Security 7
-PostgreSQL 17 (UUID PKs, JSONB, tsvector, índices parciais)
-Flyway (migrations V1–V14)
-Micrometer + Prometheus + OpenTelemetry + Grafana
-Docker Compose (dev + showcase)
+Backend:  Java 25 + Spring Boot 4.0.5 + PostgreSQL 17 + Flyway
+Frontend: Angular 20 + Material + ng-matero + ApexCharts
+Infra:    Docker Compose + Prometheus + Grafana + OpenTelemetry
 ```
 
-## Quick Start
+## Quick Reference
 
 ```bash
-cd api
-mvn spring-boot:run -s .mvn/settings.xml
-# PostgreSQL sobe automaticamente via Docker Compose
-# Swagger: http://localhost:8080/swagger-ui.html
+# Backend
+cd api && mvn spring-boot:run -s .mvn/settings.xml
+# http://localhost:8080/swagger-ui.html
+
+# Frontend
+cd web && nvm use 22 && npx ng serve
+# http://localhost:4200 (proxy → :8080)
+# Login: admin@sinapipro.com / admin123
 ```

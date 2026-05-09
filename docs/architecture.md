@@ -10,17 +10,19 @@ C4Context
     Person(gestor, "Gestor de Obra", "Acompanha execução, cronograma, EVM")
     Person(suprimentos, "Gerente de Suprimentos", "Cotações, pedidos, estoque")
 
-    System(sinapipro, "SinapiPRO API", "REST API — Java 25 + Spring Boot 4")
+    System(frontend, "SinapiPRO Web", "Angular 20 + Material — SPA")
+    System(api, "SinapiPRO API", "Java 25 + Spring Boot 4 — REST")
     SystemDb(pg, "PostgreSQL 17", "UUID PKs, JSONB, tsvector")
     System_Ext(sinapi, "SINAPI/CEF", "Base de preços da construção civil")
     System_Ext(grafana, "Grafana + Prometheus", "Dashboards e alertas")
 
-    Rel(eng, sinapipro, "HTTPS/JWT")
-    Rel(gestor, sinapipro, "HTTPS/JWT")
-    Rel(suprimentos, sinapipro, "HTTPS/JWT")
-    Rel(sinapipro, pg, "JDBC/HikariCP")
-    Rel(sinapipro, sinapi, "Import CSV/API")
-    Rel(sinapipro, grafana, "Prometheus metrics + OTLP traces")
+    Rel(eng, frontend, "HTTPS")
+    Rel(gestor, frontend, "HTTPS")
+    Rel(suprimentos, frontend, "HTTPS")
+    Rel(frontend, api, "REST/JSON + JWT")
+    Rel(api, pg, "JDBC/HikariCP")
+    Rel(api, sinapi, "Import CSV/API")
+    Rel(api, grafana, "Prometheus metrics + OTLP traces")
 ```
 
 ## Arquitetura de Componentes (C4 — Container)
@@ -29,12 +31,14 @@ C4Context
 C4Container
     title SinapiPRO — Containers
 
+    Container(spa, "Web SPA", "Angular 20, Material, ng-matero", "13 módulos lazy-loaded, mtx-grid, ApexCharts")
     Container(api, "API Application", "Java 25, Spring Boot 4", "REST endpoints, business logic, JWT auth")
     ContainerDb(db, "PostgreSQL 17", "Flyway migrations", "UUID PKs, JSONB, tsvector full-text search")
     Container(prometheus, "Prometheus", "Metrics scraping", "Coleta métricas /actuator/prometheus")
     Container(otel, "OTel Collector", "Trace pipeline", "Recebe spans OTLP, exporta para backend")
     Container(grafana, "Grafana", "Dashboards", "Visualização de métricas e traces")
 
+    Rel(spa, api, "REST/JSON", "/api/v1/* + JWT Bearer")
     Rel(api, db, "JDBC", "HikariCP pool")
     Rel(prometheus, api, "HTTP GET", "/actuator/prometheus")
     Rel(api, otel, "gRPC", "OTLP spans")
