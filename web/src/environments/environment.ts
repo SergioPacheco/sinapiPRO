@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
-  baseUrl: '',
+  baseUrl: '/api/v1',
   useInMemoryApi: true,
 };

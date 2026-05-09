@@ -1,0 +1,13 @@
+<page-header title="Estoque" subtitle="Controle de materiais com custo médio ponderado" />
+
+<mtx-grid
+  [columns]="columns"
+  [data]="list"
+  [length]="total"
+  [loading]="isLoading"
+  [pageOnFront]="false"
+  [pageIndex]="query.page"
+  [pageSize]="query.size"
+  [pageSizeOptions]="[10, 20, 50]"
+  (page)="onPageChange($event)"
+/>

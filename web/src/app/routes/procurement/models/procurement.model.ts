@@ -10,3 +10,21 @@ export interface PurchaseOrder {
   unitPrice: number;
   status: PurchaseOrderStatus;
 }
+
+export interface Quotation {
+  id: string;
+  purchaseRequest: string;
+  deadline: string;
+  status: 'OPEN' | 'CLOSED';
+  responsesCount: number;
+}
+
+export interface InventoryItem {
+  materialCode: string;
+  description: string;
+  quantity: number;
+  unit: string;
+  averageCost: number;
+  totalValue: number;
+}
+

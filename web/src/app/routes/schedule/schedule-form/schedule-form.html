@@ -1,0 +1,29 @@
+<page-header title="Nova Atividade" />
+<mat-card><mat-card-content>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-grid">
+    <mat-form-field appearance="outline">
+      <mat-label>Nome</mat-label>
+      <input matInput formControlName="name" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Data Início</mat-label>
+      <input matInput formControlName="startDate" type="date" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Data Fim</mat-label>
+      <input matInput formControlName="endDate" type="date" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Duração (dias)</mat-label>
+      <input matInput [value]="duration" disabled />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Progresso (%)</mat-label>
+      <input matInput formControlName="progress" type="number" min="0" max="100" />
+    </mat-form-field>
+    <div class="form-actions">
+      <button mat-button type="button" (click)="router.navigate(['/schedule'])">Cancelar</button>
+      <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">Salvar</button>
+    </div>
+  </form>
+</mat-card-content></mat-card>
