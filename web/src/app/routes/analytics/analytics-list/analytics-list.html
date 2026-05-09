@@ -1,0 +1,30 @@
+<page-header title="Analytics" subtitle="Earned Value Management (EVM)" />
+
+@if (isLoading) {
+  <p>Carregando...</p>
+} @else if (evm) {
+  <div class="kpi-grid">
+    <mat-card>
+      <mat-card-header><mat-card-title>PV</mat-card-title></mat-card-header>
+      <mat-card-content><p class="kpi-value">R$ {{ evm.pv.toLocaleString('pt-BR') }}</p><p>Planned Value</p></mat-card-content>
+    </mat-card>
+    <mat-card>
+      <mat-card-header><mat-card-title>EV</mat-card-title></mat-card-header>
+      <mat-card-content><p class="kpi-value">R$ {{ evm.ev.toLocaleString('pt-BR') }}</p><p>Earned Value</p></mat-card-content>
+    </mat-card>
+    <mat-card>
+      <mat-card-header><mat-card-title>AC</mat-card-title></mat-card-header>
+      <mat-card-content><p class="kpi-value">R$ {{ evm.ac.toLocaleString('pt-BR') }}</p><p>Actual Cost</p></mat-card-content>
+    </mat-card>
+    <mat-card>
+      <mat-card-header><mat-card-title>CPI</mat-card-title></mat-card-header>
+      <mat-card-content><p class="kpi-value">{{ evm.cpi.toFixed(2) }}</p><p>Cost Performance Index</p></mat-card-content>
+    </mat-card>
+    <mat-card>
+      <mat-card-header><mat-card-title>SPI</mat-card-title></mat-card-header>
+      <mat-card-content><p class="kpi-value">{{ evm.spi.toFixed(2) }}</p><p>Schedule Performance Index</p></mat-card-content>
+    </mat-card>
+  </div>
+} @else {
+  <p>Nenhum dado disponível.</p>
+}
