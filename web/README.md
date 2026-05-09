@@ -1,27 +1,67 @@
-# Starter
+# SinapiPRO — Frontend
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 19.0.0.
+Angular 20 + Angular Material + ng-matero extensions
 
-## Development server
+## Desenvolvimento
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+```bash
+# Requisitos: Node 22+
+nvm use 22
 
-## Code scaffolding
+# Instalar dependências
+npm install --legacy-peer-deps
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+# Rodar em dev (com mock — sem backend)
+npx ng serve
+# http://localhost:4200
+# Login: admin@sinapipro.com / admin123
+
+# Rodar em dev (com API real — requer backend rodando na 8080)
+# Editar src/environments/environment.ts → useInMemoryApi: false
+npx ng serve
+```
 
 ## Build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+```bash
+npx ng build              # produção (usa API real)
+npx ng build --watch      # dev com rebuild automático
+```
 
-## Running unit tests
+## Estrutura
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+```
+src/app/
+├── core/           ← Auth, interceptors, bootstrap, settings
+├── theme/          ← Layout (sidebar, header, admin-layout)
+├── shared/         ← Componentes reutilizáveis, pipes, services
+├── routes/         ← Módulos de negócio (lazy-loaded)
+│   ├── dashboard/
+│   ├── budget/     ← Orçamentos (list + form)
+│   ├── sinapi/     ← Composições + Insumos
+│   ├── measurement/← Medições (workflow)
+│   ├── contract/   ← Contratos
+│   ├── procurement/← Suprimentos (pedidos, cotações, estoque)
+│   ├── schedule/   ← Cronograma
+│   ├── daily-log/  ← Diário de Obra
+│   ├── equipment/  ← Equipamentos
+│   ├── job-costing/← Job Costing
+│   ├── analytics/  ← EVM / KPIs
+│   ├── supplier/   ← Fornecedores
+│   ├── safety/     ← Segurança do Trabalho
+│   └── settings/   ← Configurações
+└── environments/
+```
 
-## Running end-to-end tests
+## Proxy (dev)
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+Em desenvolvimento, `/api/v1/*` é redirecionado para `http://localhost:8080` via `proxy.conf.json`.
 
-## Further help
+## Modo Mock vs API Real
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+| Variável | Mock (dev) | API Real (prod) |
+|----------|-----------|-----------------|
+| `useInMemoryApi` | `true` | `false` |
+| `baseUrl` | `/api/v1` | `/api/v1` |
+
+No modo mock, auth e menu são simulados localmente. No modo real, conecta ao backend Spring Boot.

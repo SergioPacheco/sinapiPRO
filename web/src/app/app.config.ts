@@ -53,11 +53,12 @@ export const appConfig: ApplicationConfig = {
     }),
     importProvidersFrom(
       NgxPermissionsModule.forRoot(),
-      // 👇 ❌ This is only used for demo purpose, remove it in the realworld application
-      InMemoryWebApiModule.forRoot(InMemDataService, {
-        dataEncapsulation: false,
-        passThruUnknownUrl: true,
-      })
+      ...(environment.useInMemoryApi
+        ? [InMemoryWebApiModule.forRoot(InMemDataService, {
+            dataEncapsulation: false,
+            passThruUnknownUrl: true,
+          })]
+        : [])
     ),
     provideFormlyCore([...withFormlyMaterial()]),
     {
