@@ -1,9 +1,11 @@
 import { AfterViewInit, Component, inject, NgZone, OnDestroy, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MtxGridColumn, MtxGridModule } from '@ng-matero/extensions/grid';
+import { MatButtonModule } from '@angular/material/button';
 import { PageHeader } from '@shared';
 import { FinanceService } from '../services/finance.service';
 import { CashFlowSummary, BudgetVsActualLine } from '../models/finance.model';
@@ -11,7 +13,11 @@ import { CashFlowSummary, BudgetVsActualLine } from '../models/finance.model';
 @Component({
   selector: 'app-cash-flow',
   template: `
-    <page-header title="Financeiro" subtitle="Fluxo de caixa e orçado x realizado" />
+    <page-header title="Financeiro" subtitle="Fluxo de caixa e orçado x realizado">
+      <button mat-stroked-button (click)="downloadBvaReport()">
+        <mat-icon>picture_as_pdf</mat-icon> Previsto×Realizado PDF
+      </button>
+    </page-header>
 
     <!-- KPI Cards -->
     <div class="finance-kpis">
@@ -51,7 +57,7 @@ import { CashFlowSummary, BudgetVsActualLine } from '../models/finance.model';
     .kpi { display: flex; align-items: center; gap: 12px; padding: 16px; }
     .kpi mat-icon { font-size: 32px; width: 32px; height: 32px; }
     .kpi .value { font-size: 22px; font-weight: 700; display: block; }
-    .kpi .label { font-size: 12px; color: rgba(0,0,0,.5); }
+    .kpi .label { font-size: 12px; color: var(--mat-sys-on-surface-variant); }
     .kpi.green mat-icon { color: #4caf50; } .kpi.red mat-icon { color: #f44336; }
     .kpi.blue mat-icon { color: #1976d2; } .kpi.orange mat-icon { color: #ff9800; }
     .chart-card { padding: 16px; margin-bottom: 16px; }
@@ -120,5 +126,19 @@ export class CashFlowComponent implements OnInit, AfterViewInit, OnDestroy {
     if (Math.abs(v) >= 1_000_000) return `R$ ${(v / 1_000_000).toFixed(1)}M`;
     if (Math.abs(v) >= 1_000) return `R$ ${(v / 1_000).toFixed(0)}k`;
     return `R$ ${v.toFixed(0)}`;
+  }
+
+  downloadBvaReport() {
+    const http = inject(HttpClient);
+    const projectId = this.route.parent?.parent?.snapshot.paramMap.get('projectId') || '';
+    if (!projectId) return;
+    http.get(`/projects/${projectId}/finance/budget-vs-actual/reports/report.pdf`, { responseType: 'blob' })
+      .subscribe(blob => {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'previsto-realizado.pdf';
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
   }
 }

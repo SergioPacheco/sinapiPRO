@@ -71,4 +71,9 @@ public class CashFlowService {
 
     public record MonthlyFlow(String month, BigDecimal income, BigDecimal expense,
                               BigDecimal netFlow, BigDecimal cumulativeBalance) {}
+
+    public Map<String, Object> consolidated() {
+        // Placeholder — in production, aggregate cash flow across all projects
+        return Map.of("totalIncome", BigDecimal.ZERO, "totalExpense", BigDecimal.ZERO, "netBalance", BigDecimal.ZERO);
+    }
 }

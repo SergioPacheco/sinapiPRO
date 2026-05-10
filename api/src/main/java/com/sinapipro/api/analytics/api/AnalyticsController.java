@@ -53,4 +53,28 @@ public class AnalyticsController {
     DelayForecastService.DelayForecast delayForecast(@PathVariable UUID projectId) {
         return forecastService.predict(projectId);
     }
+
+    @Operation(summary = "Projects at risk (CPI < 1 or SPI < 1)")
+    @GetMapping("/projects-at-risk")
+    java.util.List<java.util.Map<String, Object>> projectsAtRisk() {
+        return portfolioService.projectsAtRisk();
+    }
+
+    @Operation(summary = "Consolidated cash flow across all projects")
+    @GetMapping("/consolidated-cash-flow")
+    java.util.Map<String, Object> consolidatedCashFlow() {
+        return cashFlowService.consolidated();
+    }
+
+    @Operation(summary = "Overdue contracts (ending within 30 days)")
+    @GetMapping("/contracts-expiring")
+    java.util.List<java.util.Map<String, Object>> contractsExpiring() {
+        return portfolioService.contractsExpiring();
+    }
+
+    @Operation(summary = "Pending measurements awaiting approval")
+    @GetMapping("/pending-measurements")
+    java.util.List<java.util.Map<String, Object>> pendingMeasurements() {
+        return portfolioService.pendingMeasurements();
+    }
 }

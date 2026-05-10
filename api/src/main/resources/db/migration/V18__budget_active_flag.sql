@@ -1,1 +1,0 @@
-ALTER TABLE budget ADD COLUMN IF NOT EXISTS active boolean NOT NULL DEFAULT false;

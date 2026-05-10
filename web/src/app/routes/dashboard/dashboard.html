@@ -1,86 +1,127 @@
-<page-header title="Dashboard" subtitle="Visão geral do portfólio de obras" />
+<!-- Header -->
+<div class="dash-header">
+  <div class="dash-header-left">
+    <h1>Dashboard</h1>
+    <p>Visão geral do portfólio de obras</p>
+  </div>
+  <div class="dash-header-right">
+    <button mat-stroked-button (click)="loadData()">
+      <mat-icon>refresh</mat-icon> Atualizar
+    </button>
+    <button mat-flat-button color="primary" routerLink="/projects/new">
+      <mat-icon>add</mat-icon> Nova Obra
+    </button>
+  </div>
+</div>
 
 <!-- KPI Cards -->
 <div class="kpi-row">
-  <mat-card class="kpi-card" matRipple>
-    <div class="kpi-icon bg-blue-50"><mat-icon>apartment</mat-icon></div>
-    <div class="kpi-content">
-      <span class="kpi-value">{{ totalProjects() }}</span>
-      <span class="kpi-label">Obras Cadastradas</span>
+  @for (kpi of kpis(); track kpi.label) {
+    <div class="kpi-card">
+      <div class="kpi-top">
+        <mat-icon class="kpi-icon">{{ kpi.icon }}</mat-icon>
+        @if (kpi.trend) {
+          <span class="kpi-trend" [class.positive]="kpi.trend > 0" [class.negative]="kpi.trend < 0">
+            {{ kpi.trend > 0 ? '+' : '' }}{{ kpi.trend }}%
+          </span>
+        }
+      </div>
+      <span class="kpi-value">{{ kpi.value }}</span>
+      <span class="kpi-label">{{ kpi.label }}</span>
+      @if (kpi.progress != null) {
+        <div class="kpi-bar"><div class="kpi-bar-fill" [style.width.%]="kpi.progress"></div></div>
+      }
+      @if (kpi.footer) {
+        <span class="kpi-footer">{{ kpi.footer }}</span>
+      }
     </div>
-  </mat-card>
-  <mat-card class="kpi-card" matRipple>
-    <div class="kpi-icon bg-green-50"><mat-icon>engineering</mat-icon></div>
-    <div class="kpi-content">
-      <span class="kpi-value">{{ activeProjects() }}</span>
-      <span class="kpi-label">Em Execução</span>
-    </div>
-  </mat-card>
-  <mat-card class="kpi-card" matRipple>
-    <div class="kpi-icon bg-orange-50"><mat-icon>payments</mat-icon></div>
-    <div class="kpi-content">
-      <span class="kpi-value">{{ formatCurrency(totalBudget()) }}</span>
-      <span class="kpi-label">Valor Total Contratado</span>
-    </div>
-  </mat-card>
-  <mat-card class="kpi-card" matRipple>
-    <div class="kpi-icon bg-red-50"><mat-icon>pending_actions</mat-icon></div>
-    <div class="kpi-content">
-      <span class="kpi-value">{{ projects().length > 0 ? projects().length : '—' }}</span>
-      <span class="kpi-label">Projetos Ativos</span>
-    </div>
-  </mat-card>
+  }
 </div>
 
-<!-- Charts Row -->
+<!-- Charts Row 1 -->
 <div class="charts-row">
-  <mat-card class="chart-card chart-wide">
-    <mat-card-header>
-      <mat-card-title>Fluxo de Caixa Projetado</mat-card-title>
-      <mat-card-subtitle>Receitas vs Despesas (últimos 12 meses)</mat-card-subtitle>
-    </mat-card-header>
-    <mat-card-content>
-      <div id="chart1"></div>
-    </mat-card-content>
-  </mat-card>
+  <div class="chart-panel chart-wide">
+    <div class="panel-header">
+      <h3>Fluxo de Caixa Projetado</h3>
+      <span class="panel-subtitle">Receitas vs Despesas — últimos 12 meses</span>
+    </div>
+    <div id="chart-cashflow"></div>
+  </div>
+  <div class="chart-panel chart-narrow">
+    <div class="panel-header">
+      <h3>Obras por Status</h3>
+    </div>
+    <div id="chart-status"></div>
+  </div>
+</div>
 
-  <mat-card class="chart-card chart-narrow">
-    <mat-card-header>
-      <mat-card-title>Obras por Status</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <div id="chart2"></div>
-    </mat-card-content>
-  </mat-card>
+<!-- Charts Row 2 -->
+<div class="charts-row">
+  <div class="chart-panel chart-half">
+    <div class="panel-header">
+      <h3>Previsto × Realizado</h3>
+      <span class="panel-subtitle">Acumulado por mês</span>
+    </div>
+    <div id="chart-pv-real"></div>
+  </div>
+  <div class="chart-panel chart-half">
+    <div class="panel-header">
+      <h3>Custos por Categoria</h3>
+    </div>
+    <div id="chart-costs"></div>
+  </div>
+</div>
+
+<!-- Alerts Table -->
+<div class="alerts-panel">
+  <div class="panel-header">
+    <h3>Alertas e Pendências</h3>
+    <span class="panel-subtitle">Itens que requerem atenção</span>
+  </div>
+  <table class="alerts-table">
+    <thead>
+      <tr>
+        <th>Tipo</th>
+        <th>Descrição</th>
+        <th>Obra</th>
+        <th>Prioridade</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (alert of alerts(); track alert.description) {
+        <tr>
+          <td><span class="alert-badge" [attr.data-severity]="alert.severity">{{ alert.type }}</span></td>
+          <td>{{ alert.description }}</td>
+          <td class="alert-project">{{ alert.project }}</td>
+          <td><span class="priority-dot" [attr.data-severity]="alert.severity"></span> {{ alert.severity }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
 </div>
 
 <!-- Projects List -->
-<mat-card class="projects-card">
-  <mat-card-header>
-    <mat-card-title>Obras Recentes</mat-card-title>
-    <mat-card-subtitle>Clique para acessar o workspace da obra</mat-card-subtitle>
-  </mat-card-header>
-  <mat-card-content>
-    <div class="project-grid">
-      @for (p of projects(); track p.id) {
-        <div class="project-tile" matRipple (click)="openProject(p.id)">
-          <div class="project-tile-header">
-            <mat-icon [style.color]="statusMap[p.status]?.color || '#999'">{{ statusMap[p.status]?.icon || 'folder' }}</mat-icon>
-            <span class="project-code">{{ p.code }}</span>
-            <mat-chip [style.background]="statusMap[p.status]?.color" class="text-white status-chip">
-              {{ statusMap[p.status]?.label || p.status }}
-            </mat-chip>
-          </div>
-          <h3 class="project-name">{{ p.name }}</h3>
-          <p class="project-customer">{{ p.customerName }}</p>
-          <div class="project-footer">
-            <span>{{ p.startDate || '—' }}</span>
-            @if (p.totalBudget) {
-              <strong>{{ formatCurrency(p.totalBudget) }}</strong>
-            }
-          </div>
+<div class="projects-panel">
+  <div class="panel-header">
+    <h3>Obras Recentes</h3>
+    <a mat-button routerLink="/projects" class="panel-link">Ver todas →</a>
+  </div>
+  <div class="project-grid">
+    @for (p of projects(); track p.id) {
+      <div class="project-tile" (click)="openProject(p.id)">
+        <div class="project-tile-top">
+          <span class="project-code">{{ p.code }}</span>
+          <span class="status-badge" [attr.data-status]="p.status">{{ statusMap[p.status]?.label || p.status }}</span>
         </div>
-      }
-    </div>
-  </mat-card-content>
-</mat-card>
+        <h4 class="project-name">{{ p.name }}</h4>
+        <span class="project-customer">{{ p.customerName }}</span>
+        <div class="project-tile-footer">
+          <span>{{ p.city || '' }}{{ p.state ? '/' + p.state : '' }}</span>
+          @if (p.totalBudget) {
+            <strong>{{ formatCurrency(p.totalBudget) }}</strong>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

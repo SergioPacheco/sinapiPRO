@@ -30,6 +30,32 @@
         <mat-label>Observações</mat-label>
         <textarea matInput formControlName="notes" rows="3"></textarea>
       </mat-form-field>
+
+      <!-- Atrasos Climáticos -->
+      <div class="weather-delay-section" style="grid-column: 1 / -1;">
+        <h4>Atraso Climático</h4>
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Horas Perdidas</mat-label>
+            <input matInput formControlName="weatherHoursLost" type="number" min="0" step="0.5" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Condição</mat-label>
+            <mat-select formControlName="weatherCondition">
+              <mat-option value="">Sem atraso</mat-option>
+              <mat-option value="Chuva forte">Chuva forte</mat-option>
+              <mat-option value="Temporal com ventos">Temporal com ventos</mat-option>
+              <mat-option value="Alagamento">Alagamento</mat-option>
+              <mat-option value="Granizo">Granizo</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline" style="grid-column: 1 / -1;">
+            <mat-label>Impacto na obra</mat-label>
+            <input matInput formControlName="weatherImpact" placeholder="Descreva o impacto..." />
+          </mat-form-field>
+        </div>
+      </div>
+
       <div class="form-actions">
         <button mat-button type="button" (click)="router.navigate(['/daily-log'])">Cancelar</button>
         <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">Registrar</button>

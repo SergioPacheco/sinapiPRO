@@ -65,6 +65,14 @@ export const routes: Routes = [
         path: 'registry',
         loadChildren: () => import('./routes/registry/registry.routes').then(m => m.routes),
       },
+      {
+        path: 'procurement',
+        loadChildren: () => import('./routes/procurement-global/procurement-global').then(m => m.routes),
+      },
+      {
+        path: 'finance',
+        loadChildren: () => import('./routes/finance-global/finance-global').then(m => m.routes),
+      },
     ],
   },
   {

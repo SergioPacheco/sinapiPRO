@@ -1,5 +1,6 @@
 import { ActivatedRoute } from '@angular/router';
 import { Component, inject, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MtxGridColumn, MtxGridModule } from '@ng-matero/extensions/grid';
@@ -15,6 +16,7 @@ import { DailyLog } from '../models/daily-log.model';
 export class DailyLogListComponent implements OnInit {
   private readonly service = inject(DailyLogService);
   private readonly route = inject(ActivatedRoute);
+  private readonly http = inject(HttpClient);
   private projectId = '';
 
   columns: MtxGridColumn[] = [
@@ -28,6 +30,20 @@ export class DailyLogListComponent implements OnInit {
       field: 'notes',
       formatter: (data: DailyLog) =>
         data.notes?.length > 50 ? data.notes.substring(0, 50) + '...' : (data.notes ?? ''),
+    },
+    {
+      header: '',
+      field: 'actions',
+      width: '60px',
+      type: 'button',
+      buttons: [
+        {
+          type: 'icon',
+          icon: 'picture_as_pdf',
+          tooltip: 'RDO PDF',
+          click: (record: DailyLog) => this.downloadRdo(record),
+        },
+      ],
     },
   ];
 
@@ -57,5 +73,16 @@ export class DailyLogListComponent implements OnInit {
     this.query.page = event.pageIndex;
     this.query.size = event.pageSize;
     this.loadData();
+  }
+
+  downloadRdo(log: DailyLog) {
+    this.http.get(`/projects/${this.projectId}/daily-logs/${log.id}/reports/rdo.pdf`, { responseType: 'blob' })
+      .subscribe(blob => {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `rdo-${log.date}.pdf`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
   }
 }

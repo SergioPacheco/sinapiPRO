@@ -1,5 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MtxGridColumn, MtxGridModule } from '@ng-matero/extensions/grid';
@@ -15,6 +16,7 @@ import { Contract } from '../models/contract.model';
 export class ContractListComponent implements OnInit {
   private readonly service = inject(ContractService);
   private readonly route = inject(ActivatedRoute);
+  private readonly http = inject(HttpClient);
   private projectId = '';
 
   columns: MtxGridColumn[] = [
@@ -39,6 +41,20 @@ export class ContractListComponent implements OnInit {
       },
     },
     { header: 'Início', field: 'startDate', width: '120px' },
+    {
+      header: '',
+      field: 'actions',
+      width: '60px',
+      type: 'button',
+      buttons: [
+        {
+          type: 'icon',
+          icon: 'picture_as_pdf',
+          tooltip: 'Contrato PDF',
+          click: (record: Contract) => this.downloadPdf(record),
+        },
+      ],
+    },
   ];
 
   list: Contract[] = [];
@@ -68,5 +84,16 @@ export class ContractListComponent implements OnInit {
     this.query.page = event.pageIndex;
     this.query.size = event.pageSize;
     this.loadData();
+  }
+
+  downloadPdf(contract: Contract) {
+    this.http.get(`/projects/${this.projectId}/contracts/${contract.id}/reports/contract.pdf`, { responseType: 'blob' })
+      .subscribe(blob => {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `contrato-${contract.number}.pdf`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
   }
 }

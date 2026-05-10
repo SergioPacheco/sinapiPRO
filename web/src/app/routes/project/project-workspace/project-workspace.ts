@@ -33,8 +33,8 @@ import { ProjectService, Project } from '../services/project.service';
   `,
   styles: `
     .workspace-header { padding: 16px 24px 8px; }
-    .workspace-header h2 { margin: 0; }
-    .subtitle { color: rgba(0,0,0,.54); font-size: 14px; display: flex; align-items: center; gap: 8px; }
+    .workspace-header h2 { margin: 0; color: var(--mat-sys-on-surface); }
+    .subtitle { color: var(--mat-sys-on-surface-variant); font-size: 14px; display: flex; align-items: center; gap: 8px; }
   `,
   imports: [RouterOutlet, RouterLink, RouterLinkActive, MatTabsModule, MatIconModule, MatChipsModule],
 })
@@ -55,15 +55,11 @@ export class ProjectWorkspaceComponent implements OnInit {
     { path: 'contracts', label: 'Contratos', icon: 'description' },
     { path: 'schedule', label: 'Cronograma', icon: 'event_note' },
     { path: 'measurements', label: 'Medições', icon: 'straighten' },
-    { path: 'daily-logs', label: 'Diário', icon: 'edit_note' },
+    { path: 'daily-logs', label: 'Execução', icon: 'engineering' },
     { path: 'procurement', label: 'Suprimentos', icon: 'shopping_cart' },
     { path: 'finance', label: 'Financeiro', icon: 'account_balance' },
-    { path: 'job-costing', label: 'Custeio', icon: 'trending_up' },
-    { path: 'documents', label: 'Documentos', icon: 'folder' },
     { path: 'safety', label: 'Segurança', icon: 'health_and_safety' },
-    { path: 'rfi', label: 'RFI', icon: 'help_outline' },
-    { path: 'punch-list', label: 'Punch List', icon: 'checklist' },
-    { path: 'time-tracking', label: 'Apontamento', icon: 'schedule' },
+    { path: 'documents', label: 'Documentos', icon: 'folder' },
   ];
 
   ngOnInit() {

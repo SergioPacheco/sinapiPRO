@@ -8,14 +8,13 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue.svg)](https://www.postgresql.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-SinapiPRO é um ERP open source para gestão de obras e orçamentos da construção civil, utilizando a tabela SINAPI como base de referência de preços.
+SinapiPRO é um ERP open source para gestão completa de obras da construção civil, cobrindo o ciclo inteiro: captação → orçamento → contrato → planejamento → execução → medições → suprimentos → financeiro → segurança → documentos → entrega → pós-obra.
 
 ---
 
 ## 🚀 Quick Start
 
 ```bash
-# Stack completa em Docker
 docker compose up --build
 # App: http://localhost:4200
 # API: http://localhost:8080
@@ -23,108 +22,106 @@ docker compose up --build
 # Login: admin@sinapipro.dev / SinapiPro#2026
 ```
 
-O Docker Compose sobe PostgreSQL, API, frontend, Prometheus, Grafana e OTel. Flyway executa as migrations no startup da API.
-
 ---
 
-## 📁 Estrutura do Repositório
+## 📁 Estrutura
 
 ```
 sinapiPRO/
-├── api/                ← Backend REST API (Java 25, Spring Boot 4, PostgreSQL 17)
-│   ├── src/main/java/  ← 26 módulos de domínio (vertical slicing)
-│   ├── src/main/resources/db/migration/  ← 14 migrations Flyway
-│   ├── compose.yaml    ← PostgreSQL para dev
-│   └── pom.xml
-├── web/                ← Frontend SPA (Angular 20, Material, ng-matero)
-│   ├── src/app/routes/ ← 13 módulos de negócio (lazy-loaded)
-│   ├── proxy.conf.json ← Proxy /api/v1 → localhost:8080
-│   └── package.json
-├── docs/               ← Documentação com Mermaid
-│   ├── architecture.md ← Arquitetura C4 + componentes
-│   ├── database.md     ← Modelo ER (PostgreSQL)
-│   ├── api-flows.md    ← Diagramas de sequência
-│   ├── domain.md       ← Regras de negócio + glossário
-│   ├── deployment.md   ← Deploy + observabilidade
-│   └── frontend-plan.md ← Arquitetura Angular
-├── README.md
-├── CONTRIBUTING.md
-├── SECURITY.md
-└── LICENSE
+├── api/                ← Backend (Java 25, Spring Boot 4, PostgreSQL 17)
+│   ├── src/main/java/  ← 34 controllers, ~225 endpoints
+│   └── src/main/resources/db/migration/  ← V1 consolidada
+├── web/                ← Frontend (Angular 20, Material, ng-matero)
+│   └── src/app/routes/ ← 15 módulos lazy-loaded, 60+ componentes
+├── docs/               ← Documentação Mermaid
+└── .kiro/docs/         ← Specs, fluxos de negócio, arquitetura SPA
 ```
 
 ---
 
 ## ✨ Funcionalidades
 
-| Módulo | Backend | Frontend |
-|--------|:-------:|:--------:|
-| Orçamentos (BDI, Curva ABC, Reajuste) | ✅ | ✅ CRUD |
-| Catálogo SINAPI (composições + insumos) | ✅ | ✅ Busca full-text |
-| Medições (workflow DRAFT→APPROVED→PAID) | ✅ | ✅ Workflow |
-| Contratos + Aditivos | ✅ | ✅ CRUD |
-| Suprimentos (cotação → pedido → recebimento) | ✅ | ✅ Sub-rotas |
-| Cronograma (CPM + Curva S) | ✅ | ✅ Lista + Form |
-| Diário de Obra | ✅ | ✅ CRUD |
-| Equipamentos | ✅ | ✅ CRUD |
-| Job Costing / EVM | ✅ | ✅ KPIs |
-| Analytics (PV, EV, AC, CPI, SPI) | ✅ | ✅ Dashboard |
-| Fornecedores | ✅ | ✅ CRUD |
-| Segurança do Trabalho | ✅ | ✅ CRUD |
-| Notificações (SSE real-time) | ✅ | — |
-| RFI, Punch List, Submittals | ✅ | — |
+| Módulo | Backend | Frontend | Acesso |
+|--------|:-------:|:--------:|--------|
+| Obras (workspace completo) | ✅ | ✅ | Menu global |
+| Orçamentos (BDI, Curva ABC, PDF) | ✅ | ✅ | Aba da obra |
+| Catálogo SINAPI (composições + insumos) | ✅ | ✅ | Cadastros |
+| Medições (workflow DRAFT→PAID) | ✅ | ✅ | Aba da obra |
+| Contratos + Aditivos | ✅ | ✅ | Aba da obra |
+| Cronograma (CPM + Curva S + baselines) | ✅ | ✅ | Aba da obra |
+| Diário de Obra + Atrasos Climáticos | ✅ | ✅ | Aba da obra |
+| Suprimentos (cotação → pedido → recebimento) | ✅ | ✅ | Menu global + aba |
+| Estoque/Almoxarifado | ✅ | ✅ | Aba da obra |
+| Financeiro (pagar + receber + fluxo + NFs) | ✅ | ✅ | Menu global + aba |
+| Job Costing / EVM | ✅ | ✅ | Aba da obra |
+| Equipamentos (uso + manutenção + abastecimento) | ✅ | ✅ | Cadastros |
+| Segurança do Trabalho | ✅ | ✅ | Menu global + aba |
+| RFI | ✅ | ✅ | Aba da obra |
+| Punch List | ✅ | ✅ | Aba da obra |
+| Submittals | ✅ | ✅ | Aba da obra |
+| Documentos (upload + versionamento) | ✅ | ✅ | Aba da obra |
+| Apontamento de Horas | ✅ | ✅ | Aba da obra |
+| Comercial (empreendimentos + propostas) | ✅ | ✅ | Menu global |
+| Pós-Venda (tickets + SLA) | ✅ | ✅ | Menu global |
+| Notificações (SSE real-time) | ✅ | ✅ | Topbar (sino) |
+| Analytics / Relatórios | ✅ | ✅ | Menu global |
+| Permissões / RBAC | ✅ | 🔲 | Configurações |
+| Propostas Comerciais | ✅ | 🔲 | Comercial |
+| Equipes | ✅ | 🔲 | Cadastros |
 
 ---
 
-## ⚡ Stack Tecnológica
+## 🏗️ Arquitetura de Navegação
 
-### Backend
+```
+Menu Global (9 itens)          Workspace da Obra (10 abas)
+─────────────────────          ─────────────────────────────
+Dashboard                      Resumo
+Obras                    →     Orçamentos
+Comercial                      Contratos
+Suprimentos                    Cronograma
+Financeiro                     Medições
+Segurança do Trabalho          Execução (Diário + Apontamento)
+Relatórios                     Suprimentos
+Cadastros                      Financeiro (Custeio + Pagar + Receber + NFs)
+Configurações                  Segurança
+                               Documentos (+ RFI + Punch List + Submittals)
+```
+
+---
+
+## ⚡ Stack
 
 | Camada | Tecnologia |
 |--------|-----------|
-| Linguagem | Java 25 (Virtual Threads, Structured Concurrency, Sealed Classes, Gatherers) |
-| Framework | Spring Boot 4.0.5, Spring Security 7 (JWT/OAuth2) |
+| Backend | Java 25, Spring Boot 4, Spring Security 7 (JWT), Hibernate 7, Flyway |
 | Banco | PostgreSQL 17 (UUID PKs, JSONB, tsvector) |
-| Migrations | Flyway (V1–V14) |
+| Frontend | Angular 20 (standalone, signals, zoneless), Material + ng-matero |
 | Observabilidade | Micrometer + Prometheus + OpenTelemetry |
-| API | REST + OpenAPI 3 (Swagger UI) + ProblemDetail (RFC 9457) |
-
-### Frontend
-
-| Camada | Tecnologia |
-|--------|-----------|
-| Framework | Angular 20 (standalone, signals, zoneless) |
-| UI | Angular Material + ng-matero extensions (mtx-grid, mtx-dialog) |
-| State | Signals + Services |
-| Charts | ApexCharts |
-| i18n | ngx-translate (pt-BR) |
-| Auth | JWT (interceptor + guard) |
+| Tema | Dark mode premium (graphite/navy) |
 
 ---
 
 ## 🔐 Autenticação
 
 ```bash
-# Obter token JWT
 curl -X POST http://localhost:8080/api/v1/auth/token \
   -H "Content-Type: application/json" \
   -d '{"username":"admin@sinapipro.dev","password":"SinapiPro#2026","grantType":"PASSWORD"}'
 ```
 
-| Scope/Role | Acesso |
-|---|---|
-| `SCOPE_sinapipro.read` | Leitura em todos os endpoints |
-| `SCOPE_sinapipro.write` | Criação, atualização, exclusão |
-| `ROLE_ADMIN` | Actuator endpoints |
+---
+
+## 🧪 Testes
+
+```bash
+cd api && mvn test -s .mvn/settings.xml    # Backend (Testcontainers)
+cd web && npx ng test                       # Frontend
+```
 
 ---
 
 ## 📊 Observabilidade
-
-```bash
-# Stack completa (Web + API + PG + Prometheus + Grafana + OTel)
-docker compose up --build
-```
 
 | Serviço | URL |
 |---------|-----|
@@ -136,30 +133,16 @@ docker compose up --build
 
 ---
 
-## 🧪 Testes
-
-```bash
-# Backend (requer Docker para Testcontainers)
-cd api && mvn test -s .mvn/settings.xml
-
-# Frontend
-cd web && npx ng test
-```
-
----
-
 ## 🤝 Como Contribuir
-
-Veja [CONTRIBUTING.md](CONTRIBUTING.md) para detalhes.
 
 ```bash
 git checkout -b feat/minha-funcionalidade
-# Trabalhe em api/ ou web/
-cd api && mvn compile -s .mvn/settings.xml   # verificar backend
-cd web && npx ng build                        # verificar frontend
+cd api && mvn compile -s .mvn/settings.xml
+cd web && npx ng build
 git commit -m "feat(modulo): descrição"
-git push origin feat/minha-funcionalidade
 ```
+
+Veja [CONTRIBUTING.md](CONTRIBUTING.md) para detalhes.
 
 ---
 

@@ -1,5 +1,6 @@
 import { ActivatedRoute } from '@angular/router';
 import { Component, inject, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MtxGridColumn, MtxGridModule } from '@ng-matero/extensions/grid';
@@ -15,6 +16,7 @@ import { PurchaseOrder } from '../models/procurement.model';
 export class ProcurementListComponent implements OnInit {
   private readonly service = inject(ProcurementService);
   private readonly route = inject(ActivatedRoute);
+  private readonly http = inject(HttpClient);
   private projectId = '';
 
   columns: MtxGridColumn[] = [
@@ -46,6 +48,20 @@ export class ProcurementListComponent implements OnInit {
         RECEIVED: { text: 'Recebido', color: 'green' },
       },
     },
+    {
+      header: '',
+      field: 'actions',
+      width: '60px',
+      type: 'button',
+      buttons: [
+        {
+          type: 'icon',
+          icon: 'picture_as_pdf',
+          tooltip: 'Pedido PDF',
+          click: (record: PurchaseOrder) => this.downloadPdf(record),
+        },
+      ],
+    },
   ];
 
   list: PurchaseOrder[] = [];
@@ -74,5 +90,16 @@ export class ProcurementListComponent implements OnInit {
     this.query.page = event.pageIndex;
     this.query.size = event.pageSize;
     this.loadData();
+  }
+
+  downloadPdf(order: PurchaseOrder) {
+    this.http.get(`/projects/${this.projectId}/procurement/orders/${order.id}/reports/order.pdf`, { responseType: 'blob' })
+      .subscribe(blob => {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `pedido-${order.number}.pdf`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
   }
 }

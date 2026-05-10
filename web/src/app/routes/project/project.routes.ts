@@ -27,6 +27,8 @@ export const routes: Routes = [
       { path: 'rfi', loadChildren: () => import('../rfi/rfi.routes').then(m => m.routes) },
       { path: 'punch-list', loadChildren: () => import('../punch-list/punch-list.routes').then(m => m.routes) },
       { path: 'time-tracking', loadChildren: () => import('../time-tracking/time-tracking.routes').then(m => m.routes) },
+      { path: 'submittals', loadChildren: () => import('../submittals/submittals.routes').then(m => m.routes) },
+      { path: 'delivery', loadChildren: () => import('../delivery/delivery.routes').then(m => m.routes) },
     ],
   },
 ];

@@ -1,30 +1,20 @@
-<page-header title="Analytics" subtitle="Earned Value Management (EVM)" />
+<page-header title="Relatórios" subtitle="Indicadores e análises gerenciais" />
 
-@if (isLoading) {
-  <p>Carregando...</p>
-} @else if (evm) {
-  <div class="kpi-grid">
-    <mat-card>
-      <mat-card-header><mat-card-title>PV</mat-card-title></mat-card-header>
-      <mat-card-content><p class="kpi-value">R$ {{ evm.pv.toLocaleString('pt-BR') }}</p><p>Planned Value</p></mat-card-content>
-    </mat-card>
-    <mat-card>
-      <mat-card-header><mat-card-title>EV</mat-card-title></mat-card-header>
-      <mat-card-content><p class="kpi-value">R$ {{ evm.ev.toLocaleString('pt-BR') }}</p><p>Earned Value</p></mat-card-content>
-    </mat-card>
-    <mat-card>
-      <mat-card-header><mat-card-title>AC</mat-card-title></mat-card-header>
-      <mat-card-content><p class="kpi-value">R$ {{ evm.ac.toLocaleString('pt-BR') }}</p><p>Actual Cost</p></mat-card-content>
-    </mat-card>
-    <mat-card>
-      <mat-card-header><mat-card-title>CPI</mat-card-title></mat-card-header>
-      <mat-card-content><p class="kpi-value">{{ evm.cpi.toFixed(2) }}</p><p>Cost Performance Index</p></mat-card-content>
-    </mat-card>
-    <mat-card>
-      <mat-card-header><mat-card-title>SPI</mat-card-title></mat-card-header>
-      <mat-card-content><p class="kpi-value">{{ evm.spi.toFixed(2) }}</p><p>Schedule Performance Index</p></mat-card-content>
-    </mat-card>
-  </div>
-} @else {
-  <p>Nenhum dado disponível.</p>
-}
+<div class="reports-grid">
+  @for (group of reportGroups; track group.title) {
+    <div class="report-group">
+      <h3><mat-icon>{{ group.icon }}</mat-icon> {{ group.title }}</h3>
+      <div class="report-items">
+        @for (item of group.items; track item.label) {
+          <a class="report-item" [routerLink]="item.route" [queryParams]="item.params || {}">
+            <mat-icon>{{ item.icon }}</mat-icon>
+            <div>
+              <span class="item-label">{{ item.label }}</span>
+              <span class="item-desc">{{ item.description }}</span>
+            </div>
+          </a>
+        }
+      </div>
+    </div>
+  }
+</div>

@@ -2,77 +2,55 @@
   "menu": [
     {
       "route": "dashboard",
-      "name": "dashboard",
+      "name": "Dashboard",
       "type": "link",
-      "icon": "dashboard"
+      "icon": "space_dashboard"
     },
     {
       "route": "projects",
-      "name": "projects",
+      "name": "Obras",
       "type": "link",
       "icon": "apartment"
     },
     {
-      "route": "sinapi",
-      "name": "catalog",
-      "type": "sub",
-      "icon": "inventory_2",
-      "children": [
-        { "route": "compositions", "name": "compositions", "type": "link" },
-        { "route": "materials", "name": "materials", "type": "link" },
-        { "route": "import", "name": "import", "type": "link" }
-      ]
-    },
-    {
-      "route": "registry",
-      "name": "registry",
-      "type": "sub",
-      "icon": "folder_shared",
-      "children": [
-        { "route": "clients", "name": "clients", "type": "link" },
-        { "route": "employees", "name": "employees", "type": "link" },
-        { "route": "bank-accounts", "name": "bank-accounts", "type": "link" }
-      ]
-    },
-    {
-      "route": "equipment",
-      "name": "equipment",
-      "type": "link",
-      "icon": "precision_manufacturing"
-    },
-    {
-      "route": "suppliers",
-      "name": "suppliers",
-      "type": "link",
-      "icon": "store"
-    },
-    {
       "route": "commercial",
-      "name": "commercial",
+      "name": "Comercial",
       "type": "link",
-      "icon": "real_estate_agent"
+      "icon": "handshake"
     },
     {
-      "route": "after-sales",
-      "name": "after-sales",
+      "route": "procurement",
+      "name": "Suprimentos",
       "type": "link",
-      "icon": "support_agent"
+      "icon": "local_shipping"
+    },
+    {
+      "route": "finance",
+      "name": "Financeiro",
+      "type": "link",
+      "icon": "account_balance"
     },
     {
       "route": "safety",
-      "name": "safety",
+      "name": "Segurança do Trabalho",
       "type": "link",
       "icon": "health_and_safety"
     },
     {
       "route": "analytics",
-      "name": "analytics",
+      "name": "Relatórios",
       "type": "link",
-      "icon": "analytics"
+      "icon": "assessment"
+    },
+    {
+      "route": "registry",
+      "name": "Cadastros",
+      "type": "link",
+      "icon": "folder_shared"
     },
     {
       "route": "settings",
-      "name": "settings",
+      "name": "Configurações",
       "type": "link",
       "icon": "settings"
     }

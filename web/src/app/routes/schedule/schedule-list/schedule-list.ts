@@ -75,8 +75,8 @@ import { ScheduleActivity, SCurvePoint } from '../models/schedule.model';
     .gantt-bar-area { position: relative; height: 20px; background: #f5f5f5; border-radius: 4px; }
     .gantt-bar { position: absolute; top: 2px; height: 16px; background: #e0e0e0; border-radius: 3px; min-width: 4px; transition: all 0.3s; }
     .gantt-progress { height: 100%; background: #4caf50; border-radius: 3px; transition: width 0.5s; }
-    .gantt-pct { font-size: 12px; text-align: right; color: rgba(0,0,0,.6); }
-    .gantt-empty { text-align: center; padding: 40px; color: rgba(0,0,0,.3); }
+    .gantt-pct { font-size: 12px; text-align: right; color: var(--mat-sys-on-surface-variant); }
+    .gantt-empty { text-align: center; padding: 40px; color: var(--mat-sys-on-surface-variant); }
     .curve-chart { width: 100%; height: 220px; display: block; margin: 12px 0; }
     .curve-legend { display: flex; gap: 16px; font-size: 12px; margin-top: 8px; }
   `,

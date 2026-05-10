@@ -29,6 +29,9 @@ export class DailyLogFormComponent {
     laborCount: [0, Validators.min(0)],
     equipmentCount: [0, Validators.min(0)],
     notes: [''],
+    weatherHoursLost: [0],
+    weatherCondition: [''],
+    weatherImpact: [''],
   });
 
   weathers = ['SUNNY', 'CLOUDY', 'RAINY', 'STORMY'];

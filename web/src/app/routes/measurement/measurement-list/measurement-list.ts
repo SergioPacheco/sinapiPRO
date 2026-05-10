@@ -60,18 +60,18 @@ import { Measurement } from '../models/measurement.model';
   styles: `
     .kanban-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; min-height: 400px; }
     @media (max-width: 1200px) { .kanban-board { grid-template-columns: repeat(2, 1fr); } }
-    .kanban-column { background: rgba(0,0,0,.02); border-radius: 12px; padding: 12px; }
+    .kanban-column { background: var(--mat-sys-surface-container-low); border-radius: 12px; padding: 12px; }
     .kanban-header { border-top: 3px solid; padding: 8px 4px 12px; display: flex; justify-content: space-between; align-items: center; }
     .kanban-title { font-weight: 600; font-size: 14px; }
-    .kanban-count { background: rgba(0,0,0,.08); border-radius: 12px; padding: 2px 8px; font-size: 12px; font-weight: 600; }
+    .kanban-count { background: var(--mat-sys-surface-container-highest); border-radius: 12px; padding: 2px 8px; font-size: 12px; font-weight: 600; }
     .kanban-cards { display: flex; flex-direction: column; gap: 8px; }
     .kanban-card { padding: 12px; cursor: pointer; transition: transform 0.15s; }
     .kanban-card:hover { transform: translateY(-1px); }
     .card-header { display: flex; justify-content: space-between; align-items: center; }
     .card-amount { font-size: 13px; color: #4caf50; font-weight: 600; }
-    .card-period { font-size: 12px; color: rgba(0,0,0,.54); margin: 4px 0 0; }
+    .card-period { font-size: 12px; color: var(--mat-sys-on-surface-variant); margin: 4px 0 0; }
     .card-actions { display: flex; gap: 4px; margin-top: 8px; }
-    .kanban-empty { text-align: center; padding: 24px; color: rgba(0,0,0,.3); font-size: 13px; }
+    .kanban-empty { text-align: center; padding: 24px; color: var(--mat-sys-on-surface-variant); font-size: 13px; }
   `,
   imports: [MatButtonModule, MatIconModule, MatCardModule, MatChipsModule, MatRippleModule, PageHeader],
 })

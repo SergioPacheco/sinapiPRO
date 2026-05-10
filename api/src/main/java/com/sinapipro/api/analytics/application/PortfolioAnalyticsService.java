@@ -31,4 +31,19 @@ public class PortfolioAnalyticsService {
     }
 
     public record PortfolioSummary(long totalBudgets, long activeSuppliers, long totalInvoices) {}
+
+    public List<Map<String, Object>> projectsAtRisk() {
+        // Placeholder — in production, query projects where CPI < 1 or SPI < 1
+        return List.of();
+    }
+
+    public List<Map<String, Object>> contractsExpiring() {
+        // Placeholder — in production, query contracts ending within 30 days
+        return List.of();
+    }
+
+    public List<Map<String, Object>> pendingMeasurements() {
+        // Placeholder — in production, query measurements with status SUBMITTED
+        return List.of();
+    }
 }

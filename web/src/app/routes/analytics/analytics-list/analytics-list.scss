@@ -1,0 +1,32 @@
+.reports-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.report-group {
+  background: var(--mat-sys-surface-container);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 12px;
+  padding: 20px;
+
+  h3 {
+    display: flex; align-items: center; gap: 8px; margin: 0 0 14px;
+    font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--mat-sys-on-surface);
+    mat-icon { font-size: 20px; width: 20px; height: 20px; color: var(--mat-sys-primary); }
+  }
+}
+
+.report-items { display: flex; flex-direction: column; gap: 2px; }
+
+.report-item {
+  display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+  border-radius: 8px; text-decoration: none; color: inherit;
+  transition: background 0.15s;
+  &:hover { background: var(--mat-sys-surface-container-highest); }
+  mat-icon { font-size: 18px; width: 18px; height: 18px; color: var(--mat-sys-on-surface-variant); }
+}
+
+.item-label { display: block; font-size: 13px; font-weight: 500; color: var(--mat-sys-on-surface); }
+.item-desc { display: block; font-size: 11px; color: var(--mat-sys-on-surface-variant); margin-top: 1px; }

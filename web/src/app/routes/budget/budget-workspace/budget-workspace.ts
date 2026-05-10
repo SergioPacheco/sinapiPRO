@@ -28,7 +28,7 @@ import { Budget } from '../models/budget.model';
   styles: `
     .workspace-header { padding: 16px 24px 8px; }
     .workspace-header h2 { margin: 0; }
-    .subtitle { color: rgba(0,0,0,.54); font-size: 14px; }
+    .subtitle { color: var(--mat-sys-on-surface-variant); font-size: 14px; }
   `,
   imports: [RouterOutlet, RouterLink, RouterLinkActive, MatTabsModule, MatIconModule],
 })

@@ -1,6 +1,6 @@
 .summary-row { display: flex; gap: 16px; margin-bottom: 24px; }
 .summary-card { flex: 1; padding: 16px; text-align: center; }
-.summary-card .label { display: block; font-size: 12px; color: rgba(0,0,0,.54); text-transform: uppercase; }
+.summary-card .label { display: block; font-size: 12px; color: var(--mat-sys-on-surface-variant); text-transform: uppercase; }
 .summary-card .value { display: block; font-size: 24px; font-weight: 500; margin-top: 4px; }
 .summary-card.total { background: #1976d2; color: white; }
 .summary-card.total .label { color: rgba(255,255,255,.8); }
@@ -16,15 +16,15 @@
 .adjust-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .tool-panel button mat-icon { margin-right: 6px; }
 
-.stage-block { margin-bottom: 16px; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; }
-.stage-header { display: flex; align-items: center; gap: 8px; padding: 12px 16px; background: #f5f5f5; font-weight: 500; }
+.stage-block { margin-bottom: 16px; border: 1px solid var(--mat-sys-outline-variant); border-radius: 8px; overflow: hidden; }
+.stage-header { display: flex; align-items: center; gap: 8px; padding: 12px 16px; background: var(--mat-sys-surface-container); font-weight: 500; }
 .stage-name { flex: 1; }
 .stage-subtotal { font-weight: 600; color: #1976d2; margin-right: 8px; }
 
 .items-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.items-table th { text-align: left; padding: 8px 12px; background: #fafafa; border-bottom: 1px solid #e0e0e0; font-weight: 500; font-size: 11px; text-transform: uppercase; color: rgba(0,0,0,.54); }
-.items-table td { padding: 8px 12px; border-bottom: 1px solid #f0f0f0; }
-.items-table tr:hover { background: #f8f9fa; }
+.items-table th { text-align: left; padding: 8px 12px; background: var(--mat-sys-surface-container); border-bottom: 1px solid var(--mat-sys-outline-variant); font-weight: 500; font-size: 11px; text-transform: uppercase; color: var(--mat-sys-on-surface-variant); }
+.items-table td { padding: 8px 12px; border-bottom: 1px solid var(--mat-sys-outline-variant); }
+.items-table tr:hover { background: var(--mat-sys-surface-container-low); }
 .item-desc { max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .col-code { width: 80px; }
 .col-unit { width: 50px; text-align: center; }
@@ -33,15 +33,15 @@
 .col-action { width: 40px; }
 .badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #e8e8e8; }
 .badge.sinapi { background: #e3f2fd; color: #1565c0; }
-.empty-stage { padding: 16px; color: rgba(0,0,0,.4); font-style: italic; display: flex; align-items: center; gap: 4px; }
-.empty-card { padding: 32px; text-align: center; color: rgba(0,0,0,.4); }
+.empty-stage { padding: 16px; color: var(--mat-sys-on-surface-variant); font-style: italic; display: flex; align-items: center; gap: 4px; }
+.empty-card { padding: 32px; text-align: center; color: var(--mat-sys-on-surface-variant); }
 
 .abc-panel { margin-top: 24px; padding: 16px; }
 .abc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
 .abc-header h2 { margin: 0; font-size: 16px; font-weight: 500; }
 .abc-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.abc-table th { text-align: left; padding: 8px 12px; background: #fafafa; border-bottom: 1px solid #e0e0e0; font-size: 11px; text-transform: uppercase; color: rgba(0,0,0,.54); }
-.abc-table td { padding: 8px 12px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+.abc-table th { text-align: left; padding: 8px 12px; background: var(--mat-sys-surface-container); border-bottom: 1px solid var(--mat-sys-outline-variant); font-size: 11px; text-transform: uppercase; color: var(--mat-sys-on-surface-variant); }
+.abc-table td { padding: 8px 12px; border-bottom: 1px solid var(--mat-sys-outline-variant); vertical-align: middle; }
 .abc-desc { display: block; max-width: 520px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .abc-bar { display: block; height: 6px; margin-top: 4px; background: #eceff1; border-radius: 3px; overflow: hidden; }
 .abc-bar span { display: block; height: 100%; max-width: 100%; background: #2e7d32; }

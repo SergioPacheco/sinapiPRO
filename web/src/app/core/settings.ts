@@ -15,7 +15,7 @@ export interface AppSettings {
 export const defaults: AppSettings = {
   navPos: 'side',
   dir: 'ltr',
-  theme: 'auto',
+  theme: 'dark',
   showHeader: true,
   headerPos: 'fixed',
   showUserPanel: true,
