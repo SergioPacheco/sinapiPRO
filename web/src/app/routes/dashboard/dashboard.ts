@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { SettingsService } from '@core';
-import { Subscription } from 'rxjs';
+import { Subscription, forkJoin } from 'rxjs';
 
 interface ProjectSummary {
   id: string; code: string; name: string; status: string; customerName: string;
@@ -51,7 +51,6 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit() {
     this.sub = this.settings.notify.subscribe(() => this.updateChartsTheme());
     this.loadData();
-    this.loadAlerts();
   }
 
   ngAfterViewInit() {
@@ -64,31 +63,41 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   }
 
   loadData() {
-    this.http.get<any>('/projects?page=0&size=50').subscribe(res => {
-      const list = res.content || [];
+    forkJoin({
+      projects: this.http.get<any>('/projects?page=0&size=50'),
+      portfolio: this.http.get<any>('/analytics/portfolio'),
+      notifications: this.http.get<any[]>('/notifications'),
+    }).subscribe(({ projects, portfolio, notifications }) => {
+      const list = projects.content || [];
       this.projects.set(list);
+
       const active = list.filter((p: any) => p.status === 'IN_PROGRESS').length;
       const total = list.length;
       const budget = list.reduce((s: number, p: any) => s + (p.totalBudget || 0), 0);
-      this.kpis.set([
-        { icon: 'apartment', value: `${total}`, label: 'Obras Cadastradas', footer: `${active} em execução` },
-        { icon: 'engineering', value: `${active}`, label: 'Em Execução', progress: total ? (active / total) * 100 : 0, footer: `${Math.round((active / Math.max(total, 1)) * 100)}% do portfólio` },
-        { icon: 'payments', value: this.formatCurrency(budget), label: 'Valor Contratado', trend: 18, footer: 'Total do portfólio' },
-        { icon: 'trending_up', value: '12,4%', label: 'Margem Prevista', trend: 2.1, footer: 'Média ponderada' },
-        { icon: 'warning_amber', value: '3,2%', label: 'Desvio de Custo', trend: -0.8, footer: 'Vs. orçamento base' },
-        { icon: 'event_available', value: '4', label: 'Próximas Medições', footer: 'Nos próximos 30 dias' },
-      ]);
-    });
-  }
+      const planning = list.filter((p: any) => p.status === 'PLANNING').length;
 
-  loadAlerts() {
-    this.alerts.set([
-      { type: 'Estoque', description: 'Areia Média abaixo do mínimo (15/20 m³)', project: 'Parque das Flores', severity: 'warning' },
-      { type: 'RFI', description: 'RFI #2 vencida — passagem tubulação pilar P12', project: 'Parque das Flores', severity: 'critical' },
-      { type: 'Medição', description: 'Medição #3 aguardando aprovação', project: 'Parque das Flores', severity: 'info' },
-      { type: 'Segurança', description: 'Inspeção de canteiro pendente', project: 'Hospital Regional', severity: 'warning' },
-      { type: 'Contrato', description: 'Aditivo CTR-001 aguardando assinatura', project: 'Parque das Flores', severity: 'info' },
-    ]);
+      this.kpis.set([
+        { icon: 'apartment', value: `${total}`, label: 'Obras Cadastradas', footer: `${planning} em planejamento` },
+        { icon: 'engineering', value: `${active}`, label: 'Em Execução', progress: total ? (active / total) * 100 : 0, footer: `${Math.round((active / Math.max(total, 1)) * 100)}% do portfólio` },
+        { icon: 'payments', value: this.formatCurrency(budget), label: 'Valor Contratado', footer: 'Total do portfólio' },
+        { icon: 'store', value: `${portfolio.activeSuppliers || 0}`, label: 'Fornecedores Ativos', footer: 'Cadastrados no sistema' },
+        { icon: 'receipt', value: `${portfolio.totalInvoices || 0}`, label: 'Notas Fiscais', footer: 'Total registrado' },
+        { icon: 'notifications_active', value: `${notifications.filter((n: any) => !n.read).length}`, label: 'Pendências', footer: 'Notificações não lidas' },
+      ]);
+
+      // Alertas reais das notificações
+      this.alerts.set(
+        notifications
+          .filter((n: any) => !n.read)
+          .slice(0, 8)
+          .map((n: any) => ({
+            type: this.alertTypeLabel(n.type),
+            description: n.title,
+            project: n.budgetId ? list.find((p: any) => p.id === n.budgetId)?.name || '—' : '—',
+            severity: n.severity?.toLowerCase() || 'info',
+          }))
+      );
+    });
   }
 
   openProject(id: string) { this.router.navigate(['/projects', id, 'summary']); }
@@ -97,6 +106,16 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     if (value >= 1_000_000) return `R$ ${(value / 1_000_000).toFixed(1)}M`;
     if (value >= 1_000) return `R$ ${(value / 1_000).toFixed(0)}k`;
     return `R$ ${value.toFixed(0)}`;
+  }
+
+  private alertTypeLabel(type: string): string {
+    const map: Record<string, string> = {
+      MEASUREMENT_SUBMITTED: 'Medição',
+      STOCK_LOW: 'Estoque',
+      RFI_OVERDUE: 'RFI',
+      SYSTEM: 'Sistema',
+    };
+    return map[type] || type;
   }
 
   private baseOpts() {
@@ -112,66 +131,70 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
 
   initCharts() {
     const base = this.baseOpts();
+    const projects = this.projects();
+    const statusCounts = {
+      inProgress: projects.filter(p => p.status === 'IN_PROGRESS').length,
+      planning: projects.filter(p => p.status === 'PLANNING').length,
+      suspended: projects.filter(p => p.status === 'SUSPENDED').length,
+      completed: projects.filter(p => p.status === 'COMPLETED').length,
+    };
 
-    // Cashflow
-    const c1 = new ApexCharts(document.querySelector('#chart-cashflow'), {
-      ...base,
-      chart: { ...base.chart, type: 'area', height: 280 },
-      series: [
-        { name: 'Receitas', data: [120, 180, 150, 220, 280, 310, 250, 290, 340, 380, 420, 450] },
-        { name: 'Despesas', data: [90, 140, 130, 180, 200, 240, 210, 250, 280, 310, 350, 380] },
-      ],
-      xaxis: { categories: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'] },
-      yaxis: { labels: { formatter: (v: number) => `R$ ${v}k` } },
-      colors: ['#10b981', '#ef4444'],
-      stroke: { curve: 'smooth', width: 2 },
-      fill: { type: 'gradient', gradient: { opacityFrom: 0.35, opacityTo: 0.02 } },
-      dataLabels: { enabled: false },
-    });
-    c1.render();
-
-    // Status donut
-    const c2 = new ApexCharts(document.querySelector('#chart-status'), {
+    // Status donut — dados reais
+    const c1 = new ApexCharts(document.querySelector('#chart-status'), {
       ...base,
       chart: { ...base.chart, type: 'donut', height: 280 },
-      series: [2, 1, 0, 0],
+      series: [statusCounts.inProgress, statusCounts.planning, statusCounts.suspended, statusCounts.completed],
       labels: ['Em Execução', 'Planejamento', 'Suspensa', 'Concluída'],
       colors: ['#10b981', '#3b82f6', '#f59e0b', '#6b7280'],
       plotOptions: { pie: { donut: { size: '72%', labels: { show: true, total: { show: true, label: 'Obras', fontSize: '13px' } } } } },
       legend: { position: 'bottom', fontSize: '12px' },
     });
-    c2.render();
+    c1.render();
 
-    // PV x Real
-    const c3 = new ApexCharts(document.querySelector('#chart-pv-real'), {
+    // Cash flow — carrega dados reais se houver projeto ativo
+    const activeProject = projects.find(p => p.status === 'IN_PROGRESS');
+    if (activeProject) {
+      this.http.get<any>(`/projects/${activeProject.id}/finance/cash-flow/projection`).subscribe({
+        next: data => {
+          const months = (data.months || []).map((m: any) => m.month);
+          const income = (data.months || []).map((m: any) => Number(m.income) / 1000);
+          const expense = (data.months || []).map((m: any) => Number(m.expense) / 1000);
+          const c2 = new ApexCharts(document.querySelector('#chart-cashflow'), {
+            ...base,
+            chart: { ...base.chart, type: 'area', height: 280 },
+            series: [{ name: 'Receitas', data: income }, { name: 'Despesas', data: expense }],
+            xaxis: { categories: months.length ? months : ['—'] },
+            yaxis: { labels: { formatter: (v: number) => `R$ ${v.toFixed(0)}k` } },
+            colors: ['#10b981', '#ef4444'],
+            stroke: { curve: 'smooth', width: 2 },
+            fill: { type: 'gradient', gradient: { opacityFrom: 0.35, opacityTo: 0.02 } },
+            dataLabels: { enabled: false },
+          });
+          c2.render();
+          this.charts.push(c2);
+        },
+        error: () => this.renderEmptyCashflow(base),
+      });
+    } else {
+      this.renderEmptyCashflow(base);
+    }
+
+    this.charts.push(c1);
+  }
+
+  private renderEmptyCashflow(base: any) {
+    const c = new ApexCharts(document.querySelector('#chart-cashflow'), {
       ...base,
-      chart: { ...base.chart, type: 'line', height: 240 },
-      series: [
-        { name: 'Previsto', data: [50, 120, 210, 320, 450, 580, 720, 850] },
-        { name: 'Realizado', data: [45, 110, 195, 310, 430, 560, 690, 820] },
-      ],
-      xaxis: { categories: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago'] },
-      yaxis: { labels: { formatter: (v: number) => `R$ ${v}k` } },
-      colors: ['#3b82f6', '#10b981'],
-      stroke: { width: [2, 3], dashArray: [4, 0] },
+      chart: { ...base.chart, type: 'area', height: 280 },
+      series: [{ name: 'Receitas', data: [0] }, { name: 'Despesas', data: [0] }],
+      xaxis: { categories: ['Sem dados'] },
+      colors: ['#10b981', '#ef4444'],
+      stroke: { curve: 'smooth', width: 2 },
       dataLabels: { enabled: false },
+      noData: { text: 'Sem dados de fluxo de caixa' },
     });
-    c3.render();
-
-    // Costs by category
-    const c4 = new ApexCharts(document.querySelector('#chart-costs'), {
-      ...base,
-      chart: { ...base.chart, type: 'bar', height: 240 },
-      series: [{ name: 'Custo', data: [320, 180, 95, 72, 45] }],
-      xaxis: { categories: ['Mão de Obra', 'Material', 'Equipamento', 'Subempreitada', 'Outros'] },
-      yaxis: { labels: { formatter: (v: number) => `R$ ${v}k` } },
-      colors: ['#6366f1'],
-      plotOptions: { bar: { borderRadius: 4, horizontal: false, columnWidth: '55%' } },
-      dataLabels: { enabled: false },
-    });
-    c4.render();
-
-    this.charts = [c1, c2, c3, c4];
+    c.render();
+    this.charts.push(c);
   }
 
   private updateChartsTheme() {
