@@ -12,6 +12,7 @@ import { AppSettings, AppTheme, defaults } from '../settings';
 })
 export class SettingsService {
   private readonly key = 'ng-matero-settings';
+  private readonly version = '2.0'; // Bump to force reset of stale settings
 
   private readonly document = inject(DOCUMENT);
   private readonly translate = inject(TranslateService);
@@ -27,7 +28,18 @@ export class SettingsService {
 
   private htmlElement = this.document.querySelector('html')!;
 
-  private storedOptions: AppSettings = this.store.get(this.key);
+  private storedOptions: AppSettings = this.loadStoredOptions();
+
+  private loadStoredOptions(): AppSettings {
+    const stored = this.store.get(this.key);
+    const storedVersion = this.store.get(this.key + '-version');
+    if (storedVersion !== this.version) {
+      this.store.remove(this.key);
+      this.store.set(this.key + '-version', this.version);
+      return {} as AppSettings;
+    }
+    return stored || ({} as AppSettings);
+  }
 
   options: AppSettings = Object.assign(defaults, this.storedOptions);
 
@@ -85,7 +97,7 @@ export class SettingsService {
   getTranslateLang() {
     if (this.options.language === 'auto') {
       const browserLang = navigator.language;
-      return this.languages.includes(browserLang) ? browserLang : 'en-US';
+      return this.languages.includes(browserLang) ? browserLang : 'pt-BR';
     }
     return this.options.language;
   }
