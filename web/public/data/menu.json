@@ -1,58 +1,13 @@
 {
   "menu": [
-    {
-      "route": "dashboard",
-      "name": "Dashboard",
-      "type": "link",
-      "icon": "space_dashboard"
-    },
-    {
-      "route": "projects",
-      "name": "Obras",
-      "type": "link",
-      "icon": "apartment"
-    },
-    {
-      "route": "commercial",
-      "name": "Comercial",
-      "type": "link",
-      "icon": "handshake"
-    },
-    {
-      "route": "procurement",
-      "name": "Suprimentos",
-      "type": "link",
-      "icon": "local_shipping"
-    },
-    {
-      "route": "finance",
-      "name": "Financeiro",
-      "type": "link",
-      "icon": "account_balance"
-    },
-    {
-      "route": "safety",
-      "name": "Segurança do Trabalho",
-      "type": "link",
-      "icon": "health_and_safety"
-    },
-    {
-      "route": "analytics",
-      "name": "Relatórios",
-      "type": "link",
-      "icon": "assessment"
-    },
-    {
-      "route": "registry",
-      "name": "Cadastros",
-      "type": "link",
-      "icon": "folder_shared"
-    },
-    {
-      "route": "settings",
-      "name": "Configurações",
-      "type": "link",
-      "icon": "settings"
-    }
+    { "route": "dashboard", "name": "dashboard", "type": "link", "icon": "space_dashboard" },
+    { "route": "projects", "name": "projects", "type": "link", "icon": "apartment" },
+    { "route": "commercial", "name": "commercial", "type": "link", "icon": "handshake" },
+    { "route": "procurement", "name": "procurement", "type": "link", "icon": "local_shipping" },
+    { "route": "finance", "name": "finance", "type": "link", "icon": "account_balance" },
+    { "route": "safety", "name": "safety", "type": "link", "icon": "health_and_safety" },
+    { "route": "analytics", "name": "analytics", "type": "link", "icon": "assessment" },
+    { "route": "registry", "name": "registry", "type": "link", "icon": "folder_shared" },
+    { "route": "settings", "name": "settings", "type": "link", "icon": "settings" }
   ]
 }
