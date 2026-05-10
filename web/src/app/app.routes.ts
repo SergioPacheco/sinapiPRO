@@ -70,6 +70,10 @@ export const routes: Routes = [
         loadChildren: () => import('./routes/procurement-global/procurement-global').then(m => m.routes),
       },
       {
+        path: 'budgets',
+        loadChildren: () => import('./routes/budgets-global/budgets-global').then(m => m.routes),
+      },
+      {
         path: 'finance',
         loadChildren: () => import('./routes/finance-global/finance-global').then(m => m.routes),
       },

@@ -2,7 +2,8 @@
   "menu": {
     "dashboard": "Dashboard",
     "projects": "Projects",
-    "commercial": "Commercial",
+    "budgets": "Budgets",
+    "compositions": "Compositions",
     "procurement": "Procurement",
     "finance": "Finance",
     "safety": "Safety",

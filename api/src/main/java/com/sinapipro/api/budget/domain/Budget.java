@@ -44,6 +44,21 @@ public class Budget extends AuditableEntity {
     @Column(columnDefinition = "jsonb", nullable = false)
     private Map<String, Object> metadata = Map.of();
 
+    @Column(name = "project_id")
+    private UUID projectId;
+
+    @Column(name = "reference_date")
+    private LocalDate referenceDate;
+
+    @Column(name = "state", length = 2)
+    private String state;
+
+    @Column(name = "rounding_method", length = 20)
+    private String roundingMethod = "TRUNCATE";
+
+    @Column(name = "decimal_places")
+    private Integer decimalPlaces = 4;
+
     protected Budget() {}
 
     public Budget(String code, String title, String customerName, BigDecimal totalAmount,
@@ -69,6 +84,17 @@ public class Budget extends AuditableEntity {
     public LocalDate getStartDate() { return startDate; }
     public LocalDate getEndDate() { return endDate; }
     public Map<String, Object> getMetadata() { return metadata; }
+
+    public UUID getProjectId() { return projectId; }
+    public void setProjectId(UUID projectId) { this.projectId = projectId; }
+    public LocalDate getReferenceDate() { return referenceDate; }
+    public void setReferenceDate(LocalDate referenceDate) { this.referenceDate = referenceDate; }
+    public String getState() { return state; }
+    public void setState(String state) { this.state = state; }
+    public String getRoundingMethod() { return roundingMethod; }
+    public void setRoundingMethod(String roundingMethod) { this.roundingMethod = roundingMethod; }
+    public Integer getDecimalPlaces() { return decimalPlaces; }
+    public void setDecimalPlaces(Integer decimalPlaces) { this.decimalPlaces = decimalPlaces; }
 
     public void update(String title, String customerName, BigDecimal totalAmount,
                        BudgetStatus status, LocalDate startDate, LocalDate endDate, Map<String, Object> metadata) {

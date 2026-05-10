@@ -2,7 +2,8 @@
   "menu": {
     "dashboard": "Dashboard",
     "projects": "Obras",
-    "commercial": "Comercial",
+    "budgets": "Orçamentos",
+    "compositions": "Base de Composições",
     "procurement": "Suprimentos",
     "finance": "Financeiro",
     "safety": "Segurança do Trabalho",

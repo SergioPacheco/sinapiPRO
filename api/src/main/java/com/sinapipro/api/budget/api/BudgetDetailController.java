@@ -342,4 +342,38 @@ public class BudgetDetailController {
                     BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
         }
     }
+
+    // === Task 1.1: Atualização de Data Base ===
+
+    @Operation(summary = "Update reference date — recalculates all prices from material_price table")
+    @PostMapping("/update-base-date")
+    public UpdateBaseDateResponse updateBaseDate(@PathVariable UUID budgetId, @RequestBody UpdateBaseDateRequest request) {
+        var budget = budgetRepository.findById(budgetId)
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND));
+
+        budget.setReferenceDate(request.referenceDate());
+        budget.setState(request.state());
+        budgetRepository.save(budget);
+
+        // Recalculate all item costs with new reference date
+        var items = itemRepository.findAllByBudgetId(budgetId);
+        int updated = 0;
+        for (var item : items) {
+            try {
+                var result = compositionCostService.calculateCost(item.getComposition().getId(), request.state(), request.referenceDate());
+                if (result.totalUnitCost() != null && result.totalUnitCost().compareTo(BigDecimal.ZERO) > 0) {
+                    item.update(item.getQuantity(), result.totalUnitCost(), item.getBdiPct());
+                    itemRepository.save(item);
+                    updated++;
+                }
+            } catch (Exception e) {
+                // Price not found for this composition — divergent
+            }
+        }
+
+        return new UpdateBaseDateResponse(updated, items.size() - updated, items.size());
+    }
+
+    record UpdateBaseDateRequest(LocalDate referenceDate, String state) {}
+    record UpdateBaseDateResponse(int updatedPrices, int divergentPrices, int totalItems) {}
 }
