@@ -83,7 +83,19 @@ export class RegistryHubComponent {
         { label: 'Clientes', route: 'clients', icon: 'person', description: 'Clientes e contratantes' },
         { label: 'Fornecedores', route: '/suppliers', icon: 'store', description: 'Fornecedores de materiais e serviços' },
         { label: 'Funcionários', route: 'employees', icon: 'badge', description: 'Colaboradores e terceirizados' },
+        { label: 'Empreiteiros', route: 'contractors', icon: 'construction', description: 'Empreiteiros e subempreiteiros' },
+        { label: 'Fiscais', route: 'inspectors', icon: 'verified_user', description: 'Fiscais de obra e aprovadores' },
         { label: 'Equipes', route: 'teams', icon: 'groups', description: 'Composição de equipes de obra' },
+      ],
+    },
+    {
+      title: 'Orçamento',
+      icon: 'request_quote',
+      items: [
+        { label: 'BDI', route: 'bdi', icon: 'calculate', description: 'Cadastro de BDI reutilizável (TCU)' },
+        { label: 'Encargos Sociais', route: 'social-charges', icon: 'percent', description: 'Horista, mensalista, Simples Nacional' },
+        { label: 'Catálogo SINAPI', route: '/sinapi', icon: 'menu_book', description: 'Composições e insumos oficiais' },
+        { label: 'Unidades de Medida', route: 'units', icon: 'straighten', description: 'm, m², kg, un, vb...' },
       ],
     },
     {
@@ -93,15 +105,16 @@ export class RegistryHubComponent {
         { label: 'Contas Bancárias', route: 'bank-accounts', icon: 'credit_card', description: 'Bancos e contas da empresa' },
         { label: 'Formas de Pagamento', route: 'payment-methods', icon: 'payments', description: 'Condições de pagamento' },
         { label: 'Centros de Custo', route: 'cost-centers', icon: 'account_tree', description: 'Estrutura de custos' },
+        { label: 'Categorias Financeiras', route: 'finance-categories', icon: 'category', description: 'Material, MO, equipamento, serviço' },
       ],
     },
     {
-      title: 'Obra e Engenharia',
+      title: 'Obra e Operação',
       icon: 'engineering',
       items: [
-        { label: 'Unidades de Medida', route: 'units', icon: 'straighten', description: 'm, m², kg, un, vb...' },
         { label: 'Equipamentos', route: '/equipment', icon: 'precision_manufacturing', description: 'Máquinas e veículos' },
-        { label: 'Catálogo SINAPI', route: '/sinapi', icon: 'menu_book', description: 'Composições e insumos' },
+        { label: 'Tipos de Obra', route: 'project-types', icon: 'domain', description: 'Residencial, comercial, industrial' },
+        { label: 'Etapas Padrão', route: 'default-stages', icon: 'list_alt', description: 'Templates de etapas para orçamento' },
       ],
     },
     {
@@ -110,6 +123,15 @@ export class RegistryHubComponent {
       items: [
         { label: 'Checklists', route: '/safety/templates', icon: 'checklist', description: 'Modelos de inspeção' },
         { label: 'Tipos de Incidente', route: 'incident-types', icon: 'warning', description: 'Classificação de ocorrências' },
+        { label: 'EPIs', route: 'epis', icon: 'shield', description: 'Equipamentos de proteção individual' },
+      ],
+    },
+    {
+      title: 'Sistema',
+      icon: 'settings',
+      items: [
+        { label: 'Perfis e Permissões', route: '/settings/roles', icon: 'admin_panel_settings', description: 'Controle de acesso' },
+        { label: 'Relatórios', route: 'report-templates', icon: 'print', description: 'Personalização de relatórios (logo, cores)' },
       ],
     },
   ];
