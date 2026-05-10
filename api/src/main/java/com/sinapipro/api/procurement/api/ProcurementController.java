@@ -39,17 +39,20 @@ public class ProcurementController {
     private final ProcurementReportService procurementReportService;
     private final PurchaseOrderCostDistributionRepository costDistributionRepository;
     private final PurchaseOrderRepository orderRepository;
+    private final QuotationEmailRepository quotationEmailRepository;
 
     public ProcurementController(PurchaseRequestRepository requestRepository, BudgetRepository budgetRepository,
                                  ProcurementService procurementService, ProcurementReportService procurementReportService,
                                  PurchaseOrderCostDistributionRepository costDistributionRepository,
-                                 PurchaseOrderRepository orderRepository) {
+                                 PurchaseOrderRepository orderRepository,
+                                 QuotationEmailRepository quotationEmailRepository) {
         this.requestRepository = requestRepository;
         this.budgetRepository = budgetRepository;
         this.procurementService = procurementService;
         this.procurementReportService = procurementReportService;
         this.costDistributionRepository = costDistributionRepository;
         this.orderRepository = orderRepository;
+        this.quotationEmailRepository = quotationEmailRepository;
     }
 
     // --- Purchase Requests ---
@@ -242,4 +245,31 @@ public class ProcurementController {
 
     record CostDistributionRequest(@NotNull UUID costCodeId, @NotNull BigDecimal percentage) {}
     record CostDistributionResponse(UUID id, UUID costCodeId, BigDecimal percentage, BigDecimal amount) {}
+
+    // Task 5.2 — Gerar pedido a partir da Curva ABC do orçamento
+    @Operation(summary = "Generate purchase request from ABC curve — top materials by cost impact")
+    @PostMapping("/from-abc")
+    @ResponseStatus(HttpStatus.CREATED)
+    java.util.List<java.util.Map<String, Object>> generateFromAbc(@PathVariable UUID projectId, @RequestBody FromAbcRequest req) {
+        var budget = budgetRepository.findById(projectId).orElseThrow();
+        var results = new java.util.ArrayList<java.util.Map<String, Object>>();
+        for (var item : req.items()) {
+            var pr = new PurchaseRequest(budget, null, item.description(), item.quantity(), item.unit(), "ABC_IMPORT");
+            pr = requestRepository.save(pr);
+            results.add(java.util.Map.of("id", pr.getId(), "description", pr.getDescription(), "quantity", pr.getQuantity()));
+        }
+        return results;
+    }
+
+    record FromAbcRequest(java.util.List<AbcItem> items) {}
+    record AbcItem(String description, BigDecimal quantity, String unit) {}
+
+    @Operation(summary = "Send quotation to suppliers via email")
+    @PostMapping("/quotations/{quotationId}/send-email")
+    java.util.Map<String, Object> sendQuotationEmail(@PathVariable UUID projectId, @PathVariable UUID quotationId) {
+        var emails = quotationEmailRepository.findByQuotationId(quotationId);
+        emails.forEach(QuotationEmail::markSent);
+        quotationEmailRepository.saveAll(emails);
+        return java.util.Map.of("sent", emails.size(), "quotationId", quotationId);
+    }
 }

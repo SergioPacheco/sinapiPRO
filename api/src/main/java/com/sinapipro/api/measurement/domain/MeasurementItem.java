@@ -38,6 +38,9 @@ public class MeasurementItem {
     @Column(name = "is_extra", nullable = false)
     private boolean extra = false;
 
+    @Column(name = "contractor_name", length = 140)
+    private String contractorName;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -73,4 +76,6 @@ public class MeasurementItem {
     public BigDecimal getAmount() { return quantity.multiply(unitPrice).setScale(2, java.math.RoundingMode.HALF_UP); }
     public boolean isExtra() { return extra; }
     public void setExtra(boolean extra) { this.extra = extra; }
+    public String getContractorName() { return contractorName; }
+    public void setContractorName(String name) { this.contractorName = name; }
 }
