@@ -5,6 +5,8 @@ import com.sinapipro.api.budget.domain.BudgetRepository;
 import com.sinapipro.api.schedule.application.CriticalPathService;
 import com.sinapipro.api.schedule.application.SCurveService;
 import com.sinapipro.api.schedule.application.ScheduleReportService;
+import com.sinapipro.api.schedule.domain.Holiday;
+import com.sinapipro.api.schedule.domain.HolidayRepository;
 import com.sinapipro.api.schedule.domain.ActivityDependency;
 import com.sinapipro.api.schedule.domain.ActivityDependencyRepository;
 import com.sinapipro.api.schedule.domain.ScheduleActivity;
@@ -42,13 +44,15 @@ public class ScheduleController {
     private final SCurveService sCurveService;
     private final CriticalPathService criticalPathService;
     private final ScheduleReportService scheduleReportService;
+    private final HolidayRepository holidayRepository;
 
     public ScheduleController(ScheduleActivityRepository activityRepository,
                               ActivityDependencyRepository dependencyRepository,
                               ScheduleBaselineRepository baselineRepository,
                               BudgetRepository budgetRepository, SCurveService sCurveService,
                               CriticalPathService criticalPathService,
-                              ScheduleReportService scheduleReportService) {
+                              ScheduleReportService scheduleReportService,
+                              HolidayRepository holidayRepository) {
         this.activityRepository = activityRepository;
         this.dependencyRepository = dependencyRepository;
         this.baselineRepository = baselineRepository;
@@ -56,6 +60,7 @@ public class ScheduleController {
         this.sCurveService = sCurveService;
         this.criticalPathService = criticalPathService;
         this.scheduleReportService = scheduleReportService;
+        this.holidayRepository = holidayRepository;
     }
 
     @Operation(summary = "List schedule activities")
@@ -210,4 +215,48 @@ public class ScheduleController {
             return new BaselineResponse(b.getId(), b.getName(), b.getSnapshot().size(), b.getCreatedAt().toString());
         }
     }
+
+    // === Task 4.1: Feriados ===
+
+    @Operation(summary = "List holidays for this project")
+    @GetMapping("/holidays")
+    List<Holiday> listHolidays(@PathVariable UUID projectId) {
+        return holidayRepository.findByProjectIdOrderByHolidayDate(projectId);
+    }
+
+    @Operation(summary = "Add holiday")
+    @PostMapping("/holidays")
+    @ResponseStatus(HttpStatus.CREATED)
+    Holiday addHoliday(@PathVariable UUID projectId, @RequestBody HolidayRequest req) {
+        return holidayRepository.save(new Holiday(projectId, req.date(), req.description(), req.recurring()));
+    }
+
+    record HolidayRequest(java.time.LocalDate date, String description, boolean recurring) {}
+
+    // === Task 4.2: Acompanhamento previsto × realizado ===
+
+    @Operation(summary = "Schedule tracking — planned vs actual progress per activity")
+    @GetMapping("/tracking")
+    List<TrackingLine> tracking(@PathVariable UUID projectId) {
+        return activityRepository.findByBudgetIdOrderBySortOrder(projectId).stream()
+                .map(a -> new TrackingLine(
+                        a.getId(), a.getName(), a.getWeight(), a.getProgressPct(),
+                        a.getPlannedStart(), a.getPlannedEnd(), a.getActualStart(), a.getActualEnd(),
+                        a.getProgressPct().compareTo(expectedProgress(a)) >= 0 ? "ON_TRACK" : "DELAYED"))
+                .toList();
+    }
+
+    private java.math.BigDecimal expectedProgress(ScheduleActivity a) {
+        var today = java.time.LocalDate.now();
+        if (today.isBefore(a.getPlannedStart())) return java.math.BigDecimal.ZERO;
+        if (today.isAfter(a.getPlannedEnd())) return new java.math.BigDecimal("100");
+        long totalDays = a.getPlannedStart().until(a.getPlannedEnd()).getDays();
+        long elapsed = a.getPlannedStart().until(today).getDays();
+        if (totalDays == 0) return new java.math.BigDecimal("100");
+        return java.math.BigDecimal.valueOf(elapsed * 100.0 / totalDays).setScale(2, java.math.RoundingMode.HALF_UP);
+    }
+
+    record TrackingLine(UUID activityId, String name, java.math.BigDecimal weight, java.math.BigDecimal progressPct,
+                        java.time.LocalDate plannedStart, java.time.LocalDate plannedEnd,
+                        java.time.LocalDate actualStart, java.time.LocalDate actualEnd, String status) {}
 }
