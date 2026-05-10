@@ -21,7 +21,7 @@ import java.util.UUID;
 
 @Tag(name = "Submittals", description = "Technical document approval workflow (shop drawings, samples)")
 @RestController
-@RequestMapping("/api/v1/budgets/{budgetId}/submittals")
+@RequestMapping("/api/v1/projects/{projectId}/submittals")
 public class SubmittalController {
 
     private final SubmittalRepository repository;
@@ -29,47 +29,47 @@ public class SubmittalController {
 
     @Operation(summary = "List submittals") @GetMapping
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
-    PageResponse<SubmittalResponse> list(@PathVariable UUID budgetId, @PageableDefault(size = 20) Pageable pageable) {
-        return PageResponse.from(repository.findByBudgetId(budgetId, pageable).map(SubmittalResponse::from));
+    PageResponse<SubmittalResponse> list(@PathVariable UUID projectId, @PageableDefault(size = 20) Pageable pageable) {
+        return PageResponse.from(repository.findByBudgetId(projectId, pageable).map(SubmittalResponse::from));
     }
 
     @Operation(summary = "Create submittal") @PostMapping
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
-    ResponseEntity<SubmittalResponse> create(@PathVariable UUID budgetId, @Valid @RequestBody CreateRequest req) {
-        int num = repository.countByBudgetId(budgetId) + 1;
-        Submittal s = repository.save(new Submittal(budgetId, num, req.title(), req.specSection(),
+    ResponseEntity<SubmittalResponse> create(@PathVariable UUID projectId, @Valid @RequestBody CreateRequest req) {
+        int num = repository.countByBudgetId(projectId) + 1;
+        Submittal s = repository.save(new Submittal(projectId, num, req.title(), req.specSection(),
                 req.type(), req.submittedBy(), req.assignedTo(), req.dueDate()));
-        return ResponseEntity.created(URI.create("/api/v1/budgets/" + budgetId + "/submittals/" + s.getId()))
+        return ResponseEntity.created(URI.create("/api/v1/budgets/" + projectId + "/submittals/" + s.getId()))
                 .body(SubmittalResponse.from(s));
     }
 
     @Operation(summary = "Submit for review") @PostMapping("/{id}/submit")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')") @Transactional
-    SubmittalResponse submit(@PathVariable UUID budgetId, @PathVariable UUID id) {
+    SubmittalResponse submit(@PathVariable UUID projectId, @PathVariable UUID id) {
         Submittal s = findOrThrow(id); s.submit(); return SubmittalResponse.from(repository.save(s));
     }
 
     @Operation(summary = "Approve") @PostMapping("/{id}/approve")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')") @Transactional
-    SubmittalResponse approve(@PathVariable UUID budgetId, @PathVariable UUID id, @RequestBody(required = false) ReviewRequest req) {
+    SubmittalResponse approve(@PathVariable UUID projectId, @PathVariable UUID id, @RequestBody(required = false) ReviewRequest req) {
         Submittal s = findOrThrow(id); s.approve(req != null ? req.notes() : null); return SubmittalResponse.from(repository.save(s));
     }
 
     @Operation(summary = "Approve as noted") @PostMapping("/{id}/approve-as-noted")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')") @Transactional
-    SubmittalResponse approveAsNoted(@PathVariable UUID budgetId, @PathVariable UUID id, @Valid @RequestBody ReviewRequest req) {
+    SubmittalResponse approveAsNoted(@PathVariable UUID projectId, @PathVariable UUID id, @Valid @RequestBody ReviewRequest req) {
         Submittal s = findOrThrow(id); s.approveAsNoted(req.notes()); return SubmittalResponse.from(repository.save(s));
     }
 
     @Operation(summary = "Reject") @PostMapping("/{id}/reject")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')") @Transactional
-    SubmittalResponse reject(@PathVariable UUID budgetId, @PathVariable UUID id, @Valid @RequestBody ReviewRequest req) {
+    SubmittalResponse reject(@PathVariable UUID projectId, @PathVariable UUID id, @Valid @RequestBody ReviewRequest req) {
         Submittal s = findOrThrow(id); s.reject(req.notes()); return SubmittalResponse.from(repository.save(s));
     }
 
     @Operation(summary = "Revise and resubmit") @PostMapping("/{id}/revise")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')") @Transactional
-    SubmittalResponse revise(@PathVariable UUID budgetId, @PathVariable UUID id, @Valid @RequestBody ReviewRequest req) {
+    SubmittalResponse revise(@PathVariable UUID projectId, @PathVariable UUID id, @Valid @RequestBody ReviewRequest req) {
         Submittal s = findOrThrow(id); s.reviseAndResubmit(req.notes()); return SubmittalResponse.from(repository.save(s));
     }
 

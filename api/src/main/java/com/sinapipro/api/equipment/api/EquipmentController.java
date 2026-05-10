@@ -3,8 +3,12 @@ package com.sinapipro.api.equipment.api;
 import com.sinapipro.api.equipment.application.EquipmentService;
 import com.sinapipro.api.equipment.application.EquipmentService.*;
 import com.sinapipro.api.equipment.domain.Equipment;
+import com.sinapipro.api.equipment.domain.EquipmentFueling;
+import com.sinapipro.api.equipment.domain.EquipmentFuelingRepository;
+import com.sinapipro.api.equipment.domain.EquipmentRepository;
 import com.sinapipro.api.equipment.domain.EquipmentUsage;
 import com.sinapipro.api.equipment.domain.EquipmentUsageRepository;
+import com.sinapipro.api.shared.error.DomainNotFoundException;
 import com.sinapipro.api.shared.api.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,10 +36,15 @@ public class EquipmentController {
 
     private final EquipmentService equipmentService;
     private final EquipmentUsageRepository usageRepository;
+    private final EquipmentFuelingRepository fuelingRepository;
+    private final EquipmentRepository equipmentRepository;
 
-    public EquipmentController(EquipmentService equipmentService, EquipmentUsageRepository usageRepository) {
+    public EquipmentController(EquipmentService equipmentService, EquipmentUsageRepository usageRepository,
+                               EquipmentFuelingRepository fuelingRepository, EquipmentRepository equipmentRepository) {
         this.equipmentService = equipmentService;
         this.usageRepository = usageRepository;
+        this.fuelingRepository = fuelingRepository;
+        this.equipmentRepository = equipmentRepository;
     }
 
     @Operation(summary = "List all equipment")
@@ -96,6 +105,28 @@ public class EquipmentController {
         return equipmentService.costSummary(budgetId);
     }
 
+    // --- Fueling ---
+
+    @Operation(summary = "Record equipment fueling")
+    @PostMapping("/{equipmentId}/fueling")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @ResponseStatus(HttpStatus.CREATED)
+    FuelingResponse recordFueling(@PathVariable UUID equipmentId, @Valid @RequestBody RecordFuelingRequest req) {
+        var equipment = equipmentRepository.findById(equipmentId)
+                .orElseThrow(() -> new DomainNotFoundException("Equipment not found: " + equipmentId));
+        var fueling = fuelingRepository.save(new EquipmentFueling(equipment, req.budgetId(), req.fuelingDate(),
+                req.fuelType(), req.liters(), req.costPerLiter(), req.odometer(), req.notes()));
+        return FuelingResponse.from(fueling);
+    }
+
+    @Operation(summary = "List fueling history for equipment")
+    @GetMapping("/{equipmentId}/fueling")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    List<FuelingResponse> listFueling(@PathVariable UUID equipmentId) {
+        return fuelingRepository.findByEquipmentIdOrderByFuelingDateDesc(equipmentId).stream()
+                .map(FuelingResponse::from).toList();
+    }
+
     // --- DTOs ---
     record CreateEquipmentRequest(@NotBlank String code, @NotBlank String name, @NotBlank String type,
                                   String brand, String model, Integer year, String licensePlate,
@@ -120,6 +151,18 @@ public class EquipmentController {
         static UsageResponse from(EquipmentUsage u) {
             return new UsageResponse(u.getId(), u.getUsageDate(), u.getHoursUsed(), u.getKmUsed(),
                     u.getOperator(), u.getCost());
+        }
+    }
+
+    record RecordFuelingRequest(@NotNull UUID budgetId, @NotNull LocalDate fuelingDate, @NotBlank String fuelType,
+                                @NotNull @Positive BigDecimal liters, @NotNull @Positive BigDecimal costPerLiter,
+                                BigDecimal odometer, String notes) {}
+
+    record FuelingResponse(UUID id, LocalDate fuelingDate, String fuelType, BigDecimal liters,
+                           BigDecimal costPerLiter, BigDecimal totalCost, BigDecimal odometer) {
+        static FuelingResponse from(EquipmentFueling f) {
+            return new FuelingResponse(f.getId(), f.getFuelingDate(), f.getFuelType(), f.getLiters(),
+                    f.getCostPerLiter(), f.getTotalCost(), f.getOdometer());
         }
     }
 }

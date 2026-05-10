@@ -18,6 +18,7 @@ export class ContractFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(ContractService);
   private readonly route = inject(ActivatedRoute);
+  private projectId = '';
   readonly router = inject(Router);
 
   isEdit = false;
@@ -34,17 +35,18 @@ export class ContractFormComponent implements OnInit {
   });
 
   ngOnInit() {
+    this.projectId = this.route.parent!.parent!.snapshot.paramMap.get('projectId')!;
     this.id = this.route.snapshot.params['id'];
     if (this.id) {
       this.isEdit = true;
-      this.service.getById(this.id).subscribe(c => this.form.patchValue(c));
+      this.service.getById(this.projectId, this.id).subscribe(c => this.form.patchValue(c));
     }
   }
 
   onSubmit() {
     if (this.form.invalid) return;
     const data = this.form.getRawValue() as any;
-    const obs = this.isEdit ? this.service.update(this.id, data) : this.service.create(data);
-    obs.subscribe(() => this.router.navigate(['/contracts']));
+    const obs = this.isEdit ? this.service.update(this.projectId, this.id, data) : this.service.create(this.projectId, data);
+    obs.subscribe(() => this.router.navigate(['/budgets', this.projectId, 'contracts']));
   }
 }

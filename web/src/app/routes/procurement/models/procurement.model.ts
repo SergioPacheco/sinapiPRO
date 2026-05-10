@@ -2,7 +2,7 @@ export type PurchaseOrderStatus = 'PENDING' | 'PARTIAL' | 'RECEIVED';
 
 export interface PurchaseOrder {
   id: string;
-  budgetId: string;
+  projectId: string;
   supplierName: string;
   number: string;
   description: string;

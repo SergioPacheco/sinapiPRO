@@ -52,7 +52,7 @@ class CashFlowServiceTest {
         Measurement m = new Measurement(budget, 1, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 31), BigDecimal.ZERO);
         m.submit();
         m.approve();
-        m.getItems().add(new MeasurementItem(m, null, "Work", new BigDecimal("1"), new BigDecimal("10000")));
+        m.getItems().add(new MeasurementItem(m, (UUID) null, "Work", new BigDecimal("1"), new BigDecimal("10000")));
 
         when(measurementRepository.findByBudgetIdOrderByNumberDesc(budgetId)).thenReturn(List.of(m));
         when(invoiceRepository.findFiltered(any(), eq(budgetId), any(), any())).thenReturn(new PageImpl<>(List.of()));
@@ -96,7 +96,7 @@ class CashFlowServiceTest {
         Measurement m = new Measurement(budget, 1, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 31), BigDecimal.ZERO);
         m.submit();
         m.approve();
-        m.getItems().add(new MeasurementItem(m, null, "Work", new BigDecimal("1"), new BigDecimal("20000")));
+        m.getItems().add(new MeasurementItem(m, (UUID) null, "Work", new BigDecimal("1"), new BigDecimal("20000")));
 
         // Expense in Feb: 8000
         Invoice inv = new Invoice("NF-001", budget, supplier, new BigDecimal("8000"),

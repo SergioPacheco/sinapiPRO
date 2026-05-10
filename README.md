@@ -15,22 +15,15 @@ SinapiPRO é um ERP open source para gestão de obras e orçamentos da construç
 ## 🚀 Quick Start
 
 ```bash
-# Backend (Java 25 + PostgreSQL)
-cd api
-mvn spring-boot:run -s .mvn/settings.xml
+# Stack completa em Docker
+docker compose up --build
+# App: http://localhost:4200
 # API: http://localhost:8080
 # Swagger: http://localhost:8080/swagger-ui.html
-
-# Frontend (Angular 20)
-cd web
-nvm use 22
-npm install --legacy-peer-deps
-npx ng serve
-# App: http://localhost:4200
-# Login: admin@sinapipro.com / admin123
+# Login: admin@sinapipro.dev / SinapiPro#2026
 ```
 
-O PostgreSQL sobe automaticamente via Docker Compose. Flyway executa as migrations no startup.
+O Docker Compose sobe PostgreSQL, API, frontend, Prometheus, Grafana e OTel. Flyway executa as migrations no startup da API.
 
 ---
 
@@ -115,7 +108,7 @@ sinapiPRO/
 # Obter token JWT
 curl -X POST http://localhost:8080/api/v1/auth/token \
   -H "Content-Type: application/json" \
-  -d '{"username":"admin@sinapipro.com","password":"admin123","grantType":"PASSWORD"}'
+  -d '{"username":"admin@sinapipro.dev","password":"SinapiPro#2026","grantType":"PASSWORD"}'
 ```
 
 | Scope/Role | Acesso |
@@ -129,8 +122,8 @@ curl -X POST http://localhost:8080/api/v1/auth/token \
 ## 📊 Observabilidade
 
 ```bash
-# Stack completa (App + PG + Prometheus + Grafana + OTel)
-cd api && docker compose -f compose.showcase.yaml up -d
+# Stack completa (Web + API + PG + Prometheus + Grafana + OTel)
+docker compose up --build
 ```
 
 | Serviço | URL |
@@ -138,7 +131,7 @@ cd api && docker compose -f compose.showcase.yaml up -d
 | API | http://localhost:8080 |
 | Swagger | http://localhost:8080/swagger-ui.html |
 | Frontend | http://localhost:4200 |
-| Prometheus | http://localhost:8080/actuator/prometheus |
+| Prometheus | http://localhost:9090 |
 | Grafana | http://localhost:3000 |
 
 ---

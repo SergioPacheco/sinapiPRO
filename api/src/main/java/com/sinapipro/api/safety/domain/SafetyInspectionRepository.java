@@ -7,4 +7,5 @@ import java.util.UUID;
 
 public interface SafetyInspectionRepository extends JpaRepository<SafetyInspection, UUID> {
     Page<SafetyInspection> findByBudgetId(UUID budgetId, Pageable pageable);
+    java.util.List<SafetyInspection> findByBudgetIdOrderByInspectionDateDesc(UUID budgetId);
 }

@@ -18,6 +18,8 @@
   [sortOnFront]="false"
   [showToolbar]="true"
   [columnResizable]="true"
+  [rowSelectable]="false"
   (page)="onPageChange($event)"
   (sortChange)="loadData()"
+  (rowClick)="openWorkspace($event)"
 />

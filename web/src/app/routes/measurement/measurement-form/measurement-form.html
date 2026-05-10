@@ -3,10 +3,6 @@
   <mat-card-content>
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-grid">
       <mat-form-field appearance="outline">
-        <mat-label>ID do Orçamento</mat-label>
-        <input matInput formControlName="budgetId" />
-      </mat-form-field>
-      <mat-form-field appearance="outline">
         <mat-label>Número da Medição</mat-label>
         <input matInput formControlName="number" type="number" />
       </mat-form-field>
@@ -22,8 +18,37 @@
         <mat-label>Retenção (%)</mat-label>
         <input matInput formControlName="retentionPct" type="number" step="0.01" />
       </mat-form-field>
+
+      <div class="measurement-items" formArrayName="items">
+        <h2>Itens do Orçamento</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Contratada</th>
+              <th>Anterior</th>
+              <th>Saldo</th>
+              <th>Esta Medição</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (group of items.controls; track group.value.budgetItemId; let i = $index) {
+              <tr [formGroupName]="i">
+                <td>{{ group.value.description }}</td>
+                <td>{{ availableItems[i].contractedQuantity }}</td>
+                <td>{{ availableItems[i].previousQuantity }}</td>
+                <td>{{ availableItems[i].balanceQuantity }}</td>
+                <td>
+                  <input matInput formControlName="quantity" type="number" min="0" [max]="availableItems[i].balanceQuantity" step="0.0001" />
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
       <div class="form-actions">
-        <button mat-button type="button" (click)="router.navigate(['/measurements'])">Cancelar</button>
+        <button mat-button type="button" (click)="cancel()">Cancelar</button>
         <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">Criar</button>
       </div>
     </form>

@@ -21,7 +21,7 @@ import java.util.UUID;
 
 @Tag(name = "Punch List", description = "Punch list items for project closeout")
 @RestController
-@RequestMapping("/api/v1/budgets/{budgetId}/punch-list")
+@RequestMapping("/api/v1/projects/{projectId}/punch-list")
 public class PunchListController {
 
     private final PunchListRepository repository;
@@ -33,22 +33,22 @@ public class PunchListController {
     @Operation(summary = "List punch list items")
     @GetMapping
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
-    PageResponse<PunchListResponse> list(@PathVariable UUID budgetId,
+    PageResponse<PunchListResponse> list(@PathVariable UUID projectId,
                                          @RequestParam(required = false) PunchListStatus status,
                                          @PageableDefault(size = 20) Pageable pageable) {
         if (status != null) {
-            return PageResponse.from(repository.findByBudgetIdAndStatus(budgetId, status, pageable).map(PunchListResponse::from));
+            return PageResponse.from(repository.findByBudgetIdAndStatus(projectId, status, pageable).map(PunchListResponse::from));
         }
-        return PageResponse.from(repository.findByBudgetId(budgetId, pageable).map(PunchListResponse::from));
+        return PageResponse.from(repository.findByBudgetId(projectId, pageable).map(PunchListResponse::from));
     }
 
     @Operation(summary = "Create a punch list item")
     @PostMapping
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
-    ResponseEntity<PunchListResponse> create(@PathVariable UUID budgetId, @Valid @RequestBody CreatePunchListRequest req) {
-        PunchListItem item = repository.save(new PunchListItem(budgetId, req.location(), req.description(),
+    ResponseEntity<PunchListResponse> create(@PathVariable UUID projectId, @Valid @RequestBody CreatePunchListRequest req) {
+        PunchListItem item = repository.save(new PunchListItem(projectId, req.location(), req.description(),
                 req.category(), req.priority(), req.assignedTo(), req.dueDate(), req.createdBy()));
-        return ResponseEntity.created(URI.create("/api/v1/budgets/" + budgetId + "/punch-list/" + item.getId()))
+        return ResponseEntity.created(URI.create("/api/v1/budgets/" + projectId + "/punch-list/" + item.getId()))
                 .body(PunchListResponse.from(item));
     }
 
@@ -56,7 +56,7 @@ public class PunchListController {
     @PostMapping("/{id}/start")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
     @Transactional
-    PunchListResponse start(@PathVariable UUID budgetId, @PathVariable UUID id) {
+    PunchListResponse start(@PathVariable UUID projectId, @PathVariable UUID id) {
         PunchListItem item = findOrThrow(id);
         item.markInProgress();
         return PunchListResponse.from(repository.save(item));
@@ -66,7 +66,7 @@ public class PunchListController {
     @PostMapping("/{id}/complete")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
     @Transactional
-    PunchListResponse complete(@PathVariable UUID budgetId, @PathVariable UUID id) {
+    PunchListResponse complete(@PathVariable UUID projectId, @PathVariable UUID id) {
         PunchListItem item = findOrThrow(id);
         item.complete();
         return PunchListResponse.from(repository.save(item));
@@ -76,7 +76,7 @@ public class PunchListController {
     @PostMapping("/{id}/verify")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
     @Transactional
-    PunchListResponse verify(@PathVariable UUID budgetId, @PathVariable UUID id) {
+    PunchListResponse verify(@PathVariable UUID projectId, @PathVariable UUID id) {
         PunchListItem item = findOrThrow(id);
         item.verify();
         return PunchListResponse.from(repository.save(item));
@@ -85,12 +85,12 @@ public class PunchListController {
     @Operation(summary = "Punch list summary (counts by status)")
     @GetMapping("/summary")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
-    PunchListSummary summary(@PathVariable UUID budgetId) {
+    PunchListSummary summary(@PathVariable UUID projectId) {
         return new PunchListSummary(
-                repository.countByBudgetIdAndStatus(budgetId, PunchListStatus.OPEN),
-                repository.countByBudgetIdAndStatus(budgetId, PunchListStatus.IN_PROGRESS),
-                repository.countByBudgetIdAndStatus(budgetId, PunchListStatus.COMPLETED),
-                repository.countByBudgetIdAndStatus(budgetId, PunchListStatus.VERIFIED));
+                repository.countByBudgetIdAndStatus(projectId, PunchListStatus.OPEN),
+                repository.countByBudgetIdAndStatus(projectId, PunchListStatus.IN_PROGRESS),
+                repository.countByBudgetIdAndStatus(projectId, PunchListStatus.COMPLETED),
+                repository.countByBudgetIdAndStatus(projectId, PunchListStatus.VERIFIED));
     }
 
     private PunchListItem findOrThrow(UUID id) {

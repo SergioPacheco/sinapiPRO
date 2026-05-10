@@ -1,118 +1,86 @@
 <page-header title="Dashboard" subtitle="Visão geral do portfólio de obras" />
 
-<div class="row">
-  <!-- KPI Cards -->
-  @for (stat of stats; track $index) {
-    <div class="col-sm-6 col-md-3">
-      <mat-card [class]="['text-white', 'b-0', stat.color]">
-        <mat-card-header>
-          <mat-card-subtitle class="text-white">{{ stat.title }}</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <h2 class="m-t-0 m-b-8">{{ stat.amount }}</h2>
-          <mtx-progress
-            [value]="stat.progress.value"
-            height="2px"
-            foreground="rgba(255,255,255,1)"
-            background="rgba(0,0,0,.4)"
-          />
-          <small class="text-muted">{{ stat.progress.label }}</small>
-        </mat-card-content>
-      </mat-card>
+<!-- KPI Cards -->
+<div class="kpi-row">
+  <mat-card class="kpi-card" matRipple>
+    <div class="kpi-icon bg-blue-50"><mat-icon>apartment</mat-icon></div>
+    <div class="kpi-content">
+      <span class="kpi-value">{{ totalProjects() }}</span>
+      <span class="kpi-label">Obras Cadastradas</span>
     </div>
-  }
-
-  <!-- Orçamentos por Status -->
-  <div class="col-md-7">
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Fluxo de Caixa Projetado</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div id="chart1"></div>
-      </mat-card-content>
-    </mat-card>
-  </div>
-
-  <!-- EVM Radar -->
-  <div class="col-md-5">
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Performance (EVM)</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div id="chart2"></div>
-      </mat-card-content>
-    </mat-card>
-  </div>
-
-  <!-- Medições Recentes -->
-  <div class="col-md-6">
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Medições Recentes</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <table class="w-full" mat-table [dataSource]="recentMeasurements">
-          <ng-container matColumnDef="number">
-            <th mat-header-cell *matHeaderCellDef>#</th>
-            <td mat-cell *matCellDef="let m">{{ m.number }}</td>
-          </ng-container>
-          <ng-container matColumnDef="budget">
-            <th mat-header-cell *matHeaderCellDef>Obra</th>
-            <td mat-cell *matCellDef="let m">{{ m.budget }}</td>
-          </ng-container>
-          <ng-container matColumnDef="amount">
-            <th mat-header-cell *matHeaderCellDef>Valor</th>
-            <td mat-cell *matCellDef="let m">{{ m.amount }}</td>
-          </ng-container>
-          <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef>Status</th>
-            <td mat-cell *matCellDef="let m">
-              <mat-chip [class]="m.statusClass">{{ m.statusLabel }}</mat-chip>
-            </td>
-          </ng-container>
-          <tr mat-header-row *matHeaderRowDef="measurementColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: measurementColumns"></tr>
-        </table>
-      </mat-card-content>
-    </mat-card>
-  </div>
-
-  <!-- Pedidos Pendentes -->
-  <div class="col-md-6">
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Pedidos de Compra Pendentes</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <mat-list>
-          @for (order of pendingOrders; track $index) {
-            <mat-list-item>
-              <mat-icon matListItemIcon [class]="order.iconClass">{{ order.icon }}</mat-icon>
-              <h3 matListItemTitle>{{ order.description }}</h3>
-              <p matListItemLine>{{ order.supplier }} · {{ order.amount }}</p>
-            </mat-list-item>
-          }
-        </mat-list>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Alertas</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <mat-list>
-          @for (alert of alerts; track $index) {
-            <mat-list-item>
-              <mat-icon matListItemIcon [color]="alert.color">{{ alert.icon }}</mat-icon>
-              <h3 matListItemTitle>{{ alert.title }}</h3>
-              <p matListItemLine>{{ alert.description }}</p>
-            </mat-list-item>
-          }
-        </mat-list>
-      </mat-card-content>
-    </mat-card>
-  </div>
+  </mat-card>
+  <mat-card class="kpi-card" matRipple>
+    <div class="kpi-icon bg-green-50"><mat-icon>engineering</mat-icon></div>
+    <div class="kpi-content">
+      <span class="kpi-value">{{ activeProjects() }}</span>
+      <span class="kpi-label">Em Execução</span>
+    </div>
+  </mat-card>
+  <mat-card class="kpi-card" matRipple>
+    <div class="kpi-icon bg-orange-50"><mat-icon>payments</mat-icon></div>
+    <div class="kpi-content">
+      <span class="kpi-value">{{ formatCurrency(totalBudget()) }}</span>
+      <span class="kpi-label">Valor Total Contratado</span>
+    </div>
+  </mat-card>
+  <mat-card class="kpi-card" matRipple>
+    <div class="kpi-icon bg-red-50"><mat-icon>pending_actions</mat-icon></div>
+    <div class="kpi-content">
+      <span class="kpi-value">{{ projects().length > 0 ? projects().length : '—' }}</span>
+      <span class="kpi-label">Projetos Ativos</span>
+    </div>
+  </mat-card>
 </div>
+
+<!-- Charts Row -->
+<div class="charts-row">
+  <mat-card class="chart-card chart-wide">
+    <mat-card-header>
+      <mat-card-title>Fluxo de Caixa Projetado</mat-card-title>
+      <mat-card-subtitle>Receitas vs Despesas (últimos 12 meses)</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div id="chart1"></div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="chart-card chart-narrow">
+    <mat-card-header>
+      <mat-card-title>Obras por Status</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div id="chart2"></div>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<!-- Projects List -->
+<mat-card class="projects-card">
+  <mat-card-header>
+    <mat-card-title>Obras Recentes</mat-card-title>
+    <mat-card-subtitle>Clique para acessar o workspace da obra</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="project-grid">
+      @for (p of projects(); track p.id) {
+        <div class="project-tile" matRipple (click)="openProject(p.id)">
+          <div class="project-tile-header">
+            <mat-icon [style.color]="statusMap[p.status]?.color || '#999'">{{ statusMap[p.status]?.icon || 'folder' }}</mat-icon>
+            <span class="project-code">{{ p.code }}</span>
+            <mat-chip [style.background]="statusMap[p.status]?.color" class="text-white status-chip">
+              {{ statusMap[p.status]?.label || p.status }}
+            </mat-chip>
+          </div>
+          <h3 class="project-name">{{ p.name }}</h3>
+          <p class="project-customer">{{ p.customerName }}</p>
+          <div class="project-footer">
+            <span>{{ p.startDate || '—' }}</span>
+            @if (p.totalBudget) {
+              <strong>{{ formatCurrency(p.totalBudget) }}</strong>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </mat-card-content>
+</mat-card>

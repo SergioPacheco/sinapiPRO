@@ -34,7 +34,7 @@ public class SCurveService {
 
             for (var a : activities) {
                 var weight = a.getWeight();
-                var totalDays = ChronoUnit.DAYS.between(a.getPlannedStart(), a.getPlannedEnd());
+                var totalDays = ChronoUnit.DAYS.between(a.getPlannedStart(), a.getPlannedEnd()) + 1;
                 if (totalDays <= 0) continue;
 
                 var overlapStart = current.isBefore(a.getPlannedStart()) ? a.getPlannedStart() : current;

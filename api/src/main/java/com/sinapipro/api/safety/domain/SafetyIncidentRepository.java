@@ -7,5 +7,6 @@ import java.util.UUID;
 
 public interface SafetyIncidentRepository extends JpaRepository<SafetyIncident, UUID> {
     Page<SafetyIncident> findByBudgetId(UUID budgetId, Pageable pageable);
+    java.util.List<SafetyIncident> findByBudgetIdOrderByIncidentDateDesc(UUID budgetId);
     long countByBudgetIdAndStatus(UUID budgetId, String status);
 }

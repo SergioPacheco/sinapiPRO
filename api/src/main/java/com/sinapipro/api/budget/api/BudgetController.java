@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @Tag(name = "Budgets", description = "Construction budget management")
 @RestController
-@RequestMapping("/api/v1/budgets")
+@RequestMapping("/api/v1/projects/{projectId}/budgets")
 public class BudgetController {
 
     private final BudgetService budgetService;
@@ -69,6 +69,21 @@ public class BudgetController {
         return BudgetResponse.from(budgetService.update(id, request));
     }
 
+    @Operation(summary = "Copy a budget with stages, items and BDI")
+    @PostMapping("/{id}/copy")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    ResponseEntity<BudgetResponse> copy(@PathVariable UUID id, @Valid @RequestBody CopyBudgetRequest request) {
+        var budget = budgetService.copy(id, request.code(), request.title());
+        return ResponseEntity.status(HttpStatus.CREATED).body(BudgetResponse.from(budget));
+    }
+
+    @Operation(summary = "Activate a budget as the current execution budget")
+    @PostMapping("/{id}/activate")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    BudgetResponse activate(@PathVariable UUID id) {
+        return BudgetResponse.from(budgetService.activate(id));
+    }
+
     @Operation(summary = "Delete a budget")
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
@@ -76,4 +91,8 @@ public class BudgetController {
     void delete(@PathVariable UUID id) {
         budgetService.delete(id);
     }
+
+    record CopyBudgetRequest(
+            @jakarta.validation.constraints.NotBlank String code,
+            @jakarta.validation.constraints.NotBlank String title) {}
 }

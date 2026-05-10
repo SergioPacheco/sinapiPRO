@@ -20,7 +20,7 @@ create index idx_material_origin on material(origin);
 create table material_price (
     id uuid primary key default gen_random_uuid(),
     material_id uuid not null references material(id) on delete cascade,
-    state char(2) not null,
+    state varchar(2) not null,
     reference_month date not null,
     price numeric(14,4) not null,
     created_at timestamptz not null default now(),

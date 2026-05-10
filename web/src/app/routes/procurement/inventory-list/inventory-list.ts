@@ -1,3 +1,4 @@
+import { ActivatedRoute } from '@angular/router';
 import { Component, inject, OnInit } from '@angular/core';
 import { MtxGridColumn, MtxGridModule } from '@ng-matero/extensions/grid';
 import { PageHeader } from '@shared';
@@ -11,6 +12,8 @@ import { InventoryItem } from '../models/procurement.model';
 })
 export class InventoryListComponent implements OnInit {
   private readonly service = inject(ProcurementService);
+  private readonly route = inject(ActivatedRoute);
+  private projectId = '';
 
   columns: MtxGridColumn[] = [
     { header: 'Código', field: 'materialCode', width: '120px', sortable: true },
@@ -26,11 +29,12 @@ export class InventoryListComponent implements OnInit {
   isLoading = true;
   query = { page: 0, size: 20 };
 
-  ngOnInit() { this.loadData(); }
+  ngOnInit() {
+    let r = this.route.snapshot; while (r.parent && !r.paramMap.get("projectId")) r = r.parent; this.projectId = r.paramMap.get("projectId") || ""; this.projectId = this.route.parent!.parent!.snapshot.paramMap.get('projectId')!; this.loadData(); }
 
   loadData() {
     this.isLoading = true;
-    this.service.listInventory(this.query.page, this.query.size).subscribe({
+    this.service.listInventory(this.projectId, this.query.page, this.query.size).subscribe({
       next: res => { this.list = res.content; this.total = res.totalElements; this.isLoading = false; },
       error: () => (this.isLoading = false),
     });

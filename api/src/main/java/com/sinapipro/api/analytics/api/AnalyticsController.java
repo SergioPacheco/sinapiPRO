@@ -37,20 +37,20 @@ public class AnalyticsController {
     }
 
     @Operation(summary = "Earned Value Management for a budget (PV, EV, AC, CPI, SPI, EAC, VAC)")
-    @GetMapping("/budgets/{budgetId}/earned-value")
-    EarnedValueService.EvmResult earnedValue(@PathVariable UUID budgetId) {
-        return evmService.calculate(budgetId);
+    @GetMapping("/projects/{projectId}/earned-value")
+    EarnedValueService.EvmResult earnedValue(@PathVariable UUID projectId) {
+        return evmService.calculate(projectId);
     }
 
     @Operation(summary = "Cash flow projection (income vs expenses by month)")
-    @GetMapping("/budgets/{budgetId}/cash-flow")
-    CashFlowService.CashFlowProjection cashFlow(@PathVariable UUID budgetId) {
-        return cashFlowService.project(budgetId);
+    @GetMapping("/projects/{projectId}/cash-flow")
+    CashFlowService.CashFlowProjection cashFlow(@PathVariable UUID projectId) {
+        return cashFlowService.project(projectId);
     }
 
     @Operation(summary = "AI Delay Forecast — predicts delays based on schedule performance and weather patterns")
-    @GetMapping("/budgets/{budgetId}/delay-forecast")
-    DelayForecastService.DelayForecast delayForecast(@PathVariable UUID budgetId) {
-        return forecastService.predict(budgetId);
+    @GetMapping("/projects/{projectId}/delay-forecast")
+    DelayForecastService.DelayForecast delayForecast(@PathVariable UUID projectId) {
+        return forecastService.predict(projectId);
     }
 }

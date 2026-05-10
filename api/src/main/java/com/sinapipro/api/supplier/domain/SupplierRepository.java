@@ -19,7 +19,7 @@ public interface SupplierRepository extends JpaRepository<Supplier, UUID> {
     @Query("""
             SELECT s FROM Supplier s
             WHERE (:active IS NULL OR s.active = :active)
-              AND (:name IS NULL OR LOWER(s.name) LIKE LOWER(CONCAT('%', :name, '%')))
+              AND (:name IS NULL OR LOWER(CAST(s.name AS String)) LIKE LOWER(CONCAT('%', CAST(:name AS String), '%')))
             ORDER BY s.name ASC
             """)
     Page<Supplier> findFiltered(Boolean active, String name, Pageable pageable);

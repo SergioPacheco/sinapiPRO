@@ -6,7 +6,10 @@ import com.sinapipro.api.budget.api.UpdateBudgetRequest;
 import com.sinapipro.api.budget.application.BudgetCodeAlreadyExistsException;
 import com.sinapipro.api.budget.application.BudgetService;
 import com.sinapipro.api.budget.domain.Budget;
+import com.sinapipro.api.budget.domain.BdiConfigRepository;
+import com.sinapipro.api.budget.domain.BudgetItemRepository;
 import com.sinapipro.api.budget.domain.BudgetRepository;
+import com.sinapipro.api.budget.domain.BudgetStageRepository;
 import com.sinapipro.api.budget.domain.BudgetStatus;
 import com.sinapipro.api.shared.error.DomainNotFoundException;
 import com.sinapipro.api.shared.events.OperationEventPublisher;
@@ -38,6 +41,9 @@ import static org.mockito.Mockito.*;
 class BudgetServiceTest {
 
     @Mock BudgetRepository repository;
+    @Mock BudgetStageRepository stageRepository;
+    @Mock BudgetItemRepository itemRepository;
+    @Mock BdiConfigRepository bdiConfigRepository;
     @Mock OperationEventPublisher eventPublisher;
     @Mock BusinessMetricsService metricsService;
     @Mock BusinessObservationService observationService;
@@ -46,7 +52,8 @@ class BudgetServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new BudgetService(repository, eventPublisher, metricsService, observationService);
+        service = new BudgetService(repository, stageRepository, itemRepository, bdiConfigRepository,
+                eventPublisher, metricsService, observationService);
         // Make observationService pass-through
         lenient().when(observationService.observe(anyString(), anyString(), any()))
                 .thenAnswer(invocation -> ((Supplier<?>) invocation.getArgument(2)).get());

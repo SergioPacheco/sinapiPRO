@@ -1,5 +1,6 @@
 package com.sinapipro.api.measurement.domain;
 
+import com.sinapipro.api.budget.domain.BudgetItem;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -20,6 +21,10 @@ public class MeasurementItem {
 
     @Column(name = "cost_code_id")
     private UUID costCodeId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "budget_item_id")
+    private BudgetItem budgetItem;
 
     @Column(nullable = false, length = 300)
     private String description;
@@ -46,9 +51,19 @@ public class MeasurementItem {
         this.unitPrice = unitPrice;
     }
 
+    public MeasurementItem(Measurement measurement, BudgetItem budgetItem, String description, BigDecimal quantity, BigDecimal unitPrice) {
+        this.measurement = measurement;
+        this.budgetItem = budgetItem;
+        this.description = description;
+        this.quantity = quantity;
+        this.unitPrice = unitPrice;
+    }
+
     public UUID getId() { return id; }
     public Measurement getMeasurement() { return measurement; }
     public UUID getCostCodeId() { return costCodeId; }
+    public BudgetItem getBudgetItem() { return budgetItem; }
+    public UUID getBudgetItemId() { return budgetItem != null ? budgetItem.getId() : null; }
     public String getDescription() { return description; }
     public BigDecimal getQuantity() { return quantity; }
     public BigDecimal getUnitPrice() { return unitPrice; }

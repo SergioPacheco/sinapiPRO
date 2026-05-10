@@ -31,5 +31,5 @@ cd api && mvn spring-boot:run -s .mvn/settings.xml
 # Frontend
 cd web && nvm use 22 && npx ng serve
 # http://localhost:4200 (proxy → :8080)
-# Login: admin@sinapipro.com / admin123
+# Login: admin@sinapipro.dev / SinapiPro#2026
 ```

@@ -31,6 +31,9 @@ public class Budget extends AuditableEntity {
     @Column(nullable = false, length = 30)
     private BudgetStatus status;
 
+    @Column(nullable = false)
+    private boolean active = false;
+
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
@@ -60,6 +63,9 @@ public class Budget extends AuditableEntity {
     public String getCustomerName() { return customerName; }
     public BigDecimal getTotalAmount() { return totalAmount; }
     public BudgetStatus getStatus() { return status; }
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) { this.active = active; }
+    public void setStatus(BudgetStatus status) { this.status = status; }
     public LocalDate getStartDate() { return startDate; }
     public LocalDate getEndDate() { return endDate; }
     public Map<String, Object> getMetadata() { return metadata; }

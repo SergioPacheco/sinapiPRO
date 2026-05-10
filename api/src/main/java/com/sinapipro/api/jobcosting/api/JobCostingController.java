@@ -25,7 +25,7 @@ import java.util.UUID;
 
 @Tag(name = "Job Costing", description = "Cost codes and cost tracking (budgeted vs actual vs committed)")
 @RestController
-@RequestMapping("/api/v1/budgets/{budgetId}/cost-codes")
+@RequestMapping("/api/v1/projects/{projectId}/cost-codes")
 public class JobCostingController {
 
     private final CostCodeRepository codeRepository;
@@ -47,19 +47,19 @@ public class JobCostingController {
     @Operation(summary = "List all cost codes for a budget")
     @GetMapping
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
-    List<CostCodeResponse> list(@PathVariable UUID budgetId) {
-        return codeRepository.findByBudgetIdOrderByCode(budgetId).stream().map(CostCodeResponse::from).toList();
+    List<CostCodeResponse> list(@PathVariable UUID projectId) {
+        return codeRepository.findByBudgetIdOrderByCode(projectId).stream().map(CostCodeResponse::from).toList();
     }
 
     @Operation(summary = "Create a cost code")
     @PostMapping
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
-    ResponseEntity<CostCodeResponse> create(@PathVariable UUID budgetId, @Valid @RequestBody CreateCostCodeRequest req) {
-        Budget budget = budgetRepository.findById(budgetId)
-                .orElseThrow(() -> new DomainNotFoundException("Budget not found: " + budgetId));
+    ResponseEntity<CostCodeResponse> create(@PathVariable UUID projectId, @Valid @RequestBody CreateCostCodeRequest req) {
+        Budget budget = budgetRepository.findById(projectId)
+                .orElseThrow(() -> new DomainNotFoundException("Budget not found: " + projectId));
         CostCode parent = req.parentId() != null ? codeRepository.findById(req.parentId()).orElse(null) : null;
         CostCode saved = codeRepository.save(new CostCode(budget, parent, req.code(), req.name(), req.budgetedAmount()));
-        return ResponseEntity.created(URI.create("/api/v1/budgets/" + budgetId + "/cost-codes/" + saved.getId()))
+        return ResponseEntity.created(URI.create("/api/v1/budgets/" + projectId + "/cost-codes/" + saved.getId()))
                 .body(CostCodeResponse.from(saved));
     }
 
@@ -67,7 +67,7 @@ public class JobCostingController {
     @DeleteMapping("/{codeId}")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    void delete(@PathVariable UUID budgetId, @PathVariable UUID codeId) {
+    void delete(@PathVariable UUID projectId, @PathVariable UUID codeId) {
         codeRepository.deleteById(codeId);
     }
 
@@ -75,7 +75,7 @@ public class JobCostingController {
     @PostMapping("/{codeId}/transactions")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
     @ResponseStatus(HttpStatus.CREATED)
-    TransactionResponse recordTransaction(@PathVariable UUID budgetId, @PathVariable UUID codeId,
+    TransactionResponse recordTransaction(@PathVariable UUID projectId, @PathVariable UUID codeId,
                                           @Valid @RequestBody CreateTransactionRequest req) {
         CostCode code = codeRepository.findById(codeId)
                 .orElseThrow(() -> new DomainNotFoundException("Cost code not found: " + codeId));
@@ -87,7 +87,7 @@ public class JobCostingController {
     @Operation(summary = "List transactions for a cost code")
     @GetMapping("/{codeId}/transactions")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
-    List<TransactionResponse> listTransactions(@PathVariable UUID budgetId, @PathVariable UUID codeId) {
+    List<TransactionResponse> listTransactions(@PathVariable UUID projectId, @PathVariable UUID codeId) {
         return transactionRepository.findByCostCodeIdOrderByTransactionDateDesc(codeId).stream()
                 .map(TransactionResponse::from).toList();
     }
@@ -95,22 +95,22 @@ public class JobCostingController {
     @Operation(summary = "Variance summary per cost code")
     @GetMapping("/summary")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
-    List<JobCostingService.CostCodeSummary> summary(@PathVariable UUID budgetId) {
-        return jobCostingService.summarizeAll(budgetId);
+    List<JobCostingService.CostCodeSummary> summary(@PathVariable UUID projectId) {
+        return jobCostingService.summarizeAll(projectId);
     }
 
     @Operation(summary = "Budget-level cost summary (total budgeted, actual, committed, variance)")
     @GetMapping("/budget-summary")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
-    JobCostingService.BudgetCostSummary budgetSummary(@PathVariable UUID budgetId) {
-        return jobCostingService.budgetSummary(budgetId);
+    JobCostingService.BudgetCostSummary budgetSummary(@PathVariable UUID projectId) {
+        return jobCostingService.budgetSummary(projectId);
     }
 
     @Operation(summary = "WIP Report — over/under billing analysis")
     @GetMapping("/wip-report")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
-    WipReportService.WipReport wipReport(@PathVariable UUID budgetId) {
-        return wipReportService.calculate(budgetId);
+    WipReportService.WipReport wipReport(@PathVariable UUID projectId) {
+        return wipReportService.calculate(projectId);
     }
 
     // --- DTOs ---

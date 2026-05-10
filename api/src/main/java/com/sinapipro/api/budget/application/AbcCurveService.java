@@ -52,15 +52,56 @@ public class AbcCurveService {
         for (var ma : sorted) {
             var pct = ma.totalCost().multiply(BigDecimal.valueOf(100)).divide(totalCost, 2, RoundingMode.HALF_UP);
             cumulative = cumulative.add(pct);
-            var classification = cumulative.compareTo(BigDecimal.valueOf(80)) <= 0 ? "A"
-                    : cumulative.compareTo(BigDecimal.valueOf(95)) <= 0 ? "B" : "C";
+            var classification = classify(cumulative);
             result.add(new AbcEntry(ma.code, ma.description, ma.unit, ma.totalCost(), pct, cumulative, classification));
         }
         return result;
     }
 
+    public List<ServiceAbcEntry> calculateServiceAbcCurve(UUID budgetId) {
+        var budgetItems = itemRepository.findAllByBudgetId(budgetId).stream()
+                .sorted(Comparator.comparing(BudgetItem::getDirectCost).reversed())
+                .toList();
+
+        var totalCost = budgetItems.stream()
+                .map(BudgetItem::getDirectCost)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        if (totalCost.compareTo(BigDecimal.ZERO) == 0) return List.of();
+
+        var result = new ArrayList<ServiceAbcEntry>();
+        var cumulative = BigDecimal.ZERO;
+
+        for (var item : budgetItems) {
+            var cost = item.getDirectCost();
+            var pct = cost.multiply(BigDecimal.valueOf(100)).divide(totalCost, 2, RoundingMode.HALF_UP);
+            cumulative = cumulative.add(pct);
+            result.add(new ServiceAbcEntry(
+                    item.getId(),
+                    item.getComposition().getSinapiCode(),
+                    item.getComposition().getDescription(),
+                    item.getComposition().getUnit(),
+                    item.getQuantity(),
+                    item.getUnitCost(),
+                    cost,
+                    pct,
+                    cumulative,
+                    classify(cumulative)));
+        }
+        return result;
+    }
+
+    private String classify(BigDecimal cumulative) {
+        return cumulative.compareTo(BigDecimal.valueOf(80)) <= 0 ? "A"
+                : cumulative.compareTo(BigDecimal.valueOf(95)) <= 0 ? "B" : "C";
+    }
+
     public record AbcEntry(String materialCode, String description, String unit,
                            BigDecimal cost, BigDecimal percentage, BigDecimal cumulativePercentage, String classification) {}
+
+    public record ServiceAbcEntry(UUID itemId, String serviceCode, String description, String unit,
+                                  BigDecimal quantity, BigDecimal unitCost, BigDecimal cost,
+                                  BigDecimal percentage, BigDecimal cumulativePercentage, String classification) {}
 
     private static class MaterialAccumulator {
         final String code;

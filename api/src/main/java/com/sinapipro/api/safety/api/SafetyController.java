@@ -1,5 +1,6 @@
 package com.sinapipro.api.safety.api;
 
+import com.sinapipro.api.safety.application.SafetyReportService;
 import com.sinapipro.api.safety.domain.*;
 import com.sinapipro.api.shared.api.PageResponse;
 import com.sinapipro.api.shared.error.DomainNotFoundException;
@@ -10,7 +11,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,13 +32,16 @@ public class SafetyController {
     private final SafetyChecklistTemplateRepository templateRepository;
     private final SafetyInspectionRepository inspectionRepository;
     private final SafetyIncidentRepository incidentRepository;
+    private final SafetyReportService safetyReportService;
 
     public SafetyController(SafetyChecklistTemplateRepository templateRepository,
                             SafetyInspectionRepository inspectionRepository,
-                            SafetyIncidentRepository incidentRepository) {
+                            SafetyIncidentRepository incidentRepository,
+                            SafetyReportService safetyReportService) {
         this.templateRepository = templateRepository;
         this.inspectionRepository = inspectionRepository;
         this.incidentRepository = incidentRepository;
+        this.safetyReportService = safetyReportService;
     }
 
     // --- Templates ---
@@ -60,57 +66,68 @@ public class SafetyController {
     // --- Inspections ---
 
     @Operation(summary = "List inspections for a budget")
-    @GetMapping("/budgets/{budgetId}/safety/inspections")
+    @GetMapping("/projects/{projectId}/safety/inspections")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
-    PageResponse<InspectionResponse> listInspections(@PathVariable UUID budgetId,
+    PageResponse<InspectionResponse> listInspections(@PathVariable UUID projectId,
                                                      @PageableDefault(size = 20) Pageable pageable) {
-        return PageResponse.from(inspectionRepository.findByBudgetId(budgetId, pageable).map(InspectionResponse::from));
+        return PageResponse.from(inspectionRepository.findByBudgetId(projectId, pageable).map(InspectionResponse::from));
     }
 
     @Operation(summary = "Record an inspection")
-    @PostMapping("/budgets/{budgetId}/safety/inspections")
+    @PostMapping("/projects/{projectId}/safety/inspections")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
-    ResponseEntity<InspectionResponse> recordInspection(@PathVariable UUID budgetId,
+    ResponseEntity<InspectionResponse> recordInspection(@PathVariable UUID projectId,
                                                         @Valid @RequestBody CreateInspectionRequest req) {
         SafetyChecklistTemplate template = templateRepository.findById(req.templateId())
                 .orElseThrow(() -> new DomainNotFoundException("Template not found: " + req.templateId()));
         SafetyInspection inspection = inspectionRepository.save(
-                new SafetyInspection(budgetId, template, req.inspector(), req.inspectionDate(),
+                new SafetyInspection(projectId, template, req.inspector(), req.inspectionDate(),
                         req.status(), req.results(), req.notes()));
-        return ResponseEntity.created(URI.create("/api/v1/budgets/" + budgetId + "/safety/inspections/" + inspection.getId()))
+        return ResponseEntity.created(URI.create("/api/v1/budgets/" + projectId + "/safety/inspections/" + inspection.getId()))
                 .body(InspectionResponse.from(inspection));
     }
 
     // --- Incidents ---
 
     @Operation(summary = "List incidents for a budget")
-    @GetMapping("/budgets/{budgetId}/safety/incidents")
+    @GetMapping("/projects/{projectId}/safety/incidents")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
-    PageResponse<IncidentResponse> listIncidents(@PathVariable UUID budgetId,
+    PageResponse<IncidentResponse> listIncidents(@PathVariable UUID projectId,
                                                   @PageableDefault(size = 20) Pageable pageable) {
-        return PageResponse.from(incidentRepository.findByBudgetId(budgetId, pageable).map(IncidentResponse::from));
+        return PageResponse.from(incidentRepository.findByBudgetId(projectId, pageable).map(IncidentResponse::from));
     }
 
     @Operation(summary = "Report a safety incident")
-    @PostMapping("/budgets/{budgetId}/safety/incidents")
+    @PostMapping("/projects/{projectId}/safety/incidents")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
     @ResponseStatus(HttpStatus.CREATED)
-    IncidentResponse reportIncident(@PathVariable UUID budgetId, @Valid @RequestBody CreateIncidentRequest req) {
-        SafetyIncident incident = incidentRepository.save(new SafetyIncident(budgetId, req.incidentDate(),
+    IncidentResponse reportIncident(@PathVariable UUID projectId, @Valid @RequestBody CreateIncidentRequest req) {
+        SafetyIncident incident = incidentRepository.save(new SafetyIncident(projectId, req.incidentDate(),
                 req.severity(), req.description(), req.location(), req.injuredParty(), req.reportedBy()));
         return IncidentResponse.from(incident);
     }
 
     @Operation(summary = "Resolve a safety incident")
-    @PostMapping("/budgets/{budgetId}/safety/incidents/{id}/resolve")
+    @PostMapping("/projects/{projectId}/safety/incidents/{id}/resolve")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
     @Transactional
-    IncidentResponse resolveIncident(@PathVariable UUID budgetId, @PathVariable UUID id,
+    IncidentResponse resolveIncident(@PathVariable UUID projectId, @PathVariable UUID id,
                                      @Valid @RequestBody ResolveIncidentRequest req) {
         SafetyIncident incident = incidentRepository.findById(id)
                 .orElseThrow(() -> new DomainNotFoundException("Incident not found: " + id));
         incident.resolve(req.correctiveAction());
         return IncidentResponse.from(incidentRepository.save(incident));
+    }
+
+    @Operation(summary = "Safety report PDF")
+    @GetMapping(value = "/projects/{projectId}/safety/reports/safety-report.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    ResponseEntity<byte[]> safetyReport(@PathVariable UUID projectId) {
+        byte[] pdf = safetyReportService.generateSafetyReportPdf(projectId);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=safety-report-" + projectId + ".pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
     }
 
     // --- DTOs ---

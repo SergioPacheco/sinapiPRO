@@ -1,0 +1,40 @@
+<page-header title="Obras" subtitle="Gestão de obras e empreendimentos" />
+
+<div class="filter-bar">
+  <mat-form-field appearance="outline" class="filter-search">
+    <mat-label>Buscar obra</mat-label>
+    <input matInput [(ngModel)]="search" (keyup.enter)="applyFilters()" placeholder="Código, nome ou cliente" />
+    <mat-icon matSuffix>search</mat-icon>
+  </mat-form-field>
+  <mat-form-field appearance="outline" class="filter-select">
+    <mat-label>Status</mat-label>
+    <mat-select [(ngModel)]="statusFilter" (selectionChange)="applyFilters()">
+      <mat-option value="">Todos</mat-option>
+      <mat-option value="PLANNING">Planejamento</mat-option>
+      <mat-option value="IN_PROGRESS">Em Execução</mat-option>
+      <mat-option value="SUSPENDED">Suspensa</mat-option>
+      <mat-option value="COMPLETED">Concluída</mat-option>
+      <mat-option value="CANCELLED">Cancelada</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <button mat-icon-button (click)="applyFilters()" color="primary"><mat-icon>filter_list</mat-icon></button>
+  <span class="spacer"></span>
+  <button mat-flat-button color="primary" (click)="create()"><mat-icon>add</mat-icon> Nova Obra</button>
+</div>
+
+<mtx-grid
+  [columns]="columns"
+  [data]="list"
+  [length]="total"
+  [loading]="isLoading"
+  [pageOnFront]="false"
+  [pageIndex]="query.page"
+  [pageSize]="query.size"
+  [pageSizeOptions]="[10, 20, 50]"
+  [sortOnFront]="false"
+  [showToolbar]="true"
+  [columnResizable]="true"
+  [rowSelectable]="false"
+  (page)="onPageChange($event)"
+  (rowClick)="openProject($event)"
+/>

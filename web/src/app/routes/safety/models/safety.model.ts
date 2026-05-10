@@ -2,7 +2,7 @@ export type Severity = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 
 export interface SafetyIncident {
   id: string;
-  budgetId: string;
+  projectId: string;
   description: string;
   severity: Severity;
   date: string;

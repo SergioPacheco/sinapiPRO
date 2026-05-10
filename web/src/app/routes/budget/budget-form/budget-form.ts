@@ -5,7 +5,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatButtonModule } from '@angular/material/button';
 import { PageHeader } from '@shared';
 import { BudgetService } from '../services/budget.service';
@@ -13,10 +12,7 @@ import { BudgetService } from '../services/budget.service';
 @Component({
   selector: 'app-budget-form',
   templateUrl: './budget-form.html',
-  imports: [
-    ReactiveFormsModule, MatCardModule, MatFormFieldModule, MatInputModule,
-    MatSelectModule, MatDatepickerModule, MatButtonModule, PageHeader,
-  ],
+  imports: [ReactiveFormsModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule, PageHeader],
 })
 export class BudgetFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
@@ -25,6 +21,7 @@ export class BudgetFormComponent implements OnInit {
   private readonly router = inject(Router);
 
   isEdit = false;
+  private projectId = '';
   private budgetId = '';
 
   form = this.fb.nonNullable.group({
@@ -32,23 +29,30 @@ export class BudgetFormComponent implements OnInit {
     title: ['', [Validators.required, Validators.maxLength(140)]],
     customerName: ['', [Validators.required, Validators.maxLength(140)]],
     totalAmount: [0, [Validators.required, Validators.min(0)]],
-    status: ['ESTIMATE' as string, Validators.required],
+    status: ['DRAFT' as string, Validators.required],
     startDate: ['', Validators.required],
     endDate: [''],
   });
 
   statuses = [
-    { value: 'ESTIMATE', label: 'Estimativa' },
-    { value: 'SALE', label: 'Venda' },
-    { value: 'EXECUTION', label: 'Execução' },
+    { value: 'DRAFT', label: 'Rascunho' },
+    { value: 'IN_REVIEW', label: 'Em análise' },
+    { value: 'APPROVED', label: 'Aprovado' },
+    { value: 'REJECTED', label: 'Reprovado' },
+    { value: 'SUPERSEDED', label: 'Substituído' },
+    { value: 'IN_EXECUTION', label: 'Em execução' },
     { value: 'COMPLETED', label: 'Concluído' },
+    { value: 'CANCELLED', label: 'Cancelado' },
   ];
 
   ngOnInit() {
-    this.budgetId = this.route.snapshot.params['id'];
-    if (this.budgetId) {
-      this.isEdit = true;
-      this.budgetService.getById(this.budgetId).subscribe(b => this.form.patchValue(b));
+    let route = this.route.snapshot;
+    while (route.parent && !route.paramMap.get('projectId')) route = route.parent;
+    this.projectId = route.paramMap.get('projectId') || '';
+    this.budgetId = this.route.snapshot.params['id'] || '';
+    this.isEdit = !!this.budgetId;
+    if (this.isEdit) {
+      this.budgetService.getById(this.projectId, this.budgetId).subscribe(b => this.form.patchValue(b));
     }
   }
 
@@ -56,12 +60,10 @@ export class BudgetFormComponent implements OnInit {
     if (this.form.invalid) return;
     const data = this.form.getRawValue() as any;
     const obs = this.isEdit
-      ? this.budgetService.update(this.budgetId, data)
-      : this.budgetService.create(data);
-    obs.subscribe(() => this.router.navigate(['/budgets']));
+      ? this.budgetService.update(this.projectId, this.budgetId, data)
+      : this.budgetService.create(this.projectId, data);
+    obs.subscribe(() => this.router.navigate(['../../budgets'], { relativeTo: this.route }));
   }
 
-  cancel() {
-    this.router.navigate(['/budgets']);
-  }
+  cancel() { this.router.navigate(['../../budgets'], { relativeTo: this.route }); }
 }

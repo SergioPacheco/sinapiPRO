@@ -38,8 +38,8 @@ export class Login {
   isSubmitting = false;
 
   loginForm = this.fb.nonNullable.group({
-    username: ['ng-matero', [Validators.required]],
-    password: ['ng-matero', [Validators.required]],
+    username: ['admin@sinapipro.dev', [Validators.required]],
+    password: ['SinapiPro#2026', [Validators.required]],
     rememberMe: [false],
   });
 

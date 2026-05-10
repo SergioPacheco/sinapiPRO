@@ -1,0 +1,69 @@
+<page-header></page-header>
+
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Importação SINAPI</mat-card-title>
+    <mat-card-subtitle>Importe planilhas .xlsx da Caixa Econômica Federal por estado</mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div class="form-row">
+      <mat-form-field>
+        <mat-label>Tipo</mat-label>
+        <mat-select [(ngModel)]="importType">
+          <mat-option value="materials">Insumos (Preços)</mat-option>
+          <mat-option value="compositions">Composições (Analítico)</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Estado (UF)</mat-label>
+        <mat-select [(ngModel)]="selectedState">
+          @for (uf of states; track uf) {
+            <mat-option [value]="uf">{{ uf }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Mês de Referência</mat-label>
+        <input matInput type="month" [(ngModel)]="referenceMonth" />
+      </mat-form-field>
+
+      <mat-slide-toggle [(ngModel)]="desonerated">Desonerado</mat-slide-toggle>
+    </div>
+
+    <div class="file-row">
+      <input type="file" accept=".xlsx" (change)="onFileSelected($event)" #fileInput />
+      <button mat-flat-button color="primary"
+              [disabled]="!selectedFile || !selectedState || !referenceMonth || isLoading"
+              (click)="import()">
+        <mat-icon>upload_file</mat-icon>
+        Importar
+      </button>
+    </div>
+
+    @if (isLoading) {
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    }
+
+    @if (result) {
+      <div class="result" [class.has-errors]="result.errors > 0">
+        <h3>Resultado da Importação</h3>
+        <p><strong>Criados:</strong> {{ result.created }}</p>
+        <p><strong>Atualizados:</strong> {{ result.updated }}</p>
+        <p><strong>Erros:</strong> {{ result.errors }}</p>
+        @if (result.errorMessages.length > 0) {
+          <details>
+            <summary>Detalhes dos erros</summary>
+            <ul>
+              @for (msg of result.errorMessages; track msg) {
+                <li>{{ msg }}</li>
+              }
+            </ul>
+          </details>
+        }
+      </div>
+    }
+  </mat-card-content>
+</mat-card>

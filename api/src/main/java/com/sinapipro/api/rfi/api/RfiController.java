@@ -24,7 +24,7 @@ import java.util.UUID;
 
 @Tag(name = "RFI", description = "Requests for Information with deadline tracking")
 @RestController
-@RequestMapping("/api/v1/budgets/{budgetId}/rfis")
+@RequestMapping("/api/v1/projects/{projectId}/rfis")
 public class RfiController {
 
     private final RfiRepository rfiRepository;
@@ -36,25 +36,25 @@ public class RfiController {
     @Operation(summary = "List RFIs for a budget")
     @GetMapping
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
-    PageResponse<RfiResponse> list(@PathVariable UUID budgetId, @PageableDefault(size = 20) Pageable pageable) {
-        return PageResponse.from(rfiRepository.findByBudgetId(budgetId, pageable).map(RfiResponse::from));
+    PageResponse<RfiResponse> list(@PathVariable UUID projectId, @PageableDefault(size = 20) Pageable pageable) {
+        return PageResponse.from(rfiRepository.findByBudgetId(projectId, pageable).map(RfiResponse::from));
     }
 
     @Operation(summary = "Create an RFI")
     @PostMapping
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
-    ResponseEntity<RfiResponse> create(@PathVariable UUID budgetId, @Valid @RequestBody CreateRfiRequest req) {
-        int nextNumber = rfiRepository.countByBudgetId(budgetId) + 1;
-        Rfi rfi = rfiRepository.save(new Rfi(budgetId, nextNumber, req.subject(), req.question(),
+    ResponseEntity<RfiResponse> create(@PathVariable UUID projectId, @Valid @RequestBody CreateRfiRequest req) {
+        int nextNumber = rfiRepository.countByBudgetId(projectId) + 1;
+        Rfi rfi = rfiRepository.save(new Rfi(projectId, nextNumber, req.subject(), req.question(),
                 req.priority() != null ? req.priority() : "NORMAL", req.assignedTo(), req.createdBy(), req.dueDate()));
-        return ResponseEntity.created(URI.create("/api/v1/budgets/" + budgetId + "/rfis/" + rfi.getId()))
+        return ResponseEntity.created(URI.create("/api/v1/budgets/" + projectId + "/rfis/" + rfi.getId()))
                 .body(RfiResponse.from(rfi));
     }
 
     @Operation(summary = "Get RFI detail")
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
-    RfiResponse get(@PathVariable UUID budgetId, @PathVariable UUID id) {
+    RfiResponse get(@PathVariable UUID projectId, @PathVariable UUID id) {
         return RfiResponse.from(rfiRepository.findById(id)
                 .orElseThrow(() -> new DomainNotFoundException("RFI not found: " + id)));
     }
@@ -63,7 +63,7 @@ public class RfiController {
     @PostMapping("/{id}/answer")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
     @Transactional
-    RfiResponse answer(@PathVariable UUID budgetId, @PathVariable UUID id, @Valid @RequestBody AnswerRfiRequest req) {
+    RfiResponse answer(@PathVariable UUID projectId, @PathVariable UUID id, @Valid @RequestBody AnswerRfiRequest req) {
         Rfi rfi = rfiRepository.findById(id)
                 .orElseThrow(() -> new DomainNotFoundException("RFI not found: " + id));
         rfi.respond(req.answer());
@@ -74,7 +74,7 @@ public class RfiController {
     @PostMapping("/{id}/close")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
     @Transactional
-    RfiResponse close(@PathVariable UUID budgetId, @PathVariable UUID id) {
+    RfiResponse close(@PathVariable UUID projectId, @PathVariable UUID id) {
         Rfi rfi = rfiRepository.findById(id)
                 .orElseThrow(() -> new DomainNotFoundException("RFI not found: " + id));
         rfi.close();
@@ -84,8 +84,8 @@ public class RfiController {
     @Operation(summary = "List overdue RFIs")
     @GetMapping("/overdue")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
-    List<RfiResponse> overdue(@PathVariable UUID budgetId) {
-        return rfiRepository.findByBudgetIdAndStatus(budgetId, RfiStatus.OPEN).stream()
+    List<RfiResponse> overdue(@PathVariable UUID projectId) {
+        return rfiRepository.findByBudgetIdAndStatus(projectId, RfiStatus.OPEN).stream()
                 .filter(Rfi::isOverdue).map(RfiResponse::from).toList();
     }
 

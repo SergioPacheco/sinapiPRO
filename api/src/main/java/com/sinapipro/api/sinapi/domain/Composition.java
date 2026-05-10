@@ -22,6 +22,9 @@ public class Composition extends AuditableEntity {
     @Column(name = "group_name", length = 140)
     private String groupName;
 
+    @Column(nullable = false, length = 20)
+    private String origin = "SINAPI";
+
     @OneToMany(mappedBy = "composition", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CompositionItem> items = new ArrayList<>();
 
@@ -34,13 +37,30 @@ public class Composition extends AuditableEntity {
         this.groupName = groupName;
     }
 
+    public Composition(String code, String description, String unit, String groupName, String origin) {
+        this.sinapiCode = code;
+        this.description = description;
+        this.unit = unit;
+        this.groupName = groupName;
+        this.origin = origin;
+    }
+
     public String getSinapiCode() { return sinapiCode; }
     public String getDescription() { return description; }
     public String getUnit() { return unit; }
     public String getGroupName() { return groupName; }
+    public String getOrigin() { return origin; }
     public List<CompositionItem> getItems() { return items; }
+
+    public void update(String description, String unit, String groupName) {
+        this.description = description;
+        this.unit = unit;
+        this.groupName = groupName;
+    }
 
     public void addItem(Material material, java.math.BigDecimal coefficient) {
         items.add(new CompositionItem(this, material, coefficient));
     }
+
+    public boolean isEditable() { return "PROPRIO".equals(origin); }
 }

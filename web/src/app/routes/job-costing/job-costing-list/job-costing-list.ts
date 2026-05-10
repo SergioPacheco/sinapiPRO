@@ -1,3 +1,4 @@
+import { ActivatedRoute } from '@angular/router';
 import { Component, inject, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,6 +14,8 @@ import { CostCode } from '../models/job-costing.model';
 })
 export class JobCostingListComponent implements OnInit {
   private readonly service = inject(JobCostingService);
+  private readonly route = inject(ActivatedRoute);
+  private projectId = '';
 
   columns: MtxGridColumn[] = [
     { header: 'Código', field: 'code', sortable: true, width: '120px' },
@@ -55,12 +58,13 @@ export class JobCostingListComponent implements OnInit {
   query = { page: 0, size: 20 };
 
   ngOnInit() {
+    let r = this.route.snapshot; while (r.parent && !r.paramMap.get("projectId")) r = r.parent; this.projectId = r.paramMap.get("projectId") || "";
     this.loadData();
   }
 
   loadData() {
     this.isLoading = true;
-    this.service.listCostCodes(this.query.page, this.query.size).subscribe({
+    this.service.listCostCodes(this.projectId, this.query.page, this.query.size).subscribe({
       next: res => {
         this.list = res.content;
         this.total = res.totalElements;

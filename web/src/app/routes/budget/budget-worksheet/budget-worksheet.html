@@ -1,0 +1,199 @@
+<page-header title="Planilha Orçamentária" />
+
+@if (worksheet) {
+  <!-- Summary cards -->
+  <div class="summary-row">
+    <mat-card class="summary-card">
+      <span class="label">Custo Direto (CDT)</span>
+      <span class="value">R$ {{ worksheet.directCost | number:'1.2-2' }}</span>
+    </mat-card>
+    <mat-card class="summary-card">
+      <span class="label">BDI ({{ worksheet.bdiPct * 100 | number:'1.1-1' }}%)</span>
+      <span class="value">R$ {{ worksheet.bdiAmount | number:'1.2-2' }}</span>
+    </mat-card>
+    <mat-card class="summary-card total">
+      <span class="label">Total do Orçamento</span>
+      <span class="value">R$ {{ worksheet.total | number:'1.2-2' }}</span>
+    </mat-card>
+  </div>
+
+  <div class="report-row">
+    <button mat-stroked-button color="primary" (click)="openWorksheetReport()">
+      <mat-icon>picture_as_pdf</mat-icon>
+      Relatório do Orçamento
+    </button>
+    <button mat-stroked-button color="primary" (click)="openServiceAbcReport()">
+      <mat-icon>bar_chart</mat-icon>
+      Curva ABC Serviços
+    </button>
+  </div>
+
+  <div class="tools-row">
+    <mat-card class="tool-panel">
+      <h2>BDI</h2>
+      <div class="field-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Administração (%)</mat-label>
+          <input matInput type="number" min="0" step="0.01" [(ngModel)]="bdiForm.administration" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Lucro (%)</mat-label>
+          <input matInput type="number" min="0" step="0.01" [(ngModel)]="bdiForm.profit" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Impostos (%)</mat-label>
+          <input matInput type="number" min="0" step="0.01" [(ngModel)]="bdiForm.taxes" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Encargos (%)</mat-label>
+          <input matInput type="number" min="0" step="0.01" [(ngModel)]="bdiForm.socialCharges" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Financeiro (%)</mat-label>
+          <input matInput type="number" min="0" step="0.01" [(ngModel)]="bdiForm.financialExpenses" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Riscos (%)</mat-label>
+          <input matInput type="number" min="0" step="0.01" [(ngModel)]="bdiForm.risks" />
+        </mat-form-field>
+      </div>
+      <button mat-flat-button color="primary" (click)="saveBdi()">
+        <mat-icon>save</mat-icon>
+        Salvar BDI
+      </button>
+    </mat-card>
+
+    <mat-card class="tool-panel compact">
+      <h2>Reajuste</h2>
+      <div class="adjust-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Tipo</mat-label>
+          <mat-select [(ngModel)]="adjustment.type">
+            <mat-option value="PERCENTAGE">Percentual</mat-option>
+            <mat-option value="VALUE">Valor fixo</mat-option>
+          </mat-select>
+        </mat-form-field>
+        @if (adjustment.type === 'PERCENTAGE') {
+          <mat-form-field appearance="outline">
+            <mat-label>Percentual (%)</mat-label>
+            <input matInput type="number" step="0.01" [(ngModel)]="adjustment.percentage" />
+          </mat-form-field>
+        } @else {
+          <mat-form-field appearance="outline">
+            <mat-label>Valor unitário</mat-label>
+            <input matInput type="number" step="0.01" [(ngModel)]="adjustment.value" />
+          </mat-form-field>
+        }
+      </div>
+      <button mat-stroked-button color="primary" (click)="applyAdjustment()">
+        <mat-icon>percent</mat-icon>
+        Aplicar reajuste
+      </button>
+    </mat-card>
+  </div>
+
+  <!-- Add stage -->
+  <div class="add-stage-row">
+    <mat-form-field appearance="outline">
+      <mat-label>Nova Etapa</mat-label>
+      <input matInput [(ngModel)]="newStageName" (keyup.enter)="addStage()" placeholder="Ex: FUNDAÇÕES" />
+    </mat-form-field>
+    <button mat-flat-button color="primary" (click)="addStage()" [disabled]="!newStageName.trim()">
+      <mat-icon>add</mat-icon> Adicionar Etapa
+    </button>
+  </div>
+
+  <!-- Stages and items -->
+  @for (stage of worksheet.stages; track stage.id) {
+    <div class="stage-block">
+      <div class="stage-header">
+        <mat-icon>folder</mat-icon>
+        <span class="stage-name">{{ stage.sortOrder }}. {{ stage.name }}</span>
+        <span class="stage-subtotal">R$ {{ stage.subtotal | number:'1.2-2' }}</span>
+        <button mat-icon-button color="primary" (click)="addItem(stage)" title="Adicionar composição">
+          <mat-icon>playlist_add</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="deleteStage(stage)" title="Excluir etapa">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+
+      @if (stage.items.length > 0) {
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th class="col-code">Código</th>
+              <th>Descrição</th>
+              <th class="col-unit">Un</th>
+              <th class="col-num">Qtd</th>
+              <th class="col-num">Custo Unit.</th>
+              <th class="col-num">Custo Total</th>
+              <th class="col-origin">Fonte</th>
+              <th class="col-action"></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of stage.items; track item.id) {
+              <tr>
+                <td class="col-code">{{ item.code }}</td>
+                <td class="item-desc">{{ item.description }}</td>
+                <td class="col-unit">{{ item.unit }}</td>
+                <td class="col-num">{{ item.quantity | number:'1.2-2' }}</td>
+                <td class="col-num">{{ item.unitCost | number:'1.2-4' }}</td>
+                <td class="col-num">{{ item.totalCost | number:'1.2-2' }}</td>
+                <td class="col-origin"><span class="badge" [class.sinapi]="item.origin==='SINAPI'">{{ item.origin }}</span></td>
+                <td class="col-action"><button mat-icon-button color="warn" (click)="deleteItem(item)"><mat-icon>close</mat-icon></button></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p class="empty-stage">Nenhum item. Clique em <mat-icon>playlist_add</mat-icon> para adicionar composições.</p>
+      }
+    </div>
+  }
+
+  @if (worksheet.stages.length === 0) {
+    <mat-card class="empty-card">
+      <p>Orçamento vazio. Adicione etapas e composições para montar a planilha.</p>
+    </mat-card>
+  }
+
+  @if (serviceAbc.length > 0) {
+    <mat-card class="abc-panel">
+      <div class="abc-header">
+        <h2>Curva ABC de Serviços</h2>
+        <button mat-icon-button color="primary" (click)="openServiceAbcReport()" title="Abrir PDF">
+          <mat-icon>picture_as_pdf</mat-icon>
+        </button>
+      </div>
+      <table class="abc-table">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Serviço</th>
+            <th class="col-num">Total</th>
+            <th class="col-num">%</th>
+            <th class="col-num">% Acum.</th>
+            <th class="col-origin">ABC</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (entry of serviceAbc; track entry.itemId) {
+            <tr>
+              <td class="col-code">{{ entry.serviceCode }}</td>
+              <td>
+                <span class="abc-desc">{{ entry.description }}</span>
+                <span class="abc-bar"><span [style.width.%]="entry.percentage"></span></span>
+              </td>
+              <td class="col-num">{{ entry.cost | number:'1.2-2' }}</td>
+              <td class="col-num">{{ entry.percentage | number:'1.2-2' }}</td>
+              <td class="col-num">{{ entry.cumulativePercentage | number:'1.2-2' }}</td>
+              <td class="col-origin"><span class="badge abc-class">{{ entry.classification }}</span></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </mat-card>
+  }
+}

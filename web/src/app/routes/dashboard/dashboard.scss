@@ -1,7 +1,136 @@
-mtx-alert {
-  --mtx-alert-container-shape: 24px;
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
 
-  position: sticky;
-  top: 8px;
-  z-index: 1000;
+.kpi-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.kpi-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  mat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    color: white;
+  }
+}
+
+.kpi-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.kpi-value {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.kpi-label {
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.54);
+  margin-top: 2px;
+}
+
+.charts-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+
+  @media (max-width: 960px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chart-card {
+  padding: 8px;
+}
+
+.projects-card {
+  margin-bottom: 24px;
+}
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.project-tile {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: #1976d2;
+    background: rgba(25, 118, 210, 0.04);
+    transform: translateY(-1px);
+  }
+}
+
+.project-tile-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.project-code {
+  font-weight: 600;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.status-chip {
+  margin-left: auto;
+  font-size: 11px;
+  height: 22px;
+}
+
+.project-name {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.project-customer {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.project-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.54);
+
+  strong {
+    color: #4caf50;
+  }
 }

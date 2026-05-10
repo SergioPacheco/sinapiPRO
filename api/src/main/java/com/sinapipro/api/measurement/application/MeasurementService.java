@@ -5,7 +5,10 @@ import module java.base;
 import java.util.stream.Gatherers;
 
 import com.sinapipro.api.budget.domain.Budget;
+import com.sinapipro.api.budget.domain.BudgetItem;
+import com.sinapipro.api.budget.domain.BudgetItemRepository;
 import com.sinapipro.api.budget.domain.BudgetRepository;
+import com.sinapipro.api.shared.error.DomainValidationException;
 import com.sinapipro.api.invoice.domain.Invoice;
 import com.sinapipro.api.invoice.domain.InvoiceRepository;
 import com.sinapipro.api.invoice.domain.InvoiceStatus;
@@ -25,15 +28,18 @@ public class MeasurementService {
 
     private final MeasurementRepository measurementRepository;
     private final BudgetRepository budgetRepository;
+    private final BudgetItemRepository budgetItemRepository;
     private final CostCodeRepository costCodeRepository;
     private final CostTransactionRepository costTransactionRepository;
     private final InvoiceRepository invoiceRepository;
 
     public MeasurementService(MeasurementRepository measurementRepository, BudgetRepository budgetRepository,
+                              BudgetItemRepository budgetItemRepository,
                               CostCodeRepository costCodeRepository, CostTransactionRepository costTransactionRepository,
                               InvoiceRepository invoiceRepository) {
         this.measurementRepository = measurementRepository;
         this.budgetRepository = budgetRepository;
+        this.budgetItemRepository = budgetItemRepository;
         this.costCodeRepository = costCodeRepository;
         this.costTransactionRepository = costTransactionRepository;
         this.invoiceRepository = invoiceRepository;
@@ -46,9 +52,36 @@ public class MeasurementService {
                 .orElseThrow(() -> new DomainNotFoundException("Budget not found: " + budgetId));
         var m = new Measurement(budget, number, periodStart, periodEnd, retentionPct);
         for (var item : items) {
-            m.getItems().add(new MeasurementItem(m, item.costCodeId(), item.description(), item.quantity(), item.unitPrice()));
+            if (item.budgetItemId() != null) {
+                BudgetItem budgetItem = budgetItemRepository.findById(item.budgetItemId())
+                        .orElseThrow(() -> new DomainNotFoundException("Budget item not found: " + item.budgetItemId()));
+                validateMeasuredQuantity(budgetId, number, budgetItem, item.quantity());
+                m.getItems().add(new MeasurementItem(m, budgetItem,
+                        item.description() != null ? item.description() : budgetItem.getComposition().getDescription(),
+                        item.quantity(), item.unitPrice() != null ? item.unitPrice() : budgetItem.getUnitCost()));
+            } else {
+                m.getItems().add(new MeasurementItem(m, item.costCodeId(), item.description(), item.quantity(), item.unitPrice()));
+            }
         }
         return measurementRepository.save(m);
+    }
+
+    public List<AvailableBudgetItem> availableBudgetItems(UUID budgetId) {
+        return budgetItemRepository.findAllByBudgetId(budgetId).stream()
+                .map(item -> {
+                    BigDecimal previous = measuredQuantity(budgetId, Integer.MAX_VALUE, item.getId());
+                    BigDecimal balance = item.getQuantity().subtract(previous);
+                    return new AvailableBudgetItem(
+                            item.getId(),
+                            item.getComposition().getSinapiCode(),
+                            item.getComposition().getDescription(),
+                            item.getComposition().getUnit(),
+                            item.getQuantity(),
+                            previous,
+                            balance.max(BigDecimal.ZERO),
+                            item.getUnitCost());
+                })
+                .toList();
     }
 
     @Transactional
@@ -168,13 +201,62 @@ public class MeasurementService {
         return new BalanceResult(contractedTotal, measured, remaining, percentMeasured);
     }
 
+    public MeasurementDetail detail(UUID measurementId) {
+        Measurement measurement = findOrThrow(measurementId);
+        var lines = measurement.getItems().stream()
+                .map(item -> {
+                    UUID budgetItemId = item.getBudgetItemId();
+                    BigDecimal contracted = item.getBudgetItem() != null ? item.getBudgetItem().getQuantity() : item.getQuantity();
+                    BigDecimal previous = budgetItemId != null
+                            ? measuredQuantity(measurement.getBudget().getId(), measurement.getNumber(), budgetItemId)
+                            : BigDecimal.ZERO;
+                    BigDecimal cumulative = previous.add(item.getQuantity());
+                    BigDecimal balance = contracted.subtract(cumulative);
+                    return new MeasurementLineDetail(
+                            item.getId(), budgetItemId, item.getDescription(), item.getQuantity(), item.getUnitPrice(),
+                            item.getAmount(), contracted, previous, cumulative, balance);
+                })
+                .toList();
+        return new MeasurementDetail(measurement.getId(), measurement.getNumber(), measurement.getPeriodStart(),
+                measurement.getPeriodEnd(), measurement.getStatus().name(), measurement.getRetentionPct(),
+                measurement.getGrossAmount(), measurement.getNetAmount(), lines);
+    }
+
+    private void validateMeasuredQuantity(UUID budgetId, Integer measurementNumber, BudgetItem budgetItem, BigDecimal periodQuantity) {
+        BigDecimal previous = measuredQuantity(budgetId, measurementNumber, budgetItem.getId());
+        BigDecimal cumulative = previous.add(periodQuantity);
+        if (cumulative.compareTo(budgetItem.getQuantity()) > 0) {
+            throw new DomainValidationException("Measured quantity exceeds contracted quantity for item "
+                    + budgetItem.getComposition().getSinapiCode());
+        }
+    }
+
+    private BigDecimal measuredQuantity(UUID budgetId, Integer beforeMeasurementNumber, UUID budgetItemId) {
+        return measurementRepository.findByBudgetIdOrderByNumberDesc(budgetId).stream()
+                .filter(m -> m.getNumber() < beforeMeasurementNumber)
+                .filter(m -> m.getStatus() == MeasurementStatus.APPROVED || m.getStatus() == MeasurementStatus.PAID)
+                .flatMap(m -> m.getItems().stream())
+                .filter(item -> budgetItemId.equals(item.getBudgetItemId()))
+                .map(MeasurementItem::getQuantity)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
     private Measurement findOrThrow(UUID id) {
         return measurementRepository.findById(id)
                 .orElseThrow(() -> new DomainNotFoundException("Measurement not found: " + id));
     }
 
-    public record ItemInput(UUID costCodeId, String description, BigDecimal quantity, BigDecimal unitPrice) {}
+    public record ItemInput(UUID costCodeId, UUID budgetItemId, String description, BigDecimal quantity, BigDecimal unitPrice) {}
     public record MeasurementSummary(int totalMeasurements, BigDecimal totalGross, BigDecimal totalNet, BigDecimal totalRetention) {}
     public record CumulativeResult(BigDecimal previousCumulative, BigDecimal currentPeriod, BigDecimal totalCumulative) {}
     public record BalanceResult(BigDecimal contractedTotal, BigDecimal measured, BigDecimal remaining, BigDecimal percentMeasured) {}
+    public record AvailableBudgetItem(UUID budgetItemId, String code, String description, String unit,
+                                      BigDecimal contractedQuantity, BigDecimal previousQuantity,
+                                      BigDecimal balanceQuantity, BigDecimal unitPrice) {}
+    public record MeasurementDetail(UUID id, Integer number, LocalDate periodStart, LocalDate periodEnd, String status,
+                                    BigDecimal retentionPct, BigDecimal grossAmount, BigDecimal netAmount,
+                                    List<MeasurementLineDetail> items) {}
+    public record MeasurementLineDetail(UUID id, UUID budgetItemId, String description, BigDecimal periodQuantity,
+                                        BigDecimal unitPrice, BigDecimal periodAmount, BigDecimal contractedQuantity,
+                                        BigDecimal previousQuantity, BigDecimal cumulativeQuantity, BigDecimal balanceQuantity) {}
 }

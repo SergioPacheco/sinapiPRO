@@ -4,10 +4,13 @@ import com.sinapipro.api.budget.domain.Budget;
 import com.sinapipro.api.budget.domain.BudgetRepository;
 import com.sinapipro.api.schedule.application.CriticalPathService;
 import com.sinapipro.api.schedule.application.SCurveService;
+import com.sinapipro.api.schedule.application.ScheduleReportService;
 import com.sinapipro.api.schedule.domain.ActivityDependency;
 import com.sinapipro.api.schedule.domain.ActivityDependencyRepository;
 import com.sinapipro.api.schedule.domain.ScheduleActivity;
 import com.sinapipro.api.schedule.domain.ScheduleActivityRepository;
+import com.sinapipro.api.schedule.domain.ScheduleBaseline;
+import com.sinapipro.api.schedule.domain.ScheduleBaselineRepository;
 import com.sinapipro.api.shared.error.DomainNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,6 +18,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -27,49 +32,55 @@ import java.util.UUID;
 
 @Tag(name = "Schedule", description = "Project schedule, activities and S-Curve")
 @RestController
-@RequestMapping("/api/v1/budgets/{budgetId}/schedule")
+@RequestMapping("/api/v1/projects/{projectId}/schedule")
 public class ScheduleController {
 
     private final ScheduleActivityRepository activityRepository;
     private final ActivityDependencyRepository dependencyRepository;
+    private final ScheduleBaselineRepository baselineRepository;
     private final BudgetRepository budgetRepository;
     private final SCurveService sCurveService;
     private final CriticalPathService criticalPathService;
+    private final ScheduleReportService scheduleReportService;
 
     public ScheduleController(ScheduleActivityRepository activityRepository,
                               ActivityDependencyRepository dependencyRepository,
+                              ScheduleBaselineRepository baselineRepository,
                               BudgetRepository budgetRepository, SCurveService sCurveService,
-                              CriticalPathService criticalPathService) {
+                              CriticalPathService criticalPathService,
+                              ScheduleReportService scheduleReportService) {
         this.activityRepository = activityRepository;
         this.dependencyRepository = dependencyRepository;
+        this.baselineRepository = baselineRepository;
         this.budgetRepository = budgetRepository;
         this.sCurveService = sCurveService;
         this.criticalPathService = criticalPathService;
+        this.scheduleReportService = scheduleReportService;
     }
 
     @Operation(summary = "List schedule activities")
     @GetMapping
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
-    List<ActivityResponse> list(@PathVariable UUID budgetId) {
-        return activityRepository.findByBudgetIdOrderBySortOrder(budgetId).stream().map(ActivityResponse::from).toList();
+    List<ActivityResponse> list(@PathVariable UUID projectId) {
+        return activityRepository.findByBudgetIdOrderBySortOrder(projectId).stream().map(ActivityResponse::from).toList();
     }
 
     @Operation(summary = "Create a schedule activity")
     @PostMapping
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
-    ResponseEntity<ActivityResponse> create(@PathVariable UUID budgetId, @Valid @RequestBody CreateActivityRequest req) {
-        Budget budget = budgetRepository.findById(budgetId)
-                .orElseThrow(() -> new DomainNotFoundException("Budget not found: " + budgetId));
+    ResponseEntity<ActivityResponse> create(@PathVariable UUID projectId, @Valid @RequestBody CreateActivityRequest req) {
+        Budget budget = budgetRepository.findById(projectId)
+                .orElseThrow(() -> new DomainNotFoundException("Budget not found: " + projectId));
         ScheduleActivity activity = activityRepository.save(
                 new ScheduleActivity(budget, req.name(), req.plannedStart(), req.plannedEnd(), req.weight(), req.sortOrder()));
-        return ResponseEntity.created(URI.create("/api/v1/budgets/" + budgetId + "/schedule/" + activity.getId()))
+        return ResponseEntity.created(URI.create("/api/v1/budgets/" + projectId + "/schedule/" + activity.getId()))
                 .body(ActivityResponse.from(activity));
     }
 
     @Operation(summary = "Update activity progress")
     @PatchMapping("/{activityId}/progress")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
-    ActivityResponse updateProgress(@PathVariable UUID budgetId, @PathVariable UUID activityId,
+    ActivityResponse updateProgress(@PathVariable UUID projectId, @PathVariable UUID activityId,
                                     @Valid @RequestBody UpdateProgressRequest req) {
         ScheduleActivity activity = activityRepository.findById(activityId)
                 .orElseThrow(() -> new DomainNotFoundException("Activity not found: " + activityId));
@@ -81,29 +92,40 @@ public class ScheduleController {
     @DeleteMapping("/{activityId}")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    void delete(@PathVariable UUID budgetId, @PathVariable UUID activityId) {
+    void delete(@PathVariable UUID projectId, @PathVariable UUID activityId) {
         activityRepository.deleteById(activityId);
     }
 
     @Operation(summary = "S-Curve data (planned vs actual cumulative by month)")
     @GetMapping("/s-curve")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
-    SCurveService.SCurveData sCurve(@PathVariable UUID budgetId) {
-        return sCurveService.calculate(budgetId);
+    SCurveService.SCurveData sCurve(@PathVariable UUID projectId) {
+        return sCurveService.calculate(projectId);
     }
 
     @Operation(summary = "Critical path analysis (CPM)")
     @GetMapping("/critical-path")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
-    CriticalPathService.CriticalPathResult criticalPath(@PathVariable UUID budgetId) {
-        return criticalPathService.calculate(budgetId);
+    CriticalPathService.CriticalPathResult criticalPath(@PathVariable UUID projectId) {
+        return criticalPathService.calculate(projectId);
+    }
+
+    @Operation(summary = "Physical-financial schedule PDF")
+    @GetMapping(value = "/reports/physical-financial.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    ResponseEntity<byte[]> physicalFinancialReport(@PathVariable UUID projectId) {
+        byte[] pdf = scheduleReportService.generatePhysicalFinancialPdf(projectId);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=schedule-physical-financial-" + projectId + ".pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
     }
 
     @Operation(summary = "Add dependency between activities")
     @PostMapping("/dependencies")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
     @ResponseStatus(HttpStatus.CREATED)
-    DependencyResponse addDependency(@PathVariable UUID budgetId, @Valid @RequestBody CreateDependencyRequest req) {
+    DependencyResponse addDependency(@PathVariable UUID projectId, @Valid @RequestBody CreateDependencyRequest req) {
         ScheduleActivity predecessor = activityRepository.findById(req.predecessorId())
                 .orElseThrow(() -> new DomainNotFoundException("Activity not found: " + req.predecessorId()));
         ScheduleActivity successor = activityRepository.findById(req.successorId())
@@ -113,11 +135,64 @@ public class ScheduleController {
         return new DependencyResponse(dep.getId(), dep.getPredecessor().getId(), dep.getSuccessor().getId(), dep.getType());
     }
 
+    // --- Baselines ---
+
+    @Operation(summary = "Save current schedule as a baseline snapshot")
+    @PostMapping("/baselines")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    ResponseEntity<BaselineResponse> createBaseline(@PathVariable UUID projectId, @Valid @RequestBody CreateBaselineRequest req) {
+        var activities = activityRepository.findByBudgetIdOrderBySortOrder(projectId);
+        var snapshot = activities.stream().map(a -> new ScheduleBaseline.ActivitySnapshot(
+                a.getId(), a.getName(), a.getPlannedStart().toString(), a.getPlannedEnd().toString(),
+                a.getWeight().toPlainString(), a.getProgressPct().toPlainString(), a.getSortOrder()
+        )).toList();
+        var baseline = baselineRepository.save(new ScheduleBaseline(projectId, req.name(), snapshot));
+        return ResponseEntity.status(HttpStatus.CREATED).body(BaselineResponse.from(baseline));
+    }
+
+    @Operation(summary = "List baselines for this project")
+    @GetMapping("/baselines")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    List<BaselineResponse> listBaselines(@PathVariable UUID projectId) {
+        return baselineRepository.findByProjectIdOrderByCreatedAtDesc(projectId).stream()
+                .map(BaselineResponse::from).toList();
+    }
+
+    @Operation(summary = "Get baseline detail with activity snapshots")
+    @GetMapping("/baselines/{baselineId}")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    ScheduleBaseline getBaseline(@PathVariable UUID projectId, @PathVariable UUID baselineId) {
+        return baselineRepository.findById(baselineId)
+                .orElseThrow(() -> new DomainNotFoundException("Baseline not found: " + baselineId));
+    }
+
+    // --- Auto-distribute dates ---
+
+    @Operation(summary = "Auto-distribute dates sequentially based on duration and dependencies")
+    @PostMapping("/distribute-dates")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    List<ActivityResponse> distributeDates(@PathVariable UUID projectId, @Valid @RequestBody DistributeDatesRequest req) {
+        var activities = activityRepository.findByBudgetIdOrderBySortOrder(projectId);
+        if (activities.isEmpty()) return List.of();
+
+        LocalDate cursor = req.startDate();
+        for (var activity : activities) {
+            long durationDays = java.time.temporal.ChronoUnit.DAYS.between(activity.getPlannedStart(), activity.getPlannedEnd());
+            if (durationDays < 1) durationDays = 1;
+            activity.updateDates(cursor, cursor.plusDays(durationDays));
+            cursor = cursor.plusDays(durationDays);
+        }
+        activityRepository.saveAll(activities);
+        return activities.stream().map(ActivityResponse::from).toList();
+    }
+
     // --- DTOs ---
     record CreateActivityRequest(@NotBlank String name, @NotNull LocalDate plannedStart, @NotNull LocalDate plannedEnd,
                                  @NotNull BigDecimal weight, @NotNull Integer sortOrder) {}
     record UpdateProgressRequest(@NotNull BigDecimal progressPct, LocalDate actualStart, LocalDate actualEnd) {}
     record CreateDependencyRequest(@NotNull UUID predecessorId, @NotNull UUID successorId, String type) {}
+    record CreateBaselineRequest(@NotBlank String name) {}
+    record DistributeDatesRequest(@NotNull LocalDate startDate) {}
 
     record ActivityResponse(UUID id, String name, LocalDate plannedStart, LocalDate plannedEnd,
                             LocalDate actualStart, LocalDate actualEnd, BigDecimal weight,
@@ -129,4 +204,10 @@ public class ScheduleController {
     }
 
     record DependencyResponse(UUID id, UUID predecessorId, UUID successorId, String type) {}
+
+    record BaselineResponse(UUID id, String name, int activityCount, String createdAt) {
+        static BaselineResponse from(ScheduleBaseline b) {
+            return new BaselineResponse(b.getId(), b.getName(), b.getSnapshot().size(), b.getCreatedAt().toString());
+        }
+    }
 }

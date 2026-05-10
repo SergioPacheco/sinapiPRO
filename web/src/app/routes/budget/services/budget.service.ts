@@ -1,6 +1,5 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { environment } from '@env/environment';
 import { Budget, BudgetStatus, CreateBudgetRequest } from '../models/budget.model';
 
 export interface PageResponse<T> {
@@ -14,27 +13,36 @@ export interface PageResponse<T> {
 @Injectable({ providedIn: 'root' })
 export class BudgetService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.baseUrl}/budgets`;
 
-  list(page = 0, size = 20, status?: BudgetStatus) {
+  private url(projectId: string) { return `/projects/${projectId}/budgets`; }
+
+  list(projectId: string, page = 0, size = 20, status?: BudgetStatus) {
     let params = new HttpParams().set('page', page).set('size', size);
     if (status) params = params.set('status', status);
-    return this.http.get<PageResponse<Budget>>(this.baseUrl, { params });
+    return this.http.get<PageResponse<Budget>>(this.url(projectId), { params });
   }
 
-  getById(id: string) {
-    return this.http.get<Budget>(`${this.baseUrl}/${id}`);
+  getById(projectId: string, id: string) {
+    return this.http.get<Budget>(`${this.url(projectId)}/${id}`);
   }
 
-  create(request: CreateBudgetRequest) {
-    return this.http.post<Budget>(this.baseUrl, request);
+  create(projectId: string, request: CreateBudgetRequest) {
+    return this.http.post<Budget>(this.url(projectId), request);
   }
 
-  update(id: string, request: Partial<CreateBudgetRequest>) {
-    return this.http.put<Budget>(`${this.baseUrl}/${id}`, request);
+  update(projectId: string, id: string, request: Partial<CreateBudgetRequest>) {
+    return this.http.put<Budget>(`${this.url(projectId)}/${id}`, request);
   }
 
-  delete(id: string) {
-    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  delete(projectId: string, id: string) {
+    return this.http.delete<void>(`${this.url(projectId)}/${id}`);
+  }
+
+  copy(projectId: string, id: string, request: { code: string; title: string }) {
+    return this.http.post<Budget>(`${this.url(projectId)}/${id}/copy`, request);
+  }
+
+  activate(projectId: string, id: string) {
+    return this.http.post<Budget>(`${this.url(projectId)}/${id}/activate`, {});
   }
 }

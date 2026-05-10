@@ -22,40 +22,16 @@ export const routes: Routes = [
       { path: '404', component: Error404 },
       { path: '500', component: Error500 },
       {
-        path: 'budgets',
-        loadChildren: () => import('./routes/budget/budget.routes').then(m => m.routes),
+        path: 'projects',
+        loadChildren: () => import('./routes/project/project.routes').then(m => m.routes),
       },
       {
         path: 'sinapi',
         loadChildren: () => import('./routes/sinapi/sinapi.routes').then(m => m.routes),
       },
       {
-        path: 'measurements',
-        loadChildren: () => import('./routes/measurement/measurement.routes').then(m => m.routes),
-      },
-      {
-        path: 'contracts',
-        loadChildren: () => import('./routes/contract/contract.routes').then(m => m.routes),
-      },
-      {
-        path: 'procurement',
-        loadChildren: () => import('./routes/procurement/procurement.routes').then(m => m.routes),
-      },
-      {
-        path: 'schedule',
-        loadChildren: () => import('./routes/schedule/schedule.routes').then(m => m.routes),
-      },
-      {
-        path: 'daily-log',
-        loadChildren: () => import('./routes/daily-log/daily-log.routes').then(m => m.routes),
-      },
-      {
         path: 'equipment',
         loadChildren: () => import('./routes/equipment/equipment.routes').then(m => m.routes),
-      },
-      {
-        path: 'job-costing',
-        loadChildren: () => import('./routes/job-costing/job-costing.routes').then(m => m.routes),
       },
       {
         path: 'analytics',
@@ -76,6 +52,18 @@ export const routes: Routes = [
       {
         path: 'profile',
         loadChildren: () => import('./routes/profile/profile.routes').then(m => m.routes),
+      },
+      {
+        path: 'commercial',
+        loadChildren: () => import('./routes/commercial/commercial.routes').then(m => m.routes),
+      },
+      {
+        path: 'after-sales',
+        loadChildren: () => import('./routes/aftersales/aftersales.routes').then(m => m.routes),
+      },
+      {
+        path: 'registry',
+        loadChildren: () => import('./routes/registry/registry.routes').then(m => m.routes),
       },
     ],
   },

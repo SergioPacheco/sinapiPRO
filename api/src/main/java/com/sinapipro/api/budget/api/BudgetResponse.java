@@ -16,6 +16,7 @@ public record BudgetResponse(
         String customerName,
         BigDecimal totalAmount,
         BudgetStatus status,
+        boolean active,
         LocalDate startDate,
         LocalDate endDate,
         Map<String, Object> metadata,
@@ -25,7 +26,8 @@ public record BudgetResponse(
     public static BudgetResponse from(Budget budget) {
         return new BudgetResponse(
                 budget.getId(), budget.getCode(), budget.getTitle(), budget.getCustomerName(),
-                budget.getTotalAmount(), budget.getStatus(), budget.getStartDate(), budget.getEndDate(),
+                budget.getTotalAmount(), budget.getStatus(), budget.isActive(),
+                budget.getStartDate(), budget.getEndDate(),
                 budget.getMetadata(), budget.getCreatedAt(), budget.getUpdatedAt());
     }
 }

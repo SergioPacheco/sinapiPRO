@@ -14,7 +14,7 @@ npm install --legacy-peer-deps
 # Rodar em dev (com mock — sem backend)
 npx ng serve
 # http://localhost:4200
-# Login: admin@sinapipro.com / admin123
+# Login: admin@sinapipro.dev / SinapiPro#2026
 
 # Rodar em dev (com API real — requer backend rodando na 8080)
 # Editar src/environments/environment.ts → useInMemoryApi: false

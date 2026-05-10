@@ -1,0 +1,98 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: sinapipro
+      POSTGRES_USER: sinapipro
+      POSTGRES_PASSWORD: sinapipro
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+      args:
+        MAVEN_IMAGE: ${MAVEN_IMAGE:-mirror.gcr.io/library/maven:3.9.11-eclipse-temurin-25}
+        JRE_IMAGE: ${JRE_IMAGE:-mirror.gcr.io/library/eclipse-temurin:25-jre}
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sinapipro
+      SPRING_DATASOURCE_USERNAME: sinapipro
+      SPRING_DATASOURCE_PASSWORD: sinapipro
+      SPRING_DOCKER_COMPOSE_ENABLED: "false"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      MANAGEMENT_OTLP_TRACING_ENDPOINT: http://otel-lgtm:4318/v1/traces
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+      args:
+        NODE_IMAGE: ${NODE_IMAGE:-mirror.gcr.io/library/node:22.12}
+        NGINX_IMAGE: ${NGINX_IMAGE:-mirror.gcr.io/library/nginx:alpine}
+    ports:
+      - "4200:80"
+    depends_on:
+      api:
+        condition: service_started
+    restart: unless-stopped
+
+  prometheus:
+    profiles:
+      - observability
+    image: prom/prometheus:v3.5.0
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    volumes:
+      - ./api/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - promdata:/prometheus
+    ports:
+      - "9090:9090"
+    depends_on:
+      api:
+        condition: service_started
+    restart: unless-stopped
+
+  grafana:
+    profiles:
+      - observability
+    image: grafana/grafana:12.0.2
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafanadata:/var/lib/grafana
+    depends_on:
+      prometheus:
+        condition: service_started
+    restart: unless-stopped
+
+  otel-lgtm:
+    profiles:
+      - observability
+    image: grafana/otel-lgtm:0.11.8
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "3100:3100"
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  promdata:
+  grafanadata:

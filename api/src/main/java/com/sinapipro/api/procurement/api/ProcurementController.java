@@ -1,6 +1,7 @@
 package com.sinapipro.api.procurement.api;
 
 import com.sinapipro.api.budget.domain.BudgetRepository;
+import com.sinapipro.api.procurement.application.ProcurementReportService;
 import com.sinapipro.api.procurement.application.ProcurementService;
 import com.sinapipro.api.procurement.application.ProcurementService.*;
 import com.sinapipro.api.procurement.domain.*;
@@ -14,7 +15,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -27,18 +30,26 @@ import java.util.UUID;
 
 @Tag(name = "Procurement", description = "Purchase requests, quotations, orders and receiving")
 @RestController
-@RequestMapping("/api/v1/budgets/{budgetId}/procurement")
+@RequestMapping("/api/v1/projects/{projectId}/procurement")
 public class ProcurementController {
 
     private final PurchaseRequestRepository requestRepository;
     private final BudgetRepository budgetRepository;
     private final ProcurementService procurementService;
+    private final ProcurementReportService procurementReportService;
+    private final PurchaseOrderCostDistributionRepository costDistributionRepository;
+    private final PurchaseOrderRepository orderRepository;
 
     public ProcurementController(PurchaseRequestRepository requestRepository, BudgetRepository budgetRepository,
-                                 ProcurementService procurementService) {
+                                 ProcurementService procurementService, ProcurementReportService procurementReportService,
+                                 PurchaseOrderCostDistributionRepository costDistributionRepository,
+                                 PurchaseOrderRepository orderRepository) {
         this.requestRepository = requestRepository;
         this.budgetRepository = budgetRepository;
         this.procurementService = procurementService;
+        this.procurementReportService = procurementReportService;
+        this.costDistributionRepository = costDistributionRepository;
+        this.orderRepository = orderRepository;
     }
 
     // --- Purchase Requests ---
@@ -46,20 +57,20 @@ public class ProcurementController {
     @Operation(summary = "List purchase requests for a budget")
     @GetMapping("/requests")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
-    PageResponse<PurchaseRequestResponse> listRequests(@PathVariable UUID budgetId, @PageableDefault(size = 20) Pageable pageable) {
-        return PageResponse.from(requestRepository.findByBudgetId(budgetId, pageable).map(PurchaseRequestResponse::from));
+    PageResponse<PurchaseRequestResponse> listRequests(@PathVariable UUID projectId, @PageableDefault(size = 20) Pageable pageable) {
+        return PageResponse.from(requestRepository.findByBudgetId(projectId, pageable).map(PurchaseRequestResponse::from));
     }
 
     @Operation(summary = "Create a purchase request")
     @PostMapping("/requests")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
-    ResponseEntity<PurchaseRequestResponse> createRequest(@PathVariable UUID budgetId,
+    ResponseEntity<PurchaseRequestResponse> createRequest(@PathVariable UUID projectId,
                                                           @Valid @RequestBody CreatePurchaseRequestReq req) {
-        var budget = budgetRepository.findById(budgetId)
-                .orElseThrow(() -> new DomainNotFoundException("Budget not found: " + budgetId));
+        var budget = budgetRepository.findById(projectId)
+                .orElseThrow(() -> new DomainNotFoundException("Budget not found: " + projectId));
         PurchaseRequest pr = requestRepository.save(
                 new PurchaseRequest(budget, req.costCodeId(), req.description(), req.quantity(), req.unit(), req.requestedBy()));
-        return ResponseEntity.created(URI.create("/api/v1/budgets/" + budgetId + "/procurement/requests/" + pr.getId()))
+        return ResponseEntity.created(URI.create("/api/v1/budgets/" + projectId + "/procurement/requests/" + pr.getId()))
                 .body(PurchaseRequestResponse.from(pr));
     }
 
@@ -69,7 +80,7 @@ public class ProcurementController {
     @PostMapping("/requests/{requestId}/quotations")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
     @ResponseStatus(HttpStatus.CREATED)
-    QuotationSummary createQuotation(@PathVariable UUID budgetId, @PathVariable UUID requestId,
+    QuotationSummary createQuotation(@PathVariable UUID projectId, @PathVariable UUID requestId,
                                      @Valid @RequestBody CreateQuotationReq req) {
         Quotation q = procurementService.createQuotation(requestId, req.deadline());
         return new QuotationSummary(q.getId(), q.getStatus(), q.getDeadline(), 0);
@@ -79,7 +90,7 @@ public class ProcurementController {
     @PostMapping("/quotations/{quotationId}/responses")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
     @ResponseStatus(HttpStatus.CREATED)
-    SupplierQuote addResponse(@PathVariable UUID budgetId, @PathVariable UUID quotationId,
+    SupplierQuote addResponse(@PathVariable UUID projectId, @PathVariable UUID quotationId,
                               @Valid @RequestBody AddQuotationResponseReq req) {
         QuotationResponse r = procurementService.addSupplierResponse(quotationId, req.supplierId(),
                 req.unitPrice(), req.deliveryDays(), req.notes());
@@ -89,7 +100,7 @@ public class ProcurementController {
     @Operation(summary = "Comparative analysis of quotation responses")
     @GetMapping("/quotations/{quotationId}/analysis")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
-    ComparativeAnalysis analyze(@PathVariable UUID budgetId, @PathVariable UUID quotationId) {
+    ComparativeAnalysis analyze(@PathVariable UUID projectId, @PathVariable UUID quotationId) {
         return procurementService.analyze(quotationId);
     }
 
@@ -99,7 +110,7 @@ public class ProcurementController {
     @PostMapping("/quotations/{quotationId}/generate-order")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
     @ResponseStatus(HttpStatus.CREATED)
-    PurchaseOrderResponse generateOrder(@PathVariable UUID budgetId, @PathVariable UUID quotationId,
+    PurchaseOrderResponse generateOrder(@PathVariable UUID projectId, @PathVariable UUID quotationId,
                                         @Valid @RequestBody GenerateOrderReq req) {
         PurchaseOrder order = procurementService.generateOrder(quotationId, req.orderNumber());
         return PurchaseOrderResponse.from(order);
@@ -108,8 +119,8 @@ public class ProcurementController {
     @Operation(summary = "List purchase orders for a budget")
     @GetMapping("/orders")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
-    PageResponse<PurchaseOrderResponse> listOrders(@PathVariable UUID budgetId, @PageableDefault(size = 20) Pageable pageable) {
-        return PageResponse.from(procurementService.listOrdersPaged(budgetId, pageable).map(PurchaseOrderResponse::from));
+    PageResponse<PurchaseOrderResponse> listOrders(@PathVariable UUID projectId, @PageableDefault(size = 20) Pageable pageable) {
+        return PageResponse.from(procurementService.listOrdersPaged(projectId, pageable).map(PurchaseOrderResponse::from));
     }
 
     // --- Receiving ---
@@ -118,10 +129,85 @@ public class ProcurementController {
     @PostMapping("/orders/{orderId}/receive")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
     @ResponseStatus(HttpStatus.CREATED)
-    ReceivingResponse receive(@PathVariable UUID budgetId, @PathVariable UUID orderId,
+    ReceivingResponse receive(@PathVariable UUID projectId, @PathVariable UUID orderId,
                               @Valid @RequestBody ReceiveReq req) {
         Receiving r = procurementService.receive(orderId, req.quantityReceived(), req.receivedAt(), req.notes());
         return new ReceivingResponse(r.getId(), r.getQuantityReceived(), r.getReceivedAt(), r.getNotes());
+    }
+
+    // --- Order Approval ---
+
+    @Operation(summary = "Approve a purchase order")
+    @PostMapping("/orders/{orderId}/approve")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    PurchaseOrderResponse approveOrder(@PathVariable UUID projectId, @PathVariable UUID orderId) {
+        return PurchaseOrderResponse.from(procurementService.approveOrder(orderId));
+    }
+
+    @Operation(summary = "Reject a purchase order")
+    @PostMapping("/orders/{orderId}/reject")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    PurchaseOrderResponse rejectOrder(@PathVariable UUID projectId, @PathVariable UUID orderId) {
+        return PurchaseOrderResponse.from(procurementService.rejectOrder(orderId));
+    }
+
+    // --- Overdue Orders ---
+
+    @Operation(summary = "List overdue purchase orders (past expected delivery and not fully received)")
+    @GetMapping("/orders/overdue")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    List<PurchaseOrderResponse> overdueOrders(@PathVariable UUID projectId) {
+        return procurementService.findOverdueOrders(projectId).stream().map(PurchaseOrderResponse::from).toList();
+    }
+
+    // --- Reports ---
+
+    @Operation(summary = "Quotation comparative map PDF")
+    @GetMapping(value = "/quotations/{quotationId}/reports/comparative-map.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    ResponseEntity<byte[]> comparativeMapReport(@PathVariable UUID projectId, @PathVariable UUID quotationId) {
+        byte[] pdf = procurementReportService.generateComparativeMapPdf(quotationId);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=comparative-map-" + quotationId + ".pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+    }
+
+    @Operation(summary = "Purchase order PDF")
+    @GetMapping(value = "/orders/{orderId}/reports/order.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    ResponseEntity<byte[]> orderReport(@PathVariable UUID projectId, @PathVariable UUID orderId) {
+        byte[] pdf = procurementReportService.generatePurchaseOrderPdf(orderId);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=purchase-order-" + orderId + ".pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+    }
+
+    // --- Cost Distribution ---
+
+    @Operation(summary = "Set cost code distribution for a purchase order")
+    @PostMapping("/orders/{orderId}/cost-distribution")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @ResponseStatus(HttpStatus.CREATED)
+    List<CostDistributionResponse> setCostDistribution(@PathVariable UUID projectId, @PathVariable UUID orderId,
+                                                       @Valid @RequestBody List<CostDistributionRequest> distributions) {
+        var order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new com.sinapipro.api.shared.error.DomainNotFoundException("Order not found: " + orderId));
+        costDistributionRepository.findByPurchaseOrderId(orderId).forEach(costDistributionRepository::delete);
+        return distributions.stream().map(d -> {
+            var amount = order.getTotalAmount().multiply(d.percentage());
+            var dist = costDistributionRepository.save(new PurchaseOrderCostDistribution(order, d.costCodeId(), d.percentage(), amount));
+            return new CostDistributionResponse(dist.getId(), dist.getCostCodeId(), dist.getPercentage(), dist.getAmount());
+        }).toList();
+    }
+
+    @Operation(summary = "Get cost distribution for a purchase order")
+    @GetMapping("/orders/{orderId}/cost-distribution")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    List<CostDistributionResponse> getCostDistribution(@PathVariable UUID projectId, @PathVariable UUID orderId) {
+        return costDistributionRepository.findByPurchaseOrderId(orderId).stream()
+                .map(d -> new CostDistributionResponse(d.getId(), d.getCostCodeId(), d.getPercentage(), d.getAmount())).toList();
     }
 
     // --- DTOs ---
@@ -153,4 +239,7 @@ public class ProcurementController {
     }
 
     record ReceivingResponse(UUID id, BigDecimal quantityReceived, LocalDate receivedAt, String notes) {}
+
+    record CostDistributionRequest(@NotNull UUID costCodeId, @NotNull BigDecimal percentage) {}
+    record CostDistributionResponse(UUID id, UUID costCodeId, BigDecimal percentage, BigDecimal amount) {}
 }

@@ -1,6 +1,5 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '@env/environment';
 
 export interface EvmData {
   pv: number;
@@ -13,9 +12,16 @@ export interface EvmData {
 @Injectable({ providedIn: 'root' })
 export class AnalyticsService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.baseUrl}/analytics`;
 
-  getEvm(budgetId: string) {
-    return this.http.get<EvmData>(`${this.baseUrl}/evm/${budgetId}`);
+  getPortfolio() {
+    return this.http.get<any>('/analytics/portfolio');
+  }
+
+  getEvm(projectId: string) {
+    return this.http.get<EvmData>(`/analytics/projects/${projectId}/earned-value`);
+  }
+
+  getCashFlow(projectId: string) {
+    return this.http.get<any>(`/analytics/projects/${projectId}/cash-flow`);
   }
 }

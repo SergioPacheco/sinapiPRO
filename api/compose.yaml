@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:17.5
+    image: postgres:16
     container_name: sinapipro-postgres
     environment:
       POSTGRES_DB: sinapipro

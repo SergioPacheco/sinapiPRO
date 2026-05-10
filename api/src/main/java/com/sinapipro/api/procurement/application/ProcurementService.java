@@ -169,6 +169,26 @@ public class ProcurementService {
         return orderRepository.findByBudgetId(budgetId, pageable);
     }
 
+    @Transactional
+    public PurchaseOrder approveOrder(UUID orderId) {
+        var order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new DomainNotFoundException("Purchase order not found: " + orderId));
+        order.approve();
+        return orderRepository.save(order);
+    }
+
+    @Transactional
+    public PurchaseOrder rejectOrder(UUID orderId) {
+        var order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new DomainNotFoundException("Purchase order not found: " + orderId));
+        order.reject();
+        return orderRepository.save(order);
+    }
+
+    public List<PurchaseOrder> findOverdueOrders(UUID budgetId) {
+        return orderRepository.findOverdue(budgetId, LocalDate.now());
+    }
+
     public record SupplierQuote(UUID responseId, String supplierName, BigDecimal unitPrice, Integer deliveryDays) {}
     public record ComparativeAnalysis(List<SupplierQuote> quotes, SupplierQuote bestPrice) {}
 }

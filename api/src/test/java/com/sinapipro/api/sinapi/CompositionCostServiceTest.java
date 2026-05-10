@@ -56,8 +56,8 @@ class CompositionCostServiceTest {
         when(compositionRepository.findById(compositionId)).thenReturn(Optional.of(composition));
 
         // Simulate prices: cimento=0.72, areia=95.00
-        MaterialPrice priceCimento = new MaterialPrice(cimento, "RN", LocalDate.of(2026, 1, 1), new BigDecimal("0.7200"));
-        MaterialPrice priceAreia = new MaterialPrice(areia, "RN", LocalDate.of(2026, 1, 1), new BigDecimal("95.0000"));
+        MaterialPrice priceCimento = new MaterialPrice(cimento, "RN", LocalDate.of(2026, 1, 1), new BigDecimal("0.7200"), false);
+        MaterialPrice priceAreia = new MaterialPrice(areia, "RN", LocalDate.of(2026, 1, 1), new BigDecimal("95.0000"), false);
         when(materialRepository.findPricesBatch(anyList(), eq("RN"), eq(LocalDate.of(2026, 1, 1))))
                 .thenReturn(List.of(priceCimento, priceAreia));
 

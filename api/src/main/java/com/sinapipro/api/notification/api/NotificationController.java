@@ -24,10 +24,10 @@ public class NotificationController {
     public NotificationController(NotificationService notificationService) { this.notificationService = notificationService; }
 
     @Operation(summary = "Generate alerts for a budget (scans RFIs, equipment, contracts)")
-    @PostMapping("/budgets/{budgetId}/notifications/generate")
+    @PostMapping("/projects/{projectId}/notifications/generate")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
-    List<NotificationResponse> generate(@PathVariable UUID budgetId) {
-        return notificationService.generateAlerts(budgetId).stream().map(NotificationResponse::from).toList();
+    List<NotificationResponse> generate(@PathVariable UUID projectId) {
+        return notificationService.generateAlerts(projectId).stream().map(NotificationResponse::from).toList();
     }
 
     @Operation(summary = "Get unread notifications for a user")

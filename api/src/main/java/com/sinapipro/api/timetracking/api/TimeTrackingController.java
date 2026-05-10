@@ -20,7 +20,7 @@ import java.util.UUID;
 
 @Tag(name = "Time Tracking", description = "Timesheets and labor productivity metrics")
 @RestController
-@RequestMapping("/api/v1/budgets/{budgetId}/timesheets")
+@RequestMapping("/api/v1/projects/{projectId}/timesheets")
 public class TimeTrackingController {
 
     private final TimesheetRepository repository;
@@ -33,14 +33,14 @@ public class TimeTrackingController {
 
     @Operation(summary = "List timesheet entries") @GetMapping
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
-    PageResponse<TimesheetResponse> list(@PathVariable UUID budgetId, @PageableDefault(size = 50) Pageable pageable) {
-        return PageResponse.from(repository.findByBudgetId(budgetId, pageable).map(TimesheetResponse::from));
+    PageResponse<TimesheetResponse> list(@PathVariable UUID projectId, @PageableDefault(size = 50) Pageable pageable) {
+        return PageResponse.from(repository.findByBudgetId(projectId, pageable).map(TimesheetResponse::from));
     }
 
     @Operation(summary = "Record timesheet entry") @PostMapping
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')") @ResponseStatus(HttpStatus.CREATED)
-    TimesheetResponse record(@PathVariable UUID budgetId, @Valid @RequestBody CreateTimesheetRequest req) {
-        TimesheetEntry entry = repository.save(new TimesheetEntry(budgetId, req.costCodeId(), req.workerName(),
+    TimesheetResponse record(@PathVariable UUID projectId, @Valid @RequestBody CreateTimesheetRequest req) {
+        TimesheetEntry entry = repository.save(new TimesheetEntry(projectId, req.costCodeId(), req.workerName(),
                 req.role(), req.workDate(), req.regularHours(), req.overtimeHours() != null ? req.overtimeHours() : BigDecimal.ZERO,
                 req.hourlyRate(), req.unitsProduced(), req.unitType(), req.notes()));
         return TimesheetResponse.from(entry);
@@ -48,8 +48,8 @@ public class TimeTrackingController {
 
     @Operation(summary = "Labor productivity report (hours/unit, cost by role)") @GetMapping("/productivity")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
-    LaborProductivityService.ProductivityReport productivity(@PathVariable UUID budgetId) {
-        return productivityService.calculate(budgetId);
+    LaborProductivityService.ProductivityReport productivity(@PathVariable UUID projectId) {
+        return productivityService.calculate(projectId);
     }
 
     record CreateTimesheetRequest(@NotBlank String workerName, @NotBlank String role, @NotNull LocalDate workDate,

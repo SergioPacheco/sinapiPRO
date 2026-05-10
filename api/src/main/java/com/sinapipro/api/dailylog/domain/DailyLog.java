@@ -37,6 +37,9 @@ public class DailyLog extends AuditableEntity {
     @OneToMany(mappedBy = "dailyLog", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DailyLogOccurrence> occurrences = new ArrayList<>();
 
+    @OneToMany(mappedBy = "dailyLog", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DailyLogPhoto> photos = new ArrayList<>();
+
     protected DailyLog() {}
 
     public DailyLog(Budget budget, LocalDate logDate, String weatherMorning, String weatherAfternoon, String observations) {
@@ -55,4 +58,5 @@ public class DailyLog extends AuditableEntity {
     public List<DailyLogLabor> getLaborEntries() { return laborEntries; }
     public List<DailyLogEquipment> getEquipmentEntries() { return equipmentEntries; }
     public List<DailyLogOccurrence> getOccurrences() { return occurrences; }
+    public List<DailyLogPhoto> getPhotos() { return photos; }
 }

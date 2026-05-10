@@ -7,14 +7,14 @@
     <mat-card-content>
       <form class="form-field-full" [formGroup]="loginForm">
         <mat-form-field appearance="outline">
-          <mat-label>{{ 'username' | translate }}: admin@sinapipro.com</mat-label>
-          <input matInput placeholder="admin@sinapipro.com" formControlName="username" required />
+          <mat-label>{{ 'username' | translate }}: admin@sinapipro.dev</mat-label>
+          <input matInput placeholder="admin@sinapipro.dev" formControlName="username" required />
           @if (username.invalid) {
             <mat-error>
               @if (username.errors?.required) {
                 <span>
                   {{ 'please_enter' | translate }}
-                  <strong>admin&#64;sinapipro.com</strong>
+                  <strong>admin&#64;sinapipro.dev</strong>
                 </span>
               }
               @if (username.errors?.remote) {
@@ -25,10 +25,10 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>{{ 'password' | translate }}: admin123</mat-label>
+          <mat-label>{{ 'password' | translate }}: SinapiPro#2026</mat-label>
           <input
             matInput
-            placeholder="admin123"
+            placeholder="SinapiPro#2026"
             type="password"
             formControlName="password"
             required
@@ -38,7 +38,7 @@
               @if (password.errors?.required) {
                 <span>
                   {{ 'please_enter' | translate }}
-                  <strong>ng-matero</strong>
+                  <strong>SinapiPro#2026</strong>
                 </span>
               }
               @if (password.errors?.remote) {

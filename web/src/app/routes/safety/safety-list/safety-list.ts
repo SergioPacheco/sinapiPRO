@@ -47,7 +47,7 @@ export class SafetyListComponent implements OnInit {
 
   loadData() {
     this.isLoading = true;
-    this.service.listIncidents(this.query.page, this.query.size).subscribe({
+    this.service.listTemplates(this.query.page, this.query.size).subscribe({
       next: res => {
         this.list = res.content;
         this.total = res.totalElements;

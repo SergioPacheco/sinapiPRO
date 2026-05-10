@@ -1,0 +1,12 @@
+.git
+.codex
+.agents
+.kiro
+.idea
+.vscode
+api/target
+web/node_modules
+web/dist
+web/.angular
+**/.DS_Store
+**/Thumbs.db

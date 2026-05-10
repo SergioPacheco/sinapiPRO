@@ -10,12 +10,19 @@ export function hasHttpScheme(url: string) {
 export function baseUrlInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) {
   const baseUrl = inject(BASE_URL, { optional: true });
 
+  const isStaticAsset = (url: string) => /^(i18n|data|assets)\//.test(url.replace(/^\.?\//, ''));
   const hasScheme = (url: string) => baseUrl && hasHttpScheme(url);
+  const hasBaseUrl = (url: string) => {
+    if (!baseUrl) {
+      return false;
+    }
+    return new RegExp(`^${baseUrl.replace(/\/$/, '')}(/|$)`, 'i').test(url);
+  };
 
   const prependBaseUrl = (url: string) =>
     [baseUrl?.replace(/\/$/g, ''), url.replace(/^\.?\//, '')].filter(val => val).join('/');
 
-  return hasScheme(req.url) === false
+  return hasScheme(req.url) === false && !hasBaseUrl(req.url) && !isStaticAsset(req.url)
     ? next(req.clone({ url: prependBaseUrl(req.url) }))
     : next(req);
 }

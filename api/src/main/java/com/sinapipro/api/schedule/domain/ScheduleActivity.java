@@ -67,4 +67,9 @@ public class ScheduleActivity extends AuditableEntity {
         this.actualStart = actualStart;
         this.actualEnd = actualEnd;
     }
+
+    public void updateDates(LocalDate plannedStart, LocalDate plannedEnd) {
+        this.plannedStart = plannedStart;
+        this.plannedEnd = plannedEnd;
+    }
 }

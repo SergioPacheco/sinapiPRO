@@ -7,7 +7,9 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
@@ -66,8 +68,9 @@ public class JwtTokenService {
         Instant accessTokenExpiresAt = now.plus(properties.accessToken().ttl());
         Instant refreshTokenExpiresAt = now.plus(properties.refreshToken().ttl());
 
-        String accessToken = jwtEncoder.encode(JwtEncoderParameters.from(accessClaims(subject, roles, now, accessTokenExpiresAt))).getTokenValue();
-        String refreshToken = jwtEncoder.encode(JwtEncoderParameters.from(refreshClaims(subject, roles, now, refreshTokenExpiresAt))).getTokenValue();
+        JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
+        String accessToken = jwtEncoder.encode(JwtEncoderParameters.from(header, accessClaims(subject, roles, now, accessTokenExpiresAt))).getTokenValue();
+        String refreshToken = jwtEncoder.encode(JwtEncoderParameters.from(header, refreshClaims(subject, roles, now, refreshTokenExpiresAt))).getTokenValue();
 
         return new TokenResponse(accessToken, refreshToken, "Bearer", accessTokenExpiresAt, refreshTokenExpiresAt);
     }

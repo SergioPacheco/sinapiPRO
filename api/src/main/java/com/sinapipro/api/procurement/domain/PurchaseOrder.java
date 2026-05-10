@@ -43,6 +43,9 @@ public class PurchaseOrder extends AuditableEntity {
     @Column(nullable = false, length = 20)
     private String status;
 
+    @Column(name = "expected_delivery_date")
+    private java.time.LocalDate expectedDeliveryDate;
+
     @OneToMany(mappedBy = "purchaseOrder", cascade = CascadeType.ALL)
     private List<Receiving> receivings = new ArrayList<>();
 
@@ -76,6 +79,19 @@ public class PurchaseOrder extends AuditableEntity {
 
     public BigDecimal getReceivedQuantity() {
         return receivings.stream().map(Receiving::getQuantityReceived).reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public java.time.LocalDate getExpectedDeliveryDate() { return expectedDeliveryDate; }
+    public void setExpectedDeliveryDate(java.time.LocalDate date) { this.expectedDeliveryDate = date; }
+
+    public void approve() {
+        if (!"PENDING".equals(status)) throw new IllegalStateException("Can only approve PENDING orders");
+        this.status = "APPROVED";
+    }
+
+    public void reject() {
+        if (!"PENDING".equals(status)) throw new IllegalStateException("Can only reject PENDING orders");
+        this.status = "REJECTED";
     }
 
     public void markPartiallyReceived() { this.status = "PARTIAL"; }

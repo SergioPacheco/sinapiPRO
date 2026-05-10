@@ -1,6 +1,7 @@
 package com.sinapipro.api.measurement;
 
 import com.sinapipro.api.budget.domain.Budget;
+import com.sinapipro.api.budget.domain.BudgetItemRepository;
 import com.sinapipro.api.budget.domain.BudgetRepository;
 import com.sinapipro.api.invoice.domain.InvoiceRepository;
 import com.sinapipro.api.jobcosting.domain.CostCode;
@@ -32,6 +33,7 @@ class MeasurementServiceTest {
 
     @Mock MeasurementRepository measurementRepository;
     @Mock BudgetRepository budgetRepository;
+    @Mock BudgetItemRepository budgetItemRepository;
     @Mock CostCodeRepository costCodeRepository;
     @Mock CostTransactionRepository costTransactionRepository;
     @Mock InvoiceRepository invoiceRepository;
@@ -40,7 +42,7 @@ class MeasurementServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new MeasurementService(measurementRepository, budgetRepository, costCodeRepository,
+        service = new MeasurementService(measurementRepository, budgetRepository, budgetItemRepository, costCodeRepository,
                 costTransactionRepository, invoiceRepository);
     }
 
@@ -109,10 +111,10 @@ class MeasurementServiceTest {
         Measurement approved = new Measurement(budget, 1, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 31), new BigDecimal("0.10"));
         approved.submit();
         approved.approve();
-        approved.getItems().add(new MeasurementItem(approved, null, "Item 1", new BigDecimal("5"), new BigDecimal("200")));
+        approved.getItems().add(new MeasurementItem(approved, (UUID) null, "Item 1", new BigDecimal("5"), new BigDecimal("200")));
 
         Measurement draft = new Measurement(budget, 2, LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 28), new BigDecimal("0.10"));
-        draft.getItems().add(new MeasurementItem(draft, null, "Item 2", new BigDecimal("10"), new BigDecimal("100")));
+        draft.getItems().add(new MeasurementItem(draft, (UUID) null, "Item 2", new BigDecimal("10"), new BigDecimal("100")));
 
         when(measurementRepository.findByBudgetIdOrderByNumberDesc(budgetId)).thenReturn(List.of(draft, approved));
 
@@ -133,7 +135,7 @@ class MeasurementServiceTest {
         Measurement m = new Measurement(budget, 1, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 31), BigDecimal.ZERO);
         m.submit();
         m.approve();
-        m.getItems().add(new MeasurementItem(m, null, "Item", new BigDecimal("10"), new BigDecimal("100")));
+        m.getItems().add(new MeasurementItem(m, (UUID) null, "Item", new BigDecimal("10"), new BigDecimal("100")));
 
         when(measurementRepository.findByBudgetIdOrderByNumberDesc(budgetId)).thenReturn(List.of(m));
 

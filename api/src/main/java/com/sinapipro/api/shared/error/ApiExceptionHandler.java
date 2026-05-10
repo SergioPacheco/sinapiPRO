@@ -65,7 +65,7 @@ public class ApiExceptionHandler {
         return problem;
     }
 
-    @ExceptionHandler({JwtException.class, AccessDeniedException.class})
+    @ExceptionHandler({JwtException.class, AccessDeniedException.class, org.springframework.security.core.AuthenticationException.class})
     ProblemDetail handleSecurity(Exception exception, HttpServletRequest request) {
         var status = switch (exception) {
             case AccessDeniedException _ -> HttpStatus.FORBIDDEN;

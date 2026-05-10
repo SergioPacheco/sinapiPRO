@@ -28,16 +28,16 @@ export function errorInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn)
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (errorPages.includes(error.status)) {
-        router.navigateByUrl(`/${error.status}`, {
-          skipLocationChange: true,
-        });
+      if (error.status === STATUS.UNAUTHORIZED) {
+        router.navigateByUrl('/auth/login');
+      } else if (!req.url.includes('/api/')) {
+        // Only redirect to error pages for non-API navigation failures
+        if (errorPages.includes(error.status)) {
+          router.navigateByUrl(`/${error.status}`, { skipLocationChange: true });
+        }
       } else {
         console.error('ERROR', error);
         toast.error(getMessage(error));
-        if (error.status === STATUS.UNAUTHORIZED) {
-          router.navigateByUrl('/auth/login');
-        }
       }
 
       return throwError(() => error);

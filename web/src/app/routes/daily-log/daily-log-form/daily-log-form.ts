@@ -1,3 +1,4 @@
+import { ActivatedRoute } from '@angular/router';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -17,6 +18,8 @@ import { DailyLogService } from '../services/daily-log.service';
 export class DailyLogFormComponent {
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(DailyLogService);
+  private readonly route = inject(ActivatedRoute);
+  private projectId = '';
   readonly router = inject(Router);
 
   form = this.fb.nonNullable.group({
@@ -32,6 +35,6 @@ export class DailyLogFormComponent {
 
   onSubmit() {
     if (this.form.invalid) return;
-    this.service.create(this.form.getRawValue()).subscribe(() => this.router.navigate(['/daily-log']));
+    this.projectId = this.route.parent!.parent!.snapshot.paramMap.get('projectId')!; this.service.create(this.projectId, this.form.getRawValue()).subscribe(() => this.router.navigate(['/daily-log']));
   }
 }

@@ -37,7 +37,7 @@ cd web
 nvm use 22
 npx ng serve
 # http://localhost:4200 (proxy /api/v1 → :8080)
-# Login: admin@sinapipro.com / admin123
+# Login: admin@sinapipro.dev / SinapiPro#2026
 ```
 
 O Spring Boot Docker Compose inicia o PostgreSQL automaticamente (`compose.yaml`):

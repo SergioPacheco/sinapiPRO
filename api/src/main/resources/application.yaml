@@ -35,10 +35,16 @@ spring:
   mvc:
     problemdetails:
       enabled: true
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
 
 server:
   port: 8080
   shutdown: graceful
+  tomcat:
+    connection-timeout: 300s
 
 management:
   server:
@@ -85,7 +91,7 @@ sinapipro:
         - ADMIN
         - USER
     access-token:
-      ttl: PT20M
+      ttl: PT8H
       scope: sinapipro.read sinapipro.write
     refresh-token:
       ttl: P14D

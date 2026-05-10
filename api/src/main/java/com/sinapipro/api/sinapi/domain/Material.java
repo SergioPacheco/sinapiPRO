@@ -39,4 +39,11 @@ public class Material extends AuditableEntity {
     public String getUnit() { return unit; }
     public String getOrigin() { return origin; }
     public List<MaterialPrice> getPrices() { return prices; }
+
+    public void update(String description, String unit) {
+        this.description = description;
+        this.unit = unit;
+    }
+
+    public boolean isEditable() { return "PROPRIO".equals(origin); }
 }

@@ -12,12 +12,19 @@ public record CompositionResponse(
         String description,
         String unit,
         String groupName,
+        String origin,
+        boolean editable,
         List<ItemResponse> items,
         Instant createdAt
 ) {
     public static CompositionResponse from(Composition c) {
         return new CompositionResponse(c.getId(), c.getSinapiCode(), c.getDescription(),
-                c.getUnit(), c.getGroupName(),
+                c.getUnit(), c.getGroupName(), c.getOrigin(), c.isEditable(), null, c.getCreatedAt());
+    }
+
+    public static CompositionResponse fromWithItems(Composition c) {
+        return new CompositionResponse(c.getId(), c.getSinapiCode(), c.getDescription(),
+                c.getUnit(), c.getGroupName(), c.getOrigin(), c.isEditable(),
                 c.getItems().stream().map(i -> new ItemResponse(
                         i.getMaterial().getSinapiCode(),
                         i.getMaterial().getDescription(),

@@ -17,10 +17,23 @@ public interface MaterialRepository extends JpaRepository<Material, UUID> {
 
     @Query(value = """
             SELECT m.* FROM material m
-            WHERE m.search_vector @@ plainto_tsquery('portuguese', :query)
-            ORDER BY ts_rank(m.search_vector, plainto_tsquery('portuguese', :query)) DESC
+            WHERE (:query IS NULL OR m.search_vector @@ plainto_tsquery('portuguese', cast(:query as text)))
+              AND (:origin IS NULL OR m.origin = cast(:origin as text))
+              AND (:unit IS NULL OR m.unit = cast(:unit as text))
+            ORDER BY CASE WHEN :query IS NOT NULL THEN ts_rank(m.search_vector, plainto_tsquery('portuguese', cast(:query as text))) ELSE 0 END DESC, m.sinapi_code
+            """, countQuery = """
+            SELECT count(*) FROM material m
+            WHERE (:query IS NULL OR m.search_vector @@ plainto_tsquery('portuguese', cast(:query as text)))
+              AND (:origin IS NULL OR m.origin = cast(:origin as text))
+              AND (:unit IS NULL OR m.unit = cast(:unit as text))
             """, nativeQuery = true)
-    Page<Material> fullTextSearch(String query, Pageable pageable);
+    Page<Material> findFiltered(String query, String origin, String unit, Pageable pageable);
+
+    @Query(value = "SELECT DISTINCT m.unit FROM material m ORDER BY m.unit", nativeQuery = true)
+    List<String> findDistinctUnits();
+
+    @Query(value = "SELECT DISTINCT m.origin FROM material m ORDER BY m.origin", nativeQuery = true)
+    List<String> findDistinctOrigins();
 
     @Query("""
             SELECT mp.price FROM MaterialPrice mp

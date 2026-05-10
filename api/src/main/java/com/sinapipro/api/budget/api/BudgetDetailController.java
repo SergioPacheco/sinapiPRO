@@ -2,9 +2,13 @@ package com.sinapipro.api.budget.api;
 
 import com.sinapipro.api.budget.application.AbcCurveService;
 import com.sinapipro.api.budget.application.BudgetCalculationService;
+import com.sinapipro.api.budget.application.BudgetReportService;
 import com.sinapipro.api.budget.application.PriceAdjustmentService;
 import com.sinapipro.api.budget.domain.*;
+import com.sinapipro.api.config.settings.AppSettings;
+import com.sinapipro.api.config.settings.AppSettingsRepository;
 import com.sinapipro.api.shared.error.DomainNotFoundException;
+import com.sinapipro.api.sinapi.application.CompositionCostService;
 import com.sinapipro.api.sinapi.domain.Composition;
 import com.sinapipro.api.sinapi.domain.CompositionRepository;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,8 +18,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -37,12 +44,18 @@ public class BudgetDetailController {
     private final BudgetCalculationService calculationService;
     private final AbcCurveService abcCurveService;
     private final PriceAdjustmentService priceAdjustmentService;
+    private final BudgetReportService budgetReportService;
+    private final CompositionCostService compositionCostService;
+    private final AppSettingsRepository settingsRepository;
 
     public BudgetDetailController(BudgetRepository budgetRepository, BudgetStageRepository stageRepository,
                                   BudgetItemRepository itemRepository, BdiConfigRepository bdiConfigRepository,
                                   CompositionRepository compositionRepository,
                                   BudgetCalculationService calculationService, AbcCurveService abcCurveService,
-                                  PriceAdjustmentService priceAdjustmentService) {
+                                  PriceAdjustmentService priceAdjustmentService,
+                                  BudgetReportService budgetReportService,
+                                  CompositionCostService compositionCostService,
+                                  AppSettingsRepository settingsRepository) {
         this.budgetRepository = budgetRepository;
         this.stageRepository = stageRepository;
         this.itemRepository = itemRepository;
@@ -51,9 +64,47 @@ public class BudgetDetailController {
         this.calculationService = calculationService;
         this.abcCurveService = abcCurveService;
         this.priceAdjustmentService = priceAdjustmentService;
+        this.budgetReportService = budgetReportService;
+        this.compositionCostService = compositionCostService;
+        this.settingsRepository = settingsRepository;
     }
 
     // --- Stages ---
+
+    @Operation(summary = "Get full worksheet (tree of stages + items with calculated costs)")
+    @GetMapping("/worksheet")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @Transactional(readOnly = true)
+    WorksheetResponse getWorksheet(@PathVariable UUID budgetId) {
+        var stages = stageRepository.findRootStages(budgetId);
+        var bdi = bdiConfigRepository.findByBudgetId(budgetId).map(BdiConfig::getTotalBdi).orElse(BigDecimal.ZERO);
+        var directCost = itemRepository.sumDirectCostByBudget(budgetId);
+        var bdiAmount = directCost.multiply(bdi).setScale(2, java.math.RoundingMode.HALF_UP);
+        var total = directCost.add(bdiAmount);
+        return new WorksheetResponse(
+                stages.stream().map(this::toStageNode).toList(),
+                directCost, bdi, bdiAmount, total
+        );
+    }
+
+    private WorksheetResponse.StageNode toStageNode(BudgetStage stage) {
+        var items = stage.getItems().stream().map(i -> new WorksheetResponse.ItemNode(
+                i.getId(), i.getComposition().getSinapiCode(), i.getComposition().getDescription(),
+                i.getComposition().getUnit(), i.getQuantity(), i.getUnitCost(), i.getDirectCost(),
+                i.getComposition().getOrigin()
+        )).toList();
+        var children = stage.getChildren().stream().map(this::toStageNode).toList();
+        var stageTotal = stage.getItems().stream()
+                .map(BudgetItem::getDirectCost)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return new WorksheetResponse.StageNode(stage.getId(), stage.getName(), stage.getSortOrder(), items, children, stageTotal);
+    }
+
+    record WorksheetResponse(
+            List<StageNode> stages, BigDecimal directCost, BigDecimal bdiPct, BigDecimal bdiAmount, BigDecimal total) {
+        record StageNode(UUID id, String name, int sortOrder, List<ItemNode> items, List<StageNode> children, BigDecimal subtotal) {}
+        record ItemNode(UUID id, String code, String description, String unit, BigDecimal quantity, BigDecimal unitCost, BigDecimal totalCost, String origin) {}
+    }
 
     @Operation(summary = "List root stages of a budget")
     @GetMapping("/stages")
@@ -91,16 +142,31 @@ public class BudgetDetailController {
         return itemRepository.findByStageId(stageId).stream().map(ItemResponse::from).toList();
     }
 
-    @Operation(summary = "Add item to a stage")
+    @Operation(summary = "Add item to a stage (auto-calculates unit cost from SINAPI if not provided)")
     @PostMapping("/stages/{stageId}/items")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @Transactional
     ResponseEntity<ItemResponse> createItem(@PathVariable UUID budgetId, @PathVariable UUID stageId,
                                             @Valid @RequestBody CreateItemRequest req) {
         BudgetStage stage = stageRepository.findById(stageId)
                 .orElseThrow(() -> new DomainNotFoundException("Stage not found: " + stageId));
         Composition composition = compositionRepository.findById(req.compositionId())
                 .orElseThrow(() -> new DomainNotFoundException("Composition not found: " + req.compositionId()));
-        BudgetItem item = itemRepository.save(new BudgetItem(stage, composition, req.quantity(), req.unitCost(), req.bdiPct()));
+
+        // Auto-calculate unit cost from SINAPI if not provided
+        BigDecimal unitCost = req.unitCost();
+        if (unitCost == null || unitCost.compareTo(BigDecimal.ZERO) == 0) {
+            String state = settingsRepository.findById(AppSettings.DEFAULT_STATE).map(s -> s.getValue()).orElse("SP");
+            String monthStr = settingsRepository.findById(AppSettings.DEFAULT_REFERENCE_MONTH).map(s -> s.getValue()).orElse("2024-12-01");
+            LocalDate month = LocalDate.parse(monthStr);
+            var costResult = compositionCostService.calculateCost(composition.getId(), state, month);
+            unitCost = costResult.totalUnitCost();
+        }
+
+        BigDecimal bdiPct = req.bdiPct() != null ? req.bdiPct() :
+                bdiConfigRepository.findByBudgetId(budgetId).map(BdiConfig::getTotalBdi).orElse(BigDecimal.ZERO);
+
+        BudgetItem item = itemRepository.save(new BudgetItem(stage, composition, req.quantity(), unitCost, bdiPct));
         return ResponseEntity.status(HttpStatus.CREATED).body(ItemResponse.from(item));
     }
 
@@ -110,6 +176,38 @@ public class BudgetDetailController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteItem(@PathVariable UUID budgetId, @PathVariable UUID itemId) {
         itemRepository.deleteById(itemId);
+    }
+
+    @Operation(summary = "Bulk add items to a stage (fast entry mode)")
+    @PostMapping("/stages/{stageId}/items/bulk")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @Transactional
+    ResponseEntity<BulkAddResult> bulkAddItems(@PathVariable UUID budgetId, @PathVariable UUID stageId,
+                                               @Valid @RequestBody List<CreateItemRequest> items) {
+        BudgetStage stage = stageRepository.findById(stageId)
+                .orElseThrow(() -> new DomainNotFoundException("Stage not found: " + stageId));
+        BigDecimal defaultBdi = bdiConfigRepository.findByBudgetId(budgetId)
+                .map(BdiConfig::getTotalBdi).orElse(BigDecimal.ZERO);
+        String state = settingsRepository.findById(AppSettings.DEFAULT_STATE).map(s -> s.getValue()).orElse("SP");
+        String monthStr = settingsRepository.findById(AppSettings.DEFAULT_REFERENCE_MONTH).map(s -> s.getValue()).orElse("2024-12-01");
+        LocalDate month = LocalDate.parse(monthStr);
+
+        int added = 0;
+        int skipped = 0;
+        for (var req : items) {
+            Composition composition = compositionRepository.findById(req.compositionId()).orElse(null);
+            if (composition == null) { skipped++; continue; }
+
+            BigDecimal unitCost = req.unitCost();
+            if (unitCost == null || unitCost.compareTo(BigDecimal.ZERO) == 0) {
+                var costResult = compositionCostService.calculateCost(composition.getId(), state, month);
+                unitCost = costResult.totalUnitCost();
+            }
+            BigDecimal bdiPct = req.bdiPct() != null ? req.bdiPct() : defaultBdi;
+            itemRepository.save(new BudgetItem(stage, composition, req.quantity(), unitCost, bdiPct));
+            added++;
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(new BulkAddResult(added, skipped, items.size()));
     }
 
     // --- BDI ---
@@ -156,6 +254,42 @@ public class BudgetDetailController {
         return abcCurveService.calculateAbcCurve(budgetId);
     }
 
+    @Operation(summary = "ABC curve of services for this budget")
+    @GetMapping("/abc-curve/services")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    List<AbcCurveService.ServiceAbcEntry> serviceAbcCurve(@PathVariable UUID budgetId) {
+        return abcCurveService.calculateServiceAbcCurve(budgetId);
+    }
+
+    @Operation(summary = "Worksheet report data (structured budget breakdown)")
+    @GetMapping("/reports/worksheet")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    BudgetReportService.WorksheetReport worksheetReport(@PathVariable UUID budgetId) {
+        return budgetReportService.buildWorksheetReport(budgetId);
+    }
+
+    @Operation(summary = "Synthetic worksheet PDF")
+    @GetMapping(value = "/reports/worksheet.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    ResponseEntity<byte[]> worksheetReportPdf(@PathVariable UUID budgetId) {
+        byte[] pdf = budgetReportService.generateSyntheticWorksheetPdf(budgetId);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=budget-worksheet-" + budgetId + ".pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+    }
+
+    @Operation(summary = "Service ABC curve PDF")
+    @GetMapping(value = "/reports/abc-services.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    ResponseEntity<byte[]> serviceAbcReportPdf(@PathVariable UUID budgetId) {
+        byte[] pdf = budgetReportService.generateServiceAbcPdf(budgetId);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=budget-abc-services-" + budgetId + ".pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+    }
+
     // --- Price Adjustment ---
 
     @Operation(summary = "Adjust prices in batch (by percentage, value, or SINAPI reference)")
@@ -174,7 +308,8 @@ public class BudgetDetailController {
 
     record CreateStageRequest(@NotBlank String name, @NotNull Integer sortOrder, UUID parentId) {}
     record CreateItemRequest(@NotNull UUID compositionId, @NotNull @Positive BigDecimal quantity,
-                             @NotNull @Positive BigDecimal unitCost, @NotNull BigDecimal bdiPct) {}
+                             BigDecimal unitCost, BigDecimal bdiPct) {}
+    record BulkAddResult(int added, int skipped, int total) {}
     record BdiRequest(@NotNull BigDecimal administration, @NotNull BigDecimal profit, @NotNull BigDecimal taxes,
                       @NotNull BigDecimal socialCharges, @NotNull BigDecimal financialExpenses, @NotNull BigDecimal risks) {}
     record PriceAdjustmentRequest(@NotNull PriceAdjustmentService.AdjustmentType type,

@@ -1,20 +1,37 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { environment } from '@env/environment';
-import { ScheduleActivity } from '../models/schedule.model';
-import { PageResponse } from '../../budget/services/budget.service';
+import { ScheduleActivity, SCurveData } from '../models/schedule.model';
 
 @Injectable({ providedIn: 'root' })
 export class ScheduleService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.baseUrl}/schedule`;
 
-  listActivities(page = 0, size = 20) {
-    const params = new HttpParams().set('page', page).set('size', size);
-    return this.http.get<PageResponse<ScheduleActivity>>(`${this.baseUrl}/activities`, { params });
+  private url(projectId: string) { return `/projects/${projectId}/schedule`; }
+
+  listActivities(projectId: string) {
+    return this.http.get<ScheduleActivity[]>(this.url(projectId));
   }
 
-  getCriticalPath() {
-    return this.http.get<ScheduleActivity[]>(`${this.baseUrl}/critical-path`);
+  getSCurve(projectId: string) {
+    return this.http.get<SCurveData>(`${this.url(projectId)}/s-curve`);
+  }
+
+  createActivity(projectId: string, request: {
+    name: string;
+    plannedStart: string;
+    plannedEnd: string;
+    weight: number;
+    sortOrder: number;
+  }) {
+    return this.http.post<ScheduleActivity>(this.url(projectId), request);
+  }
+
+  getCriticalPath(projectId: string) {
+    return this.http.get(`${this.url(projectId)}/critical-path`);
+  }
+
+  physicalFinancialReportUrl(projectId: string) {
+    return `${environment.baseUrl}${this.url(projectId)}/reports/physical-financial.pdf`;
   }
 }

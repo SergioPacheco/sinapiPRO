@@ -1,32 +1,32 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { environment } from '@env/environment';
 import { Contract } from '../models/contract.model';
 import { PageResponse } from '../../budget/services/budget.service';
 
 @Injectable({ providedIn: 'root' })
 export class ContractService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.baseUrl}/contracts`;
 
-  list(page = 0, size = 20) {
+  private url(projectId: string) { return `/projects/${projectId}/contracts`; }
+
+  list(projectId: string, page = 0, size = 20) {
     const params = new HttpParams().set('page', page).set('size', size);
-    return this.http.get<PageResponse<Contract>>(this.baseUrl, { params });
+    return this.http.get<PageResponse<Contract>>(this.url(projectId), { params });
   }
 
-  getById(id: string) {
-    return this.http.get<Contract>(`${this.baseUrl}/${id}`);
+  getById(projectId: string, id: string) {
+    return this.http.get<Contract>(`${this.url(projectId)}/${id}`);
   }
 
-  create(request: Partial<Contract>) {
-    return this.http.post<Contract>(this.baseUrl, request);
+  create(projectId: string, request: Partial<Contract>) {
+    return this.http.post<Contract>(this.url(projectId), request);
   }
 
-  update(id: string, request: Partial<Contract>) {
-    return this.http.put<Contract>(`${this.baseUrl}/${id}`, request);
+  update(projectId: string, id: string, request: Partial<Contract>) {
+    return this.http.put<Contract>(`${this.url(projectId)}/${id}`, request);
   }
 
-  addChangeOrder(contractId: string, changeOrder: any) {
-    return this.http.post(`${this.baseUrl}/${contractId}/change-orders`, changeOrder);
+  addChangeOrder(projectId: string, contractId: string, changeOrder: any) {
+    return this.http.post(`${this.url(projectId)}/${contractId}/change-orders`, changeOrder);
   }
 }

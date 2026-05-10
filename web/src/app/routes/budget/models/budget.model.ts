@@ -1,4 +1,4 @@
-export type BudgetStatus = 'ESTIMATE' | 'SALE' | 'EXECUTION' | 'COMPLETED';
+export type BudgetStatus = 'DRAFT' | 'IN_REVIEW' | 'APPROVED' | 'REJECTED' | 'SUPERSEDED' | 'IN_EXECUTION' | 'COMPLETED' | 'CANCELLED';
 
 export interface Budget {
   id: string;
@@ -7,6 +7,7 @@ export interface Budget {
   customerName: string;
   totalAmount: number;
   status: BudgetStatus;
+  active: boolean;
   startDate: string;
   endDate?: string;
   createdAt: string;

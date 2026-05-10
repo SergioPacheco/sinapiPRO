@@ -18,4 +18,7 @@ public interface CostTransactionRepository extends JpaRepository<CostTransaction
     BigDecimal sumByBudgetAndType(UUID budgetId, CostTransactionType type);
 
     boolean existsByReferenceIdAndType(UUID referenceId, CostTransactionType type);
+
+    @Query("SELECT t FROM CostTransaction t WHERE t.costCode.budget.id = :budgetId ORDER BY t.transactionDate")
+    List<CostTransaction> findByCostCodeBudgetId(UUID budgetId);
 }

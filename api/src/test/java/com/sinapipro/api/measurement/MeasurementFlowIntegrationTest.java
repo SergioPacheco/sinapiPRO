@@ -45,7 +45,7 @@ class MeasurementFlowIntegrationTest {
         // Create measurement with item linked to cost code
         Measurement measurement = measurementService.create(budget.getId(), 1,
                 LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 31), new BigDecimal("0.05"),
-                List.of(new ItemInput(costCode.getId(), "Concrete work", new BigDecimal("10"), new BigDecimal("500"))));
+                List.of(new ItemInput(costCode.getId(), null, "Concrete work", new BigDecimal("10"), new BigDecimal("500"))));
 
         assertThat(measurement.getStatus()).isEqualTo(MeasurementStatus.DRAFT);
 
@@ -71,14 +71,14 @@ class MeasurementFlowIntegrationTest {
         // Create and approve one measurement
         Measurement m1 = measurementService.create(budget.getId(), 1,
                 LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 31), new BigDecimal("0.10"),
-                List.of(new ItemInput(null, "Item A", new BigDecimal("5"), new BigDecimal("1000"))));
+                List.of(new ItemInput(null, null, "Item A", new BigDecimal("5"), new BigDecimal("1000"))));
         measurementService.submit(m1.getId());
         measurementService.approve(m1.getId());
 
         // Create draft measurement (should NOT be in summary)
         measurementService.create(budget.getId(), 2,
                 LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 28), new BigDecimal("0.10"),
-                List.of(new ItemInput(null, "Item B", new BigDecimal("10"), new BigDecimal("2000"))));
+                List.of(new ItemInput(null, null, "Item B", new BigDecimal("10"), new BigDecimal("2000"))));
 
         var summary = measurementService.summary(budget.getId());
 

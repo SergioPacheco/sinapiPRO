@@ -2,7 +2,7 @@ export type MeasurementStatus = 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'PAID';
 
 export interface Measurement {
   id: string;
-  budgetId: string;
+  projectId: string;
   number: number;
   periodStart: string;
   periodEnd: string;
@@ -10,6 +10,7 @@ export interface Measurement {
   retentionPct: number;
   grossAmount: number;
   netAmount: number;
+  items: MeasurementItem[];
   createdAt: string;
 }
 
@@ -20,4 +21,15 @@ export interface MeasurementItem {
   quantity: number;
   unitPrice: number;
   amount: number;
+}
+
+export interface AvailableMeasurementItem {
+  budgetItemId: string;
+  code: string;
+  description: string;
+  unit: string;
+  contractedQuantity: number;
+  previousQuantity: number;
+  balanceQuantity: number;
+  unitPrice: number;
 }

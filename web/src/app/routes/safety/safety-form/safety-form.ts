@@ -21,7 +21,7 @@ export class SafetyFormComponent {
     date: ['', Validators.required],
     description: ['', Validators.required],
     severity: ['LOW' as string, Validators.required],
-    budgetId: [''],
+    projectId: [''],
   });
 
   onSubmit() {

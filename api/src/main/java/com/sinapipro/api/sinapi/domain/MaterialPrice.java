@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
-@Table(name = "material_price", uniqueConstraints = @UniqueConstraint(columnNames = {"material_id", "state", "reference_month"}))
+@Table(name = "material_price", uniqueConstraints = @UniqueConstraint(columnNames = {"material_id", "state", "reference_month", "desonerated"}))
 public class MaterialPrice {
 
     @Id
@@ -28,6 +28,9 @@ public class MaterialPrice {
     @Column(nullable = false, precision = 14, scale = 4)
     private BigDecimal price;
 
+    @Column(nullable = false)
+    private boolean desonerated;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -36,11 +39,12 @@ public class MaterialPrice {
 
     protected MaterialPrice() {}
 
-    public MaterialPrice(Material material, String state, LocalDate referenceMonth, BigDecimal price) {
+    public MaterialPrice(Material material, String state, LocalDate referenceMonth, BigDecimal price, boolean desonerated) {
         this.material = material;
         this.state = state;
         this.referenceMonth = referenceMonth;
         this.price = price;
+        this.desonerated = desonerated;
     }
 
     public UUID getId() { return id; }
@@ -48,4 +52,5 @@ public class MaterialPrice {
     public String getState() { return state; }
     public LocalDate getReferenceMonth() { return referenceMonth; }
     public BigDecimal getPrice() { return price; }
+    public boolean isDesonerated() { return desonerated; }
 }
