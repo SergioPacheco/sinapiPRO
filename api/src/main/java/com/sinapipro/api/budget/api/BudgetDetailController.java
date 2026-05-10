@@ -290,6 +290,17 @@ public class BudgetDetailController {
                 .body(pdf);
     }
 
+    @Operation(summary = "Analytical report PDF — compositions with inputs and coefficients")
+    @GetMapping(value = "/reports/analytical.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    ResponseEntity<byte[]> analyticalReportPdf(@PathVariable UUID budgetId) {
+        byte[] pdf = budgetReportService.generateAnalyticalPdf(budgetId);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=budget-analytical-" + budgetId + ".pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+    }
+
     // --- Price Adjustment ---
 
     @Operation(summary = "Adjust prices in batch (by percentage, value, or SINAPI reference)")

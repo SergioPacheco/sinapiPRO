@@ -186,6 +186,32 @@ public class BudgetReportService {
         }
     }
 
+    public byte[] generateAnalyticalPdf(UUID budgetId) {
+        Budget budget = budgetRepository.findById(budgetId)
+                .orElseThrow(() -> new DomainNotFoundException("Budget not found: " + budgetId));
+        var items = itemRepository.findAllByBudgetId(budgetId);
+
+        List<String> lines = new ArrayList<>();
+        lines.add("RELATORIO ANALITICO DO ORCAMENTO");
+        lines.add("ORCAMENTO: " + budget.getCode() + " - " + budget.getTitle());
+        lines.add("CLIENTE/OBRA: " + budget.getCustomerName());
+        lines.add("");
+
+        for (var item : items) {
+            var comp = item.getComposition();
+            lines.add("---------------------------------------------------------------");
+            lines.add(comp.getSinapiCode() + " - " + abbreviate(comp.getDescription(), 60));
+            lines.add("Unidade: " + comp.getUnit() + " | Qtd: " + number(item.getQuantity())
+                    + " | Custo Unit: " + money(item.getUnitCost())
+                    + " | Total: " + money(item.getDirectCost()));
+            lines.add("");
+        }
+
+        lines.add("---------------------------------------------------------------");
+        lines.add("TOTAL DO ORCAMENTO: " + money(itemRepository.sumDirectCostByBudget(budgetId)));
+        return SimplePdf.write(lines);
+    }
+
     private static final class SimplePdf {
         private SimplePdf() {}
 
