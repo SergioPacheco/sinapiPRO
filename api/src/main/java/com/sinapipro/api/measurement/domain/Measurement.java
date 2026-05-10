@@ -36,6 +36,12 @@ public class Measurement extends AuditableEntity {
     @Column(columnDefinition = "text")
     private String notes;
 
+    @Column(name = "rejection_reason", length = 500)
+    private String rejectionReason;
+
+    @Column(name = "extra_item")
+    private boolean extraItem = false;
+
     @OneToMany(mappedBy = "measurement", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MeasurementItem> items = new ArrayList<>();
 
@@ -82,4 +88,13 @@ public class Measurement extends AuditableEntity {
         if (status != MeasurementStatus.APPROVED) throw new IllegalStateException("Can only pay APPROVED measurements");
         this.status = MeasurementStatus.PAID;
     }
+
+    public void reject(String reason) {
+        if (status != MeasurementStatus.SUBMITTED) throw new IllegalStateException("Can only reject SUBMITTED measurements");
+        this.status = MeasurementStatus.DRAFT;
+        this.rejectionReason = reason;
+    }
+
+    public String getRejectionReason() { return rejectionReason; }
+    public boolean isExtraItem() { return extraItem; }
 }
