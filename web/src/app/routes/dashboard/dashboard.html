@@ -18,16 +18,15 @@
 <div class="kpi-row">
   @for (kpi of kpis(); track kpi.label) {
     <div class="kpi-card">
-      <div class="kpi-top">
-        <mat-icon class="kpi-icon">{{ kpi.icon }}</mat-icon>
+      <span class="kpi-label">{{ kpi.label }}</span>
+      <div class="kpi-main">
+        <span class="kpi-value">{{ kpi.value }}</span>
         @if (kpi.trend) {
           <span class="kpi-trend" [class.positive]="kpi.trend > 0" [class.negative]="kpi.trend < 0">
-            {{ kpi.trend > 0 ? '+' : '' }}{{ kpi.trend }}%
+            {{ kpi.trend > 0 ? '↑' : '↓' }} {{ kpi.trend > 0 ? '+' : '' }}{{ kpi.trend }}%
           </span>
         }
       </div>
-      <span class="kpi-value">{{ kpi.value }}</span>
-      <span class="kpi-label">{{ kpi.label }}</span>
       @if (kpi.progress != null) {
         <div class="kpi-bar"><div class="kpi-bar-fill" [style.width.%]="kpi.progress"></div></div>
       }

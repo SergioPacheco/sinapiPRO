@@ -40,32 +40,28 @@
   }
 }
 
-.kpi-top {
-  display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;
+.kpi-label {
+  font-size: 12px; font-weight: 500; color: var(--mat-sys-on-surface-variant);
+  text-transform: uppercase; letter-spacing: 0.3px;
 }
 
-.kpi-icon {
-  font-size: 20px; width: 20px; height: 20px;
-  color: var(--mat-sys-primary);
-}
-
-.kpi-trend {
-  font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 4px;
-  &.positive { color: #10b981; background: rgba(16, 185, 129, 0.1); }
-  &.negative { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+.kpi-main {
+  display: flex; align-items: baseline; gap: 8px; margin: 4px 0;
 }
 
 .kpi-value {
-  font-size: 26px; font-weight: 700; line-height: 1.1;
+  font-size: 28px; font-weight: 700; line-height: 1.1;
   color: var(--mat-sys-on-surface);
 }
 
-.kpi-label {
-  font-size: 12px; font-weight: 500; color: var(--mat-sys-on-surface-variant);
+.kpi-trend {
+  font-size: 12px; font-weight: 600;
+  &.positive { color: #10b981; }
+  &.negative { color: #ef4444; }
 }
 
 .kpi-bar {
-  height: 4px; border-radius: 2px; margin-top: 8px;
+  height: 4px; border-radius: 2px; margin-top: 6px;
   background: var(--mat-sys-surface-container-highest);
   overflow: hidden;
 }
