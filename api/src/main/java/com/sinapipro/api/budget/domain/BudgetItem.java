@@ -27,6 +27,12 @@ public class BudgetItem extends AuditableEntity {
     @Column(name = "bdi_pct", nullable = false, precision = 6, scale = 4)
     private BigDecimal bdiPct;
 
+    @Column(name = "custom_code", length = 30)
+    private String customCode;
+
+    @Column(name = "price_source", length = 20)
+    private String priceSource = "SINAPI";
+
     protected BudgetItem() {}
 
     public BudgetItem(BudgetStage stage, Composition composition, BigDecimal quantity, BigDecimal unitCost, BigDecimal bdiPct) {
@@ -42,6 +48,10 @@ public class BudgetItem extends AuditableEntity {
     public BigDecimal getQuantity() { return quantity; }
     public BigDecimal getUnitCost() { return unitCost; }
     public BigDecimal getBdiPct() { return bdiPct; }
+    public String getCustomCode() { return customCode; }
+    public void setCustomCode(String customCode) { this.customCode = customCode; }
+    public String getPriceSource() { return priceSource; }
+    public void setPriceSource(String priceSource) { this.priceSource = priceSource; }
 
     public BigDecimal getDirectCost() {
         return quantity.multiply(unitCost);
