@@ -1,4 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
@@ -51,7 +52,7 @@ import { NotificationService, Notification } from '@core/services/notification.s
     .severity-INFO { color: #3b82f6; }
     :host ::ng-deep .mat-badge-content { --mat-badge-background-color: #ef4444; --mat-badge-text-color: #fff; }
   `,
-  imports: [MatBadgeModule, MatButtonModule, MatIconModule, MatMenuModule, MatDividerModule],
+  imports: [MatBadgeModule, MatButtonModule, MatIconModule, MatMenuModule, MatDividerModule, DatePipe],
 })
 export class NotificationButton implements OnInit {
   readonly svc = inject(NotificationService);
