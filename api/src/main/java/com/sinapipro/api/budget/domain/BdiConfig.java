@@ -9,9 +9,12 @@ import java.math.BigDecimal;
 @Table(name = "bdi_config")
 public class BdiConfig extends AuditableEntity {
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "budget_id", nullable = false, unique = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "budget_id", nullable = false)
     private Budget budget;
+
+    @Column(name = "item_type", nullable = false, length = 20)
+    private String itemType = "ALL";
 
     @Column(nullable = false, precision = 6, scale = 4)
     private BigDecimal administration;
@@ -45,6 +48,8 @@ public class BdiConfig extends AuditableEntity {
     }
 
     public Budget getBudget() { return budget; }
+    public String getItemType() { return itemType; }
+    public void setItemType(String itemType) { this.itemType = itemType; }
     public BigDecimal getAdministration() { return administration; }
     public BigDecimal getProfit() { return profit; }
     public BigDecimal getTaxes() { return taxes; }
