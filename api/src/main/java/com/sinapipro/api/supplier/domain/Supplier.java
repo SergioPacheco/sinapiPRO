@@ -2,14 +2,14 @@ package com.sinapipro.api.supplier.domain;
 
 import module java.base;
 
-import com.sinapipro.api.shared.domain.AuditableEntity;
+import com.sinapipro.api.shared.domain.TenantAwareEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "supplier")
-public class Supplier extends AuditableEntity {
+public class Supplier extends TenantAwareEntity {
 
     @Column(nullable = false, unique = true, length = 40)
     private String code;

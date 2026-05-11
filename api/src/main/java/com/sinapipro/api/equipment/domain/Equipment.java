@@ -1,6 +1,6 @@
 package com.sinapipro.api.equipment.domain;
 
-import com.sinapipro.api.shared.domain.AuditableEntity;
+import com.sinapipro.api.shared.domain.TenantAwareEntity;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "equipment")
-public class Equipment extends AuditableEntity {
+public class Equipment extends TenantAwareEntity {
 
     @Column(nullable = false, unique = true, length = 30)
     private String code;

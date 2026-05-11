@@ -1,11 +1,11 @@
 package com.sinapipro.api.registry.domain;
 
-import com.sinapipro.api.shared.domain.AuditableEntity;
+import com.sinapipro.api.shared.domain.TenantAwareEntity;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "client")
-public class Client extends AuditableEntity {
+public class Client extends TenantAwareEntity {
     @Column(nullable = false, length = 200) private String name;
     @Column(length = 20) private String document;
     @Column(length = 200) private String email;

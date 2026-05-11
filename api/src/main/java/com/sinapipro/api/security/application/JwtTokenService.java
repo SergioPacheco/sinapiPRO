@@ -84,6 +84,7 @@ public class JwtTokenService {
                 .claim("scope", properties.accessToken().scope())
                 .claim("roles", roles)
                 .claim("token_type", "access")
+                .claim("tenant_id", properties.defaultTenantId())
                 .build();
     }
 

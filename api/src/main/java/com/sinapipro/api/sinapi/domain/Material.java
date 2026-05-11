@@ -1,6 +1,6 @@
 package com.sinapipro.api.sinapi.domain;
 
-import com.sinapipro.api.shared.domain.AuditableEntity;
+import com.sinapipro.api.shared.domain.TenantAwareEntity;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -8,7 +8,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "material")
-public class Material extends AuditableEntity {
+public class Material extends TenantAwareEntity {
 
     @Column(name = "sinapi_code", nullable = false, unique = true, length = 20)
     private String sinapiCode;

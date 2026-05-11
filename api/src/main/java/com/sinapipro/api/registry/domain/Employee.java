@@ -1,13 +1,13 @@
 package com.sinapipro.api.registry.domain;
 
-import com.sinapipro.api.shared.domain.AuditableEntity;
+import com.sinapipro.api.shared.domain.TenantAwareEntity;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "employee")
-public class Employee extends AuditableEntity {
+public class Employee extends TenantAwareEntity {
     @Column(nullable = false, length = 200) private String name;
     @Column(length = 20) private String document;
     @Column(nullable = false, length = 80) private String role;

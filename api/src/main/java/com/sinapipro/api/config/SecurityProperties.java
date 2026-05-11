@@ -10,6 +10,7 @@ import java.util.List;
 public record SecurityProperties(
         @DefaultValue("sinapipro") String issuer,
         @DefaultValue("0123456789abcdef0123456789abcdef0123456789abcdef") String secret,
+        @DefaultValue("00000000-0000-0000-0000-000000000001") String defaultTenantId,
         DemoUser demoUser,
         AccessToken accessToken,
         RefreshToken refreshToken
