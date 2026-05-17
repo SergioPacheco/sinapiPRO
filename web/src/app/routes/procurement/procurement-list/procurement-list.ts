@@ -10,6 +10,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MtxGridColumn, MtxGridModule } from '@ng-matero/extensions/grid';
 import { map } from 'rxjs';
 import { PageHeader, LookupFieldComponent, SearchDialogComponent, QuickCreateDialogComponent } from '@shared';
+import { NextActionService } from '@shared';
 import { ProcurementService } from '../services/procurement.service';
 import { PurchaseOrder } from '../models/procurement.model';
 import { SupplierService } from '../../supplier/services/supplier.service';
@@ -36,6 +37,7 @@ export class ProcurementListComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
+  private readonly nextAction = inject(NextActionService);
   private projectId = '';
 
   @ViewChild('supplierFormTpl') supplierFormTpl!: TemplateRef<any>;
@@ -75,6 +77,13 @@ export class ProcurementListComponent implements OnInit {
       width: '140px',
       type: 'button',
       buttons: [
+        {
+          type: 'icon',
+          icon: 'local_shipping',
+          tooltip: 'Registrar recebimento',
+          iif: (record: PurchaseOrder) => record.status !== 'RECEIVED',
+          click: (record: PurchaseOrder) => this.openReceive(record),
+        },
         {
           type: 'icon',
           icon: 'picture_as_pdf',
@@ -163,6 +172,20 @@ export class ProcurementListComponent implements OnInit {
 
   removeAbcItem(index: number) {
     this.abcItems = this.abcItems.filter((_, i) => i !== index);
+  }
+
+  // --- Receive Order ---
+  openReceive(order: PurchaseOrder) {
+    const qty = prompt(`Quantidade recebida (pedido: ${order.quantity}):`, String(order.quantity));
+    if (!qty || isNaN(Number(qty))) return;
+    this.service.receive(this.projectId, order.id, {
+      quantityReceived: Number(qty),
+      receivedAt: new Date().toISOString().split('T')[0],
+      notes: '',
+    }).subscribe(() => {
+      this.loadData();
+      this.nextAction.suggest('order.received');
+    });
   }
 
   // --- Supplier Lookup ---

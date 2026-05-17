@@ -1,11 +1,13 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { MatDialogModule, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
+import { Subject, debounceTime, switchMap, of } from 'rxjs';
 
 interface PaletteAction {
   id: string;
@@ -13,6 +15,7 @@ interface PaletteAction {
   icon: string;
   route: string;
   keywords: string;
+  subtitle?: string;
 }
 
 const ACTIONS: PaletteAction[] = [
@@ -42,7 +45,7 @@ const ACTIONS: PaletteAction[] = [
     <div class="palette-container">
       <div class="palette-search">
         <mat-icon>search</mat-icon>
-        <input type="text" [(ngModel)]="query" (ngModelChange)="filter()" placeholder="Buscar ação ou página..." autofocus
+        <input type="text" [(ngModel)]="query" (ngModelChange)="filter()" placeholder="Buscar ação, página ou obra..." autofocus
                (keydown.arrowdown)="moveDown()" (keydown.arrowup)="moveUp()" (keydown.enter)="execute()" />
         <span class="shortcut">ESC</span>
       </div>
@@ -51,6 +54,7 @@ const ACTIONS: PaletteAction[] = [
           <a mat-list-item (click)="go(action)" [class.active]="i === selectedIndex">
             <mat-icon matListItemIcon>{{ action.icon }}</mat-icon>
             <span matListItemTitle>{{ action.label }}</span>
+            @if (action.subtitle) { <span matListItemLine class="subtitle">{{ action.subtitle }}</span> }
           </a>
         }
         @if (filtered.length === 0 && query) {
@@ -67,23 +71,53 @@ const ACTIONS: PaletteAction[] = [
     .shortcut { font-size: 11px; padding: 2px 6px; border-radius: 4px; background: var(--mat-sys-surface-container-highest); color: var(--mat-sys-on-surface-variant); }
     .palette-results { max-height: 340px; overflow-y: auto; padding: 8px; }
     .palette-results a.active { background: var(--mat-sys-surface-container-highest); border-radius: 8px; }
+    .subtitle { font-size: 12px; color: var(--mat-sys-on-surface-variant); }
     .no-results { text-align: center; padding: 24px; color: var(--mat-sys-on-surface-variant); }
   `,
 })
-export class CommandPaletteDialogComponent {
+export class CommandPaletteDialogComponent implements OnInit {
   private readonly router = inject(Router);
+  private readonly http = inject(HttpClient);
   private readonly dialogRef = inject(MatDialogRef<CommandPaletteDialogComponent>);
 
   query = '';
   filtered: PaletteAction[] = ACTIONS.slice(0, 8);
   selectedIndex = 0;
+  private search$ = new Subject<string>();
+
+  ngOnInit() {
+    this.search$.pipe(
+      debounceTime(250),
+      switchMap(q => {
+        if (!q || q.length < 2) return of([]);
+        return this.http.get<any>('/projects', { params: new HttpParams().set('q', q).set('size', '5') });
+      }),
+    ).subscribe((res: any) => {
+      if (!res?.content) return;
+      const projects: PaletteAction[] = res.content.map((p: any) => ({
+        id: `project_${p.id}`, label: `${p.code} — ${p.name}`, icon: 'business',
+        route: `/projects/${p.id}`, keywords: '', subtitle: p.customerName,
+      }));
+      // Merge: static actions first, then projects
+      const staticResults = ACTIONS.filter(a => {
+        const q = this.query.toLowerCase();
+        return a.label.toLowerCase().includes(q) || a.keywords.includes(q);
+      });
+      this.filtered = [...staticResults.slice(0, 4), ...projects];
+      this.selectedIndex = 0;
+    });
+  }
 
   filter() {
     const q = this.query.toLowerCase();
-    this.filtered = q
-      ? ACTIONS.filter(a => a.label.toLowerCase().includes(q) || a.keywords.includes(q))
-      : ACTIONS.slice(0, 8);
+    if (!q) {
+      this.filtered = ACTIONS.slice(0, 8);
+      this.selectedIndex = 0;
+      return;
+    }
+    this.filtered = ACTIONS.filter(a => a.label.toLowerCase().includes(q) || a.keywords.includes(q));
     this.selectedIndex = 0;
+    this.search$.next(q);
   }
 
   moveDown() { this.selectedIndex = Math.min(this.selectedIndex + 1, this.filtered.length - 1); }

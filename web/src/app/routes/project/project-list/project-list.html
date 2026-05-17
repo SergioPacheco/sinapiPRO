@@ -51,9 +51,11 @@
           <span class="kanban-title">{{ col.label }}</span>
           <span class="kanban-count">{{ getByStatus(col.status).length }}</span>
         </div>
-        <div class="kanban-cards">
+        <div class="kanban-cards"
+             cdkDropList [cdkDropListData]="col.status" [id]="'kanban-' + col.status"
+             [cdkDropListConnectedTo]="connectedLists" (cdkDropListDropped)="onDrop($event)">
           @for (project of getByStatus(col.status); track project.id) {
-            <mat-card class="kanban-card" (click)="router.navigate(['/projects', project.id])">
+            <mat-card class="kanban-card" cdkDrag [cdkDragData]="project" (click)="router.navigate(['/projects', project.id])">
               <div class="card-code">{{ project.code }}</div>
               <div class="card-name">{{ project.name }}</div>
               <div class="card-meta">
