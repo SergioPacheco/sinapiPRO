@@ -92,6 +92,40 @@ public class ProjectController {
         repository.delete(findOrThrow(id));
     }
 
+    @Operation(summary = "Recent activity timeline for a project")
+    @GetMapping("/{id}/timeline")
+    List<ActivityEvent> timeline(@PathVariable UUID id) {
+        findOrThrow(id);
+        var events = new java.util.ArrayList<ActivityEvent>();
+
+        // Recent measurements
+        em.createQuery("SELECT m FROM Measurement m WHERE m.projectId = :pid ORDER BY m.createdAt DESC", Object.class)
+                .setParameter("pid", id).setMaxResults(5).getResultList().forEach(obj -> {
+                    var m = (com.sinapipro.api.measurement.domain.Measurement) obj;
+                    events.add(new ActivityEvent(m.getId(), "Medição #" + m.getNumber() + " — " + m.getStatus(),
+                            "measurement", "#ff9800", m.getCreatedAt()));
+                });
+
+        // Recent daily logs
+        em.createQuery("SELECT d FROM DailyLog d WHERE d.projectId = :pid ORDER BY d.createdAt DESC", Object.class)
+                .setParameter("pid", id).setMaxResults(3).getResultList().forEach(obj -> {
+                    var d = (com.sinapipro.api.dailylog.domain.DailyLog) obj;
+                    events.add(new ActivityEvent(d.getId(), "Diário de obra — " + d.getLogDate(),
+                            "daily_log", "#4caf50", d.getCreatedAt()));
+                });
+
+        // Recent purchase orders
+        em.createQuery("SELECT o FROM PurchaseOrder o WHERE o.projectId = :pid ORDER BY o.createdAt DESC", Object.class)
+                .setParameter("pid", id).setMaxResults(3).getResultList().forEach(obj -> {
+                    var o = (com.sinapipro.api.procurement.domain.PurchaseOrder) obj;
+                    events.add(new ActivityEvent(o.getId(), "Pedido " + o.getNumber() + " — " + o.getStatus(),
+                            "procurement", "#2196f3", o.getCreatedAt()));
+                });
+
+        events.sort((a, b) -> b.createdAt().compareTo(a.createdAt()));
+        return events.stream().limit(10).toList();
+    }
+
     @Operation(summary = "Project process dashboard — phase checklist, module counts, next actions")
     @GetMapping("/{id}/dashboard")
     ProjectDashboard dashboard(@PathVariable UUID id) {
@@ -171,4 +205,5 @@ public class ProjectController {
                                     long pendingMeasurements, long pendingOrders) {}
     public record NextAction(String id, String label, String icon, String route) {}
     public record ProjectDashboard(PhaseChecklist planning, ExecutionSummary execution, List<NextAction> nextActions) {}
+    public record ActivityEvent(UUID id, String description, String type, String color, java.time.Instant createdAt) {}
 }

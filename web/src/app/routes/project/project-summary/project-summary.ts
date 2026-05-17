@@ -1,5 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -7,6 +9,14 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
 import { ProjectService, Project, ProjectDashboard } from '../services/project.service';
+
+interface ActivityEvent {
+  id: string;
+  description: string;
+  type: string;
+  color: string;
+  createdAt: string;
+}
 
 @Component({
   selector: 'app-project-summary',
@@ -94,6 +104,26 @@ import { ProjectService, Project, ProjectDashboard } from '../services/project.s
         </mat-card>
       }
 
+      <!-- Timeline -->
+      @if (timeline().length > 0) {
+        <mat-card class="section-card">
+          <mat-card-header><mat-card-title><mat-icon>history</mat-icon> Atividades Recentes</mat-card-title></mat-card-header>
+          <mat-card-content>
+            <div class="timeline">
+              @for (event of timeline().slice(0, 10); track event.id) {
+                <div class="timeline-item">
+                  <div class="timeline-dot" [style.background]="event.color || '#666'"></div>
+                  <div class="timeline-content">
+                    <span class="timeline-text">{{ event.description }}</span>
+                    <span class="timeline-time">{{ event.createdAt | date:'dd/MM HH:mm' }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+
       <!-- Quick Info -->
       <div class="info-row">
         <mat-card class="info-card">
@@ -165,16 +195,26 @@ import { ProjectService, Project, ProjectDashboard } from '../services/project.s
     .info-card mat-icon { color: var(--mat-sys-primary); }
     .info-card p { margin: 2px 0 0; font-size: 13px; color: var(--mat-sys-on-surface-variant); }
     .actions-row { display: flex; gap: 12px; }
+
+    /* Timeline */
+    .timeline { display: flex; flex-direction: column; gap: 0; }
+    .timeline-item { display: flex; align-items: flex-start; gap: 12px; padding: 8px 0; border-left: 2px solid var(--mat-sys-outline-variant); margin-left: 6px; padding-left: 16px; position: relative; }
+    .timeline-dot { width: 12px; height: 12px; border-radius: 50%; position: absolute; left: -7px; top: 12px; }
+    .timeline-content { display: flex; justify-content: space-between; flex: 1; align-items: center; }
+    .timeline-text { font-size: 13px; }
+    .timeline-time { font-size: 11px; color: var(--mat-sys-outline); white-space: nowrap; }
   `,
-  imports: [MatButtonModule, MatCardModule, MatIconModule, MatProgressBarModule, MatDividerModule, MatChipsModule, RouterLink],
+  imports: [MatButtonModule, MatCardModule, MatIconModule, MatProgressBarModule, MatDividerModule, MatChipsModule, RouterLink, DatePipe],
 })
 export class ProjectSummaryComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly service = inject(ProjectService);
+  private readonly http = inject(HttpClient);
 
   project = signal<Project | null>(null);
   dashboard = signal<ProjectDashboard | null>(null);
+  timeline = signal<ActivityEvent[]>([]);
 
   phases = [
     { id: 'PLANNING', label: 'Planejamento', icon: 'architecture' },
@@ -187,6 +227,10 @@ export class ProjectSummaryComponent implements OnInit {
     const id = this.route.parent!.snapshot.paramMap.get('projectId')!;
     this.service.getById(id).subscribe(p => this.project.set(p));
     this.service.getDashboard(id).subscribe(d => this.dashboard.set(d));
+    this.http.get<ActivityEvent[]>(`/projects/${id}/timeline`).subscribe({
+      next: events => this.timeline.set(events),
+      error: () => {},
+    });
   }
 
   currentPhase(): string {
