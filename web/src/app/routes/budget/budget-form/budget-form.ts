@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { PageHeader } from '@shared';
+import { NextActionService } from '@shared';
 import { BudgetService } from '../services/budget.service';
 
 @Component({
@@ -19,6 +20,7 @@ export class BudgetFormComponent implements OnInit {
   private readonly budgetService = inject(BudgetService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly nextAction = inject(NextActionService);
 
   isEdit = false;
   private projectId = '';
@@ -62,7 +64,10 @@ export class BudgetFormComponent implements OnInit {
     const obs = this.isEdit
       ? this.budgetService.update(this.projectId, this.budgetId, data)
       : this.budgetService.create(this.projectId, data);
-    obs.subscribe(() => this.router.navigate(['../../budgets'], { relativeTo: this.route }));
+    obs.subscribe(() => {
+      this.router.navigate(['../../budgets'], { relativeTo: this.route });
+      if (!this.isEdit) this.nextAction.suggest('budget.created');
+    });
   }
 
   cancel() { this.router.navigate(['../../budgets'], { relativeTo: this.route }); }

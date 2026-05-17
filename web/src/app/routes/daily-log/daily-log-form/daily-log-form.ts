@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { PageHeader } from '@shared';
+import { NextActionService } from '@shared';
 import { DailyLogService } from '../services/daily-log.service';
 
 @Component({
@@ -19,6 +20,7 @@ export class DailyLogFormComponent {
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(DailyLogService);
   private readonly route = inject(ActivatedRoute);
+  private readonly nextAction = inject(NextActionService);
   private projectId = '';
   readonly router = inject(Router);
 
@@ -57,6 +59,7 @@ export class DailyLogFormComponent {
         return;
       }
       this.router.navigate(['../'], { relativeTo: this.route });
+      this.nextAction.suggest('daily_log.created');
     });
   }
 

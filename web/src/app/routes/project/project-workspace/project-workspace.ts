@@ -77,6 +77,8 @@ export class ProjectWorkspaceComponent implements OnInit {
     if (tabPath === 'measurements' && d.execution.pendingMeasurements > 0) return String(d.execution.pendingMeasurements);
     if (tabPath === 'procurement' && d.execution.pendingOrders > 0) return String(d.execution.pendingOrders);
     if (tabPath === 'budgets' && !d.planning.hasBudget) return '!';
+    if (tabPath === 'schedule' && d.planning.hasBudget && !d.planning.hasSchedule) return '!';
+    if (tabPath === 'contracts' && d.planning.hasBudget && !d.planning.hasContract) return '!';
     return null;
   }
 }
