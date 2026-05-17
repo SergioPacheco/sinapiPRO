@@ -29,4 +29,12 @@ export class ContractService {
   addChangeOrder(projectId: string, contractId: string, changeOrder: any) {
     return this.http.post(`${this.url(projectId)}/${contractId}/change-orders`, changeOrder);
   }
+
+  activate(projectId: string, id: string) {
+    return this.http.post<Contract>(`${this.url(projectId)}/${id}/activate`, {});
+  }
+
+  complete(projectId: string, id: string) {
+    return this.http.post<Contract>(`${this.url(projectId)}/${id}/complete`, {});
+  }
 }

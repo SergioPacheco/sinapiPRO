@@ -22,6 +22,13 @@ import { Supplier } from '../../supplier/models/supplier.model';
     FormsModule, MatButtonModule, MatIconModule, MatCardModule, MatFormFieldModule,
     MatInputModule, MatDialogModule, MtxGridModule, PageHeader, LookupFieldComponent,
   ],
+  styles: `
+    .workflow-stepper { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 16px; margin-bottom: 16px; background: var(--mat-sys-surface-container); border-radius: 12px; }
+    .workflow-step { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .step-circle { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px; }
+    .step-label { font-size: 11px; font-weight: 500; text-transform: uppercase; color: var(--mat-sys-on-surface-variant); }
+    .step-arrow { color: var(--mat-sys-outline); margin-bottom: 18px; }
+  `,
 })
 export class ProcurementListComponent implements OnInit {
   private readonly service = inject(ProcurementService);
@@ -86,6 +93,7 @@ export class ProcurementListComponent implements OnInit {
 
   list: PurchaseOrder[] = [];
   overdue: PurchaseOrder[] = [];
+  quotationCount = 0;
   abcDraft = { description: '', quantity: 1, unit: 'UN' };
   abcItems: { description: string; quantity: number; unit: string }[] = [];
   abcSupplierId = '';
@@ -113,7 +121,10 @@ export class ProcurementListComponent implements OnInit {
       error: () => (this.isLoading = false),
     });
     this.service.listOverdue(this.projectId).subscribe(res => this.overdue = res);
+    this.service.listQuotations(this.projectId, 0, 1).subscribe(res => this.quotationCount = res.totalElements);
   }
+
+  getByStatus(status: string) { return this.list.filter(o => o.status === status); }
 
   onPageChange(event: any) {
     this.query.page = event.pageIndex;
