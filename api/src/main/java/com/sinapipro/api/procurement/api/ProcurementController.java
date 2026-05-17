@@ -39,12 +39,14 @@ public class ProcurementController {
     private final ProcurementReportService procurementReportService;
     private final PurchaseOrderCostDistributionRepository costDistributionRepository;
     private final PurchaseOrderRepository orderRepository;
+    private final QuotationRepository quotationRepository;
     private final QuotationEmailRepository quotationEmailRepository;
 
     public ProcurementController(PurchaseRequestRepository requestRepository, BudgetRepository budgetRepository,
                                  ProcurementService procurementService, ProcurementReportService procurementReportService,
                                  PurchaseOrderCostDistributionRepository costDistributionRepository,
                                  PurchaseOrderRepository orderRepository,
+                                 QuotationRepository quotationRepository,
                                  QuotationEmailRepository quotationEmailRepository) {
         this.requestRepository = requestRepository;
         this.budgetRepository = budgetRepository;
@@ -52,6 +54,7 @@ public class ProcurementController {
         this.procurementReportService = procurementReportService;
         this.costDistributionRepository = costDistributionRepository;
         this.orderRepository = orderRepository;
+        this.quotationRepository = quotationRepository;
         this.quotationEmailRepository = quotationEmailRepository;
     }
 
@@ -85,6 +88,7 @@ public class ProcurementController {
     @ResponseStatus(HttpStatus.CREATED)
     QuotationSummary createQuotation(@PathVariable UUID projectId, @PathVariable UUID requestId,
                                      @Valid @RequestBody CreateQuotationReq req) {
+        findRequestInProject(projectId, requestId);
         Quotation q = procurementService.createQuotation(requestId, req.deadline());
         return new QuotationSummary(q.getId(), q.getStatus(), q.getDeadline(), 0);
     }
@@ -95,6 +99,7 @@ public class ProcurementController {
     @ResponseStatus(HttpStatus.CREATED)
     SupplierQuote addResponse(@PathVariable UUID projectId, @PathVariable UUID quotationId,
                               @Valid @RequestBody AddQuotationResponseReq req) {
+        findQuotationInProject(projectId, quotationId);
         QuotationResponse r = procurementService.addSupplierResponse(quotationId, req.supplierId(),
                 req.unitPrice(), req.deliveryDays(), req.notes());
         return new SupplierQuote(r.getId(), r.getSupplier().getName(), r.getUnitPrice(), r.getDeliveryDays());
@@ -104,7 +109,20 @@ public class ProcurementController {
     @GetMapping("/quotations/{quotationId}/analysis")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
     ComparativeAnalysis analyze(@PathVariable UUID projectId, @PathVariable UUID quotationId) {
+        findQuotationInProject(projectId, quotationId);
         return procurementService.analyze(quotationId);
+    }
+
+    @Operation(summary = "List quotations for a budget (optionally filtered by purchase order)")
+    @GetMapping("/quotations")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    PageResponse<QuotationListResponse> listQuotations(@PathVariable UUID projectId,
+                                                        @RequestParam(required = false) UUID orderId,
+                                                        @PageableDefault(size = 20) Pageable pageable) {
+        if (orderId != null) {
+            return PageResponse.from(procurementService.listQuotationsByOrderPaged(projectId, orderId, pageable).map(QuotationListResponse::from));
+        }
+        return PageResponse.from(procurementService.listQuotationsPaged(projectId, pageable).map(QuotationListResponse::from));
     }
 
     // --- Purchase Orders ---
@@ -115,6 +133,7 @@ public class ProcurementController {
     @ResponseStatus(HttpStatus.CREATED)
     PurchaseOrderResponse generateOrder(@PathVariable UUID projectId, @PathVariable UUID quotationId,
                                         @Valid @RequestBody GenerateOrderReq req) {
+        findQuotationInProject(projectId, quotationId);
         PurchaseOrder order = procurementService.generateOrder(quotationId, req.orderNumber());
         return PurchaseOrderResponse.from(order);
     }
@@ -134,6 +153,7 @@ public class ProcurementController {
     @ResponseStatus(HttpStatus.CREATED)
     ReceivingResponse receive(@PathVariable UUID projectId, @PathVariable UUID orderId,
                               @Valid @RequestBody ReceiveReq req) {
+        findOrderInProject(projectId, orderId);
         Receiving r = procurementService.receive(orderId, req.quantityReceived(), req.receivedAt(), req.notes());
         return new ReceivingResponse(r.getId(), r.getQuantityReceived(), r.getReceivedAt(), r.getNotes());
     }
@@ -144,6 +164,7 @@ public class ProcurementController {
     @PostMapping("/orders/{orderId}/approve")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
     PurchaseOrderResponse approveOrder(@PathVariable UUID projectId, @PathVariable UUID orderId) {
+        findOrderInProject(projectId, orderId);
         return PurchaseOrderResponse.from(procurementService.approveOrder(orderId));
     }
 
@@ -151,6 +172,7 @@ public class ProcurementController {
     @PostMapping("/orders/{orderId}/reject")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
     PurchaseOrderResponse rejectOrder(@PathVariable UUID projectId, @PathVariable UUID orderId) {
+        findOrderInProject(projectId, orderId);
         return PurchaseOrderResponse.from(procurementService.rejectOrder(orderId));
     }
 
@@ -169,6 +191,7 @@ public class ProcurementController {
     @GetMapping(value = "/quotations/{quotationId}/reports/comparative-map.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
     ResponseEntity<byte[]> comparativeMapReport(@PathVariable UUID projectId, @PathVariable UUID quotationId) {
+        findQuotationInProject(projectId, quotationId);
         byte[] pdf = procurementReportService.generateComparativeMapPdf(quotationId);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=comparative-map-" + quotationId + ".pdf")
@@ -180,6 +203,7 @@ public class ProcurementController {
     @GetMapping(value = "/orders/{orderId}/reports/order.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
     ResponseEntity<byte[]> orderReport(@PathVariable UUID projectId, @PathVariable UUID orderId) {
+        findOrderInProject(projectId, orderId);
         byte[] pdf = procurementReportService.generatePurchaseOrderPdf(orderId);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=purchase-order-" + orderId + ".pdf")
@@ -195,8 +219,7 @@ public class ProcurementController {
     @ResponseStatus(HttpStatus.CREATED)
     List<CostDistributionResponse> setCostDistribution(@PathVariable UUID projectId, @PathVariable UUID orderId,
                                                        @Valid @RequestBody List<CostDistributionRequest> distributions) {
-        var order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new com.sinapipro.api.shared.error.DomainNotFoundException("Order not found: " + orderId));
+        var order = findOrderInProject(projectId, orderId);
         costDistributionRepository.findByPurchaseOrderId(orderId).forEach(costDistributionRepository::delete);
         return distributions.stream().map(d -> {
             var amount = order.getTotalAmount().multiply(d.percentage());
@@ -209,6 +232,7 @@ public class ProcurementController {
     @GetMapping("/orders/{orderId}/cost-distribution")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
     List<CostDistributionResponse> getCostDistribution(@PathVariable UUID projectId, @PathVariable UUID orderId) {
+        findOrderInProject(projectId, orderId);
         return costDistributionRepository.findByPurchaseOrderId(orderId).stream()
                 .map(d -> new CostDistributionResponse(d.getId(), d.getCostCodeId(), d.getPercentage(), d.getAmount())).toList();
     }
@@ -231,6 +255,17 @@ public class ProcurementController {
     }
 
     record QuotationSummary(UUID id, String status, LocalDate deadline, int responseCount) {}
+    record QuotationListResponse(UUID id, String purchaseRequest, LocalDate deadline, String status, int responsesCount) {
+        static QuotationListResponse from(Quotation quotation) {
+            return new QuotationListResponse(
+                    quotation.getId(),
+                    quotation.getPurchaseRequest().getDescription(),
+                    quotation.getDeadline(),
+                    quotation.getStatus(),
+                    quotation.getResponses() != null ? quotation.getResponses().size() : 0
+            );
+        }
+    }
     record SupplierQuote(UUID responseId, String supplierName, BigDecimal unitPrice, Integer deliveryDays) {}
 
     record PurchaseOrderResponse(UUID id, String number, String description, String supplierName,
@@ -267,9 +302,37 @@ public class ProcurementController {
     @Operation(summary = "Send quotation to suppliers via email")
     @PostMapping("/quotations/{quotationId}/send-email")
     java.util.Map<String, Object> sendQuotationEmail(@PathVariable UUID projectId, @PathVariable UUID quotationId) {
+        findQuotationInProject(projectId, quotationId);
         var emails = quotationEmailRepository.findByQuotationId(quotationId);
         emails.forEach(QuotationEmail::markSent);
         quotationEmailRepository.saveAll(emails);
         return java.util.Map.of("sent", emails.size(), "quotationId", quotationId);
+    }
+
+    private PurchaseRequest findRequestInProject(UUID projectId, UUID requestId) {
+        PurchaseRequest request = requestRepository.findById(requestId)
+                .orElseThrow(() -> new DomainNotFoundException("Purchase request not found: " + requestId));
+        if (!projectId.equals(request.getBudget().getId())) {
+            throw new DomainNotFoundException("Purchase request not found in project: " + requestId);
+        }
+        return request;
+    }
+
+    private Quotation findQuotationInProject(UUID projectId, UUID quotationId) {
+        Quotation quotation = quotationRepository.findById(quotationId)
+                .orElseThrow(() -> new DomainNotFoundException("Quotation not found: " + quotationId));
+        if (!projectId.equals(quotation.getPurchaseRequest().getBudget().getId())) {
+            throw new DomainNotFoundException("Quotation not found in project: " + quotationId);
+        }
+        return quotation;
+    }
+
+    private PurchaseOrder findOrderInProject(UUID projectId, UUID orderId) {
+        PurchaseOrder order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new DomainNotFoundException("Order not found: " + orderId));
+        if (!projectId.equals(order.getBudget().getId())) {
+            throw new DomainNotFoundException("Order not found in project: " + orderId);
+        }
+        return order;
     }
 }

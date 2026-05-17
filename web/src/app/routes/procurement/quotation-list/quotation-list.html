@@ -1,5 +1,13 @@
 <page-header title="Cotações" subtitle="Análise comparativa de preços" />
 
+@if (selectedOrderNumber) {
+  <mat-card class="m-b-16">
+    <mat-card-content>
+      Contexto do pedido selecionado: <strong>{{ selectedOrderNumber }}</strong>
+    </mat-card-content>
+  </mat-card>
+}
+
 <mtx-grid
   [columns]="columns"
   [data]="list"

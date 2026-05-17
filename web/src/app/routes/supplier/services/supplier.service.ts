@@ -9,9 +9,16 @@ export class SupplierService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.baseUrl}/suppliers`;
 
-  list(page = 0, size = 20) {
-    const params = new HttpParams().set('page', page).set('size', size);
+  list(page = 0, size = 20, name?: string) {
+    let params = new HttpParams().set('page', page).set('size', size);
+    if (name) params = params.set('name', name);
     return this.http.get<PageResponse<Supplier>>(this.baseUrl, { params });
+  }
+
+  search(term: string) {
+    return this.http.get<PageResponse<Supplier>>(this.baseUrl, {
+      params: new HttpParams().set('name', term).set('size', 10),
+    });
   }
 
   getById(id: string) {

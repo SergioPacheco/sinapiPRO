@@ -3,13 +3,16 @@ import { Injectable, inject } from '@angular/core';
 import { map, of } from 'rxjs';
 
 import { Menu } from '@core';
+import { base64 } from './helpers';
 import { Token, User } from './interface';
+import { TokenService } from './token.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LoginService {
   protected readonly http = inject(HttpClient);
+  private readonly tokenService = inject(TokenService);
 
   login(username: string, password: string, rememberMe = false) {
     return this.http
@@ -31,12 +34,7 @@ export class LoginService {
   }
 
   user() {
-    return of<User>({
-      name: 'SinapiPRO Admin',
-      email: 'admin@sinapipro.dev',
-      roles: ['ADMIN', 'USER'],
-      permissions: ['sinapipro.read', 'sinapipro.write'],
-    });
+    return of(this.readUserFromToken());
   }
 
   menu() {
@@ -56,6 +54,50 @@ export class LoginService {
       refresh_token: includeRefreshToken ? token.refreshToken : undefined,
     };
   }
+
+  private readUserFromToken(): User {
+    const accessToken = this.tokenService.getBearerToken().replace(/^Bearer\s+/i, '');
+    if (!accessToken) {
+      return {};
+    }
+
+    try {
+      const [, payload] = accessToken.split('.');
+      const claims = JSON.parse(base64.decode(payload)) as JwtClaims;
+      const email = claims.sub;
+      const permissions = typeof claims.scope === 'string'
+        ? claims.scope.split(' ').filter(Boolean)
+        : [];
+      const roles = Array.isArray(claims.roles) ? claims.roles : [];
+
+      return {
+        email,
+        name: this.deriveDisplayName(claims),
+        roles,
+        permissions,
+      };
+    } catch {
+      return {};
+    }
+  }
+
+  private deriveDisplayName(claims: JwtClaims): string {
+    if (claims.name?.trim()) {
+      return claims.name.trim();
+    }
+
+    const subject = claims.sub?.trim();
+    if (!subject) {
+      return 'Usuário';
+    }
+
+    const baseName = subject.includes('@') ? subject.split('@')[0] : subject;
+    return baseName
+      .split(/[._-]+/)
+      .filter(Boolean)
+      .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ');
+  }
 }
 
 interface ApiTokenResponse {
@@ -63,4 +105,11 @@ interface ApiTokenResponse {
   refreshToken: string;
   tokenType: string;
   accessTokenExpiresAt: string;
+}
+
+interface JwtClaims {
+  sub?: string;
+  name?: string;
+  scope?: string;
+  roles?: string[];
 }

@@ -54,7 +54,7 @@ public class DailyLogController {
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
     DailyLogDetailResponse get(@PathVariable UUID projectId, @PathVariable UUID id) {
-        return DailyLogDetailResponse.from(findOrThrow(id));
+        return DailyLogDetailResponse.from(findInProject(projectId, id));
     }
 
     @Operation(summary = "Create a daily log entry")
@@ -89,7 +89,7 @@ public class DailyLogController {
     @Transactional
     @ResponseStatus(HttpStatus.CREATED)
     LaborResponse addLabor(@PathVariable UUID projectId, @PathVariable UUID id, @Valid @RequestBody LaborEntry req) {
-        var log = findOrThrow(id);
+        var log = findInProject(projectId, id);
         var entry = new DailyLogLabor(log, req.workerName(), req.role(), req.hours());
         log.getLaborEntries().add(entry);
         dailyLogRepository.save(log);
@@ -102,7 +102,7 @@ public class DailyLogController {
     @Transactional
     @ResponseStatus(HttpStatus.CREATED)
     EquipmentResponse addEquipment(@PathVariable UUID projectId, @PathVariable UUID id, @Valid @RequestBody EquipmentEntry req) {
-        var log = findOrThrow(id);
+        var log = findInProject(projectId, id);
         var entry = new DailyLogEquipment(log, req.equipmentName(), req.hoursUsed(),
                 req.hoursIdle() != null ? req.hoursIdle() : BigDecimal.ZERO);
         log.getEquipmentEntries().add(entry);
@@ -116,7 +116,7 @@ public class DailyLogController {
     @Transactional
     @ResponseStatus(HttpStatus.CREATED)
     OccurrenceResponse addOccurrence(@PathVariable UUID projectId, @PathVariable UUID id, @Valid @RequestBody OccurrenceEntry req) {
-        var log = findOrThrow(id);
+        var log = findInProject(projectId, id);
         var entry = new DailyLogOccurrence(log, req.type(), req.description());
         log.getOccurrences().add(entry);
         dailyLogRepository.save(log);
@@ -129,7 +129,7 @@ public class DailyLogController {
     @Transactional
     @ResponseStatus(HttpStatus.CREATED)
     PhotoResponse addPhoto(@PathVariable UUID projectId, @PathVariable UUID id, @Valid @RequestBody PhotoEntry req) {
-        var log = findOrThrow(id);
+        var log = findInProject(projectId, id);
         var entry = new DailyLogPhoto(log, req.filePath(), req.caption());
         log.getPhotos().add(entry);
         dailyLogRepository.save(log);
@@ -140,6 +140,7 @@ public class DailyLogController {
     @GetMapping(value = "/{id}/reports/rdo.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
     ResponseEntity<byte[]> rdoReport(@PathVariable UUID projectId, @PathVariable UUID id) {
+        findInProject(projectId, id);
         byte[] pdf = dailyLogReportService.generateRdoPdf(id);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=rdo-" + id + ".pdf")
@@ -147,9 +148,13 @@ public class DailyLogController {
                 .body(pdf);
     }
 
-    private DailyLog findOrThrow(UUID id) {
-        return dailyLogRepository.findById(id)
+    private DailyLog findInProject(UUID projectId, UUID id) {
+        DailyLog log = dailyLogRepository.findById(id)
                 .orElseThrow(() -> new DomainNotFoundException("Daily log not found: " + id));
+        if (!projectId.equals(log.getBudget().getId())) {
+            throw new DomainNotFoundException("Daily log not found in project: " + id);
+        }
+        return log;
     }
 
     // --- DTOs ---

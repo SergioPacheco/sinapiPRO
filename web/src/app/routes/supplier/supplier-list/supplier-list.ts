@@ -21,10 +21,26 @@ export class SupplierListComponent implements OnInit {
   columns: MtxGridColumn[] = [
     { header: 'Código', field: 'code', width: '100px' },
     { header: 'Nome', field: 'name', sortable: true },
+    { header: 'Categoria', field: 'category', width: '130px' },
+    {
+      header: 'Homologação',
+      field: 'qualificationStatus',
+      width: '140px',
+      tag: {
+        APPROVED: { text: 'Homologado', color: 'green' },
+        UNDER_REVIEW: { text: 'Em revisão', color: 'orange' },
+        BLOCKED: { text: 'Bloqueado', color: 'red' },
+        PROSPECT: { text: 'Prospect', color: 'blue' },
+      },
+    },
     { header: 'CNPJ/CPF', field: 'taxId', width: '160px' },
+    { header: 'Contato', field: 'contactName', width: '180px' },
     { header: 'E-mail', field: 'email' },
     { header: 'Telefone', field: 'phone', width: '140px' },
-    { header: 'Avaliação', field: 'rating', width: '100px' },
+    { header: 'Cidade/UF', field: 'city', width: '150px', formatter: (data: Supplier) => [data.city, data.state].filter(Boolean).join('/') || '-' },
+    { header: 'Pgto (dias)', field: 'paymentTermDays', width: '110px' },
+    { header: 'Entrega (dias)', field: 'leadTimeDays', width: '120px' },
+    { header: 'Avaliação', field: 'rating', width: '90px' },
     {
       header: 'Ativo',
       field: 'active',

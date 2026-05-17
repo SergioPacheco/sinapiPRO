@@ -47,8 +47,12 @@ public class RegistryController {
     @Operation(summary = "List active clients")
     @GetMapping("/clients")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
-    PageResponse<ClientResponse> listClients(@PageableDefault(size = 20) Pageable pageable) {
-        return PageResponse.from(clientRepository.findByActiveTrue(pageable).map(ClientResponse::from));
+    PageResponse<ClientResponse> listClients(@RequestParam(required = false) String search,
+                                             @PageableDefault(size = 20) Pageable pageable) {
+        var page = search != null && !search.isBlank()
+                ? clientRepository.findByActiveTrueAndNameContainingIgnoreCase(search.trim(), pageable)
+                : clientRepository.findByActiveTrue(pageable);
+        return PageResponse.from(page.map(ClientResponse::from));
     }
 
     @Operation(summary = "Create a client")
@@ -78,21 +82,55 @@ public class RegistryController {
     @GetMapping("/employees")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
     PageResponse<EmployeeResponse> listEmployees(@RequestParam(required = false) String type,
+                                                  @RequestParam(required = false) String search,
                                                   @PageableDefault(size = 20) Pageable pageable) {
-        var page = type != null
+        var page = search != null && !search.isBlank()
+                ? employeeRepository.findByActiveTrueAndNameContainingIgnoreCase(search.trim(), pageable)
+                : type != null
                 ? employeeRepository.findByActiveTrueAndType(type, pageable)
                 : employeeRepository.findByActiveTrue(pageable);
         return PageResponse.from(page.map(EmployeeResponse::from));
+    }
+
+    @Operation(summary = "Get employee or contractor detail")
+    @GetMapping("/employees/{id}")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    EmployeeResponse getEmployee(@PathVariable UUID id) {
+        var employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new DomainNotFoundException("Employee not found: " + id));
+        return EmployeeResponse.from(employee);
     }
 
     @Operation(summary = "Create an employee or contractor")
     @PostMapping("/employees")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
     ResponseEntity<EmployeeResponse> createEmployee(@Valid @RequestBody CreateEmployeeRequest req) {
-        var employee = employeeRepository.save(new Employee(req.name(), req.document(), req.role(),
-                req.type() != null ? req.type() : "EMPLOYEE", req.email(), req.phone(), req.hourlyRate(), req.admissionDate()));
+        var employee = employeeRepository.save(new Employee(
+                req.employeeCode(), req.name(), req.document(), req.role(), req.specialty(),
+                req.type() != null ? req.type() : "EMPLOYEE",
+                req.employmentStatus() != null ? req.employmentStatus() : "ACTIVE",
+                req.email(), req.phone(), req.mobilePhone(), req.emergencyContactName(),
+                req.emergencyContactPhone(), req.address(), req.city(), req.state(),
+                req.postalCode(), req.costCenter(), req.companyName(), req.notes(),
+                req.hourlyRate(), req.admissionDate(), req.terminationDate()));
         return ResponseEntity.created(URI.create("/api/v1/registry/employees/" + employee.getId()))
                 .body(EmployeeResponse.from(employee));
+    }
+
+    @Operation(summary = "Update an employee or contractor")
+    @PutMapping("/employees/{id}")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    EmployeeResponse updateEmployee(@PathVariable UUID id, @Valid @RequestBody UpdateEmployeeRequest req) {
+        var employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new DomainNotFoundException("Employee not found: " + id));
+        employee.update(req.name(), req.document(), req.role(), req.specialty(),
+                req.type() != null ? req.type() : employee.getType(),
+                req.employmentStatus() != null ? req.employmentStatus() : employee.getEmploymentStatus(),
+                req.email(), req.phone(), req.mobilePhone(), req.emergencyContactName(),
+                req.emergencyContactPhone(), req.address(), req.city(), req.state(),
+                req.postalCode(), req.costCenter(), req.companyName(), req.notes(),
+                req.hourlyRate(), req.admissionDate(), req.terminationDate());
+        return EmployeeResponse.from(employeeRepository.save(employee));
     }
 
     @Operation(summary = "Deactivate an employee")
@@ -175,8 +213,51 @@ public class RegistryController {
     // --- DTOs ---
     record CreateClientRequest(@NotBlank String name, String document, String email, String phone,
                                String address, String city, String state, String notes) {}
-    record CreateEmployeeRequest(@NotBlank String name, String document, @NotBlank String role, String type,
-                                 String email, String phone, BigDecimal hourlyRate, LocalDate admissionDate) {}
+    record CreateEmployeeRequest(
+            @NotBlank String employeeCode,
+            @NotBlank String name,
+            String document,
+            @NotBlank String role,
+            @NotBlank String specialty,
+            String type,
+            String employmentStatus,
+            String email,
+            String phone,
+            String mobilePhone,
+            String emergencyContactName,
+            String emergencyContactPhone,
+            String address,
+            String city,
+            String state,
+            String postalCode,
+            String costCenter,
+            String companyName,
+            String notes,
+            BigDecimal hourlyRate,
+            LocalDate admissionDate,
+            LocalDate terminationDate) {}
+    record UpdateEmployeeRequest(
+            @NotBlank String name,
+            String document,
+            @NotBlank String role,
+            @NotBlank String specialty,
+            String type,
+            String employmentStatus,
+            String email,
+            String phone,
+            String mobilePhone,
+            String emergencyContactName,
+            String emergencyContactPhone,
+            String address,
+            String city,
+            String state,
+            String postalCode,
+            String costCenter,
+            String companyName,
+            String notes,
+            BigDecimal hourlyRate,
+            LocalDate admissionDate,
+            LocalDate terminationDate) {}
     record CreateUnitRequest(@NotBlank String symbol, @NotBlank String description) {}
     record CreatePaymentMethodRequest(@NotBlank String name, Integer installments) {}
     record CreateBankAccountRequest(@NotBlank String bankCode, @NotBlank String bankName, @NotBlank String agency,
@@ -190,11 +271,19 @@ public class RegistryController {
         }
     }
 
-    record EmployeeResponse(UUID id, String name, String document, String role, String type,
-                            String email, String phone, BigDecimal hourlyRate, LocalDate admissionDate) {
+    record EmployeeResponse(UUID id, String employeeCode, String name, String document, String role,
+                            String specialty, String type, String employmentStatus, String email,
+                            String phone, String mobilePhone, String emergencyContactName,
+                            String emergencyContactPhone, String address, String city, String state,
+                            String postalCode, String costCenter, String companyName, String notes,
+                            BigDecimal hourlyRate, LocalDate admissionDate, LocalDate terminationDate) {
         static EmployeeResponse from(Employee e) {
-            return new EmployeeResponse(e.getId(), e.getName(), e.getDocument(), e.getRole(), e.getType(),
-                    e.getEmail(), e.getPhone(), e.getHourlyRate(), e.getAdmissionDate());
+            return new EmployeeResponse(e.getId(), e.getEmployeeCode(), e.getName(), e.getDocument(),
+                    e.getRole(), e.getSpecialty(), e.getType(), e.getEmploymentStatus(),
+                    e.getEmail(), e.getPhone(), e.getMobilePhone(), e.getEmergencyContactName(),
+                    e.getEmergencyContactPhone(), e.getAddress(), e.getCity(), e.getState(),
+                    e.getPostalCode(), e.getCostCenter(), e.getCompanyName(), e.getNotes(),
+                    e.getHourlyRate(), e.getAdmissionDate(), e.getTerminationDate());
         }
     }
 

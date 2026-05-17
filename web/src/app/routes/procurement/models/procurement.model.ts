@@ -8,6 +8,7 @@ export interface PurchaseOrder {
   description: string;
   quantity: number;
   unitPrice: number;
+  totalAmount: number;
   status: PurchaseOrderStatus;
 }
 
@@ -20,11 +21,11 @@ export interface Quotation {
 }
 
 export interface InventoryItem {
-  materialCode: string;
+  id: string;
   description: string;
-  quantity: number;
+  currentQuantity: number;
   unit: string;
-  averageCost: number;
-  totalValue: number;
+  minQuantity: number;
+  location?: string;
+  belowMinimum: boolean;
 }
-

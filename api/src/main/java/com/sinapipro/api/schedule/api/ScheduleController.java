@@ -87,8 +87,7 @@ public class ScheduleController {
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
     ActivityResponse updateProgress(@PathVariable UUID projectId, @PathVariable UUID activityId,
                                     @Valid @RequestBody UpdateProgressRequest req) {
-        ScheduleActivity activity = activityRepository.findById(activityId)
-                .orElseThrow(() -> new DomainNotFoundException("Activity not found: " + activityId));
+        ScheduleActivity activity = findActivityInProject(projectId, activityId);
         activity.updateProgress(req.progressPct(), req.actualStart(), req.actualEnd());
         return ActivityResponse.from(activityRepository.save(activity));
     }
@@ -98,6 +97,7 @@ public class ScheduleController {
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void delete(@PathVariable UUID projectId, @PathVariable UUID activityId) {
+        findActivityInProject(projectId, activityId);
         activityRepository.deleteById(activityId);
     }
 
@@ -131,10 +131,8 @@ public class ScheduleController {
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
     @ResponseStatus(HttpStatus.CREATED)
     DependencyResponse addDependency(@PathVariable UUID projectId, @Valid @RequestBody CreateDependencyRequest req) {
-        ScheduleActivity predecessor = activityRepository.findById(req.predecessorId())
-                .orElseThrow(() -> new DomainNotFoundException("Activity not found: " + req.predecessorId()));
-        ScheduleActivity successor = activityRepository.findById(req.successorId())
-                .orElseThrow(() -> new DomainNotFoundException("Activity not found: " + req.successorId()));
+        ScheduleActivity predecessor = findActivityInProject(projectId, req.predecessorId());
+        ScheduleActivity successor = findActivityInProject(projectId, req.successorId());
         ActivityDependency dep = dependencyRepository.save(
                 new ActivityDependency(predecessor, successor, req.type() != null ? req.type() : "FS"));
         return new DependencyResponse(dep.getId(), dep.getPredecessor().getId(), dep.getSuccessor().getId(), dep.getType());
@@ -167,8 +165,7 @@ public class ScheduleController {
     @GetMapping("/baselines/{baselineId}")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
     ScheduleBaseline getBaseline(@PathVariable UUID projectId, @PathVariable UUID baselineId) {
-        return baselineRepository.findById(baselineId)
-                .orElseThrow(() -> new DomainNotFoundException("Baseline not found: " + baselineId));
+        return findBaselineInProject(projectId, baselineId);
     }
 
     // --- Auto-distribute dates ---
@@ -254,6 +251,24 @@ public class ScheduleController {
         long elapsed = a.getPlannedStart().until(today).getDays();
         if (totalDays == 0) return new java.math.BigDecimal("100");
         return java.math.BigDecimal.valueOf(elapsed * 100.0 / totalDays).setScale(2, java.math.RoundingMode.HALF_UP);
+    }
+
+    private ScheduleActivity findActivityInProject(UUID projectId, UUID activityId) {
+        ScheduleActivity activity = activityRepository.findById(activityId)
+                .orElseThrow(() -> new DomainNotFoundException("Activity not found: " + activityId));
+        if (!projectId.equals(activity.getBudget().getId())) {
+            throw new DomainNotFoundException("Activity not found in project: " + activityId);
+        }
+        return activity;
+    }
+
+    private ScheduleBaseline findBaselineInProject(UUID projectId, UUID baselineId) {
+        ScheduleBaseline baseline = baselineRepository.findById(baselineId)
+                .orElseThrow(() -> new DomainNotFoundException("Baseline not found: " + baselineId));
+        if (!projectId.equals(baseline.getProjectId())) {
+            throw new DomainNotFoundException("Baseline not found in project: " + baselineId);
+        }
+        return baseline;
     }
 
     record TrackingLine(UUID activityId, String name, java.math.BigDecimal weight, java.math.BigDecimal progressPct,

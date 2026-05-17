@@ -15,9 +15,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -134,5 +137,28 @@ class ProcurementServiceTest {
         service.receive(orderId, new BigDecimal("60"), LocalDate.of(2026, 3, 1), "Partial");
 
         assertThat(order.getStatus()).isEqualTo("PARTIAL");
+    }
+
+    @Test
+    @DisplayName("should list quotations filtered by purchase order response id")
+    void shouldListQuotationsByOrder() {
+        UUID budgetId = UUID.randomUUID();
+        UUID orderId = UUID.randomUUID();
+        UUID responseId = UUID.randomUUID();
+        var pageable = PageRequest.of(0, 20);
+        Budget budget = mock(Budget.class);
+        when(budget.getId()).thenReturn(budgetId);
+        Supplier supplier = mock(Supplier.class);
+        PurchaseOrder order = new PurchaseOrder(budget, supplier, responseId, "PO-001", "Cement",
+                new BigDecimal("100"), new BigDecimal("42.50"), null);
+
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+        when(quotationRepository.findByBudgetIdAndResponseId(budgetId, responseId, pageable))
+                .thenReturn(new PageImpl<>(List.of(), pageable, 0));
+
+        var result = service.listQuotationsByOrderPaged(budgetId, orderId, pageable);
+
+        assertThat(result.getTotalElements()).isZero();
+        verify(quotationRepository).findByBudgetIdAndResponseId(budgetId, responseId, pageable);
     }
 }

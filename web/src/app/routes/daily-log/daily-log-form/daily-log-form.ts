@@ -23,12 +23,10 @@ export class DailyLogFormComponent {
   readonly router = inject(Router);
 
   form = this.fb.nonNullable.group({
-    date: ['', Validators.required],
-    weather: ['SUNNY' as string, Validators.required],
-    temperature: [25, Validators.required],
-    laborCount: [0, Validators.min(0)],
-    equipmentCount: [0, Validators.min(0)],
-    notes: [''],
+    logDate: ['', Validators.required],
+    weatherMorning: ['SUNNY' as string],
+    weatherAfternoon: ['SUNNY' as string],
+    observations: [''],
     weatherHoursLost: [0],
     weatherCondition: [''],
     weatherImpact: [''],
@@ -38,6 +36,37 @@ export class DailyLogFormComponent {
 
   onSubmit() {
     if (this.form.invalid) return;
-    this.projectId = this.route.parent!.parent!.snapshot.paramMap.get('projectId')!; this.service.create(this.projectId, this.form.getRawValue()).subscribe(() => this.router.navigate(['/daily-log']));
+    this.projectId = this.findProjectId();
+    const value = this.form.getRawValue();
+    this.service.create(this.projectId, {
+      logDate: value.logDate,
+      weatherMorning: value.weatherMorning,
+      weatherAfternoon: value.weatherAfternoon,
+      observations: value.observations,
+      labor: [],
+      equipment: [],
+      occurrences: [],
+    }).subscribe(() => {
+      if ((value.weatherHoursLost || 0) > 0 && value.weatherCondition) {
+        this.service.recordWeatherDelay(this.projectId, {
+          delayDate: value.logDate,
+          weatherCondition: value.weatherCondition,
+          hoursLost: value.weatherHoursLost,
+          impactDescription: value.weatherImpact,
+        }).subscribe(() => this.router.navigate(['../'], { relativeTo: this.route }));
+        return;
+      }
+      this.router.navigate(['../'], { relativeTo: this.route });
+    });
+  }
+
+  cancel() {
+    this.router.navigate(['../'], { relativeTo: this.route });
+  }
+
+  private findProjectId() {
+    let route = this.route.snapshot;
+    while (route.parent && !route.paramMap.get('projectId')) route = route.parent;
+    return route.paramMap.get('projectId') || '';
   }
 }

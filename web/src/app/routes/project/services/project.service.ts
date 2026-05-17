@@ -23,6 +23,34 @@ export interface Project {
   createdAt: string;
 }
 
+export interface PhaseChecklist {
+  hasBudget: boolean;
+  hasContract: boolean;
+  hasSchedule: boolean;
+  hasTeam: boolean;
+}
+
+export interface ExecutionSummary {
+  dailyLogs: number;
+  measurements: number;
+  purchaseOrders: number;
+  pendingMeasurements: number;
+  pendingOrders: number;
+}
+
+export interface NextAction {
+  id: string;
+  label: string;
+  icon: string;
+  route: string;
+}
+
+export interface ProjectDashboard {
+  planning: PhaseChecklist;
+  execution: ExecutionSummary;
+  nextActions: NextAction[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class ProjectService {
   private readonly http = inject(HttpClient);
@@ -36,6 +64,10 @@ export class ProjectService {
 
   getById(id: string) {
     return this.http.get<Project>(`/projects/${id}`);
+  }
+
+  getDashboard(id: string) {
+    return this.http.get<ProjectDashboard>(`/projects/${id}/dashboard`);
   }
 
   create(data: Partial<Project>) {

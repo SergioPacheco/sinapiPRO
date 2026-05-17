@@ -4,11 +4,15 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog } from '@angular/material/dialog';
 import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MtxDialog } from '@ng-matero/extensions/dialog';
 import { PageHeader } from '@shared';
 import { MeasurementService } from '../services/measurement.service';
 import { Measurement } from '../models/measurement.model';
+import { RejectMeasurementDialogComponent } from '../dialogs/reject-measurement-dialog';
+import { MeasurementAttachmentDialogComponent } from '../dialogs/measurement-attachment-dialog';
 
 @Component({
   selector: 'app-measurement-list',
@@ -16,6 +20,17 @@ import { Measurement } from '../models/measurement.model';
     <page-header title="Medições" subtitle="Workflow de medições da obra">
       <button mat-flat-button color="primary" (click)="create()"><mat-icon>add</mat-icon> Nova Medição</button>
     </page-header>
+
+    <!-- Workflow Stepper -->
+    <div class="workflow-stepper">
+      @for (col of columns; track col.status; let i = $index) {
+        <div class="workflow-step">
+          <div class="step-circle" [style.background]="col.color">{{ getByStatus(col.status).length }}</div>
+          <span class="step-label">{{ col.label }}</span>
+        </div>
+        @if (!$last) { <div class="step-arrow"><mat-icon>arrow_forward</mat-icon></div> }
+      }
+    </div>
 
     <div class="kanban-board">
       @for (col of columns; track col.status) {
@@ -33,6 +48,9 @@ import { Measurement } from '../models/measurement.model';
                 </div>
                 <p class="card-period">{{ m.periodStart }} → {{ m.periodEnd }}</p>
                 <div class="card-actions">
+                  <button mat-icon-button (click)="openDetail(m)" matTooltip="Detalhe">
+                    <mat-icon>open_in_new</mat-icon>
+                  </button>
                   @if (m.status === 'DRAFT') {
                     <button mat-icon-button color="primary" (click)="submit(m)" matTooltip="Submeter">
                       <mat-icon>send</mat-icon>
@@ -42,11 +60,20 @@ import { Measurement } from '../models/measurement.model';
                     <button mat-icon-button color="accent" (click)="approve(m)" matTooltip="Aprovar">
                       <mat-icon>check_circle</mat-icon>
                     </button>
+                    <button mat-icon-button color="warn" (click)="reject(m)" matTooltip="Rejeitar">
+                      <mat-icon>cancel</mat-icon>
+                    </button>
                   }
+                  <button mat-icon-button (click)="attach(m)" matTooltip="Anexar arquivo">
+                    <mat-icon>attach_file</mat-icon>
+                  </button>
                   <button mat-icon-button (click)="viewReport(m)" matTooltip="Boletim PDF">
                     <mat-icon>picture_as_pdf</mat-icon>
                   </button>
                 </div>
+                @if (m.rejectionReason) {
+                  <p class="card-reject"><strong>Motivo:</strong> {{ m.rejectionReason }}</p>
+                }
               </mat-card>
             }
             @if (getByStatus(col.status).length === 0) {
@@ -58,6 +85,11 @@ import { Measurement } from '../models/measurement.model';
     </div>
   `,
   styles: `
+    .workflow-stepper { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 16px; margin-bottom: 16px; background: var(--mat-sys-surface-container); border-radius: 12px; }
+    .workflow-step { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .step-circle { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px; }
+    .step-label { font-size: 11px; font-weight: 500; text-transform: uppercase; color: var(--mat-sys-on-surface-variant); }
+    .step-arrow { color: var(--mat-sys-outline); margin-bottom: 18px; }
     .kanban-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; min-height: 400px; }
     @media (max-width: 1200px) { .kanban-board { grid-template-columns: repeat(2, 1fr); } }
     .kanban-column { background: var(--mat-sys-surface-container-low); border-radius: 12px; padding: 12px; }
@@ -71,15 +103,17 @@ import { Measurement } from '../models/measurement.model';
     .card-amount { font-size: 13px; color: #4caf50; font-weight: 600; }
     .card-period { font-size: 12px; color: var(--mat-sys-on-surface-variant); margin: 4px 0 0; }
     .card-actions { display: flex; gap: 4px; margin-top: 8px; }
+    .card-reject { margin: 8px 0 0; font-size: 12px; color: #d32f2f; }
     .kanban-empty { text-align: center; padding: 24px; color: var(--mat-sys-on-surface-variant); font-size: 13px; }
   `,
-  imports: [MatButtonModule, MatIconModule, MatCardModule, MatChipsModule, MatRippleModule, PageHeader],
+  imports: [MatButtonModule, MatIconModule, MatCardModule, MatChipsModule, MatRippleModule, MatTooltipModule, PageHeader],
 })
 export class MeasurementListComponent implements OnInit {
   private readonly service = inject(MeasurementService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly dialog = inject(MtxDialog);
+  private readonly matDialog = inject(MatDialog);
   private projectId = '';
 
   list = signal<Measurement[]>([]);
@@ -115,7 +149,27 @@ export class MeasurementListComponent implements OnInit {
       this.service.approve(this.projectId, m.id).subscribe(() => this.loadData()));
   }
 
+  reject(m: Measurement) {
+    const ref = this.matDialog.open(RejectMeasurementDialogComponent, { width: '480px' });
+    ref.afterClosed().subscribe((reason?: string) => {
+      if (!reason) return;
+      this.service.reject(this.projectId, m.id, reason).subscribe(() => this.loadData());
+    });
+  }
+
+  attach(m: Measurement) {
+    const ref = this.matDialog.open(MeasurementAttachmentDialogComponent, { width: '480px' });
+    ref.afterClosed().subscribe((result?: { file: File; title: string }) => {
+      if (!result) return;
+      this.service.uploadAttachment(this.projectId, m.id, result.file, result.title).subscribe(() => this.loadData());
+    });
+  }
+
   viewReport(m: Measurement) { window.open(this.service.bulletinReportUrl(this.projectId, m.id), '_blank'); }
+
+  openDetail(m: Measurement) {
+    this.router.navigate([m.id], { relativeTo: this.route });
+  }
 
   create() { this.router.navigate(['new'], { relativeTo: this.route }); }
 }

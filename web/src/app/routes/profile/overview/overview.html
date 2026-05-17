@@ -4,9 +4,9 @@
       <mat-icon>account_circle</mat-icon>
     </div>
     <div class="profile-info">
-      <h2>{{ user.name }}</h2>
-      <p>{{ user.email }}</p>
-      <span class="role-badge">{{ user.role }}</span>
+      <h2>{{ user().name }}</h2>
+      <p>{{ user().email }}</p>
+      <span class="role-badge">{{ user().role }}</span>
     </div>
   </div>
 
@@ -15,19 +15,19 @@
   <div class="profile-details">
     <div class="detail-row">
       <mat-icon>badge</mat-icon>
-      <div><strong>Perfil</strong><p>{{ user.role }}</p></div>
+      <div><strong>{{ 'profile_page.role' | translate }}</strong><p>{{ user().role }}</p></div>
     </div>
     <div class="detail-row">
       <mat-icon>email</mat-icon>
-      <div><strong>E-mail</strong><p>{{ user.email }}</p></div>
+      <div><strong>{{ 'common.email' | translate }}</strong><p>{{ user().email }}</p></div>
     </div>
     <div class="detail-row">
       <mat-icon>calendar_today</mat-icon>
-      <div><strong>Membro desde</strong><p>{{ user.memberSince }}</p></div>
+      <div><strong>{{ 'profile_page.member_since' | translate }}</strong><p>{{ user().memberSince }}</p></div>
     </div>
     <div class="detail-row">
       <mat-icon>language</mat-icon>
-      <div><strong>Idioma</strong><p>{{ user.language }}</p></div>
+      <div><strong>{{ 'profile_page.language' | translate }}</strong><p>{{ user().language }}</p></div>
     </div>
   </div>
 </div>
