@@ -12,6 +12,8 @@ import com.sinapipro.api.shared.error.DomainValidationException;
 import com.sinapipro.api.invoice.domain.Invoice;
 import com.sinapipro.api.invoice.domain.InvoiceRepository;
 import com.sinapipro.api.invoice.domain.InvoiceStatus;
+import com.sinapipro.api.finance.domain.Receivable;
+import com.sinapipro.api.finance.domain.ReceivableRepository;
 import com.sinapipro.api.jobcosting.domain.CostCode;
 import com.sinapipro.api.jobcosting.domain.CostCodeRepository;
 import com.sinapipro.api.jobcosting.domain.CostTransaction;
@@ -32,17 +34,19 @@ public class MeasurementService {
     private final CostCodeRepository costCodeRepository;
     private final CostTransactionRepository costTransactionRepository;
     private final InvoiceRepository invoiceRepository;
+    private final ReceivableRepository receivableRepository;
 
     public MeasurementService(MeasurementRepository measurementRepository, BudgetRepository budgetRepository,
                               BudgetItemRepository budgetItemRepository,
                               CostCodeRepository costCodeRepository, CostTransactionRepository costTransactionRepository,
-                              InvoiceRepository invoiceRepository) {
+                              InvoiceRepository invoiceRepository, ReceivableRepository receivableRepository) {
         this.measurementRepository = measurementRepository;
         this.budgetRepository = budgetRepository;
         this.budgetItemRepository = budgetItemRepository;
         this.costCodeRepository = costCodeRepository;
         this.costTransactionRepository = costTransactionRepository;
         this.invoiceRepository = invoiceRepository;
+        this.receivableRepository = receivableRepository;
     }
 
     @Transactional
@@ -146,6 +150,17 @@ public class MeasurementService {
                 InvoiceStatus.PENDING,
                 "Auto-generated from Measurement #" + measurement.getNumber());
         invoiceRepository.save(invoice);
+
+        // Generate receivable (conta a receber)
+        var receivable = new Receivable(
+                measurement.getBudget().getId(),
+                "Medição #" + measurement.getNumber() + " — " + measurement.getBudget().getTitle(),
+                measurement.getNetAmount().setScale(2, RoundingMode.HALF_UP),
+                measurement.getPeriodEnd().plusDays(30),
+                "MEASUREMENT");
+        receivable.setMeasurementId(measurement.getId());
+        receivable.setInvoiceId(invoice.getId());
+        receivableRepository.save(receivable);
     }
 
     public MeasurementSummary summary(UUID budgetId) {

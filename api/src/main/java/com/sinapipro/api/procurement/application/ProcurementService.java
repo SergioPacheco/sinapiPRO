@@ -10,6 +10,10 @@ import com.sinapipro.api.jobcosting.domain.CostTransaction;
 import com.sinapipro.api.jobcosting.domain.CostTransactionRepository;
 import com.sinapipro.api.jobcosting.domain.CostTransactionType;
 import com.sinapipro.api.procurement.domain.*;
+import com.sinapipro.api.inventory.domain.StockItem;
+import com.sinapipro.api.inventory.domain.StockItemRepository;
+import com.sinapipro.api.inventory.domain.StockMovement;
+import com.sinapipro.api.inventory.domain.StockMovementRepository;
 import com.sinapipro.api.shared.error.DomainNotFoundException;
 import com.sinapipro.api.supplier.domain.Supplier;
 import com.sinapipro.api.supplier.domain.SupplierRepository;
@@ -29,11 +33,14 @@ public class ProcurementService {
     private final SupplierRepository supplierRepository;
     private final CostCodeRepository costCodeRepository;
     private final CostTransactionRepository costTransactionRepository;
+    private final StockItemRepository stockItemRepository;
+    private final StockMovementRepository stockMovementRepository;
 
     public ProcurementService(PurchaseRequestRepository requestRepository, QuotationRepository quotationRepository,
                               PurchaseOrderRepository orderRepository, BudgetRepository budgetRepository,
                               SupplierRepository supplierRepository, CostCodeRepository costCodeRepository,
-                              CostTransactionRepository costTransactionRepository) {
+                              CostTransactionRepository costTransactionRepository,
+                              StockItemRepository stockItemRepository, StockMovementRepository stockMovementRepository) {
         this.requestRepository = requestRepository;
         this.quotationRepository = quotationRepository;
         this.orderRepository = orderRepository;
@@ -41,6 +48,8 @@ public class ProcurementService {
         this.supplierRepository = supplierRepository;
         this.costCodeRepository = costCodeRepository;
         this.costTransactionRepository = costTransactionRepository;
+        this.stockItemRepository = stockItemRepository;
+        this.stockMovementRepository = stockMovementRepository;
     }
 
     @Transactional
@@ -158,6 +167,16 @@ public class ProcurementService {
         }
 
         orderRepository.save(order);
+
+        // Auto-update inventory: find or create stock item and record entry
+        var budgetId = order.getBudget().getId();
+        var stockItem = stockItemRepository.findByBudgetIdAndDescription(budgetId, order.getDescription())
+                .orElseGet(() -> stockItemRepository.save(new StockItem(budgetId, order.getDescription(), "UN", BigDecimal.ZERO, null)));
+        stockItem.addQuantity(quantityReceived);
+        stockItemRepository.save(stockItem);
+        stockMovementRepository.save(new StockMovement(stockItem, "IN", quantityReceived, orderId, "PURCHASE_ORDER",
+                "Recebimento PO " + order.getNumber()));
+
         return receiving;
     }
 

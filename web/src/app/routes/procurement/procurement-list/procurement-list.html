@@ -1,5 +1,28 @@
 <page-header title="Suprimentos" subtitle="Pedidos de compra e cotações" />
 
+<!-- Workflow Pipeline -->
+<div class="workflow-stepper">
+  <div class="workflow-step">
+    <div class="step-circle" style="background: #2196f3">{{ abcItems.length }}</div>
+    <span class="step-label">Requisição</span>
+  </div>
+  <div class="step-arrow"><mat-icon>arrow_forward</mat-icon></div>
+  <div class="workflow-step">
+    <div class="step-circle" style="background: #9c27b0">{{ quotationCount }}</div>
+    <span class="step-label">Cotação</span>
+  </div>
+  <div class="step-arrow"><mat-icon>arrow_forward</mat-icon></div>
+  <div class="workflow-step">
+    <div class="step-circle" style="background: #ff9800">{{ getByStatus('PENDING').length }}</div>
+    <span class="step-label">Pedido</span>
+  </div>
+  <div class="step-arrow"><mat-icon>arrow_forward</mat-icon></div>
+  <div class="workflow-step">
+    <div class="step-circle" style="background: #4caf50">{{ getByStatus('RECEIVED').length }}</div>
+    <span class="step-label">Recebido</span>
+  </div>
+</div>
+
 @if (overdue.length > 0) {
   <mat-card class="m-b-16" style="border-left: 4px solid #d32f2f;">
     <mat-card-title>Pedidos em atraso</mat-card-title>
