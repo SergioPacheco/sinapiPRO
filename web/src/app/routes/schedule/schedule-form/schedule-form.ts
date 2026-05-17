@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { PageHeader } from '@shared';
+import { NextActionService } from '@shared';
 import { ScheduleService } from '../services/schedule.service';
 
 @Component({
@@ -17,6 +18,7 @@ export class ScheduleFormComponent {
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(ScheduleService);
   private readonly route = inject(ActivatedRoute);
+  private readonly nextAction = inject(NextActionService);
   readonly router = inject(Router);
 
   form = this.fb.nonNullable.group({
@@ -47,7 +49,10 @@ export class ScheduleFormComponent {
       plannedEnd: value.plannedEnd,
       weight: Number((value.weightPct / 100).toFixed(6)),
       sortOrder: value.sortOrder,
-    }).subscribe(() => this.router.navigate(['../'], { relativeTo: this.route }));
+    }).subscribe(() => {
+      this.router.navigate(['../'], { relativeTo: this.route });
+      this.nextAction.suggest('schedule.created');
+    });
   }
 
   cancel() {
