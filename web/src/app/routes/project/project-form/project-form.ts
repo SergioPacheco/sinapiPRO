@@ -10,6 +10,7 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { map } from 'rxjs';
 import { PageHeader, LookupFieldComponent, SearchDialogComponent, QuickCreateDialogComponent } from '@shared';
+import { NextActionService } from '@shared';
 import { ProjectService } from '../services/project.service';
 import { RegistryService } from '../../registry/services/registry.service';
 import { Client, Employee } from '../../registry/models/registry.model';
@@ -178,6 +179,7 @@ export class ProjectFormComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
+  private readonly nextAction = inject(NextActionService);
 
   @ViewChild('clientFormTpl') clientFormTpl!: TemplateRef<any>;
   @ViewChild('employeeFormTpl') employeeFormTpl!: TemplateRef<any>;
@@ -242,7 +244,10 @@ export class ProjectFormComponent implements OnInit {
     if (this.isEdit) {
       this.service.update(this.projectId, payload).subscribe(() => this.router.navigate(['/projects', this.projectId]));
     } else {
-      this.service.create(payload).subscribe(p => this.router.navigate(['/projects', p.id]));
+      this.service.create(payload).subscribe(p => {
+        this.router.navigate(['/projects', p.id]);
+        this.nextAction.suggest('project.created', `/projects/${p.id}`);
+      });
     }
   }
 
