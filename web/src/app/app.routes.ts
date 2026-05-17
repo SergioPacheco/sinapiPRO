@@ -77,6 +77,10 @@ export const routes: Routes = [
         path: 'finance',
         loadChildren: () => import('./routes/finance-global/finance-global').then(m => m.routes),
       },
+      {
+        path: 'help',
+        loadChildren: () => import('./routes/help/help.routes').then(m => m.routes),
+      },
     ],
   },
   {

@@ -25,6 +25,10 @@
 
   <app-notification class="hide-small" />
 
+  <button matIconButton (click)="openHelp.emit()" matTooltip="Ajuda (F1)">
+    <mat-icon>help_outline</mat-icon>
+  </button>
+
   <app-user />
 
   <button matIconButton class="hide-small" (click)="toggleSidenavNotice.emit()">
