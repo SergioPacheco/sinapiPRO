@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { map } from 'rxjs';
 import { PageHeader, LookupFieldComponent, SearchDialogComponent, QuickCreateDialogComponent } from '@shared';
+import { NextActionService } from '@shared';
 import { ContractService } from '../services/contract.service';
 import { SupplierService } from '../../supplier/services/supplier.service';
 import { Supplier } from '../../supplier/models/supplier.model';
@@ -27,6 +28,7 @@ export class ContractFormComponent implements OnInit {
   private readonly supplierService = inject(SupplierService);
   private readonly route = inject(ActivatedRoute);
   private readonly dialog = inject(MatDialog);
+  private readonly nextAction = inject(NextActionService);
   private projectId = '';
   readonly router = inject(Router);
 
@@ -106,6 +108,9 @@ export class ContractFormComponent implements OnInit {
     if (this.form.invalid) return;
     const data = this.form.getRawValue() as any;
     const obs = this.isEdit ? this.service.update(this.projectId, this.id, data) : this.service.create(this.projectId, data);
-    obs.subscribe(() => this.router.navigate(['/budgets', this.projectId, 'contracts']));
+    obs.subscribe(() => {
+      this.router.navigate(['/budgets', this.projectId, 'contracts']);
+      if (!this.isEdit) this.nextAction.suggest('contract.created');
+    });
   }
 }

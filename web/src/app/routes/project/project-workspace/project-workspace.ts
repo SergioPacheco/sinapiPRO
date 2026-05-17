@@ -3,7 +3,8 @@ import { ActivatedRoute, RouterOutlet, RouterLink, RouterLinkActive } from '@ang
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
-import { ProjectService, Project } from '../services/project.service';
+import { MatBadgeModule } from '@angular/material/badge';
+import { ProjectService, Project, ProjectDashboard } from '../services/project.service';
 
 @Component({
   selector: 'app-project-workspace',
@@ -19,7 +20,8 @@ import { ProjectService, Project } from '../services/project.service';
       </div>
       <nav mat-tab-nav-bar [tabPanel]="tabPanel">
         @for (tab of tabs; track tab.path) {
-          <a mat-tab-link [routerLink]="tab.path" routerLinkActive #rla="routerLinkActive" [active]="rla.isActive">
+          <a mat-tab-link [routerLink]="tab.path" routerLinkActive #rla="routerLinkActive" [active]="rla.isActive"
+             [matBadge]="getBadge(tab.path)" [matBadgeHidden]="!getBadge(tab.path)" matBadgeColor="warn" matBadgeSize="small">
             <mat-icon>{{ tab.icon }}</mat-icon>&nbsp;{{ tab.label }}
           </a>
         }
@@ -36,13 +38,14 @@ import { ProjectService, Project } from '../services/project.service';
     .workspace-header h2 { margin: 0; color: var(--mat-sys-on-surface); }
     .subtitle { color: var(--mat-sys-on-surface-variant); font-size: 14px; display: flex; align-items: center; gap: 8px; }
   `,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatTabsModule, MatIconModule, MatChipsModule],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatTabsModule, MatIconModule, MatChipsModule, MatBadgeModule],
 })
 export class ProjectWorkspaceComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly projectService = inject(ProjectService);
 
   project: Project | null = null;
+  dashboard: ProjectDashboard | null = null;
 
   statusLabel: Record<string, string> = {
     PLANNING: 'Planejamento', IN_PROGRESS: 'Em Execução', SUSPENDED: 'Suspensa',
@@ -65,5 +68,15 @@ export class ProjectWorkspaceComponent implements OnInit {
   ngOnInit() {
     const projectId = this.route.snapshot.paramMap.get('projectId')!;
     this.projectService.getById(projectId).subscribe(p => this.project = p);
+    this.projectService.getDashboard(projectId).subscribe(d => this.dashboard = d);
+  }
+
+  getBadge(tabPath: string): string | null {
+    if (!this.dashboard) return null;
+    const d = this.dashboard;
+    if (tabPath === 'measurements' && d.execution.pendingMeasurements > 0) return String(d.execution.pendingMeasurements);
+    if (tabPath === 'procurement' && d.execution.pendingOrders > 0) return String(d.execution.pendingOrders);
+    if (tabPath === 'budgets' && !d.planning.hasBudget) return '!';
+    return null;
   }
 }

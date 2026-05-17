@@ -9,6 +9,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MtxDialog } from '@ng-matero/extensions/dialog';
 import { PageHeader } from '@shared';
+import { NextActionService } from '@shared';
 import { MeasurementService } from '../services/measurement.service';
 import { Measurement } from '../models/measurement.model';
 import { RejectMeasurementDialogComponent } from '../dialogs/reject-measurement-dialog';
@@ -114,6 +115,7 @@ export class MeasurementListComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly dialog = inject(MtxDialog);
   private readonly matDialog = inject(MatDialog);
+  private readonly nextAction = inject(NextActionService);
   private projectId = '';
 
   list = signal<Measurement[]>([]);
@@ -141,12 +143,18 @@ export class MeasurementListComponent implements OnInit {
 
   submit(m: Measurement) {
     this.dialog.confirm('Submeter medição', `Submeter medição #${m.number} para aprovação?`, () =>
-      this.service.submit(this.projectId, m.id).subscribe(() => this.loadData()));
+      this.service.submit(this.projectId, m.id).subscribe(() => {
+        this.loadData();
+        this.nextAction.suggest('measurement.submitted');
+      }));
   }
 
   approve(m: Measurement) {
     this.dialog.confirm('Aprovar medição', `Aprovar medição #${m.number}?`, () =>
-      this.service.approve(this.projectId, m.id).subscribe(() => this.loadData()));
+      this.service.approve(this.projectId, m.id).subscribe(() => {
+        this.loadData();
+        this.nextAction.suggest('measurement.approved');
+      }));
   }
 
   reject(m: Measurement) {
