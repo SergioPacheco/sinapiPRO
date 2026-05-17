@@ -35,11 +35,13 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/budgets/{budgetId}")
 public class BudgetDetailController {
+    private static final String DEFAULT_BDI_ITEM_TYPE = "ALL";
 
     private final BudgetRepository budgetRepository;
     private final BudgetStageRepository stageRepository;
     private final BudgetItemRepository itemRepository;
     private final BdiConfigRepository bdiConfigRepository;
+    private final BudgetItemMemoRepository memoRepository;
     private final CompositionRepository compositionRepository;
     private final BudgetCalculationService calculationService;
     private final AbcCurveService abcCurveService;
@@ -50,6 +52,7 @@ public class BudgetDetailController {
 
     public BudgetDetailController(BudgetRepository budgetRepository, BudgetStageRepository stageRepository,
                                   BudgetItemRepository itemRepository, BdiConfigRepository bdiConfigRepository,
+                                  BudgetItemMemoRepository memoRepository,
                                   CompositionRepository compositionRepository,
                                   BudgetCalculationService calculationService, AbcCurveService abcCurveService,
                                   PriceAdjustmentService priceAdjustmentService,
@@ -60,6 +63,7 @@ public class BudgetDetailController {
         this.stageRepository = stageRepository;
         this.itemRepository = itemRepository;
         this.bdiConfigRepository = bdiConfigRepository;
+        this.memoRepository = memoRepository;
         this.compositionRepository = compositionRepository;
         this.calculationService = calculationService;
         this.abcCurveService = abcCurveService;
@@ -77,7 +81,9 @@ public class BudgetDetailController {
     @Transactional(readOnly = true)
     WorksheetResponse getWorksheet(@PathVariable UUID budgetId) {
         var stages = stageRepository.findRootStages(budgetId);
-        var bdi = bdiConfigRepository.findByBudgetId(budgetId).map(BdiConfig::getTotalBdi).orElse(BigDecimal.ZERO);
+        var bdi = bdiConfigRepository.findByBudgetIdAndItemType(budgetId, DEFAULT_BDI_ITEM_TYPE)
+                .map(BdiConfig::getTotalBdi)
+                .orElse(BigDecimal.ZERO);
         var directCost = itemRepository.sumDirectCostByBudget(budgetId);
         var bdiAmount = directCost.multiply(bdi).setScale(2, java.math.RoundingMode.HALF_UP);
         var total = directCost.add(bdiAmount);
@@ -119,7 +125,7 @@ public class BudgetDetailController {
     ResponseEntity<StageResponse> createStage(@PathVariable UUID budgetId, @Valid @RequestBody CreateStageRequest req) {
         Budget budget = budgetRepository.findById(budgetId)
                 .orElseThrow(() -> new DomainNotFoundException("Budget not found: " + budgetId));
-        BudgetStage parent = req.parentId() != null ? stageRepository.findById(req.parentId()).orElse(null) : null;
+        BudgetStage parent = req.parentId() != null ? ensureStageInBudget(budgetId, req.parentId()) : null;
         BudgetStage stage = stageRepository.save(new BudgetStage(budget, parent, req.name(), req.sortOrder()));
         return ResponseEntity.created(URI.create("/api/v1/budgets/" + budgetId + "/stages/" + stage.getId()))
                 .body(StageResponse.from(stage));
@@ -130,6 +136,7 @@ public class BudgetDetailController {
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteStage(@PathVariable UUID budgetId, @PathVariable UUID stageId) {
+        ensureStageInBudget(budgetId, stageId);
         stageRepository.deleteById(stageId);
     }
 
@@ -139,6 +146,7 @@ public class BudgetDetailController {
     @GetMapping("/stages/{stageId}/items")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
     List<ItemResponse> listItems(@PathVariable UUID budgetId, @PathVariable UUID stageId) {
+        ensureStageInBudget(budgetId, stageId);
         return itemRepository.findByStageId(stageId).stream().map(ItemResponse::from).toList();
     }
 
@@ -148,8 +156,7 @@ public class BudgetDetailController {
     @Transactional
     ResponseEntity<ItemResponse> createItem(@PathVariable UUID budgetId, @PathVariable UUID stageId,
                                             @Valid @RequestBody CreateItemRequest req) {
-        BudgetStage stage = stageRepository.findById(stageId)
-                .orElseThrow(() -> new DomainNotFoundException("Stage not found: " + stageId));
+        BudgetStage stage = ensureStageInBudget(budgetId, stageId);
         Composition composition = compositionRepository.findById(req.compositionId())
                 .orElseThrow(() -> new DomainNotFoundException("Composition not found: " + req.compositionId()));
 
@@ -164,7 +171,8 @@ public class BudgetDetailController {
         }
 
         BigDecimal bdiPct = req.bdiPct() != null ? req.bdiPct() :
-                bdiConfigRepository.findByBudgetId(budgetId).map(BdiConfig::getTotalBdi).orElse(BigDecimal.ZERO);
+                bdiConfigRepository.findByBudgetIdAndItemType(budgetId, DEFAULT_BDI_ITEM_TYPE)
+                        .map(BdiConfig::getTotalBdi).orElse(BigDecimal.ZERO);
 
         BudgetItem item = itemRepository.save(new BudgetItem(stage, composition, req.quantity(), unitCost, bdiPct));
         return ResponseEntity.status(HttpStatus.CREATED).body(ItemResponse.from(item));
@@ -175,7 +183,48 @@ public class BudgetDetailController {
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteItem(@PathVariable UUID budgetId, @PathVariable UUID itemId) {
+        ensureItemInBudget(budgetId, itemId);
         itemRepository.deleteById(itemId);
+    }
+
+    @Operation(summary = "Get memo for a budget item")
+    @GetMapping("/items/{itemId}/memo")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    ResponseEntity<ItemMemoResponse> getItemMemo(@PathVariable UUID budgetId, @PathVariable UUID itemId) {
+        ensureItemInBudget(budgetId, itemId);
+        return memoRepository.findByBudgetItemId(itemId)
+                .map(memo -> ResponseEntity.ok(new ItemMemoResponse(
+                        memo.getBudgetItemId(),
+                        memo.getLines().stream().map(l -> new MemoLineRequest(l.description(), l.formula(), l.value())).toList(),
+                        memo.getResult(),
+                        memo.getNotes()
+                )))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @Operation(summary = "Save memo for a budget item")
+    @PutMapping("/items/{itemId}/memo")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    ItemMemoResponse saveItemMemo(@PathVariable UUID budgetId, @PathVariable UUID itemId,
+                                  @Valid @RequestBody ItemMemoRequest req) {
+        ensureItemInBudget(budgetId, itemId);
+        BudgetItemMemo memo = memoRepository.findByBudgetItemId(itemId).orElseGet(BudgetItemMemo::new);
+        memo.setBudgetItemId(itemId);
+        memo.setLines(req.lines().stream()
+                .map(l -> new BudgetItemMemo.MemoLine(l.description(), l.formula(), l.value()))
+                .toList());
+        BigDecimal result = req.result() != null
+                ? req.result()
+                : req.lines().stream().map(MemoLineRequest::value).reduce(BigDecimal.ZERO, BigDecimal::add);
+        memo.setResult(result);
+        memo.setNotes(req.notes());
+        BudgetItemMemo saved = memoRepository.save(memo);
+        return new ItemMemoResponse(
+                saved.getBudgetItemId(),
+                saved.getLines().stream().map(l -> new MemoLineRequest(l.description(), l.formula(), l.value())).toList(),
+                saved.getResult(),
+                saved.getNotes()
+        );
     }
 
     @Operation(summary = "Bulk add items to a stage (fast entry mode)")
@@ -184,9 +233,8 @@ public class BudgetDetailController {
     @Transactional
     ResponseEntity<BulkAddResult> bulkAddItems(@PathVariable UUID budgetId, @PathVariable UUID stageId,
                                                @Valid @RequestBody List<CreateItemRequest> items) {
-        BudgetStage stage = stageRepository.findById(stageId)
-                .orElseThrow(() -> new DomainNotFoundException("Stage not found: " + stageId));
-        BigDecimal defaultBdi = bdiConfigRepository.findByBudgetId(budgetId)
+        BudgetStage stage = ensureStageInBudget(budgetId, stageId);
+        BigDecimal defaultBdi = bdiConfigRepository.findByBudgetIdAndItemType(budgetId, DEFAULT_BDI_ITEM_TYPE)
                 .map(BdiConfig::getTotalBdi).orElse(BigDecimal.ZERO);
         String state = settingsRepository.findById(AppSettings.DEFAULT_STATE).map(s -> s.getValue()).orElse("SP");
         String monthStr = settingsRepository.findById(AppSettings.DEFAULT_REFERENCE_MONTH).map(s -> s.getValue()).orElse("2024-12-01");
@@ -215,10 +263,12 @@ public class BudgetDetailController {
     @Operation(summary = "Get or create BDI config for a budget")
     @GetMapping("/bdi")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
-    BdiResponse getBdi(@PathVariable UUID budgetId) {
-        return bdiConfigRepository.findByBudgetId(budgetId)
+    BdiResponse getBdi(@PathVariable UUID budgetId,
+                       @RequestParam(defaultValue = DEFAULT_BDI_ITEM_TYPE) String itemType) {
+        String normalizedItemType = itemType.toUpperCase();
+        return bdiConfigRepository.findByBudgetIdAndItemType(budgetId, normalizedItemType)
                 .map(BdiResponse::from)
-                .orElse(BdiResponse.empty());
+                .orElse(BdiResponse.empty(normalizedItemType));
     }
 
     @Operation(summary = "Set BDI config for a budget")
@@ -227,10 +277,12 @@ public class BudgetDetailController {
     BdiResponse setBdi(@PathVariable UUID budgetId, @Valid @RequestBody BdiRequest req) {
         Budget budget = budgetRepository.findById(budgetId)
                 .orElseThrow(() -> new DomainNotFoundException("Budget not found: " + budgetId));
-        BdiConfig config = bdiConfigRepository.findByBudgetId(budgetId).orElse(null);
+        String itemType = req.itemType() != null ? req.itemType().toUpperCase() : DEFAULT_BDI_ITEM_TYPE;
+        BdiConfig config = bdiConfigRepository.findByBudgetIdAndItemType(budgetId, itemType).orElse(null);
         if (config == null) {
             config = new BdiConfig(budget, req.administration(), req.profit(), req.taxes(),
                     req.socialCharges(), req.financialExpenses(), req.risks());
+            config.setItemType(itemType);
         } else {
             config.update(req.administration(), req.profit(), req.taxes(),
                     req.socialCharges(), req.financialExpenses(), req.risks());
@@ -321,10 +373,13 @@ public class BudgetDetailController {
     record CreateItemRequest(@NotNull UUID compositionId, @NotNull @Positive BigDecimal quantity,
                              BigDecimal unitCost, BigDecimal bdiPct) {}
     record BulkAddResult(int added, int skipped, int total) {}
-    record BdiRequest(@NotNull BigDecimal administration, @NotNull BigDecimal profit, @NotNull BigDecimal taxes,
+    record BdiRequest(String itemType, @NotNull BigDecimal administration, @NotNull BigDecimal profit, @NotNull BigDecimal taxes,
                       @NotNull BigDecimal socialCharges, @NotNull BigDecimal financialExpenses, @NotNull BigDecimal risks) {}
     record PriceAdjustmentRequest(@NotNull PriceAdjustmentService.AdjustmentType type,
                                   BigDecimal percentage, BigDecimal value, String state, LocalDate referenceMonth) {}
+    record MemoLineRequest(@NotBlank String description, @NotBlank String formula, @NotNull BigDecimal value) {}
+    record ItemMemoRequest(@NotNull List<MemoLineRequest> lines, BigDecimal result, String notes) {}
+    record ItemMemoResponse(UUID budgetItemId, List<MemoLineRequest> lines, BigDecimal result, String notes) {}
 
     record StageResponse(UUID id, UUID parentId, String name, Integer sortOrder, List<StageResponse> children) {
         static StageResponse from(BudgetStage s) {
@@ -342,14 +397,14 @@ public class BudgetDetailController {
         }
     }
 
-    record BdiResponse(BigDecimal administration, BigDecimal profit, BigDecimal taxes,
+    record BdiResponse(String itemType, BigDecimal administration, BigDecimal profit, BigDecimal taxes,
                        BigDecimal socialCharges, BigDecimal financialExpenses, BigDecimal risks, BigDecimal totalBdi) {
         static BdiResponse from(BdiConfig c) {
-            return new BdiResponse(c.getAdministration(), c.getProfit(), c.getTaxes(),
+            return new BdiResponse(c.getItemType(), c.getAdministration(), c.getProfit(), c.getTaxes(),
                     c.getSocialCharges(), c.getFinancialExpenses(), c.getRisks(), c.getTotalBdi());
         }
-        static BdiResponse empty() {
-            return new BdiResponse(BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO,
+        static BdiResponse empty(String itemType) {
+            return new BdiResponse(itemType, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO,
                     BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
         }
     }
@@ -387,4 +442,21 @@ public class BudgetDetailController {
 
     record UpdateBaseDateRequest(LocalDate referenceDate, String state) {}
     record UpdateBaseDateResponse(int updatedPrices, int divergentPrices, int totalItems) {}
+
+    private void ensureItemInBudget(UUID budgetId, UUID itemId) {
+        BudgetItem item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new DomainNotFoundException("Budget item not found: " + itemId));
+        if (!budgetId.equals(item.getStage().getBudget().getId())) {
+            throw new DomainNotFoundException("Budget item not found in budget: " + itemId);
+        }
+    }
+
+    private BudgetStage ensureStageInBudget(UUID budgetId, UUID stageId) {
+        BudgetStage stage = stageRepository.findById(stageId)
+                .orElseThrow(() -> new DomainNotFoundException("Stage not found: " + stageId));
+        if (!budgetId.equals(stage.getBudget().getId())) {
+            throw new DomainNotFoundException("Stage not found in budget: " + stageId);
+        }
+        return stage;
+    }
 }

@@ -8,4 +8,5 @@ import java.util.UUID;
 public interface EmployeeRepository extends JpaRepository<Employee, UUID> {
     Page<Employee> findByActiveTrue(Pageable pageable);
     Page<Employee> findByActiveTrueAndType(String type, Pageable pageable);
+    Page<Employee> findByActiveTrueAndNameContainingIgnoreCase(String name, Pageable pageable);
 }

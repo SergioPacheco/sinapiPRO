@@ -146,6 +146,11 @@
     "edit_profile": "Editar Perfil",
     "restore_defaults": "Restaurar valores predeterminados"
   },
+  "profile_page": {
+    "role": "Perfil",
+    "member_since": "Miembro desde",
+    "language": "Idioma"
+  },
   "languages": {
     "pt_br": "Português",
     "en_us": "English",

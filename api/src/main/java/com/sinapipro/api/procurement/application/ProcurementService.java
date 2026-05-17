@@ -169,6 +169,22 @@ public class ProcurementService {
         return orderRepository.findByBudgetId(budgetId, pageable);
     }
 
+    public Page<Quotation> listQuotationsPaged(UUID budgetId, Pageable pageable) {
+        return quotationRepository.findByPurchaseRequestBudgetId(budgetId, pageable);
+    }
+
+    public Page<Quotation> listQuotationsByOrderPaged(UUID budgetId, UUID orderId, Pageable pageable) {
+        var order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new DomainNotFoundException("Purchase order not found: " + orderId));
+        if (!budgetId.equals(order.getBudget().getId())) {
+            throw new DomainNotFoundException("Purchase order not found in project: " + orderId);
+        }
+        if (order.getQuotationResponseId() == null) {
+            return Page.empty(pageable);
+        }
+        return quotationRepository.findByBudgetIdAndResponseId(budgetId, order.getQuotationResponseId(), pageable);
+    }
+
     @Transactional
     public PurchaseOrder approveOrder(UUID orderId) {
         var order = orderRepository.findById(orderId)

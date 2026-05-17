@@ -1,34 +1,30 @@
-<page-header title="Novo Registro — Diário de Obra" />
+<page-header title="Novo Registro - Diário de Obra" />
 <mat-card>
   <mat-card-content>
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-grid">
       <mat-form-field appearance="outline">
         <mat-label>Data</mat-label>
-        <input matInput formControlName="date" type="date" />
+        <input matInput formControlName="logDate" type="date" />
       </mat-form-field>
       <mat-form-field appearance="outline">
-        <mat-label>Clima</mat-label>
-        <mat-select formControlName="weather">
+        <mat-label>Clima manhã</mat-label>
+        <mat-select formControlName="weatherMorning">
           @for (w of weathers; track w) {
             <mat-option [value]="w">{{ w }}</mat-option>
           }
         </mat-select>
       </mat-form-field>
       <mat-form-field appearance="outline">
-        <mat-label>Temperatura (°C)</mat-label>
-        <input matInput formControlName="temperature" type="number" />
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>Mão de Obra (pessoas)</mat-label>
-        <input matInput formControlName="laborCount" type="number" />
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>Equipamentos</mat-label>
-        <input matInput formControlName="equipmentCount" type="number" />
+        <mat-label>Clima tarde</mat-label>
+        <mat-select formControlName="weatherAfternoon">
+          @for (w of weathers; track w) {
+            <mat-option [value]="w">{{ w }}</mat-option>
+          }
+        </mat-select>
       </mat-form-field>
       <mat-form-field appearance="outline" style="grid-column: 1 / -1;">
         <mat-label>Observações</mat-label>
-        <textarea matInput formControlName="notes" rows="3"></textarea>
+        <textarea matInput formControlName="observations" rows="3"></textarea>
       </mat-form-field>
 
       <!-- Atrasos Climáticos -->
@@ -57,7 +53,7 @@
       </div>
 
       <div class="form-actions">
-        <button mat-button type="button" (click)="router.navigate(['/daily-log'])">Cancelar</button>
+        <button mat-button type="button" (click)="cancel()">Cancelar</button>
         <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">Registrar</button>
       </div>
     </form>

@@ -2,10 +2,12 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
 import { MtxGridColumn, MtxGridModule } from '@ng-matero/extensions/grid';
 import { PageHeader } from '@shared';
 import { ProjectService, Project } from '../services/project.service';
@@ -13,11 +15,24 @@ import { ProjectService, Project } from '../services/project.service';
 @Component({
   selector: 'app-project-list',
   templateUrl: './project-list.html',
-  imports: [FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatIconModule, MtxGridModule, PageHeader],
+  styleUrl: './project-list.scss',
+  imports: [
+    FormsModule, MatButtonModule, MatButtonToggleModule, MatFormFieldModule, MatInputModule,
+    MatSelectModule, MatIconModule, MatCardModule, MtxGridModule, PageHeader,
+  ],
 })
 export class ProjectListComponent implements OnInit {
   private readonly service = inject(ProjectService);
-  private readonly router = inject(Router);
+  readonly router = inject(Router);
+
+  viewMode: 'table' | 'kanban' = 'kanban';
+
+  kanbanColumns = [
+    { status: 'PLANNING', label: 'Planejamento', color: '#2196f3' },
+    { status: 'IN_PROGRESS', label: 'Em Execução', color: '#ff9800' },
+    { status: 'SUSPENDED', label: 'Suspensa', color: '#9e9e9e' },
+    { status: 'COMPLETED', label: 'Concluída', color: '#4caf50' },
+  ];
 
   columns: MtxGridColumn[] = [
     { header: 'Código', field: 'code', width: '120px', sortable: true },
@@ -32,7 +47,7 @@ export class ProjectListComponent implements OnInit {
   list: Project[] = [];
   total = 0;
   isLoading = true;
-  query = { page: 0, size: 20 };
+  query = { page: 0, size: 100 };
   search = '';
   statusFilter = '';
 
@@ -40,10 +55,15 @@ export class ProjectListComponent implements OnInit {
 
   loadData() {
     this.isLoading = true;
-    this.service.list(this.query.page, this.query.size, this.search || undefined, this.statusFilter || undefined).subscribe({
+    const size = this.viewMode === 'kanban' ? 100 : this.query.size;
+    this.service.list(this.query.page, size, this.search || undefined, this.statusFilter || undefined).subscribe({
       next: res => { this.list = res.content; this.total = res.totalElements; this.isLoading = false; },
       error: () => { this.isLoading = false; },
     });
+  }
+
+  getByStatus(status: string): Project[] {
+    return this.list.filter(p => p.status === status);
   }
 
   applyFilters() { this.query.page = 0; this.loadData(); }

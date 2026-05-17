@@ -12,6 +12,7 @@ import java.util.UUID;
 @Service
 @Transactional(readOnly = true)
 public class BudgetCalculationService {
+    private static final String DEFAULT_BDI_ITEM_TYPE = "ALL";
 
     private final BudgetItemRepository itemRepository;
     private final BdiConfigRepository bdiConfigRepository;
@@ -23,7 +24,7 @@ public class BudgetCalculationService {
 
     public BudgetSummary calculateSummary(UUID budgetId) {
         BigDecimal directCost = itemRepository.sumDirectCostByBudget(budgetId);
-        BigDecimal bdiPct = bdiConfigRepository.findByBudgetId(budgetId)
+        BigDecimal bdiPct = bdiConfigRepository.findByBudgetIdAndItemType(budgetId, DEFAULT_BDI_ITEM_TYPE)
                 .map(BdiConfig::getTotalBdi)
                 .orElse(BigDecimal.ZERO);
         BigDecimal bdiAmount = directCost.multiply(bdiPct).setScale(2, RoundingMode.HALF_UP);

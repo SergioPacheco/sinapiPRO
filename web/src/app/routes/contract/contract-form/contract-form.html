@@ -10,6 +10,16 @@
         <mat-label>Descrição</mat-label>
         <input matInput formControlName="description" />
       </mat-form-field>
+
+      <app-lookup-field
+        label="Fornecedor"
+        [displayValue]="supplierDisplay"
+        [allowCreate]="true"
+        (onSearch)="searchSupplier()"
+        (onCreate)="createSupplier()"
+        (onClear)="clearSupplier()"
+      />
+
       <mat-form-field appearance="outline">
         <mat-label>Valor Original (R$)</mat-label>
         <input matInput formControlName="originalValue" type="number" step="0.01" />
@@ -44,3 +54,13 @@
     </form>
   </mat-card-content>
 </mat-card>
+
+<!-- Quick Create Supplier Template -->
+<ng-template #supplierFormTpl>
+  <div class="quick-form">
+    <mat-form-field appearance="outline"><mat-label>Nome / Razão Social</mat-label><input matInput [(ngModel)]="newSupplier.name" required /></mat-form-field>
+    <mat-form-field appearance="outline"><mat-label>CNPJ</mat-label><input matInput [(ngModel)]="newSupplier.taxId" /></mat-form-field>
+    <mat-form-field appearance="outline"><mat-label>Email</mat-label><input matInput [(ngModel)]="newSupplier.email" /></mat-form-field>
+    <mat-form-field appearance="outline"><mat-label>Telefone</mat-label><input matInput [(ngModel)]="newSupplier.phone" /></mat-form-field>
+  </div>
+</ng-template>

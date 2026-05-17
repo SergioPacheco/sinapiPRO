@@ -110,9 +110,13 @@ public class BudgetService {
                     code, title, source.getCustomerName(), source.getTotalAmount(),
                     BudgetStatus.DRAFT, source.getStartDate(), source.getEndDate(), source.getMetadata()));
 
-            bdiConfigRepository.findByBudgetId(sourceId).ifPresent(bdi -> bdiConfigRepository.save(new BdiConfig(
-                    copy, bdi.getAdministration(), bdi.getProfit(), bdi.getTaxes(),
-                    bdi.getSocialCharges(), bdi.getFinancialExpenses(), bdi.getRisks())));
+            bdiConfigRepository.findAllByBudgetId(sourceId).forEach(bdi -> {
+                var copiedBdi = new BdiConfig(
+                        copy, bdi.getAdministration(), bdi.getProfit(), bdi.getTaxes(),
+                        bdi.getSocialCharges(), bdi.getFinancialExpenses(), bdi.getRisks());
+                copiedBdi.setItemType(bdi.getItemType());
+                bdiConfigRepository.save(copiedBdi);
+            });
 
             stageRepository.findRootStages(sourceId).forEach(stage -> copyStage(stage, copy, null));
 

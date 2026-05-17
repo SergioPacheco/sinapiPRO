@@ -7,6 +7,7 @@ import com.sinapipro.api.shared.api.PageResponse;
 import com.sinapipro.api.shared.error.DomainNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityManager;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "Projects", description = "Gestão de Obras")
@@ -26,9 +28,11 @@ import java.util.UUID;
 public class ProjectController {
 
     private final ProjectRepository repository;
+    private final EntityManager em;
 
-    public ProjectController(ProjectRepository repository) {
+    public ProjectController(ProjectRepository repository, EntityManager em) {
         this.repository = repository;
+        this.em = em;
     }
 
     @Operation(summary = "List projects with optional search and status filter")
@@ -88,6 +92,46 @@ public class ProjectController {
         repository.delete(findOrThrow(id));
     }
 
+    @Operation(summary = "Project process dashboard — phase checklist, module counts, next actions")
+    @GetMapping("/{id}/dashboard")
+    ProjectDashboard dashboard(@PathVariable UUID id) {
+        findOrThrow(id);
+        var budgets = countByProject("Budget", id);
+        var contracts = countByProject("Contract", id);
+        var activities = countByProject("ScheduleActivity", id);
+        var measurements = countByProject("Measurement", id);
+        var dailyLogs = countByProject("DailyLog", id);
+        var purchaseOrders = countByProject("PurchaseOrder", id);
+        var teams = ((Number) em.createQuery("SELECT COUNT(t) FROM Team t WHERE t.projectId = :pid")
+                .setParameter("pid", id).getSingleResult()).longValue();
+        var pendingMeasurements = ((Number) em.createQuery(
+                "SELECT COUNT(m) FROM Measurement m WHERE m.projectId = :pid AND m.status IN ('DRAFT','SUBMITTED')")
+                .setParameter("pid", id).getSingleResult()).longValue();
+        var pendingOrders = ((Number) em.createQuery(
+                "SELECT COUNT(o) FROM PurchaseOrder o WHERE o.projectId = :pid AND o.status = 'PENDING'")
+                .setParameter("pid", id).getSingleResult()).longValue();
+
+        var planning = new PhaseChecklist(
+                budgets > 0, contracts > 0, activities > 0, teams > 0);
+        var execution = new ExecutionSummary(
+                dailyLogs, measurements, purchaseOrders, pendingMeasurements, pendingOrders);
+
+        var nextActions = new java.util.ArrayList<NextAction>();
+        if (budgets == 0) nextActions.add(new NextAction("create_budget", "Criar orçamento", "request_quote", "../budgets"));
+        else if (activities == 0) nextActions.add(new NextAction("create_schedule", "Criar cronograma", "event_note", "../schedule"));
+        else if (contracts == 0) nextActions.add(new NextAction("create_contract", "Criar contrato", "description", "../contracts"));
+        if (pendingMeasurements > 0) nextActions.add(new NextAction("approve_measurement", "Aprovar medição pendente (" + pendingMeasurements + ")", "straighten", "../measurements"));
+        if (pendingOrders > 0) nextActions.add(new NextAction("receive_order", "Receber pedido pendente (" + pendingOrders + ")", "shopping_cart", "../procurement"));
+        if (dailyLogs == 0 && budgets > 0) nextActions.add(new NextAction("create_daily_log", "Preencher diário de obra", "edit_note", "../daily-logs"));
+
+        return new ProjectDashboard(planning, execution, List.copyOf(nextActions));
+    }
+
+    private long countByProject(String entity, UUID projectId) {
+        return ((Number) em.createQuery("SELECT COUNT(e) FROM " + entity + " e WHERE e.projectId = :pid")
+                .setParameter("pid", projectId).getSingleResult()).longValue();
+    }
+
     private Project findOrThrow(UUID id) {
         return repository.findById(id).orElseThrow(() -> new DomainNotFoundException("Project not found: " + id));
     }
@@ -120,4 +164,11 @@ public class ProjectController {
                     p.getActualEndDate(), p.getStatus(), p.getTotalArea(), p.getTotalBudget(), p.getCreatedAt());
         }
     }
+
+    // Dashboard DTOs
+    public record PhaseChecklist(boolean hasBudget, boolean hasContract, boolean hasSchedule, boolean hasTeam) {}
+    public record ExecutionSummary(long dailyLogs, long measurements, long purchaseOrders,
+                                    long pendingMeasurements, long pendingOrders) {}
+    public record NextAction(String id, String label, String icon, String route) {}
+    public record ProjectDashboard(PhaseChecklist planning, ExecutionSummary execution, List<NextAction> nextActions) {}
 }

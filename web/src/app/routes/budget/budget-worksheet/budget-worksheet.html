@@ -26,41 +26,54 @@
       <mat-icon>bar_chart</mat-icon>
       Curva ABC Serviços
     </button>
+    <button mat-stroked-button color="primary" (click)="openAnalyticalReport()">
+      <mat-icon>description</mat-icon>
+      Relatório Analítico
+    </button>
+    <button mat-stroked-button color="accent" (click)="openBaseDateDialog()">
+      <mat-icon>event</mat-icon>
+      Atualizar Data Base
+    </button>
   </div>
 
   <div class="tools-row">
     <mat-card class="tool-panel">
-      <h2>BDI</h2>
-      <div class="field-grid">
-        <mat-form-field appearance="outline">
-          <mat-label>Administração (%)</mat-label>
-          <input matInput type="number" min="0" step="0.01" [(ngModel)]="bdiForm.administration" />
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Lucro (%)</mat-label>
-          <input matInput type="number" min="0" step="0.01" [(ngModel)]="bdiForm.profit" />
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Impostos (%)</mat-label>
-          <input matInput type="number" min="0" step="0.01" [(ngModel)]="bdiForm.taxes" />
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Encargos (%)</mat-label>
-          <input matInput type="number" min="0" step="0.01" [(ngModel)]="bdiForm.socialCharges" />
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Financeiro (%)</mat-label>
-          <input matInput type="number" min="0" step="0.01" [(ngModel)]="bdiForm.financialExpenses" />
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Riscos (%)</mat-label>
-          <input matInput type="number" min="0" step="0.01" [(ngModel)]="bdiForm.risks" />
-        </mat-form-field>
-      </div>
-      <button mat-flat-button color="primary" (click)="saveBdi()">
-        <mat-icon>save</mat-icon>
-        Salvar BDI
-      </button>
+      <h2>BDI por tipo</h2>
+      @for (type of ['ALL', 'MATERIAL', 'LABOR', 'EQUIPMENT', 'SERVICE']; track type) {
+        <div class="bdi-section">
+          <div class="bdi-title">{{ type }}</div>
+          <div class="field-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Administração (%)</mat-label>
+              <input matInput type="number" min="0" step="0.01" [(ngModel)]="bdiForm[type].administration" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Lucro (%)</mat-label>
+              <input matInput type="number" min="0" step="0.01" [(ngModel)]="bdiForm[type].profit" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Impostos (%)</mat-label>
+              <input matInput type="number" min="0" step="0.01" [(ngModel)]="bdiForm[type].taxes" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Encargos (%)</mat-label>
+              <input matInput type="number" min="0" step="0.01" [(ngModel)]="bdiForm[type].socialCharges" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Financeiro (%)</mat-label>
+              <input matInput type="number" min="0" step="0.01" [(ngModel)]="bdiForm[type].financialExpenses" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Riscos (%)</mat-label>
+              <input matInput type="number" min="0" step="0.01" [(ngModel)]="bdiForm[type].risks" />
+            </mat-form-field>
+          </div>
+          <button mat-stroked-button color="primary" (click)="saveBdi(type)">
+            <mat-icon>save</mat-icon>
+            Salvar {{ type }}
+          </button>
+        </div>
+      }
     </mat-card>
 
     <mat-card class="tool-panel compact">
@@ -130,6 +143,7 @@
               <th class="col-num">Custo Total</th>
               <th class="col-origin">Fonte</th>
               <th class="col-action"></th>
+              <th class="col-action"></th>
             </tr>
           </thead>
           <tbody>
@@ -143,6 +157,7 @@
                 <td class="col-num">{{ item.totalCost | number:'1.2-2' }}</td>
                 <td class="col-origin"><span class="badge" [class.sinapi]="item.origin==='SINAPI'">{{ item.origin }}</span></td>
                 <td class="col-action"><button mat-icon-button color="warn" (click)="deleteItem(item)"><mat-icon>close</mat-icon></button></td>
+                <td class="col-action"><button mat-icon-button color="primary" (click)="openMemo(item)"><mat-icon>calculate</mat-icon></button></td>
               </tr>
             }
           </tbody>

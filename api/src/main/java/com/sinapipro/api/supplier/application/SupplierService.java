@@ -55,7 +55,11 @@ public class SupplierService {
                 throw new IllegalArgumentException("Tax ID already registered: " + request.taxId());
             }
             var supplier = new Supplier(request.code(), request.name(), request.tradeName(),
-                    request.taxId(), request.email(), request.phone(), request.rating(), request.active());
+                    request.taxId(), request.email(), request.phone(), request.contactName(),
+                    request.website(), request.category(), request.qualificationStatus(),
+                    request.paymentTermDays(), request.leadTimeDays(), request.address(),
+                    request.city(), request.state(), request.postalCode(), request.notes(),
+                    request.rating(), request.active());
             var saved = repository.save(supplier);
             metricsService.record("supplier", OperationEventType.CREATED);
             eventPublisher.publish("supplier", OperationEventType.CREATED, saved.getId().toString(), "Supplier created: " + saved.getCode());
@@ -68,7 +72,11 @@ public class SupplierService {
         return observationService.observe("supplier.update", "supplier", () -> {
             var supplier = findById(id);
             supplier.update(request.name(), request.tradeName(), request.email(),
-                    request.phone(), request.rating(), request.active());
+                    request.phone(), request.contactName(), request.website(),
+                    request.category(), request.qualificationStatus(), request.paymentTermDays(),
+                    request.leadTimeDays(), request.address(), request.city(),
+                    request.state(), request.postalCode(), request.notes(),
+                    request.rating(), request.active());
             var saved = repository.save(supplier);
             metricsService.record("supplier", OperationEventType.UPDATED);
             eventPublisher.publish("supplier", OperationEventType.UPDATED, saved.getId().toString(), "Supplier updated: " + saved.getCode());
