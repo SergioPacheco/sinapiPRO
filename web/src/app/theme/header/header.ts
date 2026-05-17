@@ -2,6 +2,7 @@ import { Component, ViewEncapsulation, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import screenfull from 'screenfull';
 
 import { Branding } from '../widgets/branding';
@@ -22,6 +23,7 @@ import { UserButton } from '../widgets/user-button';
     MatToolbarModule,
     MatButtonModule,
     MatIconModule,
+    MatTooltipModule,
     Branding,
     GithubButton,
     NotificationButton,
@@ -35,6 +37,7 @@ export class Header {
 
   readonly toggleSidenav = output<void>();
   readonly toggleSidenavNotice = output<void>();
+  readonly openHelp = output<void>();
 
   toggleFullscreen() {
     if (screenfull.isEnabled) {

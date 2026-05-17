@@ -5,3 +5,4 @@ export * from './lookup-field/lookup-field.component';
 export * from './quick-create-dialog/quick-create-dialog.component';
 export * from './search-dialog/search-dialog.component';
 export * from './command-palette/command-palette.component';
+export * from './help-drawer/help-drawer.component';

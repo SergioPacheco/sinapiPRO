@@ -3,3 +3,4 @@ export * from './message.service';
 export * from './storage.service';
 export * from './paginator-i18n.service';
 export * from './next-action.service';
+export * from './help.service';
