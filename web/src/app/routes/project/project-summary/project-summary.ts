@@ -225,6 +225,15 @@ export class ProjectSummaryComponent implements OnInit {
 
   ngOnInit() {
     const id = this.route.parent!.snapshot.paramMap.get('projectId')!;
+    this.loadAll(id);
+
+    // Refresh when tab becomes visible (user navigates back)
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) this.loadAll(id);
+    });
+  }
+
+  private loadAll(id: string) {
     this.service.getById(id).subscribe(p => this.project.set(p));
     this.service.getDashboard(id).subscribe(d => this.dashboard.set(d));
     this.http.get<ActivityEvent[]>(`/projects/${id}/timeline`).subscribe({

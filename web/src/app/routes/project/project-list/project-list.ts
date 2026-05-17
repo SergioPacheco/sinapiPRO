@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { MtxGridColumn, MtxGridModule } from '@ng-matero/extensions/grid';
 import { PageHeader } from '@shared';
 import { ProjectService, Project } from '../services/project.service';
@@ -18,7 +19,7 @@ import { ProjectService, Project } from '../services/project.service';
   styleUrl: './project-list.scss',
   imports: [
     FormsModule, MatButtonModule, MatButtonToggleModule, MatFormFieldModule, MatInputModule,
-    MatSelectModule, MatIconModule, MatCardModule, MtxGridModule, PageHeader,
+    MatSelectModule, MatIconModule, MatCardModule, DragDropModule, MtxGridModule, PageHeader,
   ],
 })
 export class ProjectListComponent implements OnInit {
@@ -64,6 +65,20 @@ export class ProjectListComponent implements OnInit {
 
   getByStatus(status: string): Project[] {
     return this.list.filter(p => p.status === status);
+  }
+
+  get connectedLists(): string[] {
+    return this.kanbanColumns.map(c => `kanban-${c.status}`);
+  }
+
+  onDrop(event: CdkDragDrop<string>) {
+    if (event.previousContainer === event.container) return;
+    const project = event.item.data as Project;
+    const newStatus = event.container.data;
+    this.service.updateStatus(project.id, newStatus).subscribe(() => {
+      project.status = newStatus;
+      this.list = [...this.list];
+    });
   }
 
   applyFilters() { this.query.page = 0; this.loadData(); }
