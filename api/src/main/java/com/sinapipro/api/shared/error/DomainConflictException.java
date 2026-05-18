@@ -1,8 +1,10 @@
 package com.sinapipro.api.shared.error;
 
-public non-sealed class DomainConflictException extends DomainException {
+import org.springframework.http.HttpStatus;
+
+public class DomainConflictException extends DomainException {
 
     public DomainConflictException(String message) {
-        super(message);
+        super(new SimpleErrorCode("resource-conflict", message, HttpStatus.CONFLICT));
     }
 }

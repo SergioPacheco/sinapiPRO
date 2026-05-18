@@ -22,6 +22,10 @@ export class RegistryService {
 
   createClient(data: Partial<Client>) { return this.http.post<Client>(`${this.base}/clients`, data); }
 
+  updateClient(id: string, data: Partial<Client>) { return this.http.put<Client>(`${this.base}/clients/${id}`, data); }
+
+  deleteClient(id: string) { return this.http.delete<void>(`${this.base}/clients/${id}`); }
+
   listEmployees(type?: string, page = 0, size = 20) {
     let params = new HttpParams().set('page', page).set('size', size);
     if (type) params = params.set('type', type);
@@ -63,4 +67,14 @@ export class RegistryService {
   listBankAccounts() { return this.http.get<BankAccount[]>(`${this.base}/bank-accounts`); }
 
   createBankAccount(data: Partial<BankAccount>) { return this.http.post<BankAccount>(`${this.base}/bank-accounts`, data); }
+
+  deleteBankAccount(id: string) { return this.http.delete<void>(`${this.base}/bank-accounts/${id}`); }
+
+  deletePaymentMethod(id: string) { return this.http.delete<void>(`${this.base}/payment-methods/${id}`); }
+
+  // Generic CRUD for simple registries
+  listGeneric<T = any>(path: string) { return this.http.get<T[]>(path); }
+  createGeneric<T = any>(path: string, data: any) { return this.http.post<T>(path, data); }
+  updateGeneric<T = any>(path: string, id: string, data: any) { return this.http.put<T>(`${path}/${id}`, data); }
+  deleteGeneric(path: string, id: string) { return this.http.delete<void>(`${path}/${id}`); }
 }

@@ -1083,22 +1083,22 @@ INSERT INTO cost_transaction (id, cost_code_id, type, amount, description, trans
 
 -- === Schedule Activities ===
 INSERT INTO schedule_activity (id, budget_id, name, planned_start, planned_end, weight, progress_pct, sort_order) VALUES
-    ('sa000001-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', 'Terraplanagem', '2026-01-15', '2026-02-15', 0.05, 100, 1),
-    ('sa000001-0000-0000-0000-000000000002', '11111111-1111-1111-1111-111111111111', 'Fundações', '2026-02-01', '2026-04-15', 0.15, 100, 2),
-    ('sa000001-0000-0000-0000-000000000003', '11111111-1111-1111-1111-111111111111', 'Estrutura', '2026-03-15', '2026-08-30', 0.25, 45, 3),
-    ('sa000001-0000-0000-0000-000000000004', '11111111-1111-1111-1111-111111111111', 'Alvenaria', '2026-06-01', '2026-10-30', 0.15, 10, 4),
-    ('sa000001-0000-0000-0000-000000000005', '11111111-1111-1111-1111-111111111111', 'Instalações Elétricas', '2026-07-01', '2026-12-15', 0.12, 0, 5),
-    ('sa000001-0000-0000-0000-000000000006', '11111111-1111-1111-1111-111111111111', 'Instalações Hidráulicas', '2026-07-15', '2026-12-30', 0.10, 0, 6),
-    ('sa000001-0000-0000-0000-000000000007', '11111111-1111-1111-1111-111111111111', 'Revestimentos', '2026-09-01', '2027-03-30', 0.10, 0, 7),
-    ('sa000001-0000-0000-0000-000000000008', '11111111-1111-1111-1111-111111111111', 'Pintura e Acabamentos', '2027-02-01', '2027-05-30', 0.05, 0, 8),
-    ('sa000001-0000-0000-0000-000000000009', '11111111-1111-1111-1111-111111111111', 'Área de Lazer', '2027-03-01', '2027-06-15', 0.03, 0, 9);
+    ('5a000001-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', 'Terraplanagem', '2026-01-15', '2026-02-15', 0.05, 100, 1),
+    ('5a000001-0000-0000-0000-000000000002', '11111111-1111-1111-1111-111111111111', 'Fundações', '2026-02-01', '2026-04-15', 0.15, 100, 2),
+    ('5a000001-0000-0000-0000-000000000003', '11111111-1111-1111-1111-111111111111', 'Estrutura', '2026-03-15', '2026-08-30', 0.25, 45, 3),
+    ('5a000001-0000-0000-0000-000000000004', '11111111-1111-1111-1111-111111111111', 'Alvenaria', '2026-06-01', '2026-10-30', 0.15, 10, 4),
+    ('5a000001-0000-0000-0000-000000000005', '11111111-1111-1111-1111-111111111111', 'Instalações Elétricas', '2026-07-01', '2026-12-15', 0.12, 0, 5),
+    ('5a000001-0000-0000-0000-000000000006', '11111111-1111-1111-1111-111111111111', 'Instalações Hidráulicas', '2026-07-15', '2026-12-30', 0.10, 0, 6),
+    ('5a000001-0000-0000-0000-000000000007', '11111111-1111-1111-1111-111111111111', 'Revestimentos', '2026-09-01', '2027-03-30', 0.10, 0, 7),
+    ('5a000001-0000-0000-0000-000000000008', '11111111-1111-1111-1111-111111111111', 'Pintura e Acabamentos', '2027-02-01', '2027-05-30', 0.05, 0, 8),
+    ('5a000001-0000-0000-0000-000000000009', '11111111-1111-1111-1111-111111111111', 'Área de Lazer', '2027-03-01', '2027-06-15', 0.03, 0, 9);
 
 -- === Activity Dependencies ===
 INSERT INTO activity_dependency (id, predecessor_id, successor_id, type) VALUES
-    (gen_random_uuid(), 'sa000001-0000-0000-0000-000000000001', 'sa000001-0000-0000-0000-000000000002', 'FS'),
-    (gen_random_uuid(), 'sa000001-0000-0000-0000-000000000002', 'sa000001-0000-0000-0000-000000000003', 'FS'),
-    (gen_random_uuid(), 'sa000001-0000-0000-0000-000000000003', 'sa000001-0000-0000-0000-000000000004', 'FS'),
-    (gen_random_uuid(), 'sa000001-0000-0000-0000-000000000004', 'sa000001-0000-0000-0000-000000000005', 'FS');
+    (gen_random_uuid(), '5a000001-0000-0000-0000-000000000001', '5a000001-0000-0000-0000-000000000002', 'FS'),
+    (gen_random_uuid(), '5a000001-0000-0000-0000-000000000002', '5a000001-0000-0000-0000-000000000003', 'FS'),
+    (gen_random_uuid(), '5a000001-0000-0000-0000-000000000003', '5a000001-0000-0000-0000-000000000004', 'FS'),
+    (gen_random_uuid(), '5a000001-0000-0000-0000-000000000004', '5a000001-0000-0000-0000-000000000005', 'FS');
 
 -- === Schedule Baseline ===
 INSERT INTO schedule_baseline (id, project_id, name, snapshot) VALUES
@@ -1117,7 +1117,7 @@ INSERT INTO contract_item (id, contract_id, description, quantity, unit_price) V
     (gen_random_uuid(), 'c1000001-0000-0000-0000-000000000001', 'Montagem e soldagem', 1.0000, 285000.0000);
 
 INSERT INTO change_order (id, contract_id, number, description, amount, status, justification, approved_at) VALUES
-    ('co000001-0000-0000-0000-000000000001', 'c1000001-0000-0000-0000-000000000001', 1,
+    ('c0000011-0000-0000-0000-000000000001', 'c1000001-0000-0000-0000-000000000001', 1,
      'Reforço estrutural - mudança de projeto arquitetônico', 125000.00, 'APPROVED',
      'Alteração solicitada pelo cliente para suportar cobertura verde no terraço', now() - interval '15 days');
 
@@ -1143,12 +1143,12 @@ INSERT INTO purchase_request (id, budget_id, description, quantity, unit, status
 
 -- === Quotation ===
 INSERT INTO quotation (id, purchase_request_id, status, deadline) VALUES
-    ('q0000001-0000-0000-0000-000000000001', '00000002-0000-0000-0000-000000000002', 'CLOSED', '2026-05-10');
+    ('a0000001-0000-0000-0000-000000000001', '00000002-0000-0000-0000-000000000002', 'CLOSED', '2026-05-10');
 
 INSERT INTO quotation_response (id, quotation_id, supplier_id, unit_price, delivery_days, notes) VALUES
-    (gen_random_uuid(), 'q0000001-0000-0000-0000-000000000001', '50000001-0000-0000-0000-000000000002', 7.00, 5, 'Entrega imediata do estoque'),
-    (gen_random_uuid(), 'q0000001-0000-0000-0000-000000000001', '50000001-0000-0000-0000-000000000003', 7.45, 10, 'Prazo de 10 dias úteis'),
-    (gen_random_uuid(), 'q0000001-0000-0000-0000-000000000001', '33333333-3333-3333-3333-333333333333', 6.80, 7, 'Frete incluso acima de 5 ton');
+    (gen_random_uuid(), 'a0000001-0000-0000-0000-000000000001', '50000001-0000-0000-0000-000000000002', 7.00, 5, 'Entrega imediata do estoque'),
+    (gen_random_uuid(), 'a0000001-0000-0000-0000-000000000001', '50000001-0000-0000-0000-000000000003', 7.45, 10, 'Prazo de 10 dias úteis'),
+    (gen_random_uuid(), 'a0000001-0000-0000-0000-000000000001', '33333333-3333-3333-3333-333333333333', 6.80, 7, 'Frete incluso acima de 5 ton');
 
 -- === Purchase Orders ===
 INSERT INTO purchase_order (id, budget_id, supplier_id, number, description, quantity, unit_price, status, expected_delivery_date) VALUES
@@ -1269,44 +1269,44 @@ INSERT INTO receivable (id, budget_id, description, amount, due_date, status, ca
 
 -- === Stock ===
 INSERT INTO stock_item (id, budget_id, description, unit, current_quantity, min_quantity, location) VALUES
-    ('si000001-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', 'Cimento CP-II 50kg', 'saco', 120.00, 50.00, 'Almoxarifado A'),
-    ('si000001-0000-0000-0000-000000000002', '11111111-1111-1111-1111-111111111111', 'Aço CA-50 10mm', 'kg', 2500.00, 1000.00, 'Pátio de Aço'),
-    ('si000001-0000-0000-0000-000000000003', '11111111-1111-1111-1111-111111111111', 'Tijolo Cerâmico 9x14x19', 'un', 8000.00, 5000.00, 'Almoxarifado B'),
-    ('si000001-0000-0000-0000-000000000004', '11111111-1111-1111-1111-111111111111', 'Areia Média', 'm3', 15.00, 20.00, 'Pátio');
+    ('c1000001-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', 'Cimento CP-II 50kg', 'saco', 120.00, 50.00, 'Almoxarifado A'),
+    ('c1000001-0000-0000-0000-000000000002', '11111111-1111-1111-1111-111111111111', 'Aço CA-50 10mm', 'kg', 2500.00, 1000.00, 'Pátio de Aço'),
+    ('c1000001-0000-0000-0000-000000000003', '11111111-1111-1111-1111-111111111111', 'Tijolo Cerâmico 9x14x19', 'un', 8000.00, 5000.00, 'Almoxarifado B'),
+    ('c1000001-0000-0000-0000-000000000004', '11111111-1111-1111-1111-111111111111', 'Areia Média', 'm3', 15.00, 20.00, 'Pátio');
 
 INSERT INTO stock_movement (id, stock_item_id, type, quantity, reference_type, notes) VALUES
-    (gen_random_uuid(), 'si000001-0000-0000-0000-000000000001', 'IN', 500.00, 'PURCHASE_ORDER', 'Recebimento PED-2026-001'),
-    (gen_random_uuid(), 'si000001-0000-0000-0000-000000000001', 'OUT', 380.00, 'REQUISITION', 'Consumo concretagem Blocos A e B'),
-    (gen_random_uuid(), 'si000001-0000-0000-0000-000000000002', 'OUT', 1200.00, 'REQUISITION', 'Armação 1o ao 3o pavimento');
+    (gen_random_uuid(), 'c1000001-0000-0000-0000-000000000001', 'IN', 500.00, 'PURCHASE_ORDER', 'Recebimento PED-2026-001'),
+    (gen_random_uuid(), 'c1000001-0000-0000-0000-000000000001', 'OUT', 380.00, 'REQUISITION', 'Consumo concretagem Blocos A e B'),
+    (gen_random_uuid(), 'c1000001-0000-0000-0000-000000000002', 'OUT', 1200.00, 'REQUISITION', 'Armação 1o ao 3o pavimento');
 
 INSERT INTO stock_requisition (id, budget_id, requested_by, status, notes) VALUES
-    ('sr000001-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', 'Pedro Oliveira', 'APPROVED', 'Material para alvenaria Bloco A térreo');
+    ('d1000001-0000-0000-0000-000000000001', '11111111-1111-1111-1111-111111111111', 'Pedro Oliveira', 'APPROVED', 'Material para alvenaria Bloco A térreo');
 
 INSERT INTO stock_requisition_item (id, requisition_id, stock_item_id, quantity, delivered_quantity) VALUES
-    (gen_random_uuid(), 'sr000001-0000-0000-0000-000000000001', 'si000001-0000-0000-0000-000000000003', 2000.00, 2000.00),
-    (gen_random_uuid(), 'sr000001-0000-0000-0000-000000000001', 'si000001-0000-0000-0000-000000000001', 50.00, 50.00);
+    (gen_random_uuid(), 'd1000001-0000-0000-0000-000000000001', 'c1000001-0000-0000-0000-000000000003', 2000.00, 2000.00),
+    (gen_random_uuid(), 'd1000001-0000-0000-0000-000000000001', 'c1000001-0000-0000-0000-000000000001', 50.00, 50.00);
 
 -- === Commercial: Development + Units ===
 INSERT INTO development (id, name, address, city, state, total_units, status, launch_date) VALUES
     ('d0000001-0000-0000-0000-000000000001', 'Residencial Parque das Flores', 'Rua das Acácias, 500', 'Natal', 'RN', 64, 'LAUNCHED', '2026-01-10');
 
 INSERT INTO development_unit (id, development_id, code, type, area, price, status, floor, bedrooms) VALUES
-    ('du000001-0000-0000-0000-000000000001', 'd0000001-0000-0000-0000-000000000001', 'A-101', 'Apartamento', 72.00, 380000.00, 'SOLD', 1, 2),
-    ('du000001-0000-0000-0000-000000000002', 'd0000001-0000-0000-0000-000000000001', 'A-102', 'Apartamento', 72.00, 380000.00, 'SOLD', 1, 2),
-    ('du000001-0000-0000-0000-000000000003', 'd0000001-0000-0000-0000-000000000001', 'A-201', 'Apartamento', 72.00, 395000.00, 'RESERVED', 2, 2),
-    ('du000001-0000-0000-0000-000000000004', 'd0000001-0000-0000-0000-000000000001', 'A-202', 'Apartamento', 72.00, 395000.00, 'AVAILABLE', 2, 2),
-    ('du000001-0000-0000-0000-000000000005', 'd0000001-0000-0000-0000-000000000001', 'A-301', 'Apartamento', 85.00, 450000.00, 'AVAILABLE', 3, 3),
-    ('du000001-0000-0000-0000-000000000006', 'd0000001-0000-0000-0000-000000000001', 'B-101', 'Apartamento', 65.00, 340000.00, 'AVAILABLE', 1, 2),
-    ('du000001-0000-0000-0000-000000000007', 'd0000001-0000-0000-0000-000000000001', 'B-102', 'Apartamento', 65.00, 340000.00, 'AVAILABLE', 1, 2);
+    ('d3000001-0000-0000-0000-000000000001', 'd0000001-0000-0000-0000-000000000001', 'A-101', 'Apartamento', 72.00, 380000.00, 'SOLD', 1, 2),
+    ('d3000001-0000-0000-0000-000000000002', 'd0000001-0000-0000-0000-000000000001', 'A-102', 'Apartamento', 72.00, 380000.00, 'SOLD', 1, 2),
+    ('d3000001-0000-0000-0000-000000000003', 'd0000001-0000-0000-0000-000000000001', 'A-201', 'Apartamento', 72.00, 395000.00, 'RESERVED', 2, 2),
+    ('d3000001-0000-0000-0000-000000000004', 'd0000001-0000-0000-0000-000000000001', 'A-202', 'Apartamento', 72.00, 395000.00, 'AVAILABLE', 2, 2),
+    ('d3000001-0000-0000-0000-000000000005', 'd0000001-0000-0000-0000-000000000001', 'A-301', 'Apartamento', 85.00, 450000.00, 'AVAILABLE', 3, 3),
+    ('d3000001-0000-0000-0000-000000000006', 'd0000001-0000-0000-0000-000000000001', 'B-101', 'Apartamento', 65.00, 340000.00, 'AVAILABLE', 1, 2),
+    ('d3000001-0000-0000-0000-000000000007', 'd0000001-0000-0000-0000-000000000001', 'B-102', 'Apartamento', 65.00, 340000.00, 'AVAILABLE', 1, 2);
 
 -- === Sales Proposals ===
 INSERT INTO sales_proposal (id, unit_id, client_id, client_name, proposal_date, proposed_price, down_payment, installments, status, notes) VALUES
-    ('sp000001-0000-0000-0000-000000000001', 'du000001-0000-0000-0000-000000000001', 'c0000001-0000-0000-0000-000000000001', 'Carlos Mendes', '2026-02-15', 375000.00, 75000.00, 60, 'ACCEPTED', 'Financiamento Caixa'),
-    ('sp000001-0000-0000-0000-000000000002', 'du000001-0000-0000-0000-000000000002', 'c0000001-0000-0000-0000-000000000002', 'Ana Paula Rodrigues', '2026-03-01', 370000.00, 50000.00, 48, 'ACCEPTED', 'Pagamento direto'),
-    (gen_random_uuid(), 'du000001-0000-0000-0000-000000000003', null, 'Roberto Silva', '2026-04-20', 385000.00, 80000.00, 36, 'PENDING', 'Aguardando aprovação de crédito');
+    ('d2000001-0000-0000-0000-000000000001', 'd3000001-0000-0000-0000-000000000001', 'c0000001-0000-0000-0000-000000000001', 'Carlos Mendes', '2026-02-15', 375000.00, 75000.00, 60, 'ACCEPTED', 'Financiamento Caixa'),
+    ('d2000001-0000-0000-0000-000000000002', 'd3000001-0000-0000-0000-000000000002', 'c0000001-0000-0000-0000-000000000002', 'Ana Paula Rodrigues', '2026-03-01', 370000.00, 50000.00, 48, 'ACCEPTED', 'Pagamento direto'),
+    (gen_random_uuid(), 'd3000001-0000-0000-0000-000000000003', null, 'Roberto Silva', '2026-04-20', 385000.00, 80000.00, 36, 'PENDING', 'Aguardando aprovação de crédito');
 
 INSERT INTO broker_commission (id, proposal_id, broker_name, percentage, amount, status, paid_date) VALUES
-    (gen_random_uuid(), 'sp000001-0000-0000-0000-000000000001', 'Imobiliária Natal Prime', 0.0500, 18750.00, 'PAID', '2026-03-15');
+    (gen_random_uuid(), 'd2000001-0000-0000-0000-000000000001', 'Imobiliária Natal Prime', 0.0500, 18750.00, 'PAID', '2026-03-15');
 
 -- === Service Tickets (pós-venda) ===
 INSERT INTO service_ticket (id, client_name, category, description, priority, status, assigned_to, due_date, opened_at) VALUES

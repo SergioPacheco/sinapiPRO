@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, ViewChild, TemplateRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -45,7 +45,7 @@ import { Client, Employee } from '../../registry/models/registry.model';
         <mat-step [stepControl]="stepBasic" label="Dados da Obra">
           <div class="step-content">
             <div class="form-grid">
-              <mat-form-field><mat-label>Código</mat-label><input matInput formControl placeholder="Ex: OBR-001" [formControl]="stepBasic.controls.code" /></mat-form-field>
+              <mat-form-field><mat-label>Código</mat-label><input matInput placeholder="Ex: OBR-001" [formControl]="stepBasic.controls.code" /></mat-form-field>
               <mat-form-field><mat-label>Nome da Obra</mat-label><input matInput [formControl]="stepBasic.controls.name" /></mat-form-field>
               <mat-form-field class="full-width"><mat-label>Descrição</mat-label><textarea matInput [formControl]="stepBasic.controls.description" rows="2"></textarea></mat-form-field>
               <mat-form-field><mat-label>Endereço</mat-label><input matInput [formControl]="stepBasic.controls.address" /></mat-form-field>
@@ -168,7 +168,7 @@ import { Client, Employee } from '../../registry/models/registry.model';
     .quick-form mat-form-field { width: 100%; }
   `,
   imports: [
-    ReactiveFormsModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatInputModule,
+    FormsModule, ReactiveFormsModule, MatButtonModule, MatCardModule, MatFormFieldModule, MatInputModule,
     MatIconModule, MatStepperModule, MatDialogModule, PageHeader, LookupFieldComponent,
   ],
 })

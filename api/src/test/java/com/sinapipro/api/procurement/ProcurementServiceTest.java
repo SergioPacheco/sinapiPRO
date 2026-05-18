@@ -2,6 +2,8 @@ package com.sinapipro.api.procurement;
 
 import com.sinapipro.api.budget.domain.Budget;
 import com.sinapipro.api.budget.domain.BudgetRepository;
+import com.sinapipro.api.inventory.domain.StockItemRepository;
+import com.sinapipro.api.inventory.domain.StockMovementRepository;
 import com.sinapipro.api.jobcosting.domain.CostCodeRepository;
 import com.sinapipro.api.jobcosting.domain.CostTransactionRepository;
 import com.sinapipro.api.procurement.application.ProcurementService;
@@ -39,13 +41,16 @@ class ProcurementServiceTest {
     @Mock SupplierRepository supplierRepository;
     @Mock CostCodeRepository costCodeRepository;
     @Mock CostTransactionRepository costTransactionRepository;
+    @Mock StockItemRepository stockItemRepository;
+    @Mock StockMovementRepository stockMovementRepository;
 
     ProcurementService service;
 
     @BeforeEach
     void setUp() {
         service = new ProcurementService(requestRepository, quotationRepository, orderRepository,
-                budgetRepository, supplierRepository, costCodeRepository, costTransactionRepository);
+                budgetRepository, supplierRepository, costCodeRepository, costTransactionRepository,
+                stockItemRepository, stockMovementRepository);
     }
 
     @Test
@@ -115,6 +120,9 @@ class ProcurementServiceTest {
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
         when(orderRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(stockItemRepository.findByBudgetIdAndDescription(any(), any())).thenReturn(Optional.empty());
+        when(stockItemRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(stockMovementRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         Receiving r = service.receive(orderId, new BigDecimal("100"), LocalDate.of(2026, 3, 1), "All received");
 
@@ -133,6 +141,9 @@ class ProcurementServiceTest {
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
         when(orderRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(stockItemRepository.findByBudgetIdAndDescription(any(), any())).thenReturn(Optional.empty());
+        when(stockItemRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(stockMovementRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         service.receive(orderId, new BigDecimal("60"), LocalDate.of(2026, 3, 1), "Partial");
 

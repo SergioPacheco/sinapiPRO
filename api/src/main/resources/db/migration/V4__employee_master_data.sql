@@ -14,7 +14,7 @@ ALTER TABLE employee
     ADD COLUMN notes varchar(1000);
 
 UPDATE employee
-SET employee_code = COALESCE(employee_code, 'EMP-' || SUBSTRING(REPLACE(id::text, '-', '') FROM 1 FOR 8)),
+SET employee_code = COALESCE(employee_code, 'EMP-' || RIGHT(REPLACE(id::text, '-', ''), 8)),
     specialty = COALESCE(specialty, role),
     employment_status = COALESCE(employment_status, 'ACTIVE')
 WHERE employee_code IS NULL

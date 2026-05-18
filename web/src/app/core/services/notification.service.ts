@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
-import { interval, switchMap, tap } from 'rxjs';
+import { interval, switchMap, tap, catchError, of } from 'rxjs';
 
 export interface Notification {
   id: string;
@@ -23,12 +23,16 @@ export class NotificationService {
 
   init() {
     this.refresh();
-    // Poll every 30s
-    interval(30_000).pipe(switchMap(() => this.fetchCount())).subscribe();
+    interval(30_000).pipe(
+      switchMap(() => this.fetchCount()),
+      catchError(() => of(null))
+    ).subscribe();
   }
 
   refresh() {
-    this.http.get<Notification[]>('/notifications').subscribe(list => {
+    this.http.get<any>('/notifications').pipe(catchError(() => of(null))).subscribe(res => {
+      if (!res) return;
+      const list: Notification[] = Array.isArray(res) ? res : (res.content ?? []);
       this.notifications.set(list);
       this.unreadCount.set(list.filter(n => !n.read).length);
     });
@@ -43,7 +47,8 @@ export class NotificationService {
 
   private fetchCount() {
     return this.http.get<{ count: number }>('/notifications/count').pipe(
-      tap(res => this.unreadCount.set(res.count))
+      tap(res => this.unreadCount.set(res.count)),
+      catchError(() => of(null))
     );
   }
 }

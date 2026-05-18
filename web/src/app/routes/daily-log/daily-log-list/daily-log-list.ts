@@ -1,6 +1,7 @@
 import { ActivatedRoute } from '@angular/router';
 import { Component, inject, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MtxGridColumn, MtxGridModule } from '@ng-matero/extensions/grid';
 import { PageHeader } from '@shared';
@@ -11,7 +12,7 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-daily-log-list',
   templateUrl: './daily-log-list.html',
-  imports: [MatButtonModule, MatIconModule, MtxGridModule, PageHeader],
+  imports: [MatButtonModule, MatCardModule, MatIconModule, MtxGridModule, PageHeader],
 })
 export class DailyLogListComponent implements OnInit {
   private readonly service = inject(DailyLogService);

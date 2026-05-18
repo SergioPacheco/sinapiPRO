@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -33,8 +34,8 @@ public class NotificationController {
     @Operation(summary = "Get unread notifications for a user")
     @GetMapping("/notifications")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
-    PageResponse<NotificationResponse> unread(@RequestParam String recipient, @PageableDefault(size = 20) Pageable pageable) {
-        return PageResponse.from(notificationService.getUnread(recipient, pageable).map(NotificationResponse::from));
+    PageResponse<NotificationResponse> unread(Principal principal, @PageableDefault(size = 20) Pageable pageable) {
+        return PageResponse.from(notificationService.getUnread(principal.getName(), pageable).map(NotificationResponse::from));
     }
 
     @Operation(summary = "Mark notification as read")
@@ -48,8 +49,8 @@ public class NotificationController {
     @Operation(summary = "Count unread notifications")
     @GetMapping("/notifications/count")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
-    UnreadCount countUnread(@RequestParam String recipient) {
-        return new UnreadCount(notificationService.countUnread(recipient));
+    UnreadCount countUnread(Principal principal) {
+        return new UnreadCount(notificationService.countUnread(principal.getName()));
     }
 
     record NotificationResponse(UUID id, String type, String severity, String title, String message,

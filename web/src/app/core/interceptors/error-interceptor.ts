@@ -17,11 +17,19 @@ export function errorInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn)
   const errorPages = [STATUS.FORBIDDEN, STATUS.NOT_FOUND, STATUS.INTERNAL_SERVER_ERROR];
 
   const getMessage = (error: HttpErrorResponse) => {
-    if (error.error?.message) {
-      return error.error.message;
+    const body = error.error;
+    // RFC 9457 ProblemDetail
+    if (body?.detail) {
+      if (body.violations?.length) {
+        return body.violations.map((v: { field: string; message: string }) => `${v.field}: ${v.message}`).join(', ');
+      }
+      return body.detail;
     }
-    if (error.error?.msg) {
-      return error.error.msg;
+    if (body?.title) {
+      return body.title;
+    }
+    if (body?.message) {
+      return body.message;
     }
     return `${error.status} ${error.statusText}`;
   };

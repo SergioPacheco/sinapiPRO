@@ -1,7 +1,9 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MtxGridColumn, MtxGridModule } from '@ng-matero/extensions/grid';
+import { MtxDialog } from '@ng-matero/extensions/dialog';
 import { PageHeader } from '@shared';
 import { RegistryService } from '../services/registry.service';
 import { Client } from '../models/registry.model';
@@ -9,7 +11,9 @@ import { Client } from '../models/registry.model';
 @Component({
   selector: 'app-client-list',
   template: `
-    <page-header title="Clientes" subtitle="Cadastro de clientes" />
+    <page-header title="Clientes" subtitle="Cadastro de clientes">
+      <button mat-flat-button color="primary" (click)="create()"><mat-icon>add</mat-icon> Novo cliente</button>
+    </page-header>
     <mtx-grid [columns]="columns" [data]="list()" [length]="total()" [loading]="isLoading()"
       [pageOnFront]="false" [pageIndex]="page()" [pageSize]="size()" [pageSizeOptions]="[10, 20, 50]"
       (page)="onPageChange($event)" [rowStriped]="true" />
@@ -18,6 +22,8 @@ import { Client } from '../models/registry.model';
 })
 export class ClientListComponent implements OnInit {
   private readonly service = inject(RegistryService);
+  private readonly router = inject(Router);
+  private readonly dialog = inject(MtxDialog);
   list = signal<Client[]>([]);
   total = signal(0);
   isLoading = signal(true);
@@ -31,6 +37,17 @@ export class ClientListComponent implements OnInit {
     { header: 'Telefone', field: 'phone', width: '140px' },
     { header: 'Cidade', field: 'city', width: '140px' },
     { header: 'UF', field: 'state', width: '60px' },
+    {
+      header: 'Ações',
+      field: 'actions',
+      width: '100px',
+      pinned: 'right',
+      type: 'button',
+      buttons: [
+        { type: 'icon', icon: 'edit', tooltip: 'Editar', click: (row: Client) => this.router.navigate(['/registry/clients', row.id, 'edit']) },
+        { type: 'icon', icon: 'delete', tooltip: 'Excluir', color: 'warn', click: (row: Client) => this.confirmDelete(row) },
+      ],
+    },
   ];
 
   ngOnInit() { this.loadData(); }
@@ -44,4 +61,12 @@ export class ClientListComponent implements OnInit {
   }
 
   onPageChange(e: any) { this.page.set(e.pageIndex); this.size.set(e.pageSize); this.loadData(); }
+
+  create() { this.router.navigate(['/registry/clients/new']); }
+
+  confirmDelete(client: Client) {
+    this.dialog.confirm('Confirmar exclusão', `Excluir "${client.name}"?`, () =>
+      this.service.deleteClient(client.id).subscribe(() => this.loadData())
+    );
+  }
 }

@@ -22,6 +22,12 @@ public class ReportTemplate {
     @Column(nullable = false, length = 100)
     private String name;
 
+    @Column(length = 30)
+    private String type;
+
+    @Column(length = 500)
+    private String description;
+
     @Column(name = "logo_path", length = 500)
     private String logoPath;
 
@@ -43,8 +49,16 @@ public class ReportTemplate {
 
     public ReportTemplate() {}
 
+    public ReportTemplate(String name, String type, String description) {
+        this.name = name;
+        this.type = type;
+        this.description = description;
+    }
+
     public UUID getId() { return id; }
     public String getName() { return name; }
+    public String getType() { return type; }
+    public String getDescription() { return description; }
     public String getLogoPath() { return logoPath; }
     public String getHeaderText() { return headerText; }
     public String getFooterText() { return footerText; }
@@ -52,9 +66,15 @@ public class ReportTemplate {
     public Map<String, Object> getSettings() { return settings; }
 
     public void setName(String n) { this.name = n; }
+    public void setType(String t) { this.type = t; }
+    public void setDescription(String d) { this.description = d; }
     public void setLogoPath(String p) { this.logoPath = p; }
     public void setHeaderText(String t) { this.headerText = t; }
     public void setFooterText(String t) { this.footerText = t; }
     public void setPrimaryColor(String c) { this.primaryColor = c; }
     public void setSettings(Map<String, Object> s) { this.settings = s; }
+
+    public void update(String name, String type, String description) {
+        this.name = name; this.type = type; this.description = description;
+    }
 }

@@ -4,6 +4,8 @@ import module java.base;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.access.AccessDeniedException;
@@ -13,25 +15,19 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+/**
+ * Centralized exception handler — returns ProblemDetail (RFC 9457).
+ * Maps DomainException subclasses (module-specific) to proper HTTP responses.
+ */
 @RestControllerAdvice
 public class ApiExceptionHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(ApiExceptionHandler.class);
+
     @ExceptionHandler(DomainException.class)
     ProblemDetail handleDomain(DomainException exception, HttpServletRequest request) {
-        var status = switch (exception) {
-            case DomainNotFoundException _     -> HttpStatus.NOT_FOUND;
-            case DomainConflictException _     -> HttpStatus.CONFLICT;
-            case DomainValidationException _   -> HttpStatus.UNPROCESSABLE_ENTITY;
-            default                            -> HttpStatus.INTERNAL_SERVER_ERROR;
-        };
-        var code = switch (exception) {
-            case DomainNotFoundException _     -> "resource-not-found";
-            case DomainConflictException _     -> "resource-conflict";
-            case DomainValidationException _   -> "validation-error";
-            default                            -> "domain-error";
-        };
-        var problem = ProblemDetail.forStatusAndDetail(status, exception.getMessage());
-        enrich(problem, code, request);
+        var problem = ProblemDetail.forStatusAndDetail(exception.status(), exception.getMessage());
+        enrich(problem, exception.code(), request);
         return problem;
     }
 
@@ -49,7 +45,7 @@ public class ApiExceptionHandler {
             default -> List.<Violation>of();
         };
 
-        var problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Validation failed");
+        var problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Erro de validação");
         enrich(problem, "validation-error", request);
         problem.setProperty("violations", violations);
         return problem;
@@ -57,7 +53,7 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(ConstraintViolationException.class)
     ProblemDetail handleConstraintViolation(ConstraintViolationException exception, HttpServletRequest request) {
-        var problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Validation failed");
+        var problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Erro de validação");
         enrich(problem, "constraint-violation", request);
         problem.setProperty("violations", exception.getConstraintViolations().stream()
                 .map(v -> new Violation(v.getPropertyPath().toString(), v.getMessage()))
@@ -80,9 +76,17 @@ public class ApiExceptionHandler {
         return problem;
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    ProblemDetail handleIllegalState(IllegalStateException exception, HttpServletRequest request) {
+        var problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, exception.getMessage());
+        enrich(problem, "illegal-state", request);
+        return problem;
+    }
+
     @ExceptionHandler(Exception.class)
     ProblemDetail handleUnexpected(Exception exception, HttpServletRequest request) {
-        var problem = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected application error");
+        log.error("[{}] {} at {}", exception.getClass().getSimpleName(), exception.getMessage(), request.getRequestURI(), exception);
+        var problem = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno do servidor");
         enrich(problem, "internal-error", request);
         return problem;
     }

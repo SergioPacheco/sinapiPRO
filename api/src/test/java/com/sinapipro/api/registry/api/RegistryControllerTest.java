@@ -28,12 +28,28 @@ class RegistryControllerTest {
     @Mock UnitOfMeasureRepository unitRepository;
     @Mock PaymentMethodRepository paymentMethodRepository;
     @Mock BankAccountRepository bankAccountRepository;
+    @Mock ContractorRepository contractorRepository;
+    @Mock InspectorRepository inspectorRepository;
+    @Mock BdiTemplateRepository bdiTemplateRepository;
+    @Mock SocialChargeRepository socialChargeRepository;
+    @Mock PaymentConditionRepository paymentConditionRepository;
+    @Mock CostCenterRepository costCenterRepository;
+    @Mock FinanceCategoryRepository financeCategoryRepository;
+    @Mock ProjectTypeRepository projectTypeRepository;
+    @Mock DefaultStageRepository defaultStageRepository;
+    @Mock IncidentTypeRepository incidentTypeRepository;
+    @Mock EpiRepository epiRepository;
+    @Mock ReportTemplateRepository reportTemplateRepository;
 
     private RegistryController controller;
 
     @BeforeEach
     void setUp() {
-        controller = new RegistryController(clientRepository, employeeRepository, unitRepository, paymentMethodRepository, bankAccountRepository);
+        controller = new RegistryController(clientRepository, employeeRepository, unitRepository,
+                paymentMethodRepository, bankAccountRepository, contractorRepository, inspectorRepository,
+                bdiTemplateRepository, socialChargeRepository, paymentConditionRepository, costCenterRepository,
+                financeCategoryRepository, projectTypeRepository, defaultStageRepository, incidentTypeRepository,
+                epiRepository, reportTemplateRepository);
     }
 
     @Test

@@ -37,13 +37,14 @@ class MeasurementServiceTest {
     @Mock CostCodeRepository costCodeRepository;
     @Mock CostTransactionRepository costTransactionRepository;
     @Mock InvoiceRepository invoiceRepository;
+    @Mock com.sinapipro.api.finance.domain.ReceivableRepository receivableRepository;
 
     MeasurementService service;
 
     @BeforeEach
     void setUp() {
         service = new MeasurementService(measurementRepository, budgetRepository, budgetItemRepository, costCodeRepository,
-                costTransactionRepository, invoiceRepository);
+                costTransactionRepository, invoiceRepository, receivableRepository);
     }
 
     @Test
