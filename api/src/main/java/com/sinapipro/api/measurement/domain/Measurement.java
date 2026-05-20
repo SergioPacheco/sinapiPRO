@@ -42,6 +42,12 @@ public class Measurement extends AuditableEntity {
     @Column(name = "extra_item")
     private boolean extraItem = false;
 
+    @Column(name = "change_order_id")
+    private java.util.UUID changeOrderId;
+
+    @Column(name = "imported_from", length = 100)
+    private String importedFrom;
+
     @OneToMany(mappedBy = "measurement", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MeasurementItem> items = new ArrayList<>();
 
@@ -97,4 +103,8 @@ public class Measurement extends AuditableEntity {
 
     public String getRejectionReason() { return rejectionReason; }
     public boolean isExtraItem() { return extraItem; }
+    public java.util.UUID getChangeOrderId() { return changeOrderId; }
+    public void setChangeOrderId(java.util.UUID changeOrderId) { this.changeOrderId = changeOrderId; }
+    public String getImportedFrom() { return importedFrom; }
+    public void setImportedFrom(String importedFrom) { this.importedFrom = importedFrom; }
 }

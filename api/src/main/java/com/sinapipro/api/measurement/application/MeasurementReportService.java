@@ -41,6 +41,20 @@ public class MeasurementReportService {
         return SimplePdf.write(lines);
     }
 
+    public byte[] generatePhotoReportPdf(UUID measurementId) {
+        var detail = measurementService.detail(measurementId);
+        List<String> lines = new ArrayList<>();
+        lines.add("RELATORIO FOTOGRAFICO - MEDICAO " + detail.number());
+        lines.add("Periodo: " + detail.periodStart() + " a " + detail.periodEnd());
+        lines.add("Status: " + detail.status());
+        lines.add("");
+        lines.add("--------------------------------------------------------------");
+        lines.add("(Fotos vinculadas via modulo de documentos)");
+        lines.add("Medicao ID: " + measurementId);
+        lines.add("--------------------------------------------------------------");
+        return SimplePdf.write(lines);
+    }
+
     private String abbreviate(String value, int max) {
         if (value == null) return "";
         return value.length() <= max ? value : value.substring(0, max - 3) + "...";

@@ -80,12 +80,17 @@ public class BudgetDetailController {
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
     @Transactional(readOnly = true)
     WorksheetResponse getWorksheet(@PathVariable UUID budgetId) {
+        var budget = budgetRepository.findById(budgetId).orElseThrow();
+        String method = budget.getRoundingMethod();
+        int decimals = budget.getDecimalPlaces() != null ? budget.getDecimalPlaces() : 4;
+
         var stages = stageRepository.findRootStages(budgetId);
         var bdi = bdiConfigRepository.findByBudgetIdAndItemType(budgetId, DEFAULT_BDI_ITEM_TYPE)
                 .map(BdiConfig::getTotalBdi)
                 .orElse(BigDecimal.ZERO);
         var directCost = itemRepository.sumDirectCostByBudget(budgetId);
-        var bdiAmount = directCost.multiply(bdi).setScale(2, java.math.RoundingMode.HALF_UP);
+        var bdiAmount = com.sinapipro.api.budget.application.RoundingUtil.apply(
+                directCost.multiply(bdi), method, decimals);
         var total = directCost.add(bdiAmount);
         return new WorksheetResponse(
                 stages.stream().map(this::toStageNode).toList(),
@@ -186,6 +191,19 @@ public class BudgetDetailController {
         ensureItemInBudget(budgetId, itemId);
         itemRepository.deleteById(itemId);
     }
+
+    @Operation(summary = "Update custom code (mask) for a budget item")
+    @PatchMapping("/items/{itemId}/custom-code")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    ItemResponse updateCustomCode(@PathVariable UUID budgetId, @PathVariable UUID itemId,
+                                  @RequestBody CustomCodeRequest req) {
+        ensureItemInBudget(budgetId, itemId);
+        var item = itemRepository.findById(itemId).orElseThrow();
+        item.setCustomCode(req.customCode());
+        return ItemResponse.from(itemRepository.save(item));
+    }
+
+    record CustomCodeRequest(String customCode) {}
 
     @Operation(summary = "Get memo for a budget item")
     @GetMapping("/items/{itemId}/memo")
@@ -290,6 +308,30 @@ public class BudgetDetailController {
         return BdiResponse.from(bdiConfigRepository.save(config));
     }
 
+    @Operation(summary = "Set BDI configs in batch (multiple item types at once)")
+    @PutMapping("/bdi/batch")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @Transactional
+    List<BdiResponse> setBdiBatch(@PathVariable UUID budgetId, @Valid @RequestBody List<BdiRequest> requests) {
+        Budget budget = budgetRepository.findById(budgetId)
+                .orElseThrow(() -> new DomainNotFoundException("Budget not found: " + budgetId));
+        List<BdiResponse> results = new java.util.ArrayList<>();
+        for (var req : requests) {
+            String itemType = req.itemType() != null ? req.itemType().toUpperCase() : DEFAULT_BDI_ITEM_TYPE;
+            BdiConfig config = bdiConfigRepository.findByBudgetIdAndItemType(budgetId, itemType).orElse(null);
+            if (config == null) {
+                config = new BdiConfig(budget, req.administration(), req.profit(), req.taxes(),
+                        req.socialCharges(), req.financialExpenses(), req.risks());
+                config.setItemType(itemType);
+            } else {
+                config.update(req.administration(), req.profit(), req.taxes(),
+                        req.socialCharges(), req.financialExpenses(), req.risks());
+            }
+            results.add(BdiResponse.from(bdiConfigRepository.save(config)));
+        }
+        return results;
+    }
+
     // --- Summary & ABC ---
 
     @Operation(summary = "Budget cost summary (direct cost + BDI)")
@@ -389,11 +431,12 @@ public class BudgetDetailController {
     }
 
     record ItemResponse(UUID id, UUID compositionId, String compositionCode, String compositionDescription,
-                        BigDecimal quantity, BigDecimal unitCost, BigDecimal bdiPct, BigDecimal directCost, BigDecimal totalWithBdi) {
+                        BigDecimal quantity, BigDecimal unitCost, BigDecimal bdiPct, BigDecimal directCost,
+                        BigDecimal totalWithBdi, String customCode) {
         static ItemResponse from(BudgetItem i) {
             return new ItemResponse(i.getId(), i.getComposition().getId(), i.getComposition().getSinapiCode(),
                     i.getComposition().getDescription(), i.getQuantity(), i.getUnitCost(), i.getBdiPct(),
-                    i.getDirectCost(), i.getTotalWithBdi());
+                    i.getDirectCost(), i.getTotalWithBdi(), i.getCustomCode());
         }
     }
 

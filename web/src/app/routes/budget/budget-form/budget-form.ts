@@ -34,6 +34,8 @@ export class BudgetFormComponent implements OnInit {
     status: ['DRAFT' as string, Validators.required],
     startDate: ['', Validators.required],
     endDate: [''],
+    roundingMethod: ['TRUNCATE'],
+    decimalPlaces: [4],
   });
 
   statuses = [
@@ -46,6 +48,14 @@ export class BudgetFormComponent implements OnInit {
     { value: 'COMPLETED', label: 'Concluído' },
     { value: 'CANCELLED', label: 'Cancelado' },
   ];
+
+  roundingMethods = [
+    { value: 'TRUNCATE', label: 'Truncamento TCU' },
+    { value: 'ROUND_ABNT', label: 'Arredondamento ABNT' },
+    { value: 'ROUND_SIMPLE', label: 'Arredondamento Simples' },
+  ];
+
+  decimalOptions = [2, 4, 6];
 
   ngOnInit() {
     let route = this.route.snapshot;

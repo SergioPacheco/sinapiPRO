@@ -237,6 +237,58 @@ public class MeasurementController {
         return measurement;
     }
 
+    // --- Task 2.6: Link change order to measurement ---
+
+    @Operation(summary = "Link a change order (aditivo) to a measurement")
+    @PutMapping("/{id}/change-order")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @org.springframework.transaction.annotation.Transactional
+    MeasurementResponse linkChangeOrder(@PathVariable UUID projectId, @PathVariable UUID id,
+                                        @RequestBody LinkChangeOrderRequest req) {
+        var measurement = findMeasurementInProject(projectId, id);
+        measurement.setChangeOrderId(req.changeOrderId());
+        measurementRepository.save(measurement);
+        return MeasurementResponse.from(measurement);
+    }
+
+    // --- Task 5.5: Import measurement from Excel ---
+
+    @Operation(summary = "Import measurement items from Excel (CSV format: description, quantity, unitPrice)")
+    @PostMapping("/{id}/import")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @org.springframework.transaction.annotation.Transactional
+    ImportResult importFromExcel(@PathVariable UUID projectId, @PathVariable UUID id,
+                                @RequestBody List<ImportItemRow> rows) {
+        var measurement = findMeasurementInProject(projectId, id);
+        int imported = 0;
+        for (var row : rows) {
+            var item = new MeasurementItem(measurement, (UUID) null, row.description(), row.quantity(), row.unitPrice());
+            measurement.getItems().add(item);
+            imported++;
+        }
+        measurement.setImportedFrom("EXCEL");
+        measurementRepository.save(measurement);
+        return new ImportResult(imported, rows.size());
+    }
+
+    // --- Task 5.6: Photo report PDF ---
+
+    @Operation(summary = "Measurement photo report PDF")
+    @GetMapping(value = "/{id}/reports/photo-report.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    ResponseEntity<byte[]> photoReport(@PathVariable UUID projectId, @PathVariable UUID id) {
+        findMeasurementInProject(projectId, id);
+        byte[] pdf = measurementReportService.generatePhotoReportPdf(id);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=measurement-photos-" + id + ".pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+    }
+
+    record LinkChangeOrderRequest(UUID changeOrderId) {}
+    record ImportItemRow(@NotNull String description, @NotNull @Positive BigDecimal quantity, @NotNull @Positive BigDecimal unitPrice) {}
+    record ImportResult(int imported, int total) {}
+
     // --- DTOs ---
     record CreateMeasurementRequest(@NotNull Integer number, @NotNull LocalDate periodStart,
                                     @NotNull LocalDate periodEnd, @NotNull BigDecimal retentionPct,

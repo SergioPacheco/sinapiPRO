@@ -40,6 +40,21 @@ public class DailyLog extends AuditableEntity {
     @OneToMany(mappedBy = "dailyLog", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DailyLogPhoto> photos = new ArrayList<>();
 
+    @OneToMany(mappedBy = "dailyLog", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DailyLogTask> tasks = new ArrayList<>();
+
+    @OneToMany(mappedBy = "dailyLog", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DailyLogMaterial> materials = new ArrayList<>();
+
+    @Column(name = "signed_by", length = 200)
+    private String signedBy;
+
+    @Column(name = "signed_at")
+    private java.time.Instant signedAt;
+
+    @Column(name = "signature_hash", length = 128)
+    private String signatureHash;
+
     protected DailyLog() {}
 
     public DailyLog(Budget budget, LocalDate logDate, String weatherMorning, String weatherAfternoon, String observations) {
@@ -59,4 +74,15 @@ public class DailyLog extends AuditableEntity {
     public List<DailyLogEquipment> getEquipmentEntries() { return equipmentEntries; }
     public List<DailyLogOccurrence> getOccurrences() { return occurrences; }
     public List<DailyLogPhoto> getPhotos() { return photos; }
+    public List<DailyLogTask> getTasks() { return tasks; }
+    public List<DailyLogMaterial> getMaterials() { return materials; }
+    public String getSignedBy() { return signedBy; }
+    public java.time.Instant getSignedAt() { return signedAt; }
+    public String getSignatureHash() { return signatureHash; }
+
+    public void sign(String signedBy, String signatureHash) {
+        this.signedBy = signedBy;
+        this.signedAt = java.time.Instant.now();
+        this.signatureHash = signatureHash;
+    }
 }

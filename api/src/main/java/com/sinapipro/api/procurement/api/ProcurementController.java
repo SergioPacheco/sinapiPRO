@@ -4,6 +4,7 @@ import com.sinapipro.api.budget.domain.BudgetRepository;
 import com.sinapipro.api.procurement.application.ProcurementReportService;
 import com.sinapipro.api.procurement.application.ProcurementService;
 import com.sinapipro.api.procurement.application.ProcurementService.*;
+import com.sinapipro.api.procurement.application.QuotationEmailService;
 import com.sinapipro.api.procurement.domain.*;
 import com.sinapipro.api.shared.api.PageResponse;
 import com.sinapipro.api.shared.error.DomainNotFoundException;
@@ -41,13 +42,15 @@ public class ProcurementController {
     private final PurchaseOrderRepository orderRepository;
     private final QuotationRepository quotationRepository;
     private final QuotationEmailRepository quotationEmailRepository;
+    private final QuotationEmailService quotationEmailService;
 
     public ProcurementController(PurchaseRequestRepository requestRepository, BudgetRepository budgetRepository,
                                  ProcurementService procurementService, ProcurementReportService procurementReportService,
                                  PurchaseOrderCostDistributionRepository costDistributionRepository,
                                  PurchaseOrderRepository orderRepository,
                                  QuotationRepository quotationRepository,
-                                 QuotationEmailRepository quotationEmailRepository) {
+                                 QuotationEmailRepository quotationEmailRepository,
+                                 QuotationEmailService quotationEmailService) {
         this.requestRepository = requestRepository;
         this.budgetRepository = budgetRepository;
         this.procurementService = procurementService;
@@ -56,6 +59,7 @@ public class ProcurementController {
         this.orderRepository = orderRepository;
         this.quotationRepository = quotationRepository;
         this.quotationEmailRepository = quotationEmailRepository;
+        this.quotationEmailService = quotationEmailService;
     }
 
     // --- Purchase Requests ---
@@ -335,4 +339,30 @@ public class ProcurementController {
         }
         return order;
     }
+
+    // --- Task 5.1: Send quotation email to supplier ---
+
+    @Operation(summary = "Send quotation request email to a supplier")
+    @PostMapping("/quotations/{quotationId}/send-email")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    ResponseEntity<EmailResponse> sendQuotationEmail(@PathVariable UUID projectId, @PathVariable UUID quotationId,
+                                                     @Valid @RequestBody SendEmailRequest req) {
+        findQuotationInProject(projectId, quotationId);
+        var result = quotationEmailService.sendQuotationEmail(quotationId, req.supplierId(), req.email(), req.subject(), req.body());
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new EmailResponse(result.getId(), result.getSupplierEmail(), result.getStatus(), result.getSentAt()));
+    }
+
+    @Operation(summary = "List emails sent for a quotation")
+    @GetMapping("/quotations/{quotationId}/emails")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    List<EmailResponse> listQuotationEmails(@PathVariable UUID projectId, @PathVariable UUID quotationId) {
+        findQuotationInProject(projectId, quotationId);
+        return quotationEmailService.findByQuotationId(quotationId).stream()
+                .map(e -> new EmailResponse(e.getId(), e.getSupplierEmail(), e.getStatus(), e.getSentAt()))
+                .toList();
+    }
+
+    record SendEmailRequest(@NotNull UUID supplierId, @NotBlank String email, String subject, String body) {}
+    record EmailResponse(UUID id, String email, String status, java.time.Instant sentAt) {}
 }

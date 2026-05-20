@@ -148,6 +148,71 @@ public class DailyLogController {
                 .body(pdf);
     }
 
+    // --- Tasks (4.5: vinculação ao planejamento) ---
+
+    @Operation(summary = "Add task entry to an existing daily log (links to schedule activity)")
+    @PostMapping("/{id}/tasks")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @Transactional
+    @ResponseStatus(HttpStatus.CREATED)
+    TaskResponse addTask(@PathVariable UUID projectId, @PathVariable UUID id, @Valid @RequestBody TaskEntry req) {
+        var log = findInProject(projectId, id);
+        var entry = new DailyLogTask(log, req.activityId(), req.description(), req.progressPct());
+        log.getTasks().add(entry);
+        dailyLogRepository.save(log);
+        return new TaskResponse(entry.getId(), entry.getActivityId(), entry.getDescription(), entry.getProgressPct());
+    }
+
+    // --- Materials (4.6: entrada/saída de materiais) ---
+
+    @Operation(summary = "Add material entry/exit to an existing daily log")
+    @PostMapping("/{id}/materials")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @Transactional
+    @ResponseStatus(HttpStatus.CREATED)
+    MaterialResponse addMaterial(@PathVariable UUID projectId, @PathVariable UUID id, @Valid @RequestBody MaterialEntry req) {
+        var log = findInProject(projectId, id);
+        var entry = new DailyLogMaterial();
+        entry.setDailyLog(log);
+        entry.setType(req.type());
+        entry.setDescription(req.description());
+        entry.setQuantity(req.quantity());
+        entry.setUnit(req.unit());
+        entry.setInvoiceNumber(req.invoiceNumber());
+        entry.setNotes(req.notes());
+        log.getMaterials().add(entry);
+        dailyLogRepository.save(log);
+        return new MaterialResponse(entry.getId(), entry.getType(), entry.getDescription(),
+                entry.getQuantity(), entry.getUnit(), entry.getInvoiceNumber());
+    }
+
+    // --- Signature (6.7: assinatura digital do fiscal) ---
+
+    @Operation(summary = "Sign a daily log (digital signature by inspector)")
+    @PostMapping("/{id}/sign")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @Transactional
+    SignatureResponse sign(@PathVariable UUID projectId, @PathVariable UUID id, @Valid @RequestBody SignRequest req) {
+        var log = findInProject(projectId, id);
+        log.sign(req.signedBy(), req.signatureHash());
+        dailyLogRepository.save(log);
+        return new SignatureResponse(log.getSignedBy(), log.getSignedAt(), log.getSignatureHash());
+    }
+
+    // --- Photo report (4.7: relatório fotográfico PDF) ---
+
+    @Operation(summary = "Photo report PDF (photos with captions)")
+    @GetMapping(value = "/{id}/reports/photo-report.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    ResponseEntity<byte[]> photoReport(@PathVariable UUID projectId, @PathVariable UUID id) {
+        findInProject(projectId, id);
+        byte[] pdf = dailyLogReportService.generatePhotoReportPdf(id);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=photo-report-" + id + ".pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+    }
+
     private DailyLog findInProject(UUID projectId, UUID id) {
         DailyLog log = dailyLogRepository.findById(id)
                 .orElseThrow(() -> new DomainNotFoundException("Daily log not found: " + id));
@@ -165,26 +230,37 @@ public class DailyLogController {
     record EquipmentEntry(@NotBlank String equipmentName, @NotNull BigDecimal hoursUsed, BigDecimal hoursIdle) {}
     record OccurrenceEntry(@NotBlank String type, @NotBlank String description) {}
     record PhotoEntry(@NotBlank String filePath, String caption) {}
+    record TaskEntry(UUID activityId, @NotBlank String description, BigDecimal progressPct) {}
+    record MaterialEntry(@NotBlank String type, @NotBlank String description, @NotNull BigDecimal quantity,
+                         String unit, String invoiceNumber, String notes) {}
+    record SignRequest(@NotBlank String signedBy, @NotBlank String signatureHash) {}
 
     record DailyLogResponse(UUID id, LocalDate logDate, String weatherMorning, String weatherAfternoon,
-                            String observations, int laborCount, int equipmentCount, int occurrenceCount, int photoCount) {
+                            String observations, int laborCount, int equipmentCount, int occurrenceCount,
+                            int photoCount, int taskCount, int materialCount, String signedBy) {
         static DailyLogResponse from(DailyLog d) {
             return new DailyLogResponse(d.getId(), d.getLogDate(), d.getWeatherMorning(), d.getWeatherAfternoon(),
                     d.getObservations(), d.getLaborEntries().size(), d.getEquipmentEntries().size(),
-                    d.getOccurrences().size(), d.getPhotos().size());
+                    d.getOccurrences().size(), d.getPhotos().size(), d.getTasks().size(),
+                    d.getMaterials().size(), d.getSignedBy());
         }
     }
 
     record DailyLogDetailResponse(UUID id, LocalDate logDate, String weatherMorning, String weatherAfternoon,
                                   String observations, List<LaborResponse> labor, List<EquipmentResponse> equipment,
-                                  List<OccurrenceResponse> occurrences, List<PhotoResponse> photos) {
+                                  List<OccurrenceResponse> occurrences, List<PhotoResponse> photos,
+                                  List<TaskResponse> tasks, List<MaterialResponse> materials,
+                                  String signedBy, java.time.Instant signedAt) {
         static DailyLogDetailResponse from(DailyLog d) {
             return new DailyLogDetailResponse(d.getId(), d.getLogDate(), d.getWeatherMorning(), d.getWeatherAfternoon(),
                     d.getObservations(),
                     d.getLaborEntries().stream().map(l -> new LaborResponse(l.getId(), l.getWorkerName(), l.getRole(), l.getHours())).toList(),
                     d.getEquipmentEntries().stream().map(e -> new EquipmentResponse(e.getId(), e.getEquipmentName(), e.getHoursUsed(), e.getHoursIdle())).toList(),
                     d.getOccurrences().stream().map(o -> new OccurrenceResponse(o.getId(), o.getType(), o.getDescription())).toList(),
-                    d.getPhotos().stream().map(p -> new PhotoResponse(p.getId(), p.getFilePath(), p.getCaption())).toList());
+                    d.getPhotos().stream().map(p -> new PhotoResponse(p.getId(), p.getFilePath(), p.getCaption())).toList(),
+                    d.getTasks().stream().map(t -> new TaskResponse(t.getId(), t.getActivityId(), t.getDescription(), t.getProgressPct())).toList(),
+                    d.getMaterials().stream().map(m -> new MaterialResponse(m.getId(), m.getType(), m.getDescription(), m.getQuantity(), m.getUnit(), m.getInvoiceNumber())).toList(),
+                    d.getSignedBy(), d.getSignedAt());
         }
     }
 
@@ -192,4 +268,7 @@ public class DailyLogController {
     record EquipmentResponse(UUID id, String equipmentName, BigDecimal hoursUsed, BigDecimal hoursIdle) {}
     record OccurrenceResponse(UUID id, String type, String description) {}
     record PhotoResponse(UUID id, String filePath, String caption) {}
+    record TaskResponse(UUID id, UUID activityId, String description, BigDecimal progressPct) {}
+    record MaterialResponse(UUID id, String type, String description, BigDecimal quantity, String unit, String invoiceNumber) {}
+    record SignatureResponse(String signedBy, java.time.Instant signedAt, String signatureHash) {}
 }

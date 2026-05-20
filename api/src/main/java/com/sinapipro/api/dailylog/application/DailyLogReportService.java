@@ -79,6 +79,38 @@ public class DailyLogReportService {
         return SimplePdf.write(lines);
     }
 
+    public byte[] generatePhotoReportPdf(UUID dailyLogId) {
+        var log = dailyLogRepository.findById(dailyLogId)
+                .orElseThrow(() -> new DomainNotFoundException("Daily log not found: " + dailyLogId));
+
+        List<String> lines = new ArrayList<>();
+        lines.add("RELATORIO FOTOGRAFICO");
+        lines.add("Obra: " + log.getBudget().getTitle());
+        lines.add("Data: " + log.getLogDate());
+        lines.add("");
+        lines.add("--------------------------------------------------------------");
+
+        int idx = 1;
+        for (var photo : log.getPhotos()) {
+            lines.add("Foto " + idx + ": " + photo.getFilePath());
+            lines.add("Legenda: " + (photo.getCaption() != null ? photo.getCaption() : "Sem legenda"));
+            lines.add("");
+            idx++;
+        }
+
+        if (log.getPhotos().isEmpty()) {
+            lines.add("Nenhuma foto registrada neste diario.");
+        }
+
+        lines.add("--------------------------------------------------------------");
+        lines.add("Total de fotos: " + log.getPhotos().size());
+        if (log.getSignedBy() != null) {
+            lines.add("Assinado por: " + log.getSignedBy());
+        }
+
+        return SimplePdf.write(lines);
+    }
+
     private String nvl(String value) { return value != null ? value : "-"; }
 
     private String abbreviate(String value, int max) {

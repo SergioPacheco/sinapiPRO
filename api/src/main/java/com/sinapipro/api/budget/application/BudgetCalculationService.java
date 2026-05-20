@@ -14,21 +14,28 @@ import java.util.UUID;
 public class BudgetCalculationService {
     private static final String DEFAULT_BDI_ITEM_TYPE = "ALL";
 
+    private final BudgetRepository budgetRepository;
     private final BudgetItemRepository itemRepository;
     private final BdiConfigRepository bdiConfigRepository;
 
-    public BudgetCalculationService(BudgetItemRepository itemRepository, BdiConfigRepository bdiConfigRepository) {
+    public BudgetCalculationService(BudgetRepository budgetRepository, BudgetItemRepository itemRepository,
+                                    BdiConfigRepository bdiConfigRepository) {
+        this.budgetRepository = budgetRepository;
         this.itemRepository = itemRepository;
         this.bdiConfigRepository = bdiConfigRepository;
     }
 
     public BudgetSummary calculateSummary(UUID budgetId) {
+        var budget = budgetRepository.findById(budgetId).orElse(null);
+        String method = budget != null ? budget.getRoundingMethod() : "TRUNCATE";
+        int decimals = budget != null && budget.getDecimalPlaces() != null ? budget.getDecimalPlaces() : 4;
+
         BigDecimal directCost = itemRepository.sumDirectCostByBudget(budgetId);
         BigDecimal bdiPct = bdiConfigRepository.findByBudgetIdAndItemType(budgetId, DEFAULT_BDI_ITEM_TYPE)
                 .map(BdiConfig::getTotalBdi)
                 .orElse(BigDecimal.ZERO);
-        BigDecimal bdiAmount = directCost.multiply(bdiPct).setScale(2, RoundingMode.HALF_UP);
-        BigDecimal totalWithBdi = directCost.add(bdiAmount);
+        BigDecimal bdiAmount = RoundingUtil.apply(directCost.multiply(bdiPct), method, decimals);
+        BigDecimal totalWithBdi = RoundingUtil.apply(directCost.add(bdiAmount), method, decimals);
 
         return new BudgetSummary(directCost, bdiPct, bdiAmount, totalWithBdi);
     }
