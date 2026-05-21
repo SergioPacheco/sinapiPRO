@@ -55,7 +55,41 @@ export class ScheduleService {
     return this.http.post<ScheduleActivity[]>(`${this.url(projectId)}/distribute-dates`, { startDate });
   }
 
+  getGanttData(projectId: string) {
+    return this.http.get<GanttData>(`${this.url(projectId)}/gantt`);
+  }
+
+  updateActivityDates(projectId: string, activityId: string, plannedStart: string, plannedEnd: string) {
+    return this.http.patch<ScheduleActivity>(`${this.url(projectId)}/${activityId}/dates`, { plannedStart, plannedEnd });
+  }
+
+  batchUpdateDates(projectId: string, entries: { activityId: string; plannedStart: string; plannedEnd: string }[]) {
+    return this.http.patch<ScheduleActivity[]>(`${this.url(projectId)}/batch-dates`, entries);
+  }
+
   physicalFinancialReportUrl(projectId: string) {
     return `${environment.baseUrl}${this.url(projectId)}/reports/physical-financial.pdf`;
   }
+}
+
+export interface GanttActivity {
+  id: string;
+  name: string;
+  plannedStart: string;
+  plannedEnd: string;
+  actualStart?: string;
+  actualEnd?: string;
+  progressPct: number;
+  sortOrder: number;
+}
+
+export interface GanttDependency {
+  predecessorId: string;
+  successorId: string;
+  type: string;
+}
+
+export interface GanttData {
+  activities: GanttActivity[];
+  dependencies: GanttDependency[];
 }

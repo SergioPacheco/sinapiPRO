@@ -13,6 +13,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { PageHeader } from '@shared';
 import { ScheduleService } from '../services/schedule.service';
+import { GanttChartComponent } from '../gantt-chart/gantt-chart';
 import { Holiday, ScheduleActivity, SCurvePoint, ScheduleBaseline, ScheduleTrackingLine } from '../models/schedule.model';
 
 @Component({
@@ -52,6 +53,7 @@ import { Holiday, ScheduleActivity, SCurvePoint, ScheduleBaseline, ScheduleTrack
           <h3>Gantt</h3>
           <span>{{ activities().length }} atividades</span>
         </div>
+        <app-gantt-chart [projectId]="projectId" />
         <div class="gantt-container">
           @for (a of activities(); track a.id) {
             <div class="gantt-row">
@@ -183,14 +185,14 @@ import { Holiday, ScheduleActivity, SCurvePoint, ScheduleBaseline, ScheduleTrack
     .empty { text-align:center; padding: 28px; color: var(--mat-sys-on-surface-variant); }
     @media (max-width: 1200px) { .toolbar, .grid { grid-template-columns: 1fr; } }
   `,
-  imports: [FormsModule, DecimalPipe, MatButtonModule, MatCardModule, MatIconModule, MatTooltipModule, MatProgressBarModule, MatFormFieldModule, MatInputModule, MatCheckboxModule, PageHeader],
+  imports: [FormsModule, DecimalPipe, MatButtonModule, MatCardModule, MatIconModule, MatTooltipModule, MatProgressBarModule, MatFormFieldModule, MatInputModule, MatCheckboxModule, PageHeader, GanttChartComponent],
 })
 export class ScheduleListComponent implements OnInit {
   private readonly service = inject(ScheduleService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
-  private projectId = '';
+  projectId = '';
 
   activities = signal<ScheduleActivity[]>([]);
   sCurvePoints = signal<SCurvePoint[]>([]);

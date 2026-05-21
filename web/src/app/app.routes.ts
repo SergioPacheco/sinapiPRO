@@ -91,5 +91,9 @@ export const routes: Routes = [
       { path: 'register', component: Register },
     ],
   },
+  {
+    path: 'supplier-portal',
+    loadComponent: () => import('./routes/supplier-portal/supplier-portal').then(m => m.SupplierPortalComponent),
+  },
   { path: '**', redirectTo: 'dashboard' },
 ];

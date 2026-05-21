@@ -52,6 +52,7 @@ public class SecurityConfiguration {
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
                                 "/api/v1/auth/**",
+                                "/api/v1/supplier-portal/**",
                                 "/actuator/health",
                                 "/actuator/health/**",
                                 "/actuator/info")

@@ -70,3 +70,16 @@ ALTER TABLE measurement ADD COLUMN IF NOT EXISTS imported_from varchar(100);
 ALTER TABLE daily_log ADD COLUMN IF NOT EXISTS signed_by varchar(200);
 ALTER TABLE daily_log ADD COLUMN IF NOT EXISTS signed_at timestamptz;
 ALTER TABLE daily_log ADD COLUMN IF NOT EXISTS signature_hash varchar(128);
+
+-- 6.6: Supplier portal tokens
+CREATE TABLE IF NOT EXISTS supplier_portal_token (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    token varchar(64) NOT NULL UNIQUE,
+    quotation_id uuid NOT NULL REFERENCES quotation(id) ON DELETE CASCADE,
+    supplier_id uuid NOT NULL REFERENCES supplier(id),
+    expires_at timestamptz NOT NULL,
+    used_at timestamptz,
+    created_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_supplier_portal_token_token ON supplier_portal_token(token);

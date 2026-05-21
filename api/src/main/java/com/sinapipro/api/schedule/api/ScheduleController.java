@@ -92,6 +92,44 @@ public class ScheduleController {
         return ActivityResponse.from(activityRepository.save(activity));
     }
 
+    @Operation(summary = "Update activity dates (drag & drop on Gantt chart)")
+    @PatchMapping("/{activityId}/dates")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    ActivityResponse updateDates(@PathVariable UUID projectId, @PathVariable UUID activityId,
+                                 @Valid @RequestBody UpdateDatesRequest req) {
+        ScheduleActivity activity = findActivityInProject(projectId, activityId);
+        activity.updateDates(req.plannedStart(), req.plannedEnd());
+        return ActivityResponse.from(activityRepository.save(activity));
+    }
+
+    @Operation(summary = "Batch update activity dates (multi-drag on Gantt)")
+    @PatchMapping("/batch-dates")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    List<ActivityResponse> batchUpdateDates(@PathVariable UUID projectId,
+                                           @Valid @RequestBody List<BatchDateEntry> entries) {
+        return entries.stream().map(entry -> {
+            ScheduleActivity activity = findActivityInProject(projectId, entry.activityId());
+            activity.updateDates(entry.plannedStart(), entry.plannedEnd());
+            return ActivityResponse.from(activityRepository.save(activity));
+        }).toList();
+    }
+
+    @Operation(summary = "Gantt chart data (activities with dependencies for rendering)")
+    @GetMapping("/gantt")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    GanttData ganttData(@PathVariable UUID projectId) {
+        var activities = activityRepository.findByBudgetIdOrderBySortOrder(projectId);
+        var dependencies = dependencyRepository.findByBudgetId(projectId);
+        var ganttActivities = activities.stream().map(a -> new GanttActivity(
+                a.getId(), a.getName(), a.getPlannedStart(), a.getPlannedEnd(),
+                a.getActualStart(), a.getActualEnd(), a.getProgressPct(), a.getSortOrder()
+        )).toList();
+        var ganttDeps = dependencies.stream().map(d -> new GanttDependency(
+                d.getPredecessor().getId(), d.getSuccessor().getId(), d.getType()
+        )).toList();
+        return new GanttData(ganttActivities, ganttDeps);
+    }
+
     @Operation(summary = "Delete an activity")
     @DeleteMapping("/{activityId}")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
@@ -192,9 +230,16 @@ public class ScheduleController {
     record CreateActivityRequest(@NotBlank String name, @NotNull LocalDate plannedStart, @NotNull LocalDate plannedEnd,
                                  @NotNull BigDecimal weight, @NotNull Integer sortOrder) {}
     record UpdateProgressRequest(@NotNull BigDecimal progressPct, LocalDate actualStart, LocalDate actualEnd) {}
+    record UpdateDatesRequest(@NotNull LocalDate plannedStart, @NotNull LocalDate plannedEnd) {}
+    record BatchDateEntry(@NotNull UUID activityId, @NotNull LocalDate plannedStart, @NotNull LocalDate plannedEnd) {}
     record CreateDependencyRequest(@NotNull UUID predecessorId, @NotNull UUID successorId, String type) {}
     record CreateBaselineRequest(@NotBlank String name) {}
     record DistributeDatesRequest(@NotNull LocalDate startDate) {}
+
+    record GanttActivity(UUID id, String name, LocalDate plannedStart, LocalDate plannedEnd,
+                         LocalDate actualStart, LocalDate actualEnd, BigDecimal progressPct, Integer sortOrder) {}
+    record GanttDependency(UUID predecessorId, UUID successorId, String type) {}
+    record GanttData(List<GanttActivity> activities, List<GanttDependency> dependencies) {}
 
     record ActivityResponse(UUID id, String name, LocalDate plannedStart, LocalDate plannedEnd,
                             LocalDate actualStart, LocalDate actualEnd, BigDecimal weight,
