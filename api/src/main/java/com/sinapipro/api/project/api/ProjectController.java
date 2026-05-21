@@ -4,6 +4,8 @@ import com.sinapipro.api.project.domain.Project;
 import com.sinapipro.api.project.domain.ProjectRepository;
 import com.sinapipro.api.project.domain.ProjectStatus;
 import com.sinapipro.api.shared.api.PageResponse;
+import com.sinapipro.api.shared.domain.ContractRegime;
+import com.sinapipro.api.shared.domain.ProjectType;
 import com.sinapipro.api.shared.error.DomainNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -60,7 +62,9 @@ public class ProjectController {
         var project = new Project(req.code(), req.name(), req.customerName());
         project.update(req.name(), req.description(), req.customerName(), req.customerDocument(),
                 req.address(), req.city(), req.state(), req.responsibleEngineer(),
-                req.artNumber(), req.startDate(), req.expectedEndDate(), req.totalArea(), req.totalBudget());
+                req.artNumber(), req.startDate(), req.expectedEndDate(), req.totalArea(), req.totalBudget(),
+                req.clientId(), req.employeeId(), req.projectType(), req.contractRegime(),
+                req.permitNumber(), req.permitExpiry(), req.ceiCno(), req.postalCode());
         return ProjectResponse.from(repository.save(project));
     }
 
@@ -71,7 +75,9 @@ public class ProjectController {
         var project = findOrThrow(id);
         project.update(req.name(), req.description(), req.customerName(), req.customerDocument(),
                 req.address(), req.city(), req.state(), req.responsibleEngineer(),
-                req.artNumber(), req.startDate(), req.expectedEndDate(), req.totalArea(), req.totalBudget());
+                req.artNumber(), req.startDate(), req.expectedEndDate(), req.totalArea(), req.totalBudget(),
+                req.clientId(), req.employeeId(), req.projectType(), req.contractRegime(),
+                req.permitNumber(), req.permitExpiry(), req.ceiCno(), req.postalCode());
         return ProjectResponse.from(repository.save(project));
     }
 
@@ -175,13 +181,17 @@ public class ProjectController {
             @NotBlank String code, @NotBlank String name, @NotBlank String customerName,
             String description, String customerDocument, String address, String city, String state,
             String responsibleEngineer, String artNumber, LocalDate startDate, LocalDate expectedEndDate,
-            BigDecimal totalArea, BigDecimal totalBudget) {}
+            BigDecimal totalArea, BigDecimal totalBudget,
+            UUID clientId, UUID employeeId, ProjectType projectType, ContractRegime contractRegime,
+            String permitNumber, LocalDate permitExpiry, String ceiCno, String postalCode) {}
 
     public record UpdateProjectRequest(
             @NotBlank String name, @NotBlank String customerName,
             String description, String customerDocument, String address, String city, String state,
             String responsibleEngineer, String artNumber, LocalDate startDate, LocalDate expectedEndDate,
-            BigDecimal totalArea, BigDecimal totalBudget) {}
+            BigDecimal totalArea, BigDecimal totalBudget,
+            UUID clientId, UUID employeeId, ProjectType projectType, ContractRegime contractRegime,
+            String permitNumber, LocalDate permitExpiry, String ceiCno, String postalCode) {}
 
     public record StatusRequest(ProjectStatus status) {}
 
@@ -190,12 +200,18 @@ public class ProjectController {
                                    String city, String state, String responsibleEngineer, String artNumber,
                                    LocalDate startDate, LocalDate expectedEndDate, LocalDate actualEndDate,
                                    ProjectStatus status, BigDecimal totalArea, BigDecimal totalBudget,
+                                   UUID clientId, UUID employeeId, ProjectType projectType,
+                                   ContractRegime contractRegime, String permitNumber,
+                                   LocalDate permitExpiry, String ceiCno, String postalCode,
                                    java.time.Instant createdAt) {
         public static ProjectResponse from(Project p) {
             return new ProjectResponse(p.getId(), p.getCode(), p.getName(), p.getDescription(),
                     p.getCustomerName(), p.getCustomerDocument(), p.getAddress(), p.getCity(), p.getState(),
                     p.getResponsibleEngineer(), p.getArtNumber(), p.getStartDate(), p.getExpectedEndDate(),
-                    p.getActualEndDate(), p.getStatus(), p.getTotalArea(), p.getTotalBudget(), p.getCreatedAt());
+                    p.getActualEndDate(), p.getStatus(), p.getTotalArea(), p.getTotalBudget(),
+                    p.getClientId(), p.getEmployeeId(), p.getProjectType(), p.getContractRegime(),
+                    p.getPermitNumber(), p.getPermitExpiry(), p.getCeiCno(), p.getPostalCode(),
+                    p.getCreatedAt());
         }
     }
 

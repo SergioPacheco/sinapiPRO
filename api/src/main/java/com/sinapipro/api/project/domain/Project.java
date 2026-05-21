@@ -1,10 +1,13 @@
 package com.sinapipro.api.project.domain;
 
+import com.sinapipro.api.shared.domain.ContractRegime;
+import com.sinapipro.api.shared.domain.ProjectType;
 import com.sinapipro.api.shared.domain.TenantAwareEntity;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Entity
 @Table(name = "project")
@@ -59,6 +62,32 @@ public class Project extends TenantAwareEntity {
     @Column(name = "total_budget", precision = 18, scale = 2)
     private BigDecimal totalBudget;
 
+    @Column(name = "client_id")
+    private UUID clientId;
+
+    @Column(name = "employee_id")
+    private UUID employeeId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "project_type", length = 30)
+    private ProjectType projectType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "contract_regime", length = 30)
+    private ContractRegime contractRegime;
+
+    @Column(name = "permit_number", length = 50)
+    private String permitNumber;
+
+    @Column(name = "permit_expiry")
+    private LocalDate permitExpiry;
+
+    @Column(name = "cei_cno", length = 30)
+    private String ceiCno;
+
+    @Column(name = "postal_code", length = 10)
+    private String postalCode;
+
     protected Project() {}
 
     public Project(String code, String name, String customerName) {
@@ -84,11 +113,22 @@ public class Project extends TenantAwareEntity {
     public ProjectStatus getStatus() { return status; }
     public BigDecimal getTotalArea() { return totalArea; }
     public BigDecimal getTotalBudget() { return totalBudget; }
+    public UUID getClientId() { return clientId; }
+    public UUID getEmployeeId() { return employeeId; }
+    public ProjectType getProjectType() { return projectType; }
+    public ContractRegime getContractRegime() { return contractRegime; }
+    public String getPermitNumber() { return permitNumber; }
+    public LocalDate getPermitExpiry() { return permitExpiry; }
+    public String getCeiCno() { return ceiCno; }
+    public String getPostalCode() { return postalCode; }
 
     public void update(String name, String description, String customerName, String customerDocument,
                        String address, String city, String state, String responsibleEngineer,
                        String artNumber, LocalDate startDate, LocalDate expectedEndDate,
-                       BigDecimal totalArea, BigDecimal totalBudget) {
+                       BigDecimal totalArea, BigDecimal totalBudget,
+                       UUID clientId, UUID employeeId, ProjectType projectType,
+                       ContractRegime contractRegime, String permitNumber,
+                       LocalDate permitExpiry, String ceiCno, String postalCode) {
         this.name = name;
         this.description = description;
         this.customerName = customerName;
@@ -102,6 +142,14 @@ public class Project extends TenantAwareEntity {
         this.expectedEndDate = expectedEndDate;
         this.totalArea = totalArea;
         this.totalBudget = totalBudget;
+        this.clientId = clientId;
+        this.employeeId = employeeId;
+        this.projectType = projectType;
+        this.contractRegime = contractRegime;
+        this.permitNumber = permitNumber;
+        this.permitExpiry = permitExpiry;
+        this.ceiCno = ceiCno;
+        this.postalCode = postalCode;
     }
 
     public void updateStatus(ProjectStatus status) {
