@@ -5,18 +5,25 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MtxGridColumn, MtxGridModule } from '@ng-matero/extensions/grid';
-import { PageHeader } from '@shared';
+import { EmptyStateComponent, PageHeader } from '@shared';
 
 @Component({
   selector: 'app-procurement-global',
   standalone: true,
-  imports: [MatButtonModule, MatIconModule, MatTabsModule, MtxGridModule, PageHeader, RouterLink],
+  imports: [MatButtonModule, MatIconModule, MatTabsModule, MtxGridModule, PageHeader, EmptyStateComponent, RouterLink],
   template: `
     <page-header title="Suprimentos" subtitle="Visão consolidada de todas as obras" />
     <mat-tab-group>
       <mat-tab label="Pedidos de Compra">
-        <mtx-grid [columns]="orderColumns" [data]="orders()" [loading]="loading()"
-                  [pageOnFront]="true" [pageSize]="20" />
+        @if (!loading() && orders().length === 0) {
+          <empty-state
+            icon="local_shipping"
+            title="Nenhum pedido de compra"
+            message="Crie uma obra e registre pedidos de compra para visualizar aqui." />
+        } @else {
+          <mtx-grid [columns]="orderColumns" [data]="orders()" [loading]="loading()"
+                    [pageOnFront]="true" [pageSize]="20" />
+        }
       </mat-tab>
       <mat-tab label="Pedidos Atrasados">
         <mtx-grid [columns]="orderColumns" [data]="overdue()" [loading]="loading()"

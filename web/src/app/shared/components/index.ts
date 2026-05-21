@@ -1,4 +1,6 @@
 export * from './breadcrumb/breadcrumb';
+export * from './empty-state/empty-state';
+export * from './error-404/error-404';
 export * from './error-code/error-code';
 export * from './page-header/page-header';
 export * from './lookup-field/lookup-field.component';

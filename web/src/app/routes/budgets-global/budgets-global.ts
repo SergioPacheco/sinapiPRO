@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MtxGridColumn, MtxGridModule } from '@ng-matero/extensions/grid';
-import { PageHeader } from '@shared';
+import { EmptyStateComponent, PageHeader } from '@shared';
 import { Routes } from '@angular/router';
 
 interface BudgetRow {
@@ -15,12 +15,21 @@ interface BudgetRow {
 @Component({
   selector: 'app-budgets-global',
   standalone: true,
-  imports: [MatButtonModule, MatIconModule, MtxGridModule, PageHeader],
+  imports: [MatButtonModule, MatIconModule, MtxGridModule, PageHeader, EmptyStateComponent],
   template: `
     <page-header title="Orçamentos" subtitle="Todos os orçamentos do portfólio" />
-    <mtx-grid [columns]="columns" [data]="list()" [loading]="loading()"
-              [pageOnFront]="true" [pageSize]="20" [pageSizeOptions]="[10,20,50]"
-              [rowSelectable]="true" (rowClick)="open($event)" />
+    @if (!loading() && list().length === 0) {
+      <empty-state
+        icon="request_quote"
+        title="Nenhum orçamento encontrado"
+        message="Crie uma obra e adicione um orçamento para visualizar aqui."
+        actionLabel="Nova Obra"
+        actionRoute="/projects/new" />
+    } @else {
+      <mtx-grid [columns]="columns" [data]="list()" [loading]="loading()"
+                [pageOnFront]="true" [pageSize]="20" [pageSizeOptions]="[10,20,50]"
+                [rowSelectable]="true" (rowClick)="open($event)" />
+    }
   `,
 })
 export class BudgetsGlobalComponent implements OnInit {

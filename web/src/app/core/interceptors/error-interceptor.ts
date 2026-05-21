@@ -1,54 +1,42 @@
 import { HttpErrorResponse, HttpHandlerFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { HotToastService } from '@ngxpert/hot-toast';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { catchError, throwError } from 'rxjs';
-
-export enum STATUS {
-  UNAUTHORIZED = 401,
-  FORBIDDEN = 403,
-  NOT_FOUND = 404,
-  INTERNAL_SERVER_ERROR = 500,
-}
 
 export function errorInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) {
   const router = inject(Router);
-  const toast = inject(HotToastService);
-  const errorPages = [STATUS.FORBIDDEN, STATUS.NOT_FOUND, STATUS.INTERNAL_SERVER_ERROR];
-
-  const getMessage = (error: HttpErrorResponse) => {
-    const body = error.error;
-    // RFC 9457 ProblemDetail
-    if (body?.detail) {
-      if (body.violations?.length) {
-        return body.violations.map((v: { field: string; message: string }) => `${v.field}: ${v.message}`).join(', ');
-      }
-      return body.detail;
-    }
-    if (body?.title) {
-      return body.title;
-    }
-    if (body?.message) {
-      return body.message;
-    }
-    return `${error.status} ${error.statusText}`;
-  };
+  const snackBar = inject(MatSnackBar);
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === STATUS.UNAUTHORIZED) {
+      if (error.status === 401) {
         router.navigateByUrl('/auth/login');
-      } else if (!req.url.includes('/api/')) {
-        // Only redirect to error pages for non-API navigation failures
-        if (errorPages.includes(error.status)) {
-          router.navigateByUrl(`/${error.status}`, { skipLocationChange: true });
-        }
+      } else if (error.status === 0) {
+        showSnackBar(snackBar, 'Sem conexão com o servidor. Verifique sua internet.');
+      } else if (error.status === 403) {
+        showSnackBar(snackBar, 'Você não tem permissão para esta ação');
+      } else if (error.status === 404) {
+        showSnackBar(snackBar, 'Recurso não encontrado');
+      } else if (error.status >= 500) {
+        showSnackBar(snackBar, 'Erro interno do servidor. Tente novamente mais tarde.');
       } else {
-        console.error('ERROR', error);
-        toast.error(getMessage(error));
+        const msg = extractMessage(error);
+        showSnackBar(snackBar, msg);
       }
-
       return throwError(() => error);
     })
   );
+}
+
+function showSnackBar(snackBar: MatSnackBar, message: string): void {
+  snackBar.open(message, 'Fechar', { duration: 5000 });
+}
+
+function extractMessage(error: HttpErrorResponse): string {
+  const body = error.error;
+  if (body?.detail) return body.detail;
+  if (body?.title) return body.title;
+  if (body?.message) return body.message;
+  return `Erro ${error.status}: ${error.statusText}`;
 }

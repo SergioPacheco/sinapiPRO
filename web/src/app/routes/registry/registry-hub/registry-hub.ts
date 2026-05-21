@@ -3,10 +3,18 @@ import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatRippleModule } from '@angular/material/core';
 
+interface RegistryItem {
+  label: string;
+  route: string;
+  icon: string;
+  description: string;
+  comingSoon?: boolean;
+}
+
 interface RegistryGroup {
   title: string;
   icon: string;
-  items: { label: string; route: string; icon: string; description: string }[];
+  items: RegistryItem[];
 }
 
 @Component({
@@ -27,13 +35,26 @@ interface RegistryGroup {
           </div>
           <div class="group-items">
             @for (item of group.items; track item.route) {
-              <a class="group-item" [routerLink]="item.route" matRipple>
-                <mat-icon>{{ item.icon }}</mat-icon>
-                <div>
-                  <span class="item-label">{{ item.label }}</span>
-                  <span class="item-desc">{{ item.description }}</span>
+              @if (item.comingSoon) {
+                <div class="group-item disabled">
+                  <mat-icon>{{ item.icon }}</mat-icon>
+                  <div>
+                    <span class="item-label">
+                      {{ item.label }}
+                      <span class="badge-coming-soon">Em breve</span>
+                    </span>
+                    <span class="item-desc">{{ item.description }}</span>
+                  </div>
                 </div>
-              </a>
+              } @else {
+                <a class="group-item" [routerLink]="item.route" matRipple>
+                  <mat-icon>{{ item.icon }}</mat-icon>
+                  <div>
+                    <span class="item-label">{{ item.label }}</span>
+                    <span class="item-desc">{{ item.description }}</span>
+                  </div>
+                </a>
+              }
             }
           </div>
         </div>
@@ -70,8 +91,26 @@ interface RegistryGroup {
       mat-icon { font-size: 18px; width: 18px; height: 18px; color: var(--mat-sys-on-surface-variant); }
     }
 
+    .group-item.disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
     .item-label { display: block; font-size: 13px; font-weight: 500; color: var(--mat-sys-on-surface); }
     .item-desc { display: block; font-size: 11px; color: var(--mat-sys-on-surface-variant); margin-top: 1px; }
+
+    .badge-coming-soon {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--mat-sys-tertiary-container);
+      color: var(--mat-sys-on-tertiary-container);
+      margin-left: 8px;
+      vertical-align: middle;
+    }
   `,
 })
 export class RegistryHubComponent {
@@ -83,8 +122,8 @@ export class RegistryHubComponent {
         { label: 'Clientes', route: 'clients', icon: 'person', description: 'Clientes e contratantes' },
         { label: 'Fornecedores', route: '/suppliers', icon: 'store', description: 'Fornecedores de materiais e serviços' },
         { label: 'Funcionários', route: 'employees', icon: 'badge', description: 'Colaboradores e terceirizados' },
-        { label: 'Empreiteiros', route: 'contractors', icon: 'construction', description: 'Empreiteiros e subempreiteiros' },
-        { label: 'Fiscais', route: 'inspectors', icon: 'verified_user', description: 'Fiscais de obra e aprovadores' },
+        { label: 'Empreiteiros', route: 'contractors', icon: 'construction', description: 'Empreiteiros e subempreiteiros', comingSoon: true },
+        { label: 'Fiscais', route: 'inspectors', icon: 'verified_user', description: 'Fiscais de obra e aprovadores', comingSoon: true },
         { label: 'Equipes', route: 'teams', icon: 'groups', description: 'Composição de equipes de obra' },
       ],
     },
@@ -92,10 +131,10 @@ export class RegistryHubComponent {
       title: 'Orçamento',
       icon: 'request_quote',
       items: [
-        { label: 'BDI', route: 'bdi', icon: 'calculate', description: 'Cadastro de BDI reutilizável (TCU)' },
-        { label: 'Encargos Sociais', route: 'social-charges', icon: 'percent', description: 'Horista, mensalista, Simples Nacional' },
+        { label: 'BDI', route: 'bdi', icon: 'calculate', description: 'Cadastro de BDI reutilizável (TCU)', comingSoon: true },
+        { label: 'Encargos Sociais', route: 'social-charges', icon: 'percent', description: 'Horista, mensalista, Simples Nacional', comingSoon: true },
         { label: 'Catálogo SINAPI', route: '/sinapi', icon: 'menu_book', description: 'Composições e insumos oficiais' },
-        { label: 'Unidades de Medida', route: 'units', icon: 'straighten', description: 'm, m², kg, un, vb...' },
+        { label: 'Unidades de Medida', route: 'units', icon: 'straighten', description: 'm, m², kg, un, vb...', comingSoon: true },
       ],
     },
     {
@@ -103,9 +142,9 @@ export class RegistryHubComponent {
       icon: 'account_balance',
       items: [
         { label: 'Contas Bancárias', route: 'bank-accounts', icon: 'credit_card', description: 'Bancos e contas da empresa' },
-        { label: 'Formas de Pagamento', route: 'payment-methods', icon: 'payments', description: 'Condições de pagamento' },
-        { label: 'Centros de Custo', route: 'cost-centers', icon: 'account_tree', description: 'Estrutura de custos' },
-        { label: 'Categorias Financeiras', route: 'finance-categories', icon: 'category', description: 'Material, MO, equipamento, serviço' },
+        { label: 'Formas de Pagamento', route: 'payment-methods', icon: 'payments', description: 'Condições de pagamento', comingSoon: true },
+        { label: 'Centros de Custo', route: 'cost-centers', icon: 'account_tree', description: 'Estrutura de custos', comingSoon: true },
+        { label: 'Categorias Financeiras', route: 'finance-categories', icon: 'category', description: 'Material, MO, equipamento, serviço', comingSoon: true },
       ],
     },
     {
@@ -113,8 +152,8 @@ export class RegistryHubComponent {
       icon: 'engineering',
       items: [
         { label: 'Equipamentos', route: '/equipment', icon: 'precision_manufacturing', description: 'Máquinas e veículos' },
-        { label: 'Tipos de Obra', route: 'project-types', icon: 'domain', description: 'Residencial, comercial, industrial' },
-        { label: 'Etapas Padrão', route: 'default-stages', icon: 'list_alt', description: 'Templates de etapas para orçamento' },
+        { label: 'Tipos de Obra', route: 'project-types', icon: 'domain', description: 'Residencial, comercial, industrial', comingSoon: true },
+        { label: 'Etapas Padrão', route: 'default-stages', icon: 'list_alt', description: 'Templates de etapas para orçamento', comingSoon: true },
       ],
     },
     {
@@ -122,8 +161,8 @@ export class RegistryHubComponent {
       icon: 'health_and_safety',
       items: [
         { label: 'Checklists', route: '/safety/templates', icon: 'checklist', description: 'Modelos de inspeção' },
-        { label: 'Tipos de Incidente', route: 'incident-types', icon: 'warning', description: 'Classificação de ocorrências' },
-        { label: 'EPIs', route: 'epis', icon: 'shield', description: 'Equipamentos de proteção individual' },
+        { label: 'Tipos de Incidente', route: 'incident-types', icon: 'warning', description: 'Classificação de ocorrências', comingSoon: true },
+        { label: 'EPIs', route: 'epis', icon: 'shield', description: 'Equipamentos de proteção individual', comingSoon: true },
       ],
     },
     {
@@ -131,7 +170,7 @@ export class RegistryHubComponent {
       icon: 'settings',
       items: [
         { label: 'Perfis e Permissões', route: '/settings/roles', icon: 'admin_panel_settings', description: 'Controle de acesso' },
-        { label: 'Relatórios', route: 'report-templates', icon: 'print', description: 'Personalização de relatórios (logo, cores)' },
+        { label: 'Relatórios', route: 'report-templates', icon: 'print', description: 'Personalização de relatórios (logo, cores)', comingSoon: true },
       ],
     },
   ];

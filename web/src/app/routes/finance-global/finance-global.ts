@@ -4,22 +4,36 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MtxGridColumn, MtxGridModule } from '@ng-matero/extensions/grid';
-import { PageHeader } from '@shared';
+import { EmptyStateComponent, PageHeader } from '@shared';
 
 @Component({
   selector: 'app-finance-global',
   standalone: true,
-  imports: [MatButtonModule, MatIconModule, MatTabsModule, MtxGridModule, PageHeader],
+  imports: [MatButtonModule, MatIconModule, MatTabsModule, MtxGridModule, PageHeader, EmptyStateComponent],
   template: `
     <page-header title="Financeiro" subtitle="Visão consolidada de todas as obras" />
     <mat-tab-group>
       <mat-tab label="Contas a Pagar">
-        <mtx-grid [columns]="payableColumns" [data]="payables()" [loading]="loading()"
-                  [pageOnFront]="true" [pageSize]="20" />
+        @if (!loading() && payables().length === 0) {
+          <empty-state
+            icon="account_balance"
+            title="Nenhum lançamento financeiro"
+            message="Crie uma obra e registre lançamentos para visualizar aqui." />
+        } @else {
+          <mtx-grid [columns]="payableColumns" [data]="payables()" [loading]="loading()"
+                    [pageOnFront]="true" [pageSize]="20" />
+        }
       </mat-tab>
       <mat-tab label="Contas a Receber">
-        <mtx-grid [columns]="receivableColumns" [data]="receivables()" [loading]="loading()"
-                  [pageOnFront]="true" [pageSize]="20" />
+        @if (!loading() && receivables().length === 0) {
+          <empty-state
+            icon="account_balance"
+            title="Nenhum lançamento financeiro"
+            message="Crie uma obra e registre lançamentos para visualizar aqui." />
+        } @else {
+          <mtx-grid [columns]="receivableColumns" [data]="receivables()" [loading]="loading()"
+                    [pageOnFront]="true" [pageSize]="20" />
+        }
       </mat-tab>
     </mat-tab-group>
   `,

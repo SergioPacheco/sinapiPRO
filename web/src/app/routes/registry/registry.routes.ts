@@ -6,7 +6,7 @@ import { EmployeeFormComponent } from './employee-form/employee-form';
 import { BankAccountListComponent } from './bank-account-list/bank-account-list';
 import { TeamListComponent } from './team-list/team-list';
 import { TeamFormComponent } from './team-form/team-form';
-import { ComingSoonComponent } from './coming-soon/coming-soon';
+import { ClientFormComponent } from './client-form/client-form';
 import { ContractorListComponent } from './contractor-list/contractor-list';
 import { InspectorListComponent } from './inspector-list/inspector-list';
 import { BdiListComponent } from './bdi-list/bdi-list';
@@ -24,8 +24,8 @@ import { ReportTemplateListComponent } from './report-template-list/report-templ
 export const routes: Routes = [
   { path: '', component: RegistryHubComponent },
   { path: 'clients', component: ClientListComponent },
-  { path: 'clients/new', component: ComingSoonComponent },
-  { path: 'clients/:id/edit', component: ComingSoonComponent },
+  { path: 'clients/new', component: ClientFormComponent },
+  { path: 'clients/:id/edit', component: ClientFormComponent },
   { path: 'employees', component: EmployeeListComponent },
   { path: 'employees/new', component: EmployeeFormComponent },
   { path: 'employees/:id/edit', component: EmployeeFormComponent },

@@ -20,6 +20,8 @@ export class RegistryService {
     });
   }
 
+  getClient(id: string) { return this.http.get<Client>(`${this.base}/clients/${id}`); }
+
   createClient(data: Partial<Client>) { return this.http.post<Client>(`${this.base}/clients`, data); }
 
   updateClient(id: string, data: Partial<Client>) { return this.http.put<Client>(`${this.base}/clients/${id}`, data); }
