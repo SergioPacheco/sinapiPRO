@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -50,4 +51,12 @@ public interface MaterialRepository extends JpaRepository<Material, UUID> {
               AND mp.referenceMonth = :referenceMonth
             """)
     List<MaterialPrice> findPricesBatch(List<UUID> materialIds, String state, LocalDate referenceMonth);
+
+    @Query(value = """
+            SELECT m.* FROM material m
+            WHERE m.search_vector @@ plainto_tsquery('portuguese', cast(:query as text))
+            ORDER BY ts_rank(m.search_vector, plainto_tsquery('portuguese', cast(:query as text))) DESC
+            LIMIT :limit
+            """, nativeQuery = true)
+    List<Material> searchByText(@Param("query") String query, @Param("limit") int limit);
 }

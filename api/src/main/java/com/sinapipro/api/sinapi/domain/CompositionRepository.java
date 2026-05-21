@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,19 +16,30 @@ public interface CompositionRepository extends JpaRepository<Composition, UUID> 
 
     @Query(value = """
             SELECT c.* FROM composition c
-            WHERE (:query IS NULL OR c.search_vector @@ plainto_tsquery('portuguese', cast(:query as text)))
+            WHERE c.is_current = true
+              AND (:query IS NULL OR c.search_vector @@ plainto_tsquery('portuguese', cast(:query as text)))
               AND (:origin IS NULL OR c.origin = cast(:origin as text))
               AND (:unit IS NULL OR c.unit = cast(:unit as text))
               AND (:groupName IS NULL OR c.group_name = cast(:groupName as text))
             ORDER BY CASE WHEN :query IS NOT NULL THEN ts_rank(c.search_vector, plainto_tsquery('portuguese', cast(:query as text))) ELSE 0 END DESC, c.sinapi_code
             """, countQuery = """
             SELECT count(*) FROM composition c
-            WHERE (:query IS NULL OR c.search_vector @@ plainto_tsquery('portuguese', cast(:query as text)))
+            WHERE c.is_current = true
+              AND (:query IS NULL OR c.search_vector @@ plainto_tsquery('portuguese', cast(:query as text)))
               AND (:origin IS NULL OR c.origin = cast(:origin as text))
               AND (:unit IS NULL OR c.unit = cast(:unit as text))
               AND (:groupName IS NULL OR c.group_name = cast(:groupName as text))
             """, nativeQuery = true)
     Page<Composition> findFiltered(String query, String origin, String unit, String groupName, Pageable pageable);
+
+    @Query(value = """
+            SELECT c.* FROM composition c
+            WHERE c.is_current = true
+              AND c.search_vector @@ plainto_tsquery('portuguese', cast(:query as text))
+            ORDER BY ts_rank(c.search_vector, plainto_tsquery('portuguese', cast(:query as text))) DESC
+            LIMIT :limit
+            """, nativeQuery = true)
+    List<Composition> searchCurrentByText(@Param("query") String query, @Param("limit") int limit);
 
     @Query(value = "SELECT DISTINCT c.unit FROM composition c ORDER BY c.unit", nativeQuery = true)
     List<String> findDistinctUnits();

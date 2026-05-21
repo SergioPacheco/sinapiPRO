@@ -3,8 +3,10 @@ package com.sinapipro.api.sinapi.domain;
 import com.sinapipro.api.shared.domain.TenantAwareEntity;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "composition")
@@ -24,6 +26,15 @@ public class Composition extends TenantAwareEntity {
 
     @Column(nullable = false, length = 20)
     private String origin = "SINAPI";
+
+    @Column(nullable = false)
+    private Integer version = 1;
+
+    @Column(name = "parent_id")
+    private UUID parentId;
+
+    @Column(name = "is_current", nullable = false)
+    private Boolean isCurrent = true;
 
     @OneToMany(mappedBy = "composition", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CompositionItem> items = new ArrayList<>();
@@ -58,9 +69,37 @@ public class Composition extends TenantAwareEntity {
         this.groupName = groupName;
     }
 
-    public void addItem(Material material, java.math.BigDecimal coefficient) {
+    public void addItem(Material material, BigDecimal coefficient) {
         items.add(new CompositionItem(this, material, coefficient));
     }
+
+    public void addItem(Material material, BigDecimal coefficient, ItemType itemType) {
+        items.add(new CompositionItem(this, material, coefficient, itemType));
+    }
+
+    public void addCompositionItem(Composition childComposition, BigDecimal coefficient) {
+        items.add(new CompositionItem(this, childComposition, coefficient));
+    }
+
+    public Composition createNewVersion(String description, String unit, String groupName) {
+        var next = new Composition(this.sinapiCode, description, unit, groupName, this.origin);
+        next.version = this.version + 1;
+        next.parentId = this.parentId != null ? this.parentId : this.getId();
+        next.isCurrent = true;
+        return next;
+    }
+
+    public void markSuperseded() {
+        this.isCurrent = false;
+    }
+
+    public UUID getChainRoot() {
+        return parentId != null ? parentId : getId();
+    }
+
+    public Integer getVersion() { return version; }
+    public UUID getParentId() { return parentId; }
+    public Boolean getIsCurrent() { return isCurrent; }
 
     public boolean isEditable() { return "PROPRIO".equals(origin); }
 }

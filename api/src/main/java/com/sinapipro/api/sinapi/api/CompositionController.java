@@ -4,10 +4,10 @@ import com.sinapipro.api.shared.api.PageResponse;
 import com.sinapipro.api.shared.error.DomainNotFoundException;
 import com.sinapipro.api.sinapi.application.CompositionCostResult;
 import com.sinapipro.api.sinapi.application.CompositionCostService;
+import com.sinapipro.api.sinapi.application.CompositionVersionService;
+import com.sinapipro.api.sinapi.application.ItemSearchService;
 import com.sinapipro.api.sinapi.application.SinapiImportService;
-import com.sinapipro.api.sinapi.domain.Composition;
-import com.sinapipro.api.sinapi.domain.CompositionRepository;
-import com.sinapipro.api.sinapi.domain.MaterialRepository;
+import com.sinapipro.api.sinapi.domain.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -35,17 +35,25 @@ import java.util.UUID;
 @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
 public class CompositionController {
 
-    private final CompositionRepository repository;
+    private final CompositionRepository compositionRepository;
     private final CompositionCostService costService;
     private final SinapiImportService importService;
     private final MaterialRepository materialRepository;
+    private final CompositionVersionService versionService;
+    private final ItemSearchService itemSearchService;
 
-    public CompositionController(CompositionRepository repository, CompositionCostService costService,
-                                 SinapiImportService importService, MaterialRepository materialRepository) {
-        this.repository = repository;
+    public CompositionController(CompositionRepository compositionRepository,
+                                 CompositionCostService costService,
+                                 SinapiImportService importService,
+                                 MaterialRepository materialRepository,
+                                 CompositionVersionService versionService,
+                                 ItemSearchService itemSearchService) {
+        this.compositionRepository = compositionRepository;
         this.costService = costService;
         this.importService = importService;
         this.materialRepository = materialRepository;
+        this.versionService = versionService;
+        this.itemSearchService = itemSearchService;
     }
 
     @Operation(summary = "List/search compositions with combined filters")
@@ -55,24 +63,41 @@ public class CompositionController {
                                            @RequestParam(required = false) String unit,
                                            @RequestParam(required = false) String groupName,
                                            @PageableDefault(size = 20) Pageable pageable) {
-        return PageResponse.from(repository.findFiltered(q, origin, unit, groupName, pageable).map(CompositionResponse::from));
+        return PageResponse.from(compositionRepository.findFiltered(q, origin, unit, groupName, pageable).map(CompositionResponse::from));
     }
 
     @Operation(summary = "Get filter options (distinct values)")
     @GetMapping("/filters")
     FilterOptions filters() {
-        return new FilterOptions(repository.findDistinctUnits(), repository.findDistinctOrigins(), repository.findDistinctGroups());
+        return new FilterOptions(compositionRepository.findDistinctUnits(), compositionRepository.findDistinctOrigins(), compositionRepository.findDistinctGroups());
     }
 
-    public record FilterOptions(java.util.List<String> units, java.util.List<String> origins, java.util.List<String> groups) {}
+    public record FilterOptions(List<String> units, List<String> origins, List<String> groups) {}
+
+    @Operation(summary = "Search materials and compositions for autocomplete")
+    @GetMapping("/items/search")
+    List<ItemSearchService.ItemSearchResult> searchItems(
+            @RequestParam String q,
+            @RequestParam(required = false) ItemType type) {
+        return itemSearchService.search(q, type);
+    }
 
     @Operation(summary = "Get composition by ID with items")
     @GetMapping("/{id}")
     @Transactional(readOnly = true)
     CompositionResponse findById(@PathVariable UUID id) {
-        Composition c = repository.findById(id)
+        Composition c = compositionRepository.findById(id)
                 .orElseThrow(() -> new DomainNotFoundException("Composition not found: " + id));
         return CompositionResponse.fromWithItems(c);
+    }
+
+    @Operation(summary = "Copy SINAPI composition to custom catalog")
+    @PostMapping("/{id}/copy")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Transactional
+    CompositionResponse copy(@PathVariable UUID id) {
+        return CompositionResponse.from(versionService.copyFromSinapi(id));
     }
 
     @Operation(summary = "Create custom composition")
@@ -83,32 +108,30 @@ public class CompositionController {
         var comp = new Composition(req.code(), req.description(), req.unit(), req.groupName(), "PROPRIO");
         if (req.items() != null) {
             for (var item : req.items()) {
-                var material = materialRepository.findBySinapiCode(item.materialCode())
-                        .orElseThrow(() -> new DomainNotFoundException("Material not found: " + item.materialCode()));
-                comp.addItem(material, item.coefficient());
+                if (item.itemType() == ItemType.COMPOSITION) {
+                    var child = compositionRepository.findById(item.childCompositionId())
+                            .orElseThrow(() -> new DomainNotFoundException("Child composition not found: " + item.childCompositionId()));
+                    comp.addCompositionItem(child, item.coefficient());
+                } else {
+                    var material = materialRepository.findBySinapiCode(item.materialCode())
+                            .orElseThrow(() -> new DomainNotFoundException("Material not found: " + item.materialCode()));
+                    comp.addItem(material, item.coefficient(), item.itemType());
+                }
             }
         }
-        return CompositionResponse.from(repository.save(comp));
+        return CompositionResponse.from(compositionRepository.save(comp));
     }
 
-    @Operation(summary = "Update custom composition")
+    @Operation(summary = "Update custom composition (creates new version)")
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
     @Transactional
     CompositionResponse update(@PathVariable UUID id, @Valid @RequestBody UpdateCompositionRequest req) {
-        Composition c = repository.findById(id)
-                .orElseThrow(() -> new DomainNotFoundException("Composition not found: " + id));
-        if (!c.isEditable()) throw new IllegalStateException("Cannot edit SINAPI compositions");
-        c.update(req.description(), req.unit(), req.groupName());
-        if (req.items() != null) {
-            c.getItems().clear();
-            for (var item : req.items()) {
-                var material = materialRepository.findBySinapiCode(item.materialCode())
-                        .orElseThrow(() -> new DomainNotFoundException("Material not found: " + item.materialCode()));
-                c.addItem(material, item.coefficient());
-            }
-        }
-        return CompositionResponse.fromWithItems(repository.save(c));
+        var items = req.items() != null ? req.items().stream()
+                .map(i -> new CompositionVersionService.ItemInput(i.materialCode(), i.childCompositionId(), i.coefficient(), i.itemType()))
+                .toList() : null;
+        var updated = versionService.updateWithNewVersion(id, req.description(), req.unit(), req.groupName(), items);
+        return CompositionResponse.fromWithItems(updated);
     }
 
     @Operation(summary = "Delete custom composition")
@@ -116,10 +139,10 @@ public class CompositionController {
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void delete(@PathVariable UUID id) {
-        Composition c = repository.findById(id)
+        Composition c = compositionRepository.findById(id)
                 .orElseThrow(() -> new DomainNotFoundException("Composition not found: " + id));
         if (!c.isEditable()) throw new IllegalStateException("Cannot delete SINAPI compositions");
-        repository.delete(c);
+        compositionRepository.delete(c);
     }
 
     @Operation(summary = "Calculate unit cost for a composition by state and reference month")
@@ -156,5 +179,10 @@ public class CompositionController {
                                             String groupName, List<ItemRequest> items) {}
     public record UpdateCompositionRequest(@NotBlank String description, @NotBlank String unit,
                                             String groupName, List<ItemRequest> items) {}
-    public record ItemRequest(@NotBlank String materialCode, @NotNull BigDecimal coefficient) {}
+    public record ItemRequest(
+            String materialCode,
+            UUID childCompositionId,
+            @NotNull BigDecimal coefficient,
+            @NotNull ItemType itemType
+    ) {}
 }
