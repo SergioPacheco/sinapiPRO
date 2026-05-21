@@ -7,6 +7,7 @@ ALTER TABLE budget ADD COLUMN IF NOT EXISTS reference_date date;
 ALTER TABLE budget ADD COLUMN IF NOT EXISTS state varchar(2);
 ALTER TABLE budget ADD COLUMN IF NOT EXISTS rounding_method varchar(20) DEFAULT 'TRUNCATE';
 ALTER TABLE budget ADD COLUMN IF NOT EXISTS decimal_places integer DEFAULT 4;
+ALTER TABLE budget ADD COLUMN IF NOT EXISTS item_mask varchar(30);
 
 -- 1.4: Budget item memo (memória de cálculo)
 CREATE TABLE IF NOT EXISTS budget_item_memo (

@@ -135,6 +135,9 @@ public class CriticalPathService {
         public List<CriticalActivity> criticalPath() {
             return activities.stream().filter(CriticalActivity::critical).toList();
         }
+        public List<UUID> criticalActivityIds() {
+            return activities.stream().filter(CriticalActivity::critical).map(CriticalActivity::id).toList();
+        }
     }
 
     public record CriticalActivity(UUID id, String name, int durationDays,

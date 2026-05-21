@@ -59,6 +59,9 @@ public class Budget extends AuditableEntity {
     @Column(name = "decimal_places")
     private Integer decimalPlaces = 4;
 
+    @Column(name = "item_mask", length = 30)
+    private String itemMask;
+
     protected Budget() {}
 
     public Budget(String code, String title, String customerName, BigDecimal totalAmount,
@@ -95,6 +98,8 @@ public class Budget extends AuditableEntity {
     public void setRoundingMethod(String roundingMethod) { this.roundingMethod = roundingMethod; }
     public Integer getDecimalPlaces() { return decimalPlaces; }
     public void setDecimalPlaces(Integer decimalPlaces) { this.decimalPlaces = decimalPlaces; }
+    public String getItemMask() { return itemMask; }
+    public void setItemMask(String itemMask) { this.itemMask = itemMask; }
 
     public void update(String title, String customerName, BigDecimal totalAmount,
                        BudgetStatus status, LocalDate startDate, LocalDate endDate, Map<String, Object> metadata) {

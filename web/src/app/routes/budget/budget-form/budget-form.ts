@@ -36,6 +36,7 @@ export class BudgetFormComponent implements OnInit {
     endDate: [''],
     roundingMethod: ['TRUNCATE'],
     decimalPlaces: [4],
+    itemMask: [''],
   });
 
   statuses = [

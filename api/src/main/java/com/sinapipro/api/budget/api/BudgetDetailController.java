@@ -199,6 +199,19 @@ public class BudgetDetailController {
                                   @RequestBody CustomCodeRequest req) {
         ensureItemInBudget(budgetId, itemId);
         var item = itemRepository.findById(itemId).orElseThrow();
+        // Validate against budget mask if configured
+        var budget = budgetRepository.findById(budgetId).orElseThrow();
+        if (req.customCode() != null && budget.getItemMask() != null && !budget.getItemMask().isBlank()) {
+            String regex = budget.getItemMask()
+                    .replace("#", "\\d")
+                    .replace("A", "[A-Za-z]")
+                    .replace(".", "\\.");
+            if (!req.customCode().matches(regex)) {
+                throw new org.springframework.web.server.ResponseStatusException(
+                        org.springframework.http.HttpStatus.BAD_REQUEST,
+                        "Custom code '" + req.customCode() + "' does not match mask '" + budget.getItemMask() + "'");
+            }
+        }
         item.setCustomCode(req.customCode());
         return ItemResponse.from(itemRepository.save(item));
     }

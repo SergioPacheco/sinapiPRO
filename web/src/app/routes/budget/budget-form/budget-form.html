@@ -60,6 +60,12 @@
         </mat-select>
       </mat-form-field>
 
+      <mat-form-field appearance="outline">
+        <mat-label>Máscara de Item</mat-label>
+        <input matInput formControlName="itemMask" placeholder="##.##.###" />
+        <mat-hint># = número, A = letra, . = separador</mat-hint>
+      </mat-form-field>
+
       <div class="form-actions">
         <button mat-button type="button" (click)="cancel()">Cancelar</button>
         <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
