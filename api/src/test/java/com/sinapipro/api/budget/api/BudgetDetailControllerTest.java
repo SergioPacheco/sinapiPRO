@@ -37,6 +37,9 @@ class BudgetDetailControllerTest {
     @Mock BudgetItemRepository itemRepository;
     @Mock BdiConfigRepository bdiConfigRepository;
     @Mock BudgetItemMemoRepository memoRepository;
+    @Mock BudgetProposalRepository proposalRepository;
+    @Mock BudgetItemTagRepository tagRepository;
+    @Mock SocialChargesConfigRepository socialChargesRepository;
     @Mock CompositionRepository compositionRepository;
     @Mock BudgetCalculationService calculationService;
     @Mock AbcCurveService abcCurveService;
@@ -51,6 +54,7 @@ class BudgetDetailControllerTest {
     void setUp() {
         controller = new BudgetDetailController(
                 budgetRepository, stageRepository, itemRepository, bdiConfigRepository, memoRepository,
+                proposalRepository, tagRepository, socialChargesRepository,
                 compositionRepository, calculationService, abcCurveService, priceAdjustmentService,
                 budgetReportService, compositionCostService, settingsRepository
         );

@@ -4,6 +4,7 @@ import com.sinapipro.api.budget.domain.Budget;
 import com.sinapipro.api.budget.domain.BudgetRepository;
 import com.sinapipro.api.procurement.application.ProcurementReportService;
 import com.sinapipro.api.procurement.application.ProcurementService;
+import com.sinapipro.api.procurement.application.QuotationEmailService;
 import com.sinapipro.api.procurement.domain.*;
 import com.sinapipro.api.shared.error.DomainNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +31,7 @@ class ProcurementControllerTest {
     @Mock PurchaseOrderRepository orderRepository;
     @Mock QuotationRepository quotationRepository;
     @Mock QuotationEmailRepository quotationEmailRepository;
+    @Mock QuotationEmailService quotationEmailService;
 
     ProcurementController controller;
 
@@ -37,7 +39,8 @@ class ProcurementControllerTest {
     void setUp() {
         controller = new ProcurementController(
                 requestRepository, budgetRepository, procurementService, procurementReportService,
-                costDistributionRepository, orderRepository, quotationRepository, quotationEmailRepository
+                costDistributionRepository, orderRepository, quotationRepository, quotationEmailRepository,
+                quotationEmailService
         );
     }
 

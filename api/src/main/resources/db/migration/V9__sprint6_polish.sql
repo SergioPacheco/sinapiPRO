@@ -57,7 +57,7 @@ CREATE TABLE social_charges_config (
 );
 
 -- 6.4: Personalização de relatórios
-CREATE TABLE report_template (
+CREATE TABLE IF NOT EXISTS report_template (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     name varchar(100) NOT NULL,
     type varchar(30),

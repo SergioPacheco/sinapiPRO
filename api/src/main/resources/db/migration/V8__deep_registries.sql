@@ -157,8 +157,8 @@ ALTER TABLE project ADD COLUMN IF NOT EXISTS permit_expiry date;
 ALTER TABLE project ADD COLUMN IF NOT EXISTS cei_cno varchar(30);
 ALTER TABLE project ADD COLUMN IF NOT EXISTS postal_code varchar(10);
 
-CREATE INDEX CONCURRENTLY idx_project_client ON project(client_id);
-CREATE INDEX CONCURRENTLY idx_project_employee ON project(employee_id);
+CREATE INDEX idx_project_client ON project(client_id);
+CREATE INDEX idx_project_employee ON project(employee_id);
 
 -- ============================================================
 -- 5. Data migration: customer_name → client_id

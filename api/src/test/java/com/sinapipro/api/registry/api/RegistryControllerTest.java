@@ -1,6 +1,7 @@
 package com.sinapipro.api.registry.api;
 
 import com.sinapipro.api.registry.domain.*;
+import com.sinapipro.api.shared.domain.ReportTemplateRepository;
 import com.sinapipro.api.shared.error.DomainNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

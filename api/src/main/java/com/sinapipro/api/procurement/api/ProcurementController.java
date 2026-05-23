@@ -303,16 +303,6 @@ public class ProcurementController {
     record FromAbcRequest(java.util.List<AbcItem> items) {}
     record AbcItem(String description, BigDecimal quantity, String unit) {}
 
-    @Operation(summary = "Send quotation to suppliers via email")
-    @PostMapping("/quotations/{quotationId}/send-email")
-    java.util.Map<String, Object> sendQuotationEmail(@PathVariable UUID projectId, @PathVariable UUID quotationId) {
-        findQuotationInProject(projectId, quotationId);
-        var emails = quotationEmailRepository.findByQuotationId(quotationId);
-        emails.forEach(QuotationEmail::markSent);
-        quotationEmailRepository.saveAll(emails);
-        return java.util.Map.of("sent", emails.size(), "quotationId", quotationId);
-    }
-
     private PurchaseRequest findRequestInProject(UUID projectId, UUID requestId) {
         PurchaseRequest request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new DomainNotFoundException("Purchase request not found: " + requestId));

@@ -2,6 +2,7 @@ package com.sinapipro.api.registry.api;
 
 import com.sinapipro.api.registry.domain.*;
 import com.sinapipro.api.shared.domain.ReportTemplate;
+import com.sinapipro.api.shared.domain.ReportTemplateRepository;
 import com.sinapipro.api.shared.api.PageResponse;
 import com.sinapipro.api.shared.error.DomainNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
