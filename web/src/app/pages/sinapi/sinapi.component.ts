@@ -9,13 +9,14 @@ import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
 import { DialogModule } from 'primeng/dialog';
 import { FileUploadModule } from 'primeng/fileupload';
+import { CheckboxModule } from 'primeng/checkbox';
 import { MessageService, LazyLoadEvent } from 'primeng/api';
 import { StatusTagComponent, EmptyStateComponent } from '../../shared/components';
 
 @Component({
   selector: 'app-sinapi',
   standalone: true,
-  imports: [FormsModule, TableModule, ButtonModule, TagModule, InputTextModule, DropdownModule, DialogModule, FileUploadModule, StatusTagComponent, EmptyStateComponent],
+  imports: [FormsModule, TableModule, ButtonModule, TagModule, InputTextModule, DropdownModule, DialogModule, FileUploadModule, CheckboxModule, StatusTagComponent, EmptyStateComponent],
   template: `
     <div class="flex align-items-center justify-content-between mb-3">
       <h2 style="margin:0">Composições</h2>
@@ -47,8 +48,27 @@ import { StatusTagComponent, EmptyStateComponent } from '../../shared/components
     </p-table>
 
     <!-- Import Dialog -->
-    <p-dialog header="Importar SINAPI" [(visible)]="importVisible" [style]="{width:'450px'}" [modal]="true">
-      <p-fileUpload mode="basic" accept=".csv,.xlsx" [auto]="true" url="/compositions/import" chooseLabel="Selecionar Arquivo" (onUpload)="onImported()" />
+    <p-dialog header="Importar Planilha SINAPI" [(visible)]="importVisible" [style]="{width:'550px'}" [modal]="true">
+      <p class="text-muted mb-3">Importe a planilha Excel (.xlsx) baixada do site da Caixa Econômica Federal (SINAPI).</p>
+      <div class="flex flex-column gap-3">
+        <div><label>Tipo de Importação</label><p-dropdown [(ngModel)]="importType" [options]="importTypes" styleClass="w-full" /></div>
+        <div class="grid">
+          <div class="col-6"><label>UF</label><p-dropdown [(ngModel)]="importState" [options]="stateOpts" styleClass="w-full" placeholder="Estado" /></div>
+          <div class="col-6"><label>Mês de Referência</label><input pInputText [(ngModel)]="importMonth" class="w-full" placeholder="2025-01-01" /></div>
+        </div>
+        <div class="flex align-items-center gap-2">
+          <input type="checkbox" [(ngModel)]="importDesonerated" id="deson" />
+          <label for="deson">Desonerado</label>
+        </div>
+        <div>
+          <label class="mb-2 block">Arquivo Excel (.xlsx)</label>
+          <input type="file" accept=".xlsx,.xls" (change)="onFileSelect($event)" class="w-full" />
+        </div>
+      </div>
+      <ng-template pTemplate="footer">
+        <p-button label="Cancelar" severity="secondary" (onClick)="importVisible = false" />
+        <p-button label="Importar" icon="pi pi-upload" (onClick)="doImport()" [loading]="importing()" [disabled]="!importFile || !importState || !importMonth" />
+      </ng-template>
     </p-dialog>
 
     <!-- Create Dialog -->
@@ -78,6 +98,14 @@ export class SinapiComponent implements OnInit {
   filterOrigin: string | null = null;
   filterUnit: string | null = null;
   importVisible = false;
+  importType = 'materials';
+  importState = '';
+  importMonth = '';
+  importDesonerated = false;
+  importFile: File | null = null;
+  importing = signal(false);
+  importTypes = [{ label: 'Insumos (Preços)', value: 'materials' }, { label: 'Composições (Analítico)', value: 'compositions' }];
+  stateOpts = ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO'].map(s => ({ label: s, value: s }));
   createVisible = false;
   newComp: any = {};
 
@@ -114,5 +142,25 @@ export class SinapiComponent implements OnInit {
     });
   }
 
-  onImported() { this.importVisible = false; this.messages.add({ severity: 'success', summary: 'Importação concluída' }); this.search(); }
+  onFileSelect(event: any) { this.importFile = event.target.files[0]; }
+
+  doImport() {
+    if (!this.importFile || !this.importState || !this.importMonth) return;
+    this.importing.set(true);
+    const formData = new FormData();
+    formData.append('file', this.importFile);
+    formData.append('state', this.importState);
+    formData.append('referenceMonth', this.importMonth);
+    formData.append('desonerated', String(this.importDesonerated));
+
+    const endpoint = this.importType === 'materials' ? '/compositions/import/materials' : '/compositions/import/compositions';
+    this.http.post<any>(endpoint, formData).subscribe({
+      next: res => {
+        this.importing.set(false); this.importVisible = false; this.importFile = null;
+        this.messages.add({ severity: 'success', summary: 'Importação concluída', detail: `${res.imported || res.created || 0} registros importados, ${res.skipped || 0} ignorados`, life: 8000 });
+        this.search();
+      },
+      error: () => this.importing.set(false),
+    });
+  }
 }
