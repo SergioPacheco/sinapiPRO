@@ -42,6 +42,9 @@ public class BudgetDetailController {
     private final BudgetItemRepository itemRepository;
     private final BdiConfigRepository bdiConfigRepository;
     private final BudgetItemMemoRepository memoRepository;
+    private final BudgetProposalRepository proposalRepository;
+    private final BudgetItemTagRepository tagRepository;
+    private final SocialChargesConfigRepository socialChargesRepository;
     private final CompositionRepository compositionRepository;
     private final BudgetCalculationService calculationService;
     private final AbcCurveService abcCurveService;
@@ -53,6 +56,9 @@ public class BudgetDetailController {
     public BudgetDetailController(BudgetRepository budgetRepository, BudgetStageRepository stageRepository,
                                   BudgetItemRepository itemRepository, BdiConfigRepository bdiConfigRepository,
                                   BudgetItemMemoRepository memoRepository,
+                                  BudgetProposalRepository proposalRepository,
+                                  BudgetItemTagRepository tagRepository,
+                                  SocialChargesConfigRepository socialChargesRepository,
                                   CompositionRepository compositionRepository,
                                   BudgetCalculationService calculationService, AbcCurveService abcCurveService,
                                   PriceAdjustmentService priceAdjustmentService,
@@ -64,6 +70,9 @@ public class BudgetDetailController {
         this.itemRepository = itemRepository;
         this.bdiConfigRepository = bdiConfigRepository;
         this.memoRepository = memoRepository;
+        this.proposalRepository = proposalRepository;
+        this.tagRepository = tagRepository;
+        this.socialChargesRepository = socialChargesRepository;
         this.compositionRepository = compositionRepository;
         this.calculationService = calculationService;
         this.abcCurveService = abcCurveService;
@@ -498,6 +507,97 @@ public class BudgetDetailController {
 
     record UpdateBaseDateRequest(LocalDate referenceDate, String state) {}
     record UpdateBaseDateResponse(int updatedPrices, int divergentPrices, int totalItems) {}
+
+    // === Task 6.1: Propostas para pregão ===
+
+    @Operation(summary = "List proposals for a budget")
+    @GetMapping("/proposals")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    List<BudgetProposal> listProposals(@PathVariable UUID budgetId) {
+        return proposalRepository.findByBudgetIdOrderByCreatedAtDesc(budgetId);
+    }
+
+    @Operation(summary = "Generate a proposal with discount")
+    @PostMapping("/proposals")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    ResponseEntity<BudgetProposal> createProposal(@PathVariable UUID budgetId,
+                                                   @Valid @RequestBody CreateProposalRequest req) {
+        BigDecimal originalValue = itemRepository.sumDirectCostByBudget(budgetId);
+        var proposal = proposalRepository.save(new BudgetProposal(budgetId, req.description(), req.discountPct(), originalValue));
+        return ResponseEntity.status(HttpStatus.CREATED).body(proposal);
+    }
+
+    @Operation(summary = "Delete a proposal")
+    @DeleteMapping("/proposals/{proposalId}")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void deleteProposal(@PathVariable UUID budgetId, @PathVariable UUID proposalId) {
+        proposalRepository.deleteById(proposalId);
+    }
+
+    record CreateProposalRequest(@NotBlank String description, @NotNull BigDecimal discountPct) {}
+
+    // === Task 6.2: Tags em itens do orçamento ===
+
+    @Operation(summary = "List tags for a budget item")
+    @GetMapping("/items/{itemId}/tags")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    List<BudgetItemTag> listTags(@PathVariable UUID budgetId, @PathVariable UUID itemId) {
+        ensureItemInBudget(budgetId, itemId);
+        return tagRepository.findByBudgetItemId(itemId);
+    }
+
+    @Operation(summary = "Add tag to a budget item")
+    @PostMapping("/items/{itemId}/tags")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    ResponseEntity<BudgetItemTag> addTag(@PathVariable UUID budgetId, @PathVariable UUID itemId,
+                                         @Valid @RequestBody AddTagRequest req) {
+        ensureItemInBudget(budgetId, itemId);
+        var tag = tagRepository.save(new BudgetItemTag(itemId, req.tag(), req.color()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(tag);
+    }
+
+    @Operation(summary = "Remove tag from a budget item")
+    @DeleteMapping("/items/{itemId}/tags/{tagId}")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Transactional
+    void removeTag(@PathVariable UUID budgetId, @PathVariable UUID itemId, @PathVariable UUID tagId) {
+        ensureItemInBudget(budgetId, itemId);
+        tagRepository.deleteById(tagId);
+    }
+
+    record AddTagRequest(@NotBlank String tag, String color) {}
+
+    // === Task 6.5: Encargos sociais configuráveis ===
+
+    @Operation(summary = "List social charges configs for a budget")
+    @GetMapping("/social-charges")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    List<SocialChargesConfig> listSocialCharges(@PathVariable UUID budgetId) {
+        return socialChargesRepository.findByBudgetId(budgetId);
+    }
+
+    @Operation(summary = "Set social charges config for a worker type")
+    @PutMapping("/social-charges")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    SocialChargesConfig setSocialCharges(@PathVariable UUID budgetId, @Valid @RequestBody SocialChargesRequest req) {
+        var config = socialChargesRepository.findByBudgetIdAndWorkerType(budgetId, req.workerType()).orElseGet(SocialChargesConfig::new);
+        config.setBudgetId(budgetId);
+        config.setWorkerType(req.workerType());
+        config.setTaxRegime(req.taxRegime() != null ? req.taxRegime() : "NORMAL");
+        config.setInssPct(req.inssPct());
+        config.setFgtsPct(req.fgtsPct());
+        config.setVacationPct(req.vacationPct());
+        config.setThirteenthPct(req.thirteenthPct());
+        config.setOtherPct(req.otherPct());
+        return socialChargesRepository.save(config);
+    }
+
+    record SocialChargesRequest(@NotBlank String workerType, String taxRegime,
+                                @NotNull BigDecimal inssPct, @NotNull BigDecimal fgtsPct,
+                                @NotNull BigDecimal vacationPct, @NotNull BigDecimal thirteenthPct,
+                                @NotNull BigDecimal otherPct) {}
 
     private void ensureItemInBudget(UUID budgetId, UUID itemId) {
         BudgetItem item = itemRepository.findById(itemId)

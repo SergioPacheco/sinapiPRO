@@ -3,13 +3,14 @@ package com.sinapipro.api.procurement.domain;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-public interface PurchaseOrderRepository extends JpaRepository<PurchaseOrder, UUID> {
+public interface PurchaseOrderRepository extends JpaRepository<PurchaseOrder, UUID>, JpaSpecificationExecutor<PurchaseOrder> {
     List<PurchaseOrder> findByBudgetIdOrderByCreatedAtDesc(UUID budgetId);
     Page<PurchaseOrder> findByBudgetId(UUID budgetId, Pageable pageable);
 

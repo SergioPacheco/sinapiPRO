@@ -1,100 +1,63 @@
 import { Routes } from '@angular/router';
-import { authGuard } from '@core';
-import { AdminLayout } from '@theme/admin-layout/admin-layout';
-import { AuthLayout } from '@theme/auth-layout/auth-layout';
-import { Dashboard } from './routes/dashboard/dashboard';
-import { Error403 } from './routes/sessions/error-403';
-import { Error404Component } from '@shared';
-import { Error404 } from './routes/sessions/error-404';
-import { Error500 } from './routes/sessions/error-500';
-import { Login } from './routes/sessions/login/login';
-import { Register } from './routes/sessions/register/register';
+import { LayoutComponent } from './layout/layout.component';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
+  { path: 'login', loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent) },
   {
     path: '',
-    component: AdminLayout,
+    component: LayoutComponent,
     canActivate: [authGuard],
-    canActivateChild: [authGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { path: 'dashboard', component: Dashboard },
-      { path: '403', component: Error403 },
-      { path: '404', component: Error404 },
-      { path: '500', component: Error500 },
-      {
-        path: 'projects',
-        loadChildren: () => import('./routes/project/project.routes').then(m => m.routes),
+      { path: 'dashboard', loadComponent: () => import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent) },
+      { path: 'projects', loadComponent: () => import('./pages/projects/projects.component').then(m => m.ProjectsComponent) },
+      { path: 'projects/new', loadComponent: () => import('./pages/project-workspace/project-form.component').then(m => m.ProjectFormComponent) },
+      { path: 'projects/:id', loadComponent: () => import('./pages/project-workspace/project-workspace.component').then(m => m.ProjectWorkspaceComponent),
+        children: [
+          { path: '', redirectTo: 'summary', pathMatch: 'full' },
+          { path: 'summary', loadComponent: () => import('./pages/project-workspace/project-summary.component').then(m => m.ProjectSummaryComponent) },
+          { path: 'budgets', loadComponent: () => import('./pages/budget-worksheet/budget-list.component').then(m => m.BudgetListComponent) },
+          { path: 'budgets/new', loadComponent: () => import('./pages/budget-worksheet/budget-form.component').then(m => m.BudgetFormComponent) },
+          { path: 'budgets/:budgetId', loadComponent: () => import('./pages/budget-worksheet/budget-worksheet.component').then(m => m.BudgetWorksheetComponent) },
+          { path: 'measurements', loadComponent: () => import('./pages/measurement/measurement-list.component').then(m => m.MeasurementListComponent) },
+          { path: 'measurements/:mid', loadComponent: () => import('./pages/measurement/measurement-detail.component').then(m => m.MeasurementDetailComponent) },
+          { path: 'daily-logs', loadComponent: () => import('./pages/daily-log/daily-log-list.component').then(m => m.DailyLogListComponent) },
+          { path: 'daily-logs/:logId', loadComponent: () => import('./pages/daily-log/daily-log-detail.component').then(m => m.DailyLogDetailComponent) },
+          { path: 'procurement', loadComponent: () => import('./pages/procurement/procurement-list.component').then(m => m.ProcurementListComponent) },
+          { path: 'procurement/quotations', loadComponent: () => import('./pages/procurement/quotation-list.component').then(m => m.QuotationListComponent) },
+          { path: 'procurement/inventory', loadComponent: () => import('./pages/procurement/inventory-list.component').then(m => m.InventoryListComponent) },
+          { path: 'finance', loadComponent: () => import('./pages/finance/finance-dashboard.component').then(m => m.FinanceDashboardComponent) },
+          { path: 'finance/invoices', loadComponent: () => import('./pages/finance/invoice-list.component').then(m => m.InvoiceListComponent) },
+          { path: 'finance/cash-flow', loadComponent: () => import('./pages/finance/cash-flow.component').then(m => m.CashFlowComponent) },
+          { path: 'contracts', loadComponent: () => import('./pages/project-workspace/contracts.component').then(m => m.ContractsComponent) },
+          { path: 'schedule', loadComponent: () => import('./pages/project-workspace/schedule.component').then(m => m.ScheduleComponent) },
+          { path: 'safety', loadComponent: () => import('./pages/safety/safety-list.component').then(m => m.SafetyListComponent) },
+          { path: 'rfi', loadComponent: () => import('./pages/rfi/rfi-list.component').then(m => m.RfiListComponent) },
+          { path: 'punch-list', loadComponent: () => import('./pages/punch-list/punch-list.component').then(m => m.PunchListComponent) },
+          { path: 'submittals', loadComponent: () => import('./pages/submittals/submittal-list.component').then(m => m.SubmittalListComponent) },
+          { path: 'documents', loadComponent: () => import('./pages/documents/document-list.component').then(m => m.DocumentListComponent) },
+          { path: 'timesheets', loadComponent: () => import('./pages/time-tracking/timesheet-list.component').then(m => m.TimesheetListComponent) },
+          { path: 'job-costing', loadComponent: () => import('./pages/job-costing/job-costing.component').then(m => m.JobCostingComponent) },
+        ],
       },
-      {
-        path: 'sinapi',
-        loadChildren: () => import('./routes/sinapi/sinapi.routes').then(m => m.routes),
-      },
-      {
-        path: 'equipment',
-        loadChildren: () => import('./routes/equipment/equipment.routes').then(m => m.routes),
-      },
-      {
-        path: 'analytics',
-        loadChildren: () => import('./routes/analytics/analytics.routes').then(m => m.routes),
-      },
-      {
-        path: 'suppliers',
-        loadChildren: () => import('./routes/supplier/supplier.routes').then(m => m.routes),
-      },
-      {
-        path: 'safety',
-        loadChildren: () => import('./routes/safety/safety.routes').then(m => m.routes),
-      },
-      {
-        path: 'settings',
-        loadChildren: () => import('./routes/settings/settings.routes').then(m => m.routes),
-      },
-      {
-        path: 'profile',
-        loadChildren: () => import('./routes/profile/profile.routes').then(m => m.routes),
-      },
-      {
-        path: 'commercial',
-        loadChildren: () => import('./routes/commercial/commercial.routes').then(m => m.routes),
-      },
-      {
-        path: 'after-sales',
-        loadChildren: () => import('./routes/aftersales/aftersales.routes').then(m => m.routes),
-      },
-      {
-        path: 'registry',
-        loadChildren: () => import('./routes/registry/registry.routes').then(m => m.routes),
-      },
-      {
-        path: 'procurement',
-        loadChildren: () => import('./routes/procurement-global/procurement-global').then(m => m.routes),
-      },
-      {
-        path: 'budgets',
-        loadChildren: () => import('./routes/budgets-global/budgets-global').then(m => m.routes),
-      },
-      {
-        path: 'finance',
-        loadChildren: () => import('./routes/finance-global/finance-global').then(m => m.routes),
-      },
-      {
-        path: 'help',
-        loadChildren: () => import('./routes/help/help.routes').then(m => m.routes),
-      },
+      { path: 'sinapi', loadComponent: () => import('./pages/sinapi/sinapi.component').then(m => m.SinapiComponent) },
+      { path: 'sinapi/materials', loadComponent: () => import('./pages/sinapi/material-list.component').then(m => m.MaterialListComponent) },
+      { path: 'sinapi/:id', loadComponent: () => import('./pages/sinapi/composition-detail.component').then(m => m.CompositionDetailComponent) },
+      { path: 'registry', loadComponent: () => import('./pages/registry/registry.component').then(m => m.RegistryComponent) },
+      { path: 'registry/clients', loadComponent: () => import('./pages/registry/client-list.component').then(m => m.ClientListComponent) },
+      { path: 'registry/clients/new', loadComponent: () => import('./pages/registry/client-form.component').then(m => m.ClientFormComponent) },
+      { path: 'registry/clients/:clientId', loadComponent: () => import('./pages/registry/client-detail.component').then(m => m.ClientDetailComponent) },
+      { path: 'registry/employees', loadComponent: () => import('./pages/registry/employee-list.component').then(m => m.EmployeeListComponent) },
+      { path: 'registry/employees/:empId', loadComponent: () => import('./pages/registry/employee-detail.component').then(m => m.EmployeeDetailComponent) },
+      { path: 'registry/suppliers', loadComponent: () => import('./pages/registry/supplier-list.component').then(m => m.SupplierListComponent) },
+      { path: 'registry/suppliers/:suppId', loadComponent: () => import('./pages/registry/supplier-detail.component').then(m => m.SupplierDetailComponent) },
+      { path: 'equipment', loadComponent: () => import('./pages/equipment/equipment-list.component').then(m => m.EquipmentListComponent) },
+      { path: 'notifications', loadComponent: () => import('./pages/notifications/notification-list.component').then(m => m.NotificationListComponent) },
+      { path: 'commercial', loadComponent: () => import('./pages/commercial/commercial.component').then(m => m.CommercialComponent) },
+      { path: 'settings', loadComponent: () => import('./pages/settings/settings.component').then(m => m.SettingsComponent) },
+      { path: 'profile', loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent) },
     ],
   },
-  {
-    path: 'auth',
-    component: AuthLayout,
-    children: [
-      { path: 'login', component: Login },
-      { path: 'register', component: Register },
-    ],
-  },
-  {
-    path: 'supplier-portal',
-    loadComponent: () => import('./routes/supplier-portal/supplier-portal').then(m => m.SupplierPortalComponent),
-  },
-  { path: '**', component: Error404Component },
+  { path: '**', redirectTo: 'dashboard' },
 ];

@@ -1,8 +1,50 @@
-/* You can add global styles to this file, and also import other style files */
-@use 'styles/reboot';
-@use 'styles/themes';
-@use 'styles/colors';
-@use 'styles/grid';
-@use 'styles/helpers';
-@use 'styles/plugins';
-@use 'styles/custom';
+@use "primeicons/primeicons.css";
+@use "primeflex/primeflex.css";
+
+/* SinapiPRO Design Tokens */
+:root {
+  --sp-surface: #1a1d23;
+  --sp-surface-card: #21252b;
+  --sp-surface-hover: #2a2e35;
+  --sp-border: #333840;
+  --sp-text: #e4e7eb;
+  --sp-text-muted: #8b929c;
+  --sp-primary: #3b82f6;
+  --sp-success: #10b981;
+  --sp-warning: #f59e0b;
+  --sp-danger: #ef4444;
+  --sp-radius: 6px;
+  --sp-spacing: 0.75rem;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  font-size: 14px;
+  background: var(--sp-surface);
+  color: var(--sp-text);
+}
+
+/* Layout */
+.layout-wrapper { display: flex; height: 100vh; }
+.layout-sidebar {
+  width: 240px;
+  background: var(--sp-surface-card);
+  border-right: 1px solid var(--sp-border);
+  display: flex; flex-direction: column; overflow-y: auto;
+}
+.layout-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.layout-topbar {
+  height: 52px;
+  background: var(--sp-surface-card);
+  border-bottom: 1px solid var(--sp-border);
+  display: flex; align-items: center; padding: 0 1.5rem; gap: 1rem;
+}
+.layout-content { flex: 1; overflow-y: auto; padding: 1.5rem; }
+
+/* Utility */
+.text-muted { color: var(--sp-text-muted); }
+.font-mono { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+.currency { font-variant-numeric: tabular-nums; }

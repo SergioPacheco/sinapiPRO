@@ -1,0 +1,93 @@
+<!-- Header -->
+<div class="dash-header">
+  <div class="dash-header-left">
+    <h1>Dashboard</h1>
+    <p>Visão geral do portfólio de obras</p>
+  </div>
+  <div class="dash-header-right">
+    <button mat-stroked-button (click)="loadData()">
+      <mat-icon>refresh</mat-icon> Atualizar
+    </button>
+    <button mat-flat-button color="primary" routerLink="/projects/new">
+      <mat-icon>add</mat-icon> Nova Obra
+    </button>
+  </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="kpi-row">
+  @for (kpi of kpis(); track kpi.label) {
+    <app-kpi-card [config]="kpi" />
+  }
+</div>
+
+<!-- Charts Row -->
+<div class="charts-row">
+  <div class="chart-panel chart-wide">
+    <div class="panel-header">
+      <h3>Fluxo de Caixa</h3>
+      <span class="panel-subtitle">Receitas vs Despesas — obra ativa</span>
+    </div>
+    <div id="chart-cashflow"></div>
+  </div>
+  <div class="chart-panel chart-narrow">
+    <div class="panel-header">
+      <h3>Obras por Status</h3>
+    </div>
+    <div id="chart-status"></div>
+  </div>
+</div>
+
+<!-- Alerts Table -->
+<div class="alerts-panel">
+  <div class="panel-header">
+    <h3>Alertas e Pendências</h3>
+    <span class="panel-subtitle">Itens que requerem atenção</span>
+  </div>
+  <table class="alerts-table">
+    <thead>
+      <tr>
+        <th>Tipo</th>
+        <th>Descrição</th>
+        <th>Obra</th>
+        <th>Prioridade</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (alert of alerts(); track alert.description) {
+        <tr>
+          <td><span class="alert-badge" [attr.data-severity]="alert.severity">{{ alert.type }}</span></td>
+          <td>{{ alert.description }}</td>
+          <td class="alert-project">{{ alert.project }}</td>
+          <td><span class="priority-dot" [attr.data-severity]="alert.severity"></span> {{ alert.severity }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<!-- Projects List -->
+<div class="projects-panel">
+  <div class="panel-header">
+    <h3>Obras Recentes</h3>
+    <a mat-button routerLink="/projects" class="panel-link">Ver todas →</a>
+  </div>
+  <div class="project-grid">
+    @for (p of projects(); track p.id) {
+      <div class="project-tile" (click)="openProject(p.id)">
+        <div class="project-tile-top">
+          <span class="project-code">{{ p.code }}</span>
+          <span class="status-badge" [attr.data-status]="p.status">{{ statusMap[p.status]?.label || p.status }}</span>
+        </div>
+        <h4 class="project-name">{{ p.name }}</h4>
+        <span class="project-customer">{{ p.customerName }}</span>
+        <div class="project-tile-footer">
+          <span>{{ p.city || '' }}{{ p.state ? '/' + p.state : '' }}</span>
+          @if (p.totalBudget) {
+            <strong>{{ formatCurrency(p.totalBudget) }}</strong>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -14,6 +14,9 @@ public class Payable extends AuditableEntity {
     @Column(name = "budget_id", nullable = false)
     private UUID budgetId;
 
+    @Column(name = "project_id")
+    private UUID projectId;
+
     @Column(name = "supplier_id")
     private UUID supplierId;
 
@@ -62,6 +65,8 @@ public class Payable extends AuditableEntity {
     }
 
     public UUID getBudgetId() { return budgetId; }
+    public UUID getProjectId() { return projectId; }
+    public void setProjectId(UUID projectId) { this.projectId = projectId; }
     public UUID getSupplierId() { return supplierId; }
     public UUID getPurchaseOrderId() { return purchaseOrderId; }
     public UUID getMeasurementId() { return measurementId; }
