@@ -77,7 +77,18 @@ export class ProjectFormComponent {
 
   save() {
     this.saving.set(true);
-    const body = { ...this.form, clientId: this.form.client?.id };
+    const f = this.form;
+    const body: any = {
+      code: f.code,
+      name: f.name,
+      customerName: f.client?.name || f.name,
+      description: f.description || null,
+      startDate: f.startDate instanceof Date ? f.startDate.toISOString().slice(0, 10) : f.startDate,
+      expectedEndDate: f.endDate instanceof Date ? f.endDate.toISOString().slice(0, 10) : f.endDate,
+      state: f.state || null,
+      contractRegime: f.contractRegime || null,
+      clientId: f.client?.id || null,
+    };
     this.http.post<any>('/projects', body).subscribe({
       next: res => { this.messages.add({ severity: 'success', summary: 'Obra criada' }); this.router.navigate(['/projects', res.id]); },
       error: () => this.saving.set(false),
