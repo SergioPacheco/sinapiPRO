@@ -66,11 +66,11 @@ export class ProjectFormComponent {
   regimes = [{ label: 'Preço Global', value: 'GLOBAL_PRICE' }, { label: 'Preço Unitário', value: 'UNIT_PRICE' }, { label: 'Administração', value: 'ADMINISTRATION' }, { label: 'Empreitada Mista', value: 'MIXED' }];
 
   searchClients(event: any) {
-    this.http.get<any[]>(`/clients?search=${encodeURIComponent(event.query)}`).subscribe(res => this.clientSuggestions.set(res));
+    this.http.get<any[]>(`/registry/clients?search=${encodeURIComponent(event.query)}`).subscribe(res => this.clientSuggestions.set(res));
   }
 
   saveClient() {
-    this.http.post<any>('/clients', this.newClient).subscribe({
+    this.http.post<any>('/registry/clients', this.newClient).subscribe({
       next: res => { this.form.client = res; this.drawer.close(); this.messages.add({ severity: 'success', summary: 'Cliente criado' }); },
     });
   }

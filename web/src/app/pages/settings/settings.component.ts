@@ -48,12 +48,12 @@ export class SettingsComponent implements OnInit {
       next: res => { this.roles.set(res.content || res); this.loadingRoles.set(false); },
       error: () => this.loadingRoles.set(false),
     });
-    this.http.get<any>('/company').subscribe({ next: res => this.company = res, error: () => {} });
+    this.http.get<any>('/registry/company').subscribe({ next: res => this.company = res, error: () => {} });
   }
 
   saveCompany() {
     this.savingCompany.set(true);
-    this.http.put('/company', this.company).subscribe({
+    this.http.put('/registry/company', this.company).subscribe({
       next: () => this.savingCompany.set(false),
       error: () => this.savingCompany.set(false),
     });
