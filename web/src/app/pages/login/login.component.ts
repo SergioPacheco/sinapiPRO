@@ -57,9 +57,9 @@ export class LoginComponent {
 
   login() {
     this.loading.set(true);
-    this.http.post<any>('/auth/login', { email: this.email, password: this.password }).subscribe({
+    this.http.post<any>('/auth/token', { grantType: 'PASSWORD', username: this.email, password: this.password }).subscribe({
       next: res => {
-        this.auth.login(res.token, res.user);
+        this.auth.login(res.accessToken, { id: '', name: this.email.split('@')[0], email: this.email, roles: ['ADMIN'] });
         this.router.navigate(['/dashboard']);
       },
       error: () => this.loading.set(false),
