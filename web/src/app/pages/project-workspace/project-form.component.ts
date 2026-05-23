@@ -63,7 +63,7 @@ export class ProjectFormComponent {
 
   steps: MenuItem[] = [{ label: 'Dados' }, { label: 'Cliente' }, { label: 'Configuração' }];
   states = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'].map(s => ({ label: s, value: s }));
-  regimes = [{ label: 'Preço Global', value: 'GLOBAL_PRICE' }, { label: 'Preço Unitário', value: 'UNIT_PRICE' }, { label: 'Administração', value: 'ADMINISTRATION' }, { label: 'Empreitada Mista', value: 'MIXED' }];
+  regimes = [{ label: 'Empreitada Global', value: 'EMPREITADA_GLOBAL' }, { label: 'Preço Unitário', value: 'PRECO_UNITARIO' }, { label: 'Administração', value: 'ADMINISTRACAO' }];
 
   searchClients(event: any) {
     this.http.get<any[]>(`/registry/clients?search=${encodeURIComponent(event.query)}`).subscribe(res => this.clientSuggestions.set(res));
