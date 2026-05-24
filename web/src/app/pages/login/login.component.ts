@@ -27,6 +27,7 @@ import { AuthService } from '../../core/services/auth.service';
           </div>
           <p-button label="Entrar" icon="pi pi-sign-in" [loading]="loading()" (onClick)="login()" styleClass="w-full" />
         </div>
+        <p style="text-align:center;margin-top:1rem;font-size:11px;color:var(--sp-text-muted)">Demo: admin&#64;sinapipro.dev / SinapiPro#2026</p>
       </div>
     </div>
   `,
@@ -51,8 +52,8 @@ export class LoginComponent {
   private auth = inject(AuthService);
   private router = inject(Router);
 
-  email = '';
-  password = '';
+  email = 'admin@sinapipro.dev';
+  password = 'SinapiPro#2026';
   loading = signal(false);
 
   login() {
