@@ -90,6 +90,7 @@ $mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
     tr.r-comp td { color: $text; }
     tr.r-input td { color: $text; }
     tr.r-sub td { color: $green; font-size: 11px; }
+    tr.r-sub.inactive td { text-decoration: line-through; color: darken($green, 20%); }
     tr.r-empty td { background: rgba($primary, 0.03); }
     tr.r-dirty td { background: rgba(251, 191, 36, 0.04) !important; }
     tr.r-selected td { background: rgba($primary, 0.08) !important; box-shadow: inset 2px 0 0 $primary; }
