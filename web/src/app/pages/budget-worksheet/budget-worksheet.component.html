@@ -20,7 +20,7 @@
 </header>
 
 <!-- Spreadsheet Grid -->
-<div class="spreadsheet">
+<div class="spreadsheet" #spreadsheetEl>
   <table>
     <colgroup>
       <col style="width:28px">
@@ -50,7 +50,7 @@
     </thead>
     <tbody>
       @for (row of tree.visibleRows(); track $index) {
-        <tr [ngClass]="rowClass(row)" (click)="selectedRow = row">
+        <tr [ngClass]="rowClass(row)" (click)="selectRow(row, $event.shiftKey || $event.ctrlKey)" (contextmenu)="selectedRow = row" [attr.draggable]="row.type === 'LEVEL'" (dragstart)="onDragStart($event, row)" (dragover)="onDragOver($event, row)" (drop)="onDrop($event, row)">
           <!-- Expand -->
           <td class="cell-exp">
             @if (row.type === 'LEVEL' || row.type === 'SUB_LEVEL' || row.type === 'COMPOSITION') {
@@ -121,6 +121,8 @@
     <button class="btn-primary btn-sm" (click)="tree.saveAll()"><i class="pi pi-save"></i> Salvar</button>
   </footer>
 }
+
+<p-contextMenu [model]="contextMenuItems" [target]="spreadsheetEl" />
 
 <app-bdi-dialog [visible]="showBdi" (visibleChange)="showBdi = $event" [budgetId]="budgetId!" (saved)="tree.load(budgetId!)" />
 

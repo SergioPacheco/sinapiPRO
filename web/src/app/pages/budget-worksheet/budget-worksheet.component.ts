@@ -7,6 +7,7 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { MenuModule } from 'primeng/menu';
+import { ContextMenuModule } from 'primeng/contextmenu';
 import { MessageService } from 'primeng/api';
 import { BudgetTreeService, BudgetRow } from './budget-tree.service';
 import { BdiDialogComponent } from './bdi-dialog.component';
@@ -15,7 +16,7 @@ import { StatusTagComponent } from '../../shared/components';
 @Component({
   selector: 'app-budget-worksheet',
   standalone: true,
-  imports: [DecimalPipe, NgClass, FormsModule, AutoCompleteModule, ButtonModule, TooltipModule, MenuModule, StatusTagComponent, BdiDialogComponent],
+  imports: [DecimalPipe, NgClass, FormsModule, AutoCompleteModule, ButtonModule, TooltipModule, MenuModule, ContextMenuModule, StatusTagComponent, BdiDialogComponent],
   templateUrl: './budget-worksheet.component.html',
   styleUrl: './budget-worksheet.component.scss',
 })
@@ -26,6 +27,7 @@ export class BudgetWorksheetComponent implements OnInit {
   private messages = inject(MessageService);
 
   selectedRow: BudgetRow | null = null;
+  selectedRows: Set<BudgetRow> = new Set();
   suggestions: any[] = [];
   showBdi = false;
   showComposition = false;
@@ -36,6 +38,10 @@ export class BudgetWorksheetComponent implements OnInit {
   compositionItems: any[] = [];
   compositionName = '';
   compositionId: string | null = null;
+
+  // Undo/Redo
+  private undoStack: string[] = [];
+  private redoStack: string[] = [];
 
   get budgetId() { return this.route.snapshot.paramMap.get('budgetId'); }
 
@@ -59,24 +65,131 @@ export class BudgetWorksheetComponent implements OnInit {
     { label: 'Efetivar', icon: 'pi pi-lock', command: () => this.http.post<any>(`/budgets/${this.budgetId}/effectuate`, {}).subscribe({ next: r => this.tree.budgetStatus.set(r.status) }) },
   ];
 
+  // Context menu (botão direito)
+  contextMenuItems = [
+    { label: 'Novo Item', icon: 'pi pi-plus', command: () => this.insertItem() },
+    { label: 'Excluir', icon: 'pi pi-trash', command: () => this.deleteSelected() },
+    { separator: true },
+    { label: 'Acessar Composição', icon: 'pi pi-list', command: () => this.openComposition() },
+    { label: 'Salvar como Própria', icon: 'pi pi-copy', command: () => this.saveAsOwn() },
+    { separator: true },
+    { label: 'Expandir', icon: 'pi pi-angle-down', command: () => { if (this.selectedRow) this.tree.toggle(this.selectedRow); } },
+    { label: 'Aplicar Preço a Iguais', icon: 'pi pi-equals', command: () => this.applyPriceToEquals() },
+  ];
+
   ngOnInit() { this.tree.load(this.budgetId!); }
 
-  @HostListener('document:keydown.insert', ['$event'])
-  onInsert(e: Event) { e.preventDefault(); this.insertItem(); }
+  // === Keyboard Navigation ===
+  @HostListener('document:keydown', ['$event'])
+  onKeydown(e: KeyboardEvent) {
+    if (e.key === 'Insert') { e.preventDefault(); this.insertItem(); return; }
+    if (e.ctrlKey && e.key === 'z') { e.preventDefault(); this.undo(); return; }
+    if (e.ctrlKey && e.key === 'y') { e.preventDefault(); this.redo(); return; }
+    if (e.ctrlKey && e.key === 's') { e.preventDefault(); this.tree.saveAll(); return; }
+    if (e.key === 'Delete' && this.selectedRow && !this.isEditing()) { e.preventDefault(); this.deleteSelected(); return; }
 
-  insertItem() {
-    const idx = this.selectedRow ? this.tree.rows().indexOf(this.selectedRow) : this.tree.rows().length - 1;
-    this.selectedRow = this.tree.insertEmpty(idx);
+    const rows = this.tree.visibleRows();
+    const idx = this.selectedRow ? rows.indexOf(this.selectedRow) : -1;
+
+    if (e.key === 'ArrowDown' && idx < rows.length - 1) {
+      e.preventDefault();
+      this.selectRow(rows[idx + 1], e.shiftKey);
+    } else if (e.key === 'ArrowUp' && idx > 0) {
+      e.preventDefault();
+      this.selectRow(rows[idx - 1], e.shiftKey);
+    } else if (e.key === 'Enter' && this.selectedRow?.type === 'EMPTY') {
+      // Enter no autocomplete é tratado pelo PrimeNG
+    }
   }
 
-  deleteSelected() { if (this.selectedRow) { this.tree.deleteRow(this.selectedRow); this.selectedRow = null; } }
+  selectRow(row: BudgetRow, multi = false) {
+    if (multi) {
+      if (this.selectedRows.has(row)) this.selectedRows.delete(row);
+      else this.selectedRows.add(row);
+    } else {
+      this.selectedRows.clear();
+    }
+    this.selectedRow = row;
+    this.selectedRows.add(row);
+  }
 
+  isMultiSelected(row: BudgetRow): boolean { return this.selectedRows.size > 1 && this.selectedRows.has(row); }
+
+  private isEditing(): boolean {
+    return document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA';
+  }
+
+  // === Insert ===
+  insertItem() {
+    this.pushUndo();
+    const idx = this.selectedRow ? this.tree.rows().indexOf(this.selectedRow) : this.tree.rows().length - 1;
+    this.selectedRow = this.tree.insertEmpty(idx);
+    this.selectedRows.clear();
+    this.selectedRows.add(this.selectedRow);
+  }
+
+  deleteSelected() {
+    this.pushUndo();
+    if (this.selectedRows.size > 1) {
+      for (const row of this.selectedRows) this.tree.deleteRow(row);
+      this.selectedRows.clear();
+    } else if (this.selectedRow) {
+      this.tree.deleteRow(this.selectedRow);
+    }
+    this.selectedRow = null;
+  }
+
+  // === Undo/Redo ===
+  private pushUndo() {
+    this.undoStack.push(JSON.stringify(this.tree.rows().map(r => ({ ...r, _children: undefined, children: undefined }))));
+    this.redoStack = [];
+    if (this.undoStack.length > 50) this.undoStack.shift();
+  }
+
+  undo() {
+    if (!this.undoStack.length) return;
+    this.redoStack.push(JSON.stringify(this.tree.rows().map(r => ({ ...r, _children: undefined, children: undefined }))));
+    const state = JSON.parse(this.undoStack.pop()!);
+    this.tree.rows.set(state);
+    this.messages.add({ severity: 'info', summary: 'Desfazer', life: 1500 });
+  }
+
+  redo() {
+    if (!this.redoStack.length) return;
+    this.undoStack.push(JSON.stringify(this.tree.rows().map(r => ({ ...r, _children: undefined, children: undefined }))));
+    const state = JSON.parse(this.redoStack.pop()!);
+    this.tree.rows.set(state);
+    this.messages.add({ severity: 'info', summary: 'Refazer', life: 1500 });
+  }
+
+  // === Drag and Drop (reordenar etapas) ===
+  onDragStart(event: DragEvent, row: BudgetRow) {
+    if (row.type !== 'LEVEL') return;
+    event.dataTransfer?.setData('text/plain', String(this.tree.rows().indexOf(row)));
+  }
+
+  onDragOver(event: DragEvent, row: BudgetRow) {
+    if (row.type === 'LEVEL') event.preventDefault();
+  }
+
+  onDrop(event: DragEvent, targetRow: BudgetRow) {
+    event.preventDefault();
+    const fromIdx = Number(event.dataTransfer?.getData('text/plain'));
+    const toIdx = this.tree.rows().indexOf(targetRow);
+    if (isNaN(fromIdx) || fromIdx === toIdx) return;
+    this.pushUndo();
+    const all = this.tree.rows();
+    const [moved] = all.splice(fromIdx, 1);
+    all.splice(toIdx, 0, moved);
+    this.tree.rows.set([...all]);
+    this.messages.add({ severity: 'success', summary: 'Etapa reordenada', life: 1500 });
+  }
+
+  // === Search ===
   searchUnified(event: any) {
     const q = event.query || '';
     const n = this.tree.rows().filter(r => r.type === 'LEVEL').length + 1;
     const levelOption = { _type: 'LEVEL', label: `📁 ${String(n).padStart(2, '0')}. — Novo Nível`, id: null, description: '' };
-
-    // Buscar composições e insumos em paralelo, montar resultado único
     this.http.get<any>(`/compositions?search=${encodeURIComponent(q)}&size=15`).subscribe({
       next: res => {
         const results: any[] = [levelOption];
@@ -88,23 +201,17 @@ export class BudgetWorksheetComponent implements OnInit {
     });
   }
 
-  onSelect(row: BudgetRow, sel: any) { this.tree.resolveRow(row, sel); }
+  onSelect(row: BudgetRow, sel: any) { this.pushUndo(); this.tree.resolveRow(row, sel); }
   onStageBlur(row: BudgetRow) { if (row.description && !row.stageId) this.tree.resolveRow(row, { _type: 'LEVEL', description: row.description }); }
 
-  /** Acessar Composição — abre dialog com insumos editáveis (coeficientes) */
   openComposition() {
     if (!this.selectedRow?.compositionId) { this.messages.add({ severity: 'warn', summary: 'Selecione uma composição' }); return; }
     this.compositionId = this.selectedRow.compositionId;
     this.http.get<any>(`/compositions/${this.compositionId}`).subscribe({
-      next: comp => {
-        this.compositionName = comp.description;
-        this.compositionItems = (comp.items || []).map((i: any) => ({ ...i, _dirty: false }));
-        this.showComposition = true;
-      },
+      next: comp => { this.compositionName = comp.description; this.compositionItems = (comp.items || []).map((i: any) => ({ ...i })); this.showComposition = true; },
     });
   }
 
-  /** Salvar alterações nos coeficientes da composição */
   saveCompositionChanges() {
     const items = this.compositionItems.map(i => ({ childCompositionId: i.itemType === 'COMPOSITION' ? i.id : null, materialId: i.itemType !== 'COMPOSITION' ? i.id : null, coefficient: i.coefficient, itemType: i.itemType }));
     this.http.put(`/compositions/${this.compositionId}`, { description: this.compositionName, items }).subscribe({
@@ -112,87 +219,39 @@ export class BudgetWorksheetComponent implements OnInit {
     });
   }
 
-  /** Salvar como Própria — copia composição para banco próprio */
   saveAsOwn() {
     if (!this.selectedRow?.compositionId) { this.messages.add({ severity: 'warn', summary: 'Selecione uma composição' }); return; }
     this.http.get<any>(`/compositions/${this.selectedRow.compositionId}`).subscribe({
       next: comp => {
         const body = { sinapiCode: 'P-' + comp.sinapiCode, description: comp.description, unit: comp.unit, origin: 'PROPRIO', items: (comp.items || []).map((i: any) => ({ materialId: i.itemType !== 'COMPOSITION' ? i.id : null, childCompositionId: i.itemType === 'COMPOSITION' ? i.id : null, coefficient: i.coefficient })) };
-        this.http.post('/compositions', body).subscribe({
-          next: () => this.messages.add({ severity: 'success', summary: 'Composição salva no banco próprio', detail: body.sinapiCode }),
-        });
+        this.http.post('/compositions', body).subscribe({ next: () => this.messages.add({ severity: 'success', summary: 'Salva como própria' }) });
       },
     });
   }
 
-  /** Expandir Tudo (Analítico) — expande todas as composições */
-  expandAll() {
-    for (const row of this.tree.rows()) {
-      if ((row.type === 'LEVEL' || row.type === 'COMPOSITION') && !row.expanded) {
-        this.tree.toggle(row);
-      }
-    }
-  }
+  expandAll() { for (const r of this.tree.rows()) if ((r.type === 'LEVEL' || r.type === 'COMPOSITION') && !r.expanded) this.tree.toggle(r); }
+  collapseAll() { for (const r of [...this.tree.rows()].reverse()) if ((r.type === 'LEVEL' || r.type === 'COMPOSITION') && r.expanded) this.tree.toggle(r); }
 
-  /** Colapsar Tudo (Sintético) — colapsa tudo */
-  collapseAll() {
-    for (const row of [...this.tree.rows()].reverse()) {
-      if ((row.type === 'LEVEL' || row.type === 'COMPOSITION') && row.expanded) {
-        this.tree.toggle(row);
-      }
-    }
-  }
-
-  /** Multiplicar Quantidades — aplica fator a todos os itens */
   applyMultiply() {
-    if (!this.multiplyFactor || this.multiplyFactor === 1) return;
-    for (const row of this.tree.rows()) {
-      if ((row.type === 'COMPOSITION' || row.type === 'INPUT') && row.quantity) {
-        row.quantity = row.quantity * this.multiplyFactor;
-        row.total = (row.quantity || 0) * (row.unitCost || 0);
-        row.dirty = true;
-      }
-    }
-    this.tree.rows.set([...this.tree.rows()]);
-    this.showMultiply = false;
-    this.messages.add({ severity: 'success', summary: `Quantidades multiplicadas por ${this.multiplyFactor}` });
+    this.pushUndo();
+    for (const r of this.tree.rows()) if ((r.type === 'COMPOSITION' || r.type === 'INPUT') && r.quantity) { r.quantity *= this.multiplyFactor; r.total = (r.quantity || 0) * (r.unitCost || 0); r.dirty = true; }
+    this.tree.rows.set([...this.tree.rows()]); this.showMultiply = false;
+    this.messages.add({ severity: 'success', summary: `Multiplicado por ${this.multiplyFactor}` });
   }
 
-  /** Aplicar Preço a Insumos Iguais — propaga preço do selecionado para todos com mesmo compositionId */
   applyPriceToEquals() {
-    if (!this.selectedRow?.compositionId || !this.selectedRow.unitCost) { this.messages.add({ severity: 'warn', summary: 'Selecione um item com preço' }); return; }
-    const targetId = this.selectedRow.compositionId;
-    const price = this.selectedRow.unitCost;
-    let count = 0;
-    for (const row of this.tree.rows()) {
-      if (row.compositionId === targetId && row !== this.selectedRow) {
-        row.unitCost = price;
-        row.total = (row.quantity || 0) * price;
-        row.dirty = true;
-        count++;
-      }
-    }
+    if (!this.selectedRow?.compositionId || !this.selectedRow.unitCost) return;
+    this.pushUndo();
+    const id = this.selectedRow.compositionId, price = this.selectedRow.unitCost;
+    let n = 0;
+    for (const r of this.tree.rows()) if (r.compositionId === id && r !== this.selectedRow) { r.unitCost = price; r.total = (r.quantity || 0) * price; r.dirty = true; n++; }
     this.tree.rows.set([...this.tree.rows()]);
-    this.messages.add({ severity: 'success', summary: `Preço aplicado a ${count} item(ns) iguais` });
+    this.messages.add({ severity: 'success', summary: `Preço aplicado a ${n} iguais` });
   }
 
-  /** Carregar informações do orçamento */
-  loadInfo() {
-    this.http.get<any>(`/budgets/${this.budgetId}`).subscribe({
-      next: b => { this.budgetInfo = b; this.showInfo = true; },
-    });
-  }
+  loadInfo() { this.http.get<any>(`/budgets/${this.budgetId}`).subscribe({ next: b => { this.budgetInfo = b; this.showInfo = true; } }); }
 
   rowClass(row: BudgetRow): Record<string, boolean> {
-    return {
-      'r-level': row.type === 'LEVEL',
-      'r-sublevel': row.type === 'SUB_LEVEL',
-      'r-comp': row.type === 'COMPOSITION',
-      'r-input': row.type === 'INPUT',
-      'r-sub': row.type === 'SUB_COMPOSITION',
-      'r-empty': row.type === 'EMPTY',
-      'r-dirty': row.dirty,
-      'r-selected': row === this.selectedRow,
-    };
+    return { 'r-level': row.type === 'LEVEL', 'r-sublevel': row.type === 'SUB_LEVEL', 'r-comp': row.type === 'COMPOSITION', 'r-input': row.type === 'INPUT', 'r-sub': row.type === 'SUB_COMPOSITION', 'r-empty': row.type === 'EMPTY', 'r-dirty': row.dirty, 'r-selected': row === this.selectedRow, 'r-multi': this.isMultiSelected(row) };
   }
 }
