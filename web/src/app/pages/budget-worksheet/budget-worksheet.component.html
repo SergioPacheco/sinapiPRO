@@ -1,0 +1,198 @@
+<!-- Toolbar -->
+<header class="toolbar">
+  <div class="toolbar-left">
+    <span class="toolbar-title">Planilha Orçamentária</span>
+    <sp-status [status]="tree.budgetStatus()" />
+  </div>
+  <div class="toolbar-center">
+    <span class="metric">Custo Direto <strong>{{ tree.summary().directCost | number:'1.2-2' }}</strong></span>
+    <span class="metric">BDI <strong>{{ tree.summary().bdiPct | number:'1.2-2' }}%</strong></span>
+    <span class="metric total">Total <strong>{{ tree.summary().total | number:'1.2-2' }}</strong></span>
+  </div>
+  <div class="toolbar-right">
+    <button class="btn-primary" (click)="insertItem()" pTooltip="Insert"><i class="pi pi-plus"></i> Novo Item</button>
+    <button class="btn-icon" (click)="deleteSelected()" [disabled]="!selectedRow" pTooltip="Excluir"><i class="pi pi-trash"></i></button>
+    <button class="btn-icon" (click)="showBdi = true" pTooltip="BDI"><i class="pi pi-percentage"></i></button>
+    <button class="btn-icon" (click)="tree.saveAll()" [disabled]="tree.dirtyCount() === 0" pTooltip="Salvar"><i class="pi pi-save"></i></button>
+    <button class="btn-icon" (click)="menu.toggle($event)"><i class="pi pi-ellipsis-v"></i></button>
+    <p-menu #menu [popup]="true" [model]="menuItems" />
+  </div>
+</header>
+
+<!-- Spreadsheet Grid -->
+<div class="spreadsheet">
+  <table>
+    <colgroup>
+      <col style="width:28px">
+      <col style="width:72px">
+      <col style="width:68px">
+      <col>
+      <col style="width:32px">
+      <col style="width:88px">
+      <col style="width:88px">
+      <col style="width:64px">
+      <col style="width:52px">
+      <col style="width:96px">
+    </colgroup>
+    <thead>
+      <tr>
+        <th></th>
+        <th>Item</th>
+        <th>Cód.Ref</th>
+        <th>Descrição</th>
+        <th>Un</th>
+        <th class="num">Quantidade</th>
+        <th class="num">Valor Unit.</th>
+        <th class="num">Leis Soc.</th>
+        <th class="num">BDI</th>
+        <th class="num">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of tree.visibleRows(); track $index) {
+        <tr [ngClass]="rowClass(row)" (click)="selectedRow = row">
+          <!-- Expand -->
+          <td class="cell-exp">
+            @if (row.type === 'LEVEL' || row.type === 'SUB_LEVEL' || row.type === 'COMPOSITION') {
+              <span class="expander" (click)="tree.toggle(row); $event.stopPropagation()">
+                <i [class]="row.expanded ? 'pi pi-angle-down' : 'pi pi-angle-right'"></i>
+              </span>
+            }
+          </td>
+          <!-- Item -->
+          <td class="cell-code">
+            @if (row.type !== 'LEVEL' && row.type !== 'SUB_LEVEL' && row.type !== 'EMPTY') {
+              <span [style.margin-left.px]="(row.level - 1) * 10">{{ row.code }}</span>
+            }
+          </td>
+          <!-- Cód.Ref -->
+          <td class="cell-ref">{{ row.refCode }}</td>
+          <!-- Descrição -->
+          <td class="cell-desc" [style.padding-left.px]="row.type === 'SUB_COMPOSITION' ? 20 : 6">
+            @if (row.type === 'EMPTY') {
+              <p-autoComplete [(ngModel)]="row.description" [suggestions]="suggestions" (completeMethod)="searchUnified($event)" (onSelect)="onSelect(row, $event)" field="label" styleClass="w-full" inputStyleClass="ac-input" placeholder="Buscar nível, composição ou insumo..." [forceSelection]="false" appendTo="body" [minLength]="1" />
+            } @else if (row.type === 'LEVEL' && row.editable) {
+              <input class="inline-input level-input" [(ngModel)]="row.description" placeholder="Nome da etapa..." (blur)="onStageBlur(row)" (keydown.enter)="onStageBlur(row)" />
+            } @else if (row.type === 'LEVEL' || row.type === 'SUB_LEVEL') {
+              {{ row.code }} {{ row.description }}
+            } @else {
+              @if (row.type === 'COMPOSITION') {<i class="pi pi-th-large" style="font-size:9px;color:#4ade80;margin-right:4px"></i>}
+              @if (row.type === 'INPUT') {<i class="pi pi-box" style="font-size:9px;color:#60a5fa;margin-right:4px"></i>}
+              @if (row.type === 'SUB_COMPOSITION') {<i class="pi pi-minus" style="font-size:8px;color:#6b7280;margin-right:3px"></i>}
+              {{ row.description }}
+            }
+          </td>
+          <!-- Un -->
+          <td class="cell-unit">{{ row.unit }}</td>
+          <!-- Quantidade -->
+          <td class="cell-num">
+            @if (row.type === 'COMPOSITION' || row.type === 'INPUT') {
+              <input type="number" class="inline-input num-input" [ngModel]="row.quantity" (ngModelChange)="row.quantity=$event;tree.updateCell(row)" step="0.01" />
+            } @else if (row.type === 'SUB_COMPOSITION' && row.quantity) {
+              <span class="muted">{{ row.quantity | number:'1.4-4' }}</span>
+            }
+          </td>
+          <!-- Valor Unit. -->
+          <td class="cell-num">
+            @if (row.type === 'COMPOSITION' || row.type === 'INPUT') {
+              <input type="number" class="inline-input num-input" [ngModel]="row.unitCost" (ngModelChange)="row.unitCost=$event;tree.updateCell(row)" step="0.01" />
+            } @else if (row.type === 'SUB_COMPOSITION' && row.unitCost) {
+              <span class="muted">{{ row.unitCost | number:'1.2-2' }}</span>
+            }
+          </td>
+          <!-- Leis Soc. -->
+          <td class="cell-num"><span class="muted">{{ row.leisSociais ? (row.leisSociais | number:'1.2-2') : '' }}</span></td>
+          <!-- BDI -->
+          <td class="cell-num"><span class="muted">@if (row.type === 'COMPOSITION' || row.type === 'INPUT') { {{ tree.summary().bdiPct | number:'1.1-1' }}% }</span></td>
+          <!-- Total -->
+          <td class="cell-total">@if (row.total) { {{ row.total | number:'1.2-2' }} }</td>
+        </tr>
+      }
+      @if (tree.visibleRows().length === 0) {
+        <tr><td colspan="10" class="empty-msg">Pressione <kbd>Insert</kbd> ou clique em <strong>Novo Item</strong> para começar</td></tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+@if (tree.dirtyCount() > 0) {
+  <footer class="dirty-bar">
+    <span>{{ tree.dirtyCount() }} alteração(ões) pendente(s)</span>
+    <button class="btn-primary btn-sm" (click)="tree.saveAll()"><i class="pi pi-save"></i> Salvar</button>
+  </footer>
+}
+
+<app-bdi-dialog [visible]="showBdi" (visibleChange)="showBdi = $event" [budgetId]="budgetId!" (saved)="tree.load(budgetId!)" />
+
+<!-- Dialog: Acessar Composição -->
+@if (showComposition) {
+<div class="comp-overlay" (click)="showComposition = false">
+  <div class="comp-dialog" (click)="$event.stopPropagation()">
+    <header class="comp-header">
+      <span>🧱 {{ compositionName }}</span>
+      <button class="btn-icon" (click)="showComposition = false"><i class="pi pi-times"></i></button>
+    </header>
+    <table class="comp-table">
+      <thead><tr><th>Código</th><th>Descrição</th><th>Un</th><th class="num">Coeficiente</th></tr></thead>
+      <tbody>
+        @for (item of compositionItems; track $index) {
+          <tr>
+            <td class="cell-ref">{{ item.code }}</td>
+            <td>{{ item.description }}</td>
+            <td class="cell-unit">{{ item.unit }}</td>
+            <td class="cell-num"><input type="number" class="inline-input num-input" [(ngModel)]="item.coefficient" step="0.001" /></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <footer class="comp-footer">
+      <button class="btn-primary btn-sm" (click)="saveAsOwn()"><i class="pi pi-copy"></i> Salvar como Própria</button>
+      <button class="btn-primary" (click)="saveCompositionChanges()"><i class="pi pi-save"></i> Salvar Alterações</button>
+    </footer>
+  </div>
+</div>
+}
+
+<!-- Dialog: Multiplicar Quantidades -->
+@if (showMultiply) {
+<div class="comp-overlay" (click)="showMultiply = false">
+  <div class="comp-dialog" style="width:360px" (click)="$event.stopPropagation()">
+    <header class="comp-header">
+      <span>Multiplicar Quantidades</span>
+      <button class="btn-icon" (click)="showMultiply = false"><i class="pi pi-times"></i></button>
+    </header>
+    <div style="padding:16px">
+      <label style="font-size:12px;color:#6b7280;display:block;margin-bottom:6px">Fator multiplicador</label>
+      <input type="number" class="inline-input" style="border:1px solid #2d3139;border-radius:4px;padding:8px;width:100%" [(ngModel)]="multiplyFactor" step="0.01" />
+      <p style="font-size:11px;color:#6b7280;margin-top:8px">Todas as quantidades serão multiplicadas por este fator.</p>
+    </div>
+    <footer class="comp-footer">
+      <button class="btn-primary" (click)="applyMultiply()"><i class="pi pi-check"></i> Aplicar</button>
+    </footer>
+  </div>
+</div>
+}
+
+<!-- Dialog: Informações do Orçamento -->
+@if (showInfo) {
+<div class="comp-overlay" (click)="showInfo = false">
+  <div class="comp-dialog" style="width:480px" (click)="$event.stopPropagation()">
+    <header class="comp-header">
+      <span>Informações do Orçamento</span>
+      <button class="btn-icon" (click)="showInfo = false"><i class="pi pi-times"></i></button>
+    </header>
+    <div style="padding:16px;font-size:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div><label class="info-label">Código</label><span>{{ budgetInfo.code }}</span></div>
+      <div><label class="info-label">Status</label><span>{{ budgetInfo.status }}</span></div>
+      <div style="grid-column:span 2"><label class="info-label">Título</label><span>{{ budgetInfo.title }}</span></div>
+      <div><label class="info-label">Cliente</label><span>{{ budgetInfo.customerName }}</span></div>
+      <div><label class="info-label">Valor Total</label><span>{{ budgetInfo.totalAmount | number:'1.2-2' }}</span></div>
+      <div><label class="info-label">Início</label><span>{{ budgetInfo.startDate }}</span></div>
+      <div><label class="info-label">Término</label><span>{{ budgetInfo.endDate }}</span></div>
+    </div>
+    <footer class="comp-footer">
+      <button class="btn-primary btn-sm" (click)="showInfo = false"><i class="pi pi-check"></i> Fechar</button>
+    </footer>
+  </div>
+</div>
+}

@@ -38,6 +38,9 @@ public class DemoDataLoader implements ApplicationRunner {
 
         // Criar coluna search_vector (tsvector não é criada pelo Hibernate ddl-auto)
         try { em.createNativeQuery("ALTER TABLE composition ADD COLUMN IF NOT EXISTS search_vector tsvector").executeUpdate(); } catch (Exception ignored) {}
+        try { em.createNativeQuery("ALTER TABLE material ADD COLUMN IF NOT EXISTS search_vector tsvector").executeUpdate(); } catch (Exception ignored) {}
+        try { em.createNativeQuery("CREATE INDEX IF NOT EXISTS idx_composition_search ON composition USING gin(search_vector)").executeUpdate(); } catch (Exception ignored) {}
+        try { em.createNativeQuery("CREATE INDEX IF NOT EXISTS idx_material_search ON material USING gin(search_vector)").executeUpdate(); } catch (Exception ignored) {}
         var faker = new Faker(new Locale("pt", "BR"));
         var tenantId = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
@@ -218,6 +221,10 @@ public class DemoDataLoader implements ApplicationRunner {
         var rec2 = new Receivable(budget.getId(), "Medição #2 - Jul/2024", BigDecimal.valueOf(680000), LocalDate.of(2024, 8, 15), "MEDICAO");
         rec2.setProjectId(project1.getId());
         em.persist(rec2);
+
+        // Atualizar search_vector para full-text search
+        try { em.createNativeQuery("UPDATE composition SET search_vector = to_tsvector('portuguese', coalesce(sinapi_code,'') || ' ' || coalesce(description,''))").executeUpdate(); } catch (Exception ignored) {}
+        try { em.createNativeQuery("UPDATE material SET search_vector = to_tsvector('portuguese', coalesce(sinapi_code,'') || ' ' || coalesce(description,''))").executeUpdate(); } catch (Exception ignored) {}
 
         TenantContext.clear();
     }

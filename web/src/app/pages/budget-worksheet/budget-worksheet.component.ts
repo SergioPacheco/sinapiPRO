@@ -1,466 +1,198 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, HostListener, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
+import { DecimalPipe, NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { TreeModule } from 'primeng/tree';
-import { TreeNode } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputNumberModule } from 'primeng/inputnumber';
 import { AutoCompleteModule } from 'primeng/autocomplete';
-import { DropdownModule } from 'primeng/dropdown';
-import { MenuModule } from 'primeng/menu';
+import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
-import { SplitterModule } from 'primeng/splitter';
-import { ToolbarModule } from 'primeng/toolbar';
+import { MenuModule } from 'primeng/menu';
 import { MessageService } from 'primeng/api';
-import { StatusTagComponent, EmptyStateComponent, ConfirmActionComponent } from '../../shared/components';
+import { BudgetTreeService, BudgetRow } from './budget-tree.service';
 import { BdiDialogComponent } from './bdi-dialog.component';
-
-interface GridRow {
-  id?: string;
-  stageId: string;
-  stageName: string;
-  isStage: boolean;
-  isSubItem?: boolean;
-  code: string;
-  description: string;
-  unit: string;
-  quantity: number | null;
-  unitCost: number | null;
-  total: number;
-  compositionId?: string;
-  editing: boolean;
-  dirty: boolean;
-  expanded?: boolean;
-}
+import { StatusTagComponent } from '../../shared/components';
 
 @Component({
   selector: 'app-budget-worksheet',
   standalone: true,
-  imports: [
-    DecimalPipe, NgTemplateOutlet, FormsModule, TreeModule, ButtonModule, DialogModule,
-    InputTextModule, InputNumberModule, AutoCompleteModule, DropdownModule,
-    MenuModule, TooltipModule, SplitterModule, ToolbarModule,
-    StatusTagComponent, EmptyStateComponent, ConfirmActionComponent, BdiDialogComponent,
-  ],
-  template: `
-    <!-- Toolbar -->
-    <p-toolbar styleClass="mb-0" [style]="{'border-bottom':'none','border-radius':'6px 6px 0 0'}">
-      <div class="p-toolbar-group-start flex align-items-center gap-2">
-        <h3 style="margin:0">Orçamento</h3>
-        <sp-status [status]="budgetStatus()" />
-      </div>
-      <div class="p-toolbar-group-center">
-        <span class="text-muted text-sm">
-          Direto: <strong>{{ summary().directCost | number:'1.2-2' }}</strong> |
-          BDI: <strong>{{ summary().bdiPct | number:'1.2-2' }}%</strong> |
-          Total: <strong class="text-primary">{{ summary().total | number:'1.2-2' }}</strong>
-        </span>
-      </div>
-      <div class="p-toolbar-group-end flex gap-1">
-        @if (isEditable()) {
-          <p-button icon="pi pi-folder-plus" pTooltip="Nova Etapa" [text]="true" (onClick)="showStageDialog = true" />
-        }
-        <p-button icon="pi pi-percentage" pTooltip="BDI" [text]="true" (onClick)="showBdi = true" />
-        <p-button icon="pi pi-ellipsis-v" [text]="true" (onClick)="menu.toggle($event)" />
-        <p-menu #menu [popup]="true" [model]="menuItems" />
-      </div>
-    </p-toolbar>
-
-    @if (!loading() && gridRows().length === 0) {
-      <sp-empty title="Planilha vazia" message="Crie a primeira etapa para começar a orçar." icon="folder" actionLabel="Nova Etapa" (action)="showStageDialog = true" />
-    } @else {
-      <!-- Planilha principal (estilo Excel) -->
-      <div class="sheet-container">
-        <table class="sheet">
-          <thead>
-            <tr>
-              <th class="sh-act"></th>
-              <th class="sh-code">Código</th>
-              <th class="sh-desc">Descrição</th>
-              <th class="sh-unit">Un.</th>
-              <th class="sh-qty">Quantidade</th>
-              <th class="sh-cost">Custo Unit.</th>
-              <th class="sh-total">Total</th>
-              @if (isEditable()) { <th class="sh-actions"></th> }
-            </tr>
-          </thead>
-          <tbody>
-            @for (row of gridRows(); track row.id || $index) {
-              @if (row.isStage) {
-                <!-- Linha de Etapa (header de grupo) -->
-                <tr class="stage-row">
-                  <td [attr.colspan]="isEditable() ? 8 : 7">
-                    <div class="flex align-items-center gap-2">
-                      <i class="pi pi-folder text-primary" style="font-size:0.85rem"></i>
-                      <strong>{{ row.stageName }}</strong>
-                      <span class="text-muted text-xs ml-auto">{{ row.total | number:'1.2-2' }}</span>
-                      @if (isEditable()) {
-                        <i class="pi pi-plus cursor-pointer text-primary ml-2" style="font-size:0.8rem" pTooltip="Inserir item" (click)="insertNewRow(row.stageId)"></i>
-                        <i class="pi pi-trash cursor-pointer text-red-400 ml-1" style="font-size:0.8rem" pTooltip="Excluir etapa" (click)="deleteStage(row.stageId)"></i>
-                      }
-                    </div>
-                  </td>
-                </tr>
-              } @else {
-                <!-- Linha de Item (editável inline) -->
-                <tr class="item-row" [class.row-dirty]="row.dirty" [class.row-new]="!row.id" [class.row-sub]="row.isSubItem">
-                  <td class="sh-act">
-                    @if (row.compositionId && row.id && !row.isSubItem) {
-                      <i [class]="row.expanded ? 'pi pi-minus-circle cursor-pointer text-orange-500' : 'pi pi-plus-circle cursor-pointer text-blue-500'" style="font-size:0.85rem" [pTooltip]="row.expanded ? 'Recolher' : 'Expandir insumos'" (click)="toggleExpand(row)"></i>
-                    }
-                  </td>
-                  <td class="sh-code">
-                    @if (row.editing && !row.compositionId) {
-                      <input class="cell" [(ngModel)]="row.code" (keydown.enter)="resolveByCode(row)" placeholder="Código..." />
-                    } @else {
-                      <span class="font-mono text-xs">{{ row.code }}</span>
-                    }
-                  </td>
-                  <td class="sh-desc">
-                    @if (row.editing && !row.compositionId) {
-                      <p-autoComplete [(ngModel)]="row.description" [suggestions]="suggestions()" (completeMethod)="searchComp($event)" (onSelect)="onSelectComp(row, $event)" field="description" styleClass="w-full" inputStyleClass="cell" placeholder="Buscar..." [forceSelection]="false" />
-                    } @else {
-                      <span>{{ row.description }}</span>
-                    }
-                  </td>
-                  <td class="sh-unit"><span class="text-muted">{{ row.unit }}</span></td>
-                  <td class="sh-qty">
-                    @if (isEditable()) {
-                      <input type="number" class="cell text-right" [(ngModel)]="row.quantity" (input)="onCellEdit(row)" (keydown.enter)="onEnter(row)" step="0.01" min="0" />
-                    } @else {
-                      <span class="text-right">{{ row.quantity | number:'1.2-4' }}</span>
-                    }
-                  </td>
-                  <td class="sh-cost">
-                    @if (isEditable()) {
-                      <input type="number" class="cell text-right" [(ngModel)]="row.unitCost" (input)="onCellEdit(row)" step="0.01" min="0" />
-                    } @else {
-                      <span class="text-right">{{ row.unitCost | number:'1.2-2' }}</span>
-                    }
-                  </td>
-                  <td class="sh-total text-right font-mono">{{ row.total | number:'1.2-2' }}</td>
-                  @if (isEditable()) {
-                    <td class="sh-actions">
-                      @if (row.dirty && row.compositionId) {
-                        <i class="pi pi-circle-fill text-orange-400" style="font-size:0.5rem" pTooltip="Não salvo"></i>
-                      }
-                      <i class="pi pi-times cursor-pointer text-red-400 ml-1" style="font-size:0.75rem" (click)="removeRow(row)"></i>
-                    </td>
-                  }
-                </tr>
-              }
-            }
-            <!-- Linha vazia para inserção rápida (sempre no final de cada etapa) -->
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Barra de ações inferior -->
-      @if (isEditable() && dirtyCount() > 0) {
-        <div class="save-bar">
-          <span>{{ dirtyCount() }} alterações não salvas</span>
-          <p-button label="Salvar" icon="pi pi-save" size="small" (onClick)="saveAll()" [loading]="saving()" />
-        </div>
-      }
-    }
-
-    <!-- Stage Dialog -->
-    <p-dialog header="Nova Etapa" [(visible)]="showStageDialog" [style]="{width:'380px'}" [modal]="true">
-      <div class="flex flex-column gap-3">
-        <div><label>Nome</label><input pInputText [(ngModel)]="newStageName" class="w-full" placeholder="Ex: Infraestrutura" (keydown.enter)="createStage()" /></div>
-        <div><label>Pai (opcional)</label>
-          <p-dropdown [(ngModel)]="newStageParentId" [options]="stageOpts()" optionLabel="label" optionValue="value" placeholder="Raiz" [showClear]="true" styleClass="w-full" />
-        </div>
-      </div>
-      <ng-template pTemplate="footer">
-        <p-button label="Cancelar" severity="secondary" (onClick)="showStageDialog = false" />
-        <p-button label="Criar" icon="pi pi-check" (onClick)="createStage()" [disabled]="!newStageName" />
-      </ng-template>
-    </p-dialog>
-
-    <app-bdi-dialog [visible]="showBdi" (visibleChange)="showBdi = $event" [budgetId]="budgetId!" (saved)="loadWorksheet()" />
-    <sp-confirm #confirmApprove header="Aprovar" message="Aprovar este orçamento?" confirmLabel="Aprovar" [severity]="'success'" (confirmed)="changeStatus('APPROVED')" />
-    <sp-confirm #confirmEffectuate header="Efetivar" message="Efetivar para execução?" confirmLabel="Efetivar" [severity]="'warn'" (confirmed)="effectuate()" />
-  `,
-  styles: [`
-    .sheet-container { border: 1px solid var(--surface-border); border-top: none; border-radius: 0 0 6px 6px; overflow: auto; max-height: calc(100vh - 200px); }
-    .sheet { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-    .sheet thead { position: sticky; top: 0; z-index: 2; }
-    .sheet th { background: var(--surface-100); padding: 8px 10px; text-align: left; border-bottom: 2px solid var(--surface-border); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; color: var(--text-color-secondary); }
-    .sheet td { padding: 0; border-bottom: 1px solid var(--surface-50); }
-    .stage-row td { background: var(--surface-50); padding: 6px 10px !important; border-bottom: 1px solid var(--surface-border); }
-    .item-row:hover { background: var(--highlight-bg); }
-    .item-row.row-dirty { background: var(--orange-50); }
-    .item-row.row-new { background: var(--blue-50); }
-    .item-row.row-sub { background: var(--surface-50); font-size: 0.8rem; color: var(--text-color-secondary); }
-    .sh-act { width: 30px; text-align: center; padding: 0 2px !important; }
-    .sh-code { width: 100px; }
-    .sh-desc { min-width: 280px; }
-    .sh-unit { width: 50px; }
-    .sh-qty { width: 100px; }
-    .sh-cost { width: 110px; }
-    .sh-total { width: 120px; padding-right: 10px !important; }
-    .sh-actions { width: 50px; text-align: center; padding: 0 4px !important; }
-    .cell { width: 100%; border: none; background: transparent; padding: 7px 10px; outline: none; font-size: 0.85rem; }
-    .cell:focus { background: var(--surface-0); box-shadow: inset 0 0 0 2px var(--primary-color); }
-    :host ::ng-deep .p-autocomplete { width: 100%; }
-    :host ::ng-deep .p-autocomplete input.cell { border: none !important; box-shadow: none !important; padding: 7px 10px !important; }
-    :host ::ng-deep .p-autocomplete input.cell:focus { box-shadow: inset 0 0 0 2px var(--primary-color) !important; }
-    .save-bar { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: var(--orange-50); border: 1px solid var(--orange-200); border-radius: 6px; margin-top: 8px; font-size: 0.85rem; }
-  `],
+  imports: [DecimalPipe, NgClass, FormsModule, AutoCompleteModule, ButtonModule, TooltipModule, MenuModule, StatusTagComponent, BdiDialogComponent],
+  templateUrl: './budget-worksheet.component.html',
+  styleUrl: './budget-worksheet.component.scss',
 })
 export class BudgetWorksheetComponent implements OnInit {
+  tree = inject(BudgetTreeService);
   private route = inject(ActivatedRoute);
   private http = inject(HttpClient);
   private messages = inject(MessageService);
 
-  loading = signal(true);
-  budgetStatus = signal('DRAFT');
-  summary = signal<any>({ directCost: 0, bdiPct: 0, total: 0 });
-  gridRows = signal<GridRow[]>([]);
-  suggestions = signal<any[]>([]);
-  stageOpts = signal<{ label: string; value: string }[]>([]);
-  saving = signal(false);
-
-  // Dialogs
-  showStageDialog = false;
+  selectedRow: BudgetRow | null = null;
+  suggestions: any[] = [];
   showBdi = false;
-  newStageName = '';
-  newStageParentId: string | null = null;
+  showComposition = false;
+  showMultiply = false;
+  showInfo = false;
+  multiplyFactor = 1;
+  budgetInfo: any = {};
+  compositionItems: any[] = [];
+  compositionName = '';
+  compositionId: string | null = null;
 
   get budgetId() { return this.route.snapshot.paramMap.get('budgetId'); }
-  isEditable = computed(() => this.budgetStatus() === 'DRAFT');
-  dirtyCount = computed(() => this.gridRows().filter(r => !r.isStage && r.dirty && r.compositionId && r.quantity).length);
 
   menuItems = [
-    { label: 'Aprovar', icon: 'pi pi-check-circle', command: () => this.changeStatus('APPROVED') },
-    { label: 'Efetivar', icon: 'pi pi-lock', command: () => this.effectuate() },
-    { label: 'Reverter', icon: 'pi pi-undo', command: () => this.revert() },
+    { label: 'Acessar Composição', icon: 'pi pi-list', command: () => this.openComposition() },
+    { label: 'Salvar como Própria', icon: 'pi pi-copy', command: () => this.saveAsOwn() },
+    { separator: true },
+    { label: 'Expandir Tudo (Analítico)', icon: 'pi pi-angle-double-down', command: () => this.expandAll() },
+    { label: 'Colapsar Tudo (Sintético)', icon: 'pi pi-angle-double-up', command: () => this.collapseAll() },
+    { separator: true },
+    { label: 'Recalcular Valores', icon: 'pi pi-refresh', command: () => this.tree.load(this.budgetId!) },
+    { label: 'Multiplicar Quantidades', icon: 'pi pi-times', command: () => this.showMultiply = true },
+    { label: 'Aplicar Preço a Iguais', icon: 'pi pi-equals', command: () => this.applyPriceToEquals() },
+    { separator: true },
+    { label: 'Informações do Orçamento', icon: 'pi pi-info-circle', command: () => this.loadInfo() },
     { separator: true },
     { label: 'Sintético PDF', icon: 'pi pi-file-pdf', command: () => window.open(`/api/v1/budgets/${this.budgetId}/reports/worksheet.pdf`, '_blank') },
     { label: 'Analítico PDF', icon: 'pi pi-file-pdf', command: () => window.open(`/api/v1/budgets/${this.budgetId}/reports/analytical.pdf`, '_blank') },
     { label: 'Curva ABC', icon: 'pi pi-chart-bar', command: () => window.open(`/api/v1/budgets/${this.budgetId}/reports/abc-services.pdf`, '_blank') },
+    { separator: true },
+    { label: 'Efetivar', icon: 'pi pi-lock', command: () => this.http.post<any>(`/budgets/${this.budgetId}/effectuate`, {}).subscribe({ next: r => this.tree.budgetStatus.set(r.status) }) },
   ];
 
-  ngOnInit() { this.loadWorksheet(); }
+  ngOnInit() { this.tree.load(this.budgetId!); }
 
-  loadWorksheet() {
-    this.loading.set(true);
-    this.http.get<any>(`/budgets/${this.budgetId}/worksheet`).subscribe({
-      next: ws => {
-        this.summary.set({ directCost: ws.directCost, bdiPct: (ws.bdiPct || 0) * 100, total: ws.total });
-        this.gridRows.set(this.worksheetToGrid(ws.stages));
-        this.stageOpts.set(this.flatStages(ws.stages));
-        this.loading.set(false);
-      },
-      error: () => this.loading.set(false),
-    });
-    this.http.get<any>(`/budgets/${this.budgetId}`).subscribe({
-      next: b => this.budgetStatus.set(b.status || 'DRAFT'),
-    });
+  @HostListener('document:keydown.insert', ['$event'])
+  onInsert(e: Event) { e.preventDefault(); this.insertItem(); }
+
+  insertItem() {
+    const idx = this.selectedRow ? this.tree.rows().indexOf(this.selectedRow) : this.tree.rows().length - 1;
+    this.selectedRow = this.tree.insertEmpty(idx);
   }
 
-  // --- Expand/collapse composition (show inputs) ---
-  toggleExpand(row: GridRow) {
-    const rows = this.gridRows();
-    const idx = rows.indexOf(row);
-    if (row.expanded) {
-      // Collapse: remove sub-items below this row
-      let removeCount = 0;
-      for (let i = idx + 1; i < rows.length; i++) {
-        if (rows[i].isSubItem) removeCount++;
-        else break;
-      }
-      rows.splice(idx + 1, removeCount);
-      row.expanded = false;
-      this.gridRows.set([...rows]);
-    } else {
-      // Expand: fetch composition items and insert below
-      this.http.get<any>(`/compositions/${row.compositionId}`).subscribe({
-        next: comp => {
-          const subRows: GridRow[] = (comp.items || []).map((item: any) => ({
-            isStage: false, isSubItem: true, stageId: row.stageId, stageName: '',
-            code: item.code || '', description: '  ↳ ' + item.description,
-            unit: item.unit || '', quantity: item.coefficient, unitCost: null, total: 0,
-            editing: false, dirty: false,
-          }));
-          rows.splice(idx + 1, 0, ...subRows);
-          row.expanded = true;
-          this.gridRows.set([...rows]);
-        },
-      });
-    }
-  }
+  deleteSelected() { if (this.selectedRow) { this.tree.deleteRow(this.selectedRow); this.selectedRow = null; } }
 
-  // --- Inline editing ---
-  onCellEdit(row: GridRow) {
-    row.total = (row.quantity || 0) * (row.unitCost || 0);
-    row.dirty = true;
-  }
+  searchUnified(event: any) {
+    const q = event.query || '';
+    const n = this.tree.rows().filter(r => r.type === 'LEVEL').length + 1;
+    const levelOption = { _type: 'LEVEL', label: `📁 ${String(n).padStart(2, '0')}. — Novo Nível`, id: null, description: '' };
 
-  onEnter(row: GridRow) {
-    // Se a linha está completa, inserir nova linha abaixo
-    if (row.compositionId && row.quantity) {
-      this.insertNewRow(row.stageId, row);
-    }
-  }
-
-  resolveByCode(row: GridRow) {
-    if (!row.code) return;
-    this.http.get<any>(`/compositions?search=${encodeURIComponent(row.code)}&size=1`).subscribe({
+    // Buscar composições e insumos em paralelo, montar resultado único
+    this.http.get<any>(`/compositions?search=${encodeURIComponent(q)}&size=15`).subscribe({
       next: res => {
-        const items = res.content || res;
-        if (items.length > 0) this.fillRow(row, items[0]);
+        const results: any[] = [levelOption];
+        for (const c of (res.content || res)) {
+          results.push({ ...c, _type: 'COMPOSITION', label: `🧱 ${c.sinapiCode} — ${c.description} (${c.unit})` });
+        }
+        this.suggestions = results;
       },
     });
   }
 
-  searchComp(event: any) {
-    this.http.get<any>(`/compositions?search=${encodeURIComponent(event.query)}&size=10`).subscribe({
-      next: res => this.suggestions.set(res.content || res),
+  onSelect(row: BudgetRow, sel: any) { this.tree.resolveRow(row, sel); }
+  onStageBlur(row: BudgetRow) { if (row.description && !row.stageId) this.tree.resolveRow(row, { _type: 'LEVEL', description: row.description }); }
+
+  /** Acessar Composição — abre dialog com insumos editáveis (coeficientes) */
+  openComposition() {
+    if (!this.selectedRow?.compositionId) { this.messages.add({ severity: 'warn', summary: 'Selecione uma composição' }); return; }
+    this.compositionId = this.selectedRow.compositionId;
+    this.http.get<any>(`/compositions/${this.compositionId}`).subscribe({
+      next: comp => {
+        this.compositionName = comp.description;
+        this.compositionItems = (comp.items || []).map((i: any) => ({ ...i, _dirty: false }));
+        this.showComposition = true;
+      },
     });
   }
 
-  onSelectComp(row: GridRow, comp: any) {
-    this.fillRow(row, comp);
+  /** Salvar alterações nos coeficientes da composição */
+  saveCompositionChanges() {
+    const items = this.compositionItems.map(i => ({ childCompositionId: i.itemType === 'COMPOSITION' ? i.id : null, materialId: i.itemType !== 'COMPOSITION' ? i.id : null, coefficient: i.coefficient, itemType: i.itemType }));
+    this.http.put(`/compositions/${this.compositionId}`, { description: this.compositionName, items }).subscribe({
+      next: () => { this.showComposition = false; this.messages.add({ severity: 'success', summary: 'Composição atualizada' }); this.tree.load(this.budgetId!); },
+    });
   }
 
-  private fillRow(row: GridRow, comp: any) {
-    row.compositionId = comp.id;
-    row.code = comp.sinapiCode;
-    row.description = comp.description;
-    row.unit = comp.unit;
-    row.editing = false;
-    row.dirty = true;
+  /** Salvar como Própria — copia composição para banco próprio */
+  saveAsOwn() {
+    if (!this.selectedRow?.compositionId) { this.messages.add({ severity: 'warn', summary: 'Selecione uma composição' }); return; }
+    this.http.get<any>(`/compositions/${this.selectedRow.compositionId}`).subscribe({
+      next: comp => {
+        const body = { sinapiCode: 'P-' + comp.sinapiCode, description: comp.description, unit: comp.unit, origin: 'PROPRIO', items: (comp.items || []).map((i: any) => ({ materialId: i.itemType !== 'COMPOSITION' ? i.id : null, childCompositionId: i.itemType === 'COMPOSITION' ? i.id : null, coefficient: i.coefficient })) };
+        this.http.post('/compositions', body).subscribe({
+          next: () => this.messages.add({ severity: 'success', summary: 'Composição salva no banco próprio', detail: body.sinapiCode }),
+        });
+      },
+    });
   }
 
-  insertNewRow(stageId: string, afterRow?: GridRow) {
-    const rows = this.gridRows();
-    const newRow: GridRow = {
-      stageId, stageName: '', isStage: false, code: '', description: '', unit: '',
-      quantity: null, unitCost: null, total: 0, editing: true, dirty: false,
-    };
-    if (afterRow) {
-      const idx = rows.indexOf(afterRow);
-      rows.splice(idx + 1, 0, newRow);
-    } else {
-      // Inserir no final da etapa
-      let insertIdx = rows.length;
-      for (let i = rows.length - 1; i >= 0; i--) {
-        if (rows[i].stageId === stageId) { insertIdx = i + 1; break; }
+  /** Expandir Tudo (Analítico) — expande todas as composições */
+  expandAll() {
+    for (const row of this.tree.rows()) {
+      if ((row.type === 'LEVEL' || row.type === 'COMPOSITION') && !row.expanded) {
+        this.tree.toggle(row);
       }
-      rows.splice(insertIdx, 0, newRow);
-    }
-    this.gridRows.set([...rows]);
-  }
-
-  removeRow(row: GridRow) {
-    if (row.id) {
-      // Item existente — deletar no backend
-      this.http.delete(`/budgets/${this.budgetId}/items/${row.id}`).subscribe({
-        next: () => { this.messages.add({ severity: 'success', summary: 'Item excluído' }); this.loadWorksheet(); },
-      });
-    } else {
-      // Linha nova não salva — remover do grid
-      const rows = this.gridRows().filter(r => r !== row);
-      this.gridRows.set(rows);
     }
   }
 
-  // --- Save all dirty rows ---
-  saveAll() {
-    const dirty = this.gridRows().filter(r => !r.isStage && r.dirty && r.compositionId && r.quantity);
-    if (dirty.length === 0) return;
-
-    // Agrupar por stageId
-    const byStage = new Map<string, GridRow[]>();
-    for (const row of dirty) {
-      const list = byStage.get(row.stageId) || [];
-      list.push(row);
-      byStage.set(row.stageId, list);
-    }
-
-    this.saving.set(true);
-    let pending = byStage.size;
-
-    for (const [stageId, rows] of byStage) {
-      const items = rows.filter(r => !r.id).map(r => ({ compositionId: r.compositionId, quantity: r.quantity, unitCost: r.unitCost || undefined }));
-      if (items.length === 0) { pending--; if (pending === 0) this.onSaveComplete(); continue; }
-
-      this.http.post<any>(`/budgets/${this.budgetId}/stages/${stageId}/items/bulk`, items).subscribe({
-        next: () => { pending--; if (pending === 0) this.onSaveComplete(); },
-        error: () => { pending--; if (pending === 0) this.onSaveComplete(); },
-      });
-    }
-  }
-
-  private onSaveComplete() {
-    this.saving.set(false);
-    this.messages.add({ severity: 'success', summary: 'Salvo' });
-    this.loadWorksheet();
-  }
-
-  // --- Stage CRUD ---
-  createStage() {
-    const sortOrder = this.stageOpts().length + 1;
-    this.http.post(`/budgets/${this.budgetId}/stages`, { name: this.newStageName, sortOrder, parentId: this.newStageParentId }).subscribe({
-      next: () => { this.showStageDialog = false; this.newStageName = ''; this.newStageParentId = null; this.messages.add({ severity: 'success', summary: 'Etapa criada' }); this.loadWorksheet(); },
-    });
-  }
-
-  deleteStage(stageId: string) {
-    this.http.delete(`/budgets/${this.budgetId}/stages/${stageId}`).subscribe({
-      next: () => { this.messages.add({ severity: 'success', summary: 'Etapa excluída' }); this.loadWorksheet(); },
-    });
-  }
-
-  // --- Workflow ---
-  changeStatus(status: string) {
-    this.http.put(`/budgets/${this.budgetId}`, { status }).subscribe({
-      next: () => { this.budgetStatus.set(status); this.messages.add({ severity: 'success', summary: `Status: ${status}` }); },
-    });
-  }
-  effectuate() {
-    this.http.post<any>(`/budgets/${this.budgetId}/effectuate`, {}).subscribe({
-      next: r => { this.budgetStatus.set(r.status || 'EFFECTIVE'); this.messages.add({ severity: 'success', summary: 'Efetivado' }); },
-    });
-  }
-  revert() {
-    this.http.post<any>(`/budgets/${this.budgetId}/revert`, {}).subscribe({
-      next: r => { this.budgetStatus.set(r.status || 'APPROVED'); this.messages.add({ severity: 'success', summary: 'Revertido' }); },
-    });
-  }
-
-  // --- Transform worksheet API response to flat grid ---
-  private worksheetToGrid(stages: any[]): GridRow[] {
-    const rows: GridRow[] = [];
-    const walk = (list: any[]) => {
-      for (const s of list) {
-        const stageTotal = (s.items || []).reduce((sum: number, i: any) => sum + (i.totalCost || 0), 0);
-        rows.push({ isStage: true, stageId: s.id, stageName: s.name, code: '', description: '', unit: '', quantity: null, unitCost: null, total: stageTotal, editing: false, dirty: false });
-        for (const i of s.items || []) {
-          rows.push({ isStage: false, id: i.id, stageId: s.id, stageName: s.name, code: i.code, description: i.description, unit: i.unit, quantity: i.quantity, unitCost: i.unitCost, total: i.totalCost, compositionId: i.compositionId, editing: false, dirty: false });
-        }
-        if (s.children?.length) walk(s.children);
+  /** Colapsar Tudo (Sintético) — colapsa tudo */
+  collapseAll() {
+    for (const row of [...this.tree.rows()].reverse()) {
+      if ((row.type === 'LEVEL' || row.type === 'COMPOSITION') && row.expanded) {
+        this.tree.toggle(row);
       }
-    };
-    walk(stages);
-    return rows;
+    }
   }
 
-  private flatStages(stages: any[]): { label: string; value: string }[] {
-    const result: { label: string; value: string }[] = [];
-    const walk = (list: any[], prefix = '') => {
-      for (const s of list) {
-        result.push({ label: prefix + s.name, value: s.id });
-        if (s.children?.length) walk(s.children, prefix + '  ');
+  /** Multiplicar Quantidades — aplica fator a todos os itens */
+  applyMultiply() {
+    if (!this.multiplyFactor || this.multiplyFactor === 1) return;
+    for (const row of this.tree.rows()) {
+      if ((row.type === 'COMPOSITION' || row.type === 'INPUT') && row.quantity) {
+        row.quantity = row.quantity * this.multiplyFactor;
+        row.total = (row.quantity || 0) * (row.unitCost || 0);
+        row.dirty = true;
       }
+    }
+    this.tree.rows.set([...this.tree.rows()]);
+    this.showMultiply = false;
+    this.messages.add({ severity: 'success', summary: `Quantidades multiplicadas por ${this.multiplyFactor}` });
+  }
+
+  /** Aplicar Preço a Insumos Iguais — propaga preço do selecionado para todos com mesmo compositionId */
+  applyPriceToEquals() {
+    if (!this.selectedRow?.compositionId || !this.selectedRow.unitCost) { this.messages.add({ severity: 'warn', summary: 'Selecione um item com preço' }); return; }
+    const targetId = this.selectedRow.compositionId;
+    const price = this.selectedRow.unitCost;
+    let count = 0;
+    for (const row of this.tree.rows()) {
+      if (row.compositionId === targetId && row !== this.selectedRow) {
+        row.unitCost = price;
+        row.total = (row.quantity || 0) * price;
+        row.dirty = true;
+        count++;
+      }
+    }
+    this.tree.rows.set([...this.tree.rows()]);
+    this.messages.add({ severity: 'success', summary: `Preço aplicado a ${count} item(ns) iguais` });
+  }
+
+  /** Carregar informações do orçamento */
+  loadInfo() {
+    this.http.get<any>(`/budgets/${this.budgetId}`).subscribe({
+      next: b => { this.budgetInfo = b; this.showInfo = true; },
+    });
+  }
+
+  rowClass(row: BudgetRow): Record<string, boolean> {
+    return {
+      'r-level': row.type === 'LEVEL',
+      'r-sublevel': row.type === 'SUB_LEVEL',
+      'r-comp': row.type === 'COMPOSITION',
+      'r-input': row.type === 'INPUT',
+      'r-sub': row.type === 'SUB_COMPOSITION',
+      'r-empty': row.type === 'EMPTY',
+      'r-dirty': row.dirty,
+      'r-selected': row === this.selectedRow,
     };
-    walk(stages);
-    return result;
   }
 }

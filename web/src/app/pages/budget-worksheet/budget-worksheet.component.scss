@@ -1,0 +1,173 @@
+// === Spreadsheet Design System ===
+// Inspired by Excel/Sheets/Airtable — high density, professional, dark mode
+
+$bg: #1a1d23;
+$card: #21252b;
+$border: #2d3139;
+$border-light: rgba(255,255,255,0.04);
+$text: #e4e7eb;
+$muted: #6b7280;
+$primary: #3b82f6;
+$red: #f87171;
+$blue: #60a5fa;
+$green: #4ade80;
+$orange: #fb923c;
+$row-h: 28px;
+$font: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+$mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+
+:host { display: block; }
+
+// === Toolbar ===
+.toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 14px; background: $card; border: 1px solid $border;
+  border-radius: 8px 8px 0 0;
+}
+.toolbar-left { display: flex; align-items: center; gap: 10px; }
+.toolbar-title { font-weight: 700; font-size: 13px; color: $text; }
+.toolbar-center { display: flex; gap: 16px; }
+.metric { font-size: 11px; color: $muted; strong { color: $text; } }
+.metric.total strong { color: $primary; }
+.toolbar-right { display: flex; align-items: center; gap: 4px; }
+
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: 4px; border: 1px solid $primary;
+  background: rgba($primary, 0.1); color: $primary; font-size: 11px; font-weight: 600;
+  cursor: pointer; transition: background 0.15s;
+  &:hover { background: rgba($primary, 0.2); }
+  i { font-size: 11px; }
+}
+.btn-sm { padding: 3px 8px; font-size: 10px; }
+.btn-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 4px; border: none;
+  background: transparent; color: $muted; cursor: pointer; font-size: 13px;
+  transition: background 0.15s, color 0.15s;
+  &:hover { background: rgba(255,255,255,0.06); color: $text; }
+  &:disabled { opacity: 0.3; cursor: default; }
+}
+
+// === Spreadsheet Grid ===
+.spreadsheet {
+  border: 1px solid $border; border-top: none;
+  overflow: auto; max-height: calc(100vh - 170px);
+  background: $bg;
+
+  table {
+    width: 100%; border-collapse: collapse;
+    font-family: $font; font-size: 12px; color: $text;
+  }
+
+  thead {
+    position: sticky; top: 0; z-index: 3;
+    tr { background: darken($card, 2%); }
+    th {
+      padding: 6px 6px; font-size: 10px; font-weight: 600;
+      color: $muted; text-transform: uppercase; letter-spacing: 0.5px;
+      border-bottom: 1px solid $border; white-space: nowrap;
+      &.num { text-align: right; }
+    }
+  }
+
+  tbody {
+    tr {
+      height: $row-h; cursor: pointer;
+      transition: background 0.08s;
+      &:hover { background: rgba(255,255,255,0.02); }
+      td { border-bottom: 1px solid $border-light; padding: 0 6px; vertical-align: middle; }
+    }
+
+    // Row types
+    tr.r-level td { color: $red; font-weight: 700; font-size: 12px; background: rgba($red, 0.03); }
+    tr.r-sublevel td { color: $blue; font-weight: 600; font-size: 12px; }
+    tr.r-comp td { color: $text; }
+    tr.r-input td { color: $text; }
+    tr.r-sub td { color: $green; font-size: 11px; }
+    tr.r-empty td { background: rgba($primary, 0.03); }
+    tr.r-dirty td { background: rgba(251, 191, 36, 0.04) !important; }
+    tr.r-selected td { background: rgba($primary, 0.08) !important; box-shadow: inset 2px 0 0 $primary; }
+  }
+}
+
+// === Cell types ===
+.cell-exp {
+  text-align: center; width: 28px; padding: 0 !important;
+  .expander {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 18px; height: 18px; border-radius: 3px; cursor: pointer;
+    color: $muted; transition: background 0.1s, color 0.1s;
+    i { font-size: 10px; }
+    &:hover { background: rgba($primary, 0.15); color: $primary; }
+  }
+}
+.cell-code { font-family: $mono; font-size: 10.5px; color: $muted; white-space: nowrap; }
+.cell-ref { font-family: $mono; font-size: 10.5px; color: darken($muted, 5%); }
+.cell-desc { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cell-unit { text-align: center; font-size: 10px; color: $muted; }
+.cell-num { text-align: right; font-family: $mono; font-size: 11px; }
+.cell-total { text-align: right; font-family: $mono; font-size: 11px; font-weight: 600; padding-right: 10px !important; }
+
+.muted { color: $muted; }
+
+// === Inline inputs ===
+.inline-input {
+  width: 100%; height: $row-h; border: none; background: transparent;
+  font-family: $font; font-size: 12px; color: $text;
+  padding: 0 4px; outline: none;
+  &:focus { background: rgba($primary, 0.05); box-shadow: inset 0 0 0 1px rgba($primary, 0.4); border-radius: 2px; }
+  &::placeholder { color: $muted; opacity: 0.5; }
+}
+.num-input { text-align: right; font-family: $mono; font-size: 11px; }
+.level-input { font-weight: 700; color: $red; }
+
+// === Empty state ===
+.empty-msg { text-align: center; padding: 40px 20px !important; color: $muted; font-size: 12px;
+  kbd { padding: 2px 5px; border-radius: 3px; background: rgba(255,255,255,0.06); border: 1px solid $border; font-size: 10px; }
+}
+
+// === Dirty bar ===
+.dirty-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 5px 14px; background: rgba(251, 191, 36, 0.05);
+  border: 1px solid $border; border-top: none; border-radius: 0 0 8px 8px;
+  font-size: 11px; color: $muted;
+}
+
+// === Info label ===
+.info-label { display: block; font-size: 10px; color: $muted; text-transform: uppercase; margin-bottom: 2px; }
+
+// === Composition Dialog ===
+.comp-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+}
+.comp-dialog {
+  background: $card; border: 1px solid $border; border-radius: 8px;
+  width: 600px; max-height: 80vh; display: flex; flex-direction: column;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+}
+.comp-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; border-bottom: 1px solid $border; font-weight: 600; font-size: 13px;
+}
+.comp-table {
+  width: 100%; border-collapse: collapse; font-size: 12px; overflow-y: auto; flex: 1;
+  th { padding: 6px 8px; text-align: left; font-size: 10px; color: $muted; text-transform: uppercase; border-bottom: 1px solid $border; background: $bg; }
+  td { padding: 2px 8px; border-bottom: 1px solid $border-light; height: 28px; }
+}
+.comp-footer {
+  display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+  padding: 8px 14px; border-top: 1px solid $border;
+}
+
+// === PrimeNG overrides ===
+:host ::ng-deep {
+  .p-autocomplete { width: 100% !important; }
+  .p-autocomplete-input, .ac-input { border: none !important; background: transparent !important; box-shadow: none !important; font-size: 12px !important; color: $text !important; padding: 0 4px !important; height: 26px !important; }
+  .p-autocomplete-panel { border: 1px solid $border; background: $card; border-radius: 6px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+  .p-autocomplete-item { padding: 6px 10px; font-size: 12px; color: $text;
+    &:hover { background: rgba($primary, 0.08); }
+  }
+}
