@@ -84,6 +84,32 @@ import { StatusTagComponent } from '../../shared/components';
           </ng-template>
         </p-table>
       </p-tabPanel>
+
+      <!-- Movimento Bancário / Conciliação -->
+      <p-tabPanel header="Banco">
+        <div class="flex align-items-center justify-content-between mb-2">
+          <div style="font-size:12px;color:var(--sp-text-muted)">
+            Conta: <strong style="color:var(--sp-text)">{{ bankAccount().bankName }} - Ag {{ bankAccount().agency }} / CC {{ bankAccount().accountNumber }}</strong>
+            &nbsp;|&nbsp; Saldo: <strong [style.color]="bankBalance() >= 0 ? '#10b981' : '#ef4444'">{{ bankBalance() | number:'1.2-2' }}</strong>
+          </div>
+          <div class="flex gap-2">
+            <p-button label="Lançamento" icon="pi pi-plus" size="small" (onClick)="showNewTx = true" />
+            <p-button label="Conciliar" icon="pi pi-check-square" size="small" severity="secondary" (onClick)="reconcileBatch()" />
+          </div>
+        </div>
+        <p-table [value]="transactions()" styleClass="p-datatable-sm p-datatable-gridlines" [rowHover]="true" [paginator]="true" [rows]="15">
+          <ng-template pTemplate="header"><tr><th style="width:80px">Data</th><th>Descrição</th><th class="text-right" style="width:90px">Valor</th><th style="width:60px">Tipo</th><th style="width:70px">Conciliado</th></tr></ng-template>
+          <ng-template pTemplate="body" let-t>
+            <tr>
+              <td style="font-size:0.8rem">{{ t.transactionDate }}</td>
+              <td style="font-size:0.85rem">{{ t.description }}</td>
+              <td class="text-right font-mono" [style.color]="t.type === 'CREDIT' ? '#10b981' : '#ef4444'">{{ t.type === 'CREDIT' ? '+' : '-' }}{{ t.amount | number:'1.2-2' }}</td>
+              <td style="font-size:0.8rem">{{ t.type === 'CREDIT' ? 'Crédito' : 'Débito' }}</td>
+              <td class="text-center">{{ t.reconciled ? '✓' : '—' }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-tabPanel>
     </p-tabView>
 
     <!-- Nova Despesa -->
@@ -126,11 +152,16 @@ export class FinanceDashboardComponent implements OnInit {
   payables = signal<any[]>([]);
   receivables = signal<any[]>([]);
   cashFlow = signal<any[]>([]);
+  transactions = signal<any[]>([]);
+  bankAccount = signal<any>({});
+  bankBalance = signal(0);
   totals = signal<any>({ pagar: 0, receber: 0, saldo: 0, vencidas: 0 });
   showNewPay = false;
   showFaturar = false;
+  showNewTx = false;
   payForm: any = {};
   fatForm: any = {};
+  txForm: any = {};
 
   private get pid() { return this.route.parent?.snapshot.paramMap.get('id'); }
 
@@ -155,6 +186,27 @@ export class FinanceDashboardComponent implements OnInit {
     if (this.pid) {
       this.http.get<any>(`/analytics/projects/${this.pid}/cash-flow`).subscribe({ next: r => this.cashFlow.set(r?.periods || r || []), error: () => {} });
     }
+    // Banco
+    this.http.get<any>('/registry/bank-accounts').subscribe({
+      next: r => {
+        const accounts = r.content || r || [];
+        if (accounts.length > 0) {
+          const acc = accounts[0];
+          this.bankAccount.set(acc);
+          this.http.get<any>(`/bank-accounts/${acc.id}/transactions`).subscribe({ next: t => this.transactions.set(t.content || t || []), error: () => {} });
+          this.http.get<any>(`/bank-accounts/${acc.id}/transactions/balance`).subscribe({ next: b => this.bankBalance.set(b?.balance || 0), error: () => {} });
+        }
+      }, error: () => {},
+    });
+  }
+
+  reconcileBatch() {
+    const acc = this.bankAccount();
+    if (!acc.id) return;
+    this.http.post(`/bank-accounts/${acc.id}/transactions/reconcile-batch`, {}).subscribe({
+      next: () => this.messages.add({ severity: 'success', summary: 'Conciliação realizada' }),
+      error: () => this.messages.add({ severity: 'info', summary: 'Nenhuma transação para conciliar' }),
+    });
   }
 
   createPayable() {
