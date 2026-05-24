@@ -1,93 +1,70 @@
-import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { DecimalPipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
-import { CalendarModule } from 'primeng/calendar';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { CheckboxModule } from 'primeng/checkbox';
-import { MessageService, MenuItem } from 'primeng/api';
-import { StepsModule } from 'primeng/steps';
-import { StatusTagComponent, CurrencyDisplayComponent, EmptyStateComponent } from '../../shared/components';
-import { TextareaModule } from 'primeng/textarea';
+import { CalendarModule } from 'primeng/calendar';
+import { MessageService } from 'primeng/api';
+import { StatusTagComponent } from '../../shared/components';
 
 @Component({
   selector: 'app-measurement-list',
   standalone: true,
-  imports: [DecimalPipe, FormsModule, RouterLink, TableModule, ButtonModule, DialogModule, CalendarModule, InputNumberModule, CheckboxModule, StepsModule, TextareaModule, StatusTagComponent, CurrencyDisplayComponent, EmptyStateComponent],
+  imports: [DecimalPipe, FormsModule, RouterLink, TableModule, ButtonModule, DialogModule, InputNumberModule, CalendarModule, StatusTagComponent],
   template: `
     <div class="flex align-items-center justify-content-between mb-3">
-      <h3 style="margin:0">Medições</h3>
-      <div class="flex gap-2">
-        <p-button label="Nova Medição" icon="pi pi-plus" size="small" (onClick)="openWizard()" />
-        <p-button label="Importar Excel" icon="pi pi-file-excel" severity="secondary" size="small" (onClick)="showImportExcel = true" />
-      </div>
+      <h2 style="margin:0;color:var(--sp-text)">Medições</h2>
+      <p-button label="Nova Medição" icon="pi pi-plus" size="small" (onClick)="showNew = true" />
     </div>
 
-    @if (!loading() && measurements().length === 0) {
-      <sp-empty title="Nenhuma medição" message="Crie a primeira medição para iniciar o faturamento" icon="chart-line" actionLabel="Criar Medição" (action)="openWizard()" />
-    } @else {
-      <p-table [value]="measurements()" [loading]="loading()" styleClass="p-datatable-sm" [rowHover]="true">
-        <ng-template pTemplate="body" let-m>
-          <tr style="cursor:pointer" [routerLink]="[m.id]">
-            <td style="width:50px"><strong>#{{ m.number }}</strong></td>
-            <td>{{ m.periodStart }} a {{ m.periodEnd }}</td>
-            <td style="width:130px"><sp-currency [value]="m.grossAmount" /></td>
-            <td style="width:130px"><sp-currency [value]="m.netAmount" /></td>
-            <td style="width:120px"><sp-status [status]="m.status" /></td>
-          </tr>
-        </ng-template>
-      </p-table>
-    }
-
-    <!-- WIZARD: Nova Medição -->
-    <p-dialog header="Nova Medição" [(visible)]="wizardVisible" [style]="{width:'700px'}" [modal]="true">
-      <p-steps [model]="wizardSteps" [activeIndex]="wizardStep()" [readonly]="true" styleClass="mb-4" />
-
-      @if (wizardStep() === 0) {
-        <div class="grid">
-          <div class="col-4"><label>Número</label><p-inputNumber [(ngModel)]="newMeasurement.number" styleClass="w-full" /></div>
-          <div class="col-4"><label>Início</label><p-calendar [(ngModel)]="newMeasurement.periodStart" dateFormat="yy-mm-dd" styleClass="w-full" /></div>
-          <div class="col-4"><label>Fim</label><p-calendar [(ngModel)]="newMeasurement.periodEnd" dateFormat="yy-mm-dd" styleClass="w-full" /></div>
-          <div class="col-4"><label>Retenção %</label><p-inputNumber [(ngModel)]="newMeasurement.retentionPct" [maxFractionDigits]="2" suffix="%" styleClass="w-full" /></div>
-        </div>
-      }
-
-      @if (wizardStep() === 1) {
-        <p class="text-muted mb-2">Selecione os itens e informe as quantidades medidas:</p>
-        <p-table [value]="availableItems()" styleClass="p-datatable-sm" [scrollable]="true" scrollHeight="300px">
-          <ng-template pTemplate="header"><tr><th style="width:40px"></th><th>Descrição</th><th style="width:80px">Saldo</th><th style="width:100px">Qtd. Medida</th></tr></ng-template>
-          <ng-template pTemplate="body" let-item let-i="rowIndex">
-            <tr>
-              <td><p-checkbox [(ngModel)]="item.selected" [binary]="true" /></td>
-              <td><span class="font-mono text-muted">{{ item.code }}</span> {{ item.description }}</td>
-              <td class="text-right">{{ item.balanceQuantity | number:'1.2-2' }}</td>
-              <td><p-inputNumber [(ngModel)]="item.quantity" [maxFractionDigits]="4" [disabled]="!item.selected" styleClass="w-full" size="small" /></td>
-            </tr>
-          </ng-template>
-        </p-table>
-      }
-
-      <ng-template pTemplate="footer">
-        <p-button label="Cancelar" severity="secondary" (onClick)="wizardVisible = false" />
-        @if (wizardStep() === 0) { <p-button label="Próximo" icon="pi pi-arrow-right" iconPos="right" (onClick)="wizardNext()" /> }
-        @if (wizardStep() === 1) {
-          <p-button label="Voltar" severity="secondary" icon="pi pi-arrow-left" (onClick)="wizardStep.set(0)" />
-          <p-button label="Criar Medição" icon="pi pi-check" (onClick)="createMeasurement()" [loading]="creating()" />
-        }
+    <p-table [value]="measurements()" [loading]="loading()" styleClass="p-datatable-sm p-datatable-gridlines" [rowHover]="true">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width:50px">#</th>
+          <th style="width:100px">Início</th>
+          <th style="width:100px">Fim</th>
+          <th class="text-right" style="width:120px">Valor Medido</th>
+          <th class="text-right" style="width:100px">Retenção</th>
+          <th style="width:100px">Status</th>
+          <th style="width:140px"></th>
+        </tr>
       </ng-template>
-    </p-dialog>
+      <ng-template pTemplate="body" let-m>
+        <tr>
+          <td class="font-mono">{{ m.number }}</td>
+          <td style="font-size:0.8rem">{{ m.periodStart }}</td>
+          <td style="font-size:0.8rem">{{ m.periodEnd }}</td>
+          <td class="text-right font-mono">{{ m.measuredValue | number:'1.2-2' }}</td>
+          <td class="text-right font-mono">{{ m.retentionValue | number:'1.2-2' }}</td>
+          <td><sp-status [status]="m.status" /></td>
+          <td class="flex gap-1">
+            <a [routerLink]="[m.id]"><p-button icon="pi pi-eye" [text]="true" size="small" pTooltip="Detalhe" /></a>
+            @if (m.status === 'DRAFT') { <p-button icon="pi pi-send" [text]="true" size="small" severity="info" (onClick)="submit(m.id)" pTooltip="Submeter" /> }
+            @if (m.status === 'SUBMITTED') { <p-button icon="pi pi-check" [text]="true" size="small" severity="success" (onClick)="approve(m.id)" pTooltip="Aprovar" /> }
+            @if (m.status === 'SUBMITTED') { <p-button icon="pi pi-times" [text]="true" size="small" severity="danger" (onClick)="reject(m.id)" pTooltip="Rejeitar" /> }
+            <p-button icon="pi pi-file-pdf" [text]="true" size="small" (onClick)="pdf(m.id)" pTooltip="Boletim PDF" />
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage"><tr><td colspan="7" class="text-center" style="padding:2rem;color:var(--sp-text-muted)">Nenhuma medição</td></tr></ng-template>
+    </p-table>
 
-    <!-- Import Excel Dialog -->
-    <p-dialog header="Importar Medição via Excel" [(visible)]="showImportExcel" [style]="{width:'500px'}" [modal]="true">
-      <p class="text-muted mb-3">Cole os dados no formato: Descrição | Quantidade | Preço Unitário (uma linha por item)</p>
-      <textarea pTextarea [(ngModel)]="importText" rows="8" class="w-full font-mono" placeholder="Alvenaria;10.5;150.00&#10;Reboco;25.0;45.00"></textarea>
+    <!-- Nova Medição -->
+    <p-dialog header="Nova Medição" [(visible)]="showNew" [style]="{width:'400px'}" [modal]="true">
+      <div class="flex flex-column gap-3" style="font-size:12px">
+        <div class="grid">
+          <div class="col-6"><label>Período Início</label><p-calendar [(ngModel)]="form.periodStart" dateFormat="dd/mm/yy" styleClass="w-full" /></div>
+          <div class="col-6"><label>Período Fim</label><p-calendar [(ngModel)]="form.periodEnd" dateFormat="dd/mm/yy" styleClass="w-full" /></div>
+        </div>
+        <div><label>Retenção (%)</label><p-inputNumber [(ngModel)]="form.retentionPct" [maxFractionDigits]="2" suffix="%" styleClass="w-full" /></div>
+      </div>
       <ng-template pTemplate="footer">
-        <p-button label="Cancelar" severity="secondary" (onClick)="showImportExcel = false" />
-        <p-button label="Importar" icon="pi pi-upload" (onClick)="importExcel()" [disabled]="!importText" />
+        <p-button label="Cancelar" severity="secondary" (onClick)="showNew = false" />
+        <p-button label="Criar" icon="pi pi-check" (onClick)="create()" />
       </ng-template>
     </p-dialog>
   `,
@@ -99,64 +76,24 @@ export class MeasurementListComponent implements OnInit {
 
   measurements = signal<any[]>([]);
   loading = signal(true);
-  availableItems = signal<any[]>([]);
-  wizardVisible = false;
-  wizardStep = signal(0);
-  creating = signal(false);
-  wizardSteps: MenuItem[] = [{ label: 'Período' }, { label: 'Itens' }];
-  newMeasurement: any = { number: 1, periodStart: null, periodEnd: null, retentionPct: 5 };
+  showNew = false;
+  form: any = { retentionPct: 5 };
 
-  ngOnInit() { this.load(); }
+  private get pid() { return this.route.parent?.snapshot.paramMap.get('id'); }
 
-  load() {
-    const id = this.route.parent?.snapshot.paramMap.get('id');
-    this.http.get<any>(`/projects/${id}/measurements`).subscribe({
-      next: res => { this.measurements.set(res.content || res); this.loading.set(false); },
-      error: () => this.loading.set(false),
+  ngOnInit() {
+    this.http.get<any>(`/projects/${this.pid}/measurements`).subscribe({ next: r => { this.measurements.set(r.content || r); this.loading.set(false); }, error: () => this.loading.set(false) });
+  }
+
+  create() {
+    const body = { periodStart: this.form.periodStart?.toISOString?.()?.slice(0, 10), periodEnd: this.form.periodEnd?.toISOString?.()?.slice(0, 10), retentionPct: (this.form.retentionPct || 5) / 100 };
+    this.http.post(`/projects/${this.pid}/measurements`, body).subscribe({
+      next: () => { this.showNew = false; this.messages.add({ severity: 'success', summary: 'Medição criada' }); this.ngOnInit(); },
     });
   }
 
-  openWizard() {
-    this.wizardStep.set(0);
-    this.newMeasurement = { number: this.measurements().length + 1, periodStart: null, periodEnd: null, retentionPct: 5 };
-    this.wizardVisible = true;
-  }
-
-  wizardNext() {
-    this.wizardStep.set(1);
-    const id = this.route.parent?.snapshot.paramMap.get('id');
-    this.http.get<any[]>(`/projects/${id}/measurements/available-items`).subscribe(items => {
-      this.availableItems.set(items.map(i => ({ ...i, selected: false, quantity: 0 })));
-    });
-  }
-
-  createMeasurement() {
-    this.creating.set(true);
-    const id = this.route.parent?.snapshot.paramMap.get('id');
-    const items = this.availableItems().filter(i => i.selected && i.quantity > 0)
-      .map(i => ({ budgetItemId: i.budgetItemId, quantity: i.quantity }));
-    const body = { ...this.newMeasurement, items };
-    this.http.post(`/projects/${id}/measurements`, body).subscribe({
-      next: () => { this.wizardVisible = false; this.creating.set(false); this.messages.add({ severity: 'success', summary: 'Medição criada' }); this.load(); },
-      error: () => this.creating.set(false),
-    });
-  }
-
-  // Sprint 5: Import Excel
-  showImportExcel = false;
-  importText = '';
-  importExcel() {
-    const id = this.route.parent?.snapshot.paramMap.get('id');
-    const rows = this.importText.split('\n').filter(l => l.trim()).map(l => {
-      const [description, quantity, unitPrice] = l.split(/[;|\t]/);
-      return { description: description?.trim(), quantity: parseFloat(quantity), unitPrice: parseFloat(unitPrice) };
-    }).filter(r => r.description && r.quantity && r.unitPrice);
-    // First create a measurement, then import items
-    const lastMid = this.measurements().length > 0 ? this.measurements()[0].id : null;
-    if (lastMid) {
-      this.http.post(`/projects/${id}/measurements/${lastMid}/import`, rows).subscribe({
-        next: () => { this.showImportExcel = false; this.importText = ''; this.messages.add({ severity: 'success', summary: `${rows.length} itens importados` }); this.load(); },
-      });
-    }
-  }
+  submit(id: string) { this.http.post(`/projects/${this.pid}/measurements/${id}/submit`, {}).subscribe({ next: () => { this.messages.add({ severity: 'success', summary: 'Submetida' }); this.ngOnInit(); } }); }
+  approve(id: string) { this.http.post(`/projects/${this.pid}/measurements/${id}/approve`, {}).subscribe({ next: () => { this.messages.add({ severity: 'success', summary: 'Aprovada' }); this.ngOnInit(); } }); }
+  reject(id: string) { this.http.post(`/projects/${this.pid}/measurements/${id}/reject`, { reason: 'Revisão necessária' }).subscribe({ next: () => { this.messages.add({ severity: 'warn', summary: 'Rejeitada' }); this.ngOnInit(); } }); }
+  pdf(id: string) { window.open(`/api/v1/projects/${this.pid}/measurements/${id}/reports/bulletin.pdf`, '_blank'); }
 }
