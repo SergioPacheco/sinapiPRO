@@ -12,9 +12,13 @@ import { DropdownModule } from 'primeng/dropdown';
   standalone: true,
   imports: [RouterOutlet, RouterLink, RouterLinkActive, FormsModule, ButtonModule, MenuModule, DropdownModule],
   template: `
-    <div class="layout-wrapper">
+    <div class="layout-wrapper" [class.sidebar-collapsed]="collapsed">
       <aside class="layout-sidebar">
-        <div class="sidebar-brand"><span class="brand-icon">🏗️</span><span class="brand-text">SinapiPRO</span></div>
+        <div class="sidebar-brand">
+          <span class="brand-icon">🏗️</span>
+          @if (!collapsed) { <span class="brand-text">SinapiPRO</span> }
+          <button class="collapse-btn" (click)="collapsed = !collapsed"><i [class]="collapsed ? 'pi pi-angle-right' : 'pi pi-angle-left'"></i></button>
+        </div>
 
         <!-- Seletor de Obra (como no Strato) -->
         <div class="obra-selector">
@@ -82,8 +86,14 @@ import { DropdownModule } from 'primeng/dropdown';
     </div>
   `,
   styles: [`
-    .sidebar-brand { padding:1rem; display:flex; align-items:center; gap:0.5rem; border-bottom:1px solid var(--sp-border); }
+    .sidebar-brand { padding:1rem; display:flex; align-items:center; gap:0.5rem; border-bottom:1px solid var(--sp-border); position:relative; }
     .brand-icon { font-size:1.3rem; } .brand-text { font-size:0.9rem; font-weight:700; }
+    .collapse-btn { position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--sp-text-muted); cursor:pointer; padding:4px; border-radius:4px; }
+    .collapse-btn:hover { background:var(--sp-surface-hover); }
+    :host ::ng-deep .sidebar-collapsed .layout-sidebar { width:52px !important; }
+    :host ::ng-deep .sidebar-collapsed .nav-item span, :host ::ng-deep .sidebar-collapsed .nav-section, :host ::ng-deep .sidebar-collapsed .obra-selector, :host ::ng-deep .sidebar-collapsed .sidebar-footer { display:none; }
+    :host ::ng-deep .sidebar-collapsed .nav-item { justify-content:center; padding:0.5rem; }
+    :host ::ng-deep .sidebar-collapsed .nav-item i { margin:0; }
     .obra-selector { padding:0.75rem 0.75rem 0; }
     .obra-label { font-size:9px; font-weight:700; color:var(--sp-text-muted); letter-spacing:0.5px; display:block; margin-bottom:4px; }
     :host ::ng-deep .obra-dropdown .p-dropdown { background:var(--sp-surface-hover); border-color:var(--sp-border); font-size:12px; }
@@ -108,6 +118,7 @@ export class LayoutComponent implements OnInit {
 
   obras = signal<any[]>([]);
   obraId: string | null = null;
+  collapsed = false;
 
   userMenuItems = [
     { label: 'Perfil', icon: 'pi pi-user', routerLink: '/profile' },
