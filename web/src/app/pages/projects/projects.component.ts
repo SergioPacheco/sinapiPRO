@@ -1,91 +1,106 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { Router } from '@angular/router';
+import { DecimalPipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
-import { ProgressBarModule } from 'primeng/progressbar';
-import { StatusTagComponent, CurrencyDisplayComponent, EmptyStateComponent } from '../../shared/components';
+import { MessageService } from 'primeng/api';
+import { StatusTagComponent } from '../../shared/components';
 
 @Component({
   selector: 'app-projects',
   standalone: true,
-  imports: [FormsModule, TableModule, ButtonModule, InputTextModule, DropdownModule, ProgressBarModule, StatusTagComponent, CurrencyDisplayComponent, EmptyStateComponent],
+  imports: [DecimalPipe, FormsModule, TableModule, ButtonModule, DialogModule, InputTextModule, InputNumberModule, CalendarModule, DropdownModule, StatusTagComponent],
   template: `
     <div class="flex align-items-center justify-content-between mb-3">
-      <h2 style="margin:0">Obras</h2>
-      <p-button label="Nova Obra" icon="pi pi-plus" (onClick)="router.navigate(['/projects/new'])" />
+      <h2 style="margin:0;color:var(--sp-text)">Obras</h2>
+      <p-button label="Nova Obra" icon="pi pi-plus" size="small" (onClick)="showNew = true" />
     </div>
 
-    @if (!loading() && projects().length === 0) {
-      <sp-empty title="Nenhuma obra cadastrada" message="Crie sua primeira obra para começar a gerenciar" icon="building" actionLabel="Criar Primeira Obra" (action)="router.navigate(['/projects/new'])" />
-    } @else {
-      <p-table [value]="projects()" [loading]="loading()" [paginator]="true" [rows]="20" [rowHover]="true"
-               [globalFilterFields]="['code','name','customerName']" styleClass="p-datatable-sm p-datatable-striped"
-               (onRowSelect)="onSelect($event)" selectionMode="single" dataKey="id">
-        <ng-template pTemplate="caption">
-          <div class="flex gap-2 align-items-center">
-            <span class="p-input-icon-left"><i class="pi pi-search"></i>
-              <input pInputText placeholder="Buscar obra..." [(ngModel)]="search" (input)="dt.filterGlobal(search, 'contains')" />
-            </span>
-            <p-dropdown [options]="statusOptions" [(ngModel)]="statusFilter" placeholder="Status" [showClear]="true" (onChange)="loadData()" styleClass="w-10rem" />
-          </div>
-        </ng-template>
-        <ng-template pTemplate="header">
-          <tr>
-            <th style="width:90px" pSortableColumn="code">Código</th>
-            <th pSortableColumn="name">Obra</th>
-            <th style="width:120px">Status</th>
-            <th style="width:120px">Progresso</th>
-            <th style="width:140px" class="text-right">Valor</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-p>
-          <tr [pSelectableRow]="p">
-            <td class="font-mono">{{ p.code }}</td>
-            <td><strong>{{ p.name }}</strong><br><span class="text-muted" style="font-size:12px">{{ p.customerName }}</span></td>
-            <td><sp-status [status]="p.status" /></td>
-            <td><p-progressBar [value]="p.progress || 0" [showValue]="true" [style]="{'height':'16px'}" /></td>
-            <td class="text-right"><sp-currency [value]="p.totalBudget" /></td>
-          </tr>
-        </ng-template>
-      </p-table>
-    }
+    <p-table [value]="projects()" [loading]="loading()" styleClass="p-datatable-sm p-datatable-gridlines" [rowHover]="true" [paginator]="true" [rows]="15" [globalFilterFields]="['name','code','clientName']">
+      <ng-template pTemplate="caption">
+        <input pInputText [(ngModel)]="filterText" placeholder="Buscar obra..." style="width:250px" />
+      </ng-template>
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width:90px">Código</th>
+          <th>Nome</th>
+          <th style="width:150px">Cliente</th>
+          <th class="text-right" style="width:110px">Valor</th>
+          <th style="width:80px">Início</th>
+          <th style="width:80px">Status</th>
+          <th style="width:50px"></th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-p>
+        <tr style="cursor:pointer" (dblclick)="open(p.id)">
+          <td class="font-mono" style="font-size:0.8rem">{{ p.code }}</td>
+          <td>{{ p.name }}</td>
+          <td style="font-size:0.85rem;color:var(--sp-text-muted)">{{ p.clientName }}</td>
+          <td class="text-right font-mono">{{ p.budgetValue | number:'1.0-0' }}</td>
+          <td style="font-size:0.8rem">{{ p.startDate }}</td>
+          <td><sp-status [status]="p.status" /></td>
+          <td><p-button icon="pi pi-arrow-right" [text]="true" size="small" (onClick)="open(p.id)" /></td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage"><tr><td colspan="7" class="text-center" style="padding:2rem;color:var(--sp-text-muted)">Nenhuma obra cadastrada</td></tr></ng-template>
+    </p-table>
+
+    <!-- Nova Obra -->
+    <p-dialog header="Nova Obra" [(visible)]="showNew" [style]="{width:'550px'}" [modal]="true">
+      <div class="flex flex-column gap-3" style="font-size:12px">
+        <div class="grid">
+          <div class="col-3"><label>Código</label><input pInputText [(ngModel)]="form.code" class="w-full" placeholder="OBR-001" /></div>
+          <div class="col-9"><label>Nome da Obra</label><input pInputText [(ngModel)]="form.name" class="w-full" /></div>
+        </div>
+        <div class="grid">
+          <div class="col-6"><label>Cliente</label><input pInputText [(ngModel)]="form.clientName" class="w-full" /></div>
+          <div class="col-6"><label>Responsável</label><input pInputText [(ngModel)]="form.responsibleEngineer" class="w-full" /></div>
+        </div>
+        <div class="grid">
+          <div class="col-4"><label>Área (m²)</label><p-inputNumber [(ngModel)]="form.totalArea" styleClass="w-full" /></div>
+          <div class="col-4"><label>Início</label><p-calendar [(ngModel)]="form.startDate" dateFormat="dd/mm/yy" styleClass="w-full" /></div>
+          <div class="col-4"><label>Término</label><p-calendar [(ngModel)]="form.endDate" dateFormat="dd/mm/yy" styleClass="w-full" /></div>
+        </div>
+        <div class="grid">
+          <div class="col-8"><label>Endereço</label><input pInputText [(ngModel)]="form.address" class="w-full" /></div>
+          <div class="col-4"><label>Cidade/UF</label><input pInputText [(ngModel)]="form.city" class="w-full" /></div>
+        </div>
+      </div>
+      <ng-template pTemplate="footer">
+        <p-button label="Cancelar" severity="secondary" (onClick)="showNew = false" />
+        <p-button label="Criar" icon="pi pi-check" (onClick)="create()" />
+      </ng-template>
+    </p-dialog>
   `,
 })
 export class ProjectsComponent implements OnInit {
   private http = inject(HttpClient);
-  private route = inject(ActivatedRoute);
-  router = inject(Router);
+  private router = inject(Router);
+  private messages = inject(MessageService);
 
   projects = signal<any[]>([]);
   loading = signal(true);
-  search = '';
-  statusFilter: string | null = null;
-  dt: any;
-
-  statusOptions = [
-    { label: 'Planejamento', value: 'PLANNING' },
-    { label: 'Em Execução', value: 'IN_PROGRESS' },
-    { label: 'Suspensa', value: 'SUSPENDED' },
-    { label: 'Concluída', value: 'COMPLETED' },
-  ];
+  showNew = false;
+  form: any = {};
+  filterText = '';
 
   ngOnInit() {
-    this.statusFilter = this.route.snapshot.queryParamMap.get('status');
-    this.loadData();
+    this.http.get<any>('/projects?page=0&size=50').subscribe({ next: r => { this.projects.set(r.content || r || []); this.loading.set(false); }, error: () => this.loading.set(false) });
   }
 
-  loadData() {
-    const params: any = { page: 0, size: 100 };
-    if (this.statusFilter) params.status = this.statusFilter;
-    this.http.get<any>('/projects', { params }).subscribe({
-      next: res => { this.projects.set(res.content || []); this.loading.set(false); },
-      error: () => this.loading.set(false),
+  open(id: string) { this.router.navigate(['/projects', id, 'summary']); }
+
+  create() {
+    const body = { ...this.form, startDate: this.form.startDate?.toISOString?.()?.slice(0, 10), endDate: this.form.endDate?.toISOString?.()?.slice(0, 10) };
+    this.http.post<any>('/projects', body).subscribe({
+      next: (res) => { this.showNew = false; this.messages.add({ severity: 'success', summary: 'Obra criada' }); this.router.navigate(['/projects', res.id, 'summary']); },
     });
   }
-
-  onSelect(event: any) { this.router.navigate(['/projects', event.data.id]); }
 }
