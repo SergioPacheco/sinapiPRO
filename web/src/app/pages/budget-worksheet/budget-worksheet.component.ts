@@ -33,11 +33,25 @@ export class BudgetWorksheetComponent implements OnInit {
   showComposition = false;
   showMultiply = false;
   showInfo = false;
+  showSettings = false;
+  showFind = false;
   multiplyFactor = 1;
   budgetInfo: any = {};
   compositionItems: any[] = [];
   compositionName = '';
   compositionId: string | null = null;
+
+  // Localizar
+  findText = '';
+  findField = 'description'; // description | refCode | unit
+  findResults: BudgetRow[] = [];
+  findIndex = 0;
+
+  // Copiar/Colar
+  clipboard: BudgetRow[] = [];
+
+  // Configurações
+  settings = { rounding: 'TRUNCATE', decQty: 4, decVal: 2, autoItemize: true };
 
   // Undo/Redo
   private undoStack: string[] = [];
@@ -49,6 +63,10 @@ export class BudgetWorksheetComponent implements OnInit {
     { label: 'Acessar Composição', icon: 'pi pi-list', command: () => this.openComposition() },
     { label: 'Salvar como Própria', icon: 'pi pi-copy', command: () => this.saveAsOwn() },
     { separator: true },
+    { label: 'Copiar (Ctrl+C)', icon: 'pi pi-clone', command: () => this.copyItems() },
+    { label: 'Colar (Ctrl+V)', icon: 'pi pi-clipboard', command: () => this.pasteItems() },
+    { label: 'Localizar (Ctrl+F)', icon: 'pi pi-search', command: () => this.openFind() },
+    { separator: true },
     { label: 'Expandir Tudo (Analítico)', icon: 'pi pi-angle-double-down', command: () => this.expandAll() },
     { label: 'Colapsar Tudo (Sintético)', icon: 'pi pi-angle-double-up', command: () => this.collapseAll() },
     { separator: true },
@@ -56,6 +74,7 @@ export class BudgetWorksheetComponent implements OnInit {
     { label: 'Multiplicar Quantidades', icon: 'pi pi-times', command: () => this.showMultiply = true },
     { label: 'Aplicar Preço a Iguais', icon: 'pi pi-equals', command: () => this.applyPriceToEquals() },
     { separator: true },
+    { label: 'Configurações', icon: 'pi pi-cog', command: () => this.loadSettings() },
     { label: 'Informações do Orçamento', icon: 'pi pi-info-circle', command: () => this.loadInfo() },
     { separator: true },
     { label: 'Sintético PDF', icon: 'pi pi-file-pdf', command: () => window.open(`/api/v1/budgets/${this.budgetId}/reports/worksheet.pdf`, '_blank') },
@@ -86,7 +105,11 @@ export class BudgetWorksheetComponent implements OnInit {
     if (e.ctrlKey && e.key === 'z') { e.preventDefault(); this.undo(); return; }
     if (e.ctrlKey && e.key === 'y') { e.preventDefault(); this.redo(); return; }
     if (e.ctrlKey && e.key === 's') { e.preventDefault(); this.tree.saveAll(); return; }
-    if (e.key === 'Delete' && this.selectedRow && !this.isEditing()) { e.preventDefault(); this.deleteSelected(); return; }
+    if (e.ctrlKey && e.key === 'f') { e.preventDefault(); this.openFind(); return; }
+    if (e.ctrlKey && e.key === 'c') { if (!this.isEditing()) { e.preventDefault(); this.copyItems(); return; } }
+    if (e.ctrlKey && e.key === 'v') { if (!this.isEditing()) { e.preventDefault(); this.pasteItems(); return; } }
+    if (e.key === 'F3') { e.preventDefault(); this.findNext(); return; }
+    if (e.key === 'Delete' && this.selectedRow && !this.isEditing()) { e.preventDefault(); this.deleteWithConfirm(); return; }
 
     const rows = this.tree.visibleRows();
     const idx = this.selectedRow ? rows.indexOf(this.selectedRow) : -1;
@@ -190,13 +213,23 @@ export class BudgetWorksheetComponent implements OnInit {
     const q = event.query || '';
     const n = this.tree.rows().filter(r => r.type === 'LEVEL').length + 1;
     const levelOption = { _type: 'LEVEL', label: `📁 ${String(n).padStart(2, '0')}. — Novo Nível`, id: null, description: '' };
-    this.http.get<any>(`/compositions?search=${encodeURIComponent(q)}&size=15`).subscribe({
+    // Buscar composições E insumos
+    this.http.get<any>(`/compositions?q=${encodeURIComponent(q)}&size=10`).subscribe({
       next: res => {
         const results: any[] = [levelOption];
         for (const c of (res.content || res)) {
           results.push({ ...c, _type: 'COMPOSITION', label: `🧱 ${c.sinapiCode} — ${c.description} (${c.unit})` });
         }
-        this.suggestions = results;
+        // Buscar materiais/insumos
+        this.http.get<any>(`/materials?q=${encodeURIComponent(q)}&size=8`).subscribe({
+          next: mres => {
+            for (const m of (mres.content || mres)) {
+              results.push({ ...m, _type: 'INPUT', label: `📦 ${m.sinapiCode} — ${m.description} (${m.unit})` });
+            }
+            this.suggestions = results;
+          },
+          error: () => this.suggestions = results,
+        });
       },
     });
   }
@@ -250,6 +283,83 @@ export class BudgetWorksheetComponent implements OnInit {
   }
 
   loadInfo() { this.http.get<any>(`/budgets/${this.budgetId}`).subscribe({ next: b => { this.budgetInfo = b; this.showInfo = true; } }); }
+
+  // === LOCALIZAR (Ctrl+F) ===
+  openFind() { this.showFind = true; this.findResults = []; this.findIndex = 0; }
+
+  find() {
+    if (!this.findText) return;
+    const q = this.findText.toLowerCase();
+    this.findResults = this.tree.rows().filter(r => {
+      if (this.findField === 'description') return r.description?.toLowerCase().includes(q);
+      if (this.findField === 'refCode') return r.refCode?.toLowerCase().includes(q);
+      if (this.findField === 'unit') return r.unit?.toLowerCase().includes(q);
+      return false;
+    });
+    this.findIndex = 0;
+    if (this.findResults.length > 0) this.goToFound();
+    else this.messages.add({ severity: 'warn', summary: 'Nenhum item encontrado' });
+  }
+
+  findNext() { if (this.findResults.length > 0) { this.findIndex = (this.findIndex + 1) % this.findResults.length; this.goToFound(); } }
+
+  private goToFound() {
+    const row = this.findResults[this.findIndex];
+    // Auto-expand: se o item está hidden, expandir pais
+    if (row.hidden) {
+      for (const r of this.tree.rows()) {
+        if ((r.type === 'LEVEL' || r.type === 'COMPOSITION') && !r.expanded) this.tree.toggle(r);
+      }
+    }
+    this.selectedRow = row;
+    this.selectedRows.clear();
+    this.selectedRows.add(row);
+    // Scroll to element
+    setTimeout(() => document.querySelector('tr.r-selected')?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 50);
+  }
+
+  // === COPIAR/COLAR ===
+  copyItems() {
+    this.clipboard = [...this.selectedRows].filter(r => r.type !== 'EMPTY');
+    if (this.clipboard.length === 0 && this.selectedRow) this.clipboard = [this.selectedRow];
+    this.messages.add({ severity: 'info', summary: `${this.clipboard.length} item(ns) copiado(s)`, life: 2000 });
+  }
+
+  pasteItems() {
+    if (!this.clipboard.length) { this.messages.add({ severity: 'warn', summary: 'Nada para colar' }); return; }
+    this.pushUndo();
+    const all = this.tree.rows();
+    const idx = this.selectedRow ? all.indexOf(this.selectedRow) + 1 : all.length;
+    const stageId = this.selectedRow?.stageId || this.clipboard[0].stageId;
+    const copies = this.clipboard.map(r => ({ ...r, id: undefined, dirty: true, stageId, _children: undefined, children: undefined }));
+    all.splice(idx, 0, ...copies);
+    this.tree.rows.set([...all]);
+    this.messages.add({ severity: 'success', summary: `${copies.length} item(ns) colado(s)` });
+  }
+
+  // === CONFIRMAÇÃO DE EXCLUSÃO ===
+  deleteWithConfirm() {
+    if (!this.selectedRow) return;
+    if (confirm('Tem certeza que deseja excluir o item selecionado?')) {
+      this.deleteSelected();
+    }
+  }
+
+  // === CONFIGURAÇÕES ===
+  loadSettings() {
+    this.http.get<any>(`/budgets/${this.budgetId}`).subscribe({
+      next: b => {
+        this.settings = { rounding: b.roundingMethod || 'TRUNCATE', decQty: b.decimalPlaces || 4, decVal: 2, autoItemize: true };
+        this.showSettings = true;
+      },
+    });
+  }
+
+  saveSettings() {
+    this.http.put(`/budgets/${this.budgetId}`, { roundingMethod: this.settings.rounding, decimalPlaces: this.settings.decQty }).subscribe({
+      next: () => { this.showSettings = false; this.messages.add({ severity: 'success', summary: 'Configurações salvas' }); },
+    });
+  }
 
   rowClass(row: BudgetRow): Record<string, boolean> {
     return { 'r-level': row.type === 'LEVEL', 'r-sublevel': row.type === 'SUB_LEVEL', 'r-comp': row.type === 'COMPOSITION', 'r-input': row.type === 'INPUT', 'r-sub': row.type === 'SUB_COMPOSITION', 'r-empty': row.type === 'EMPTY', 'r-dirty': row.dirty, 'r-selected': row === this.selectedRow, 'r-multi': this.isMultiSelected(row) };

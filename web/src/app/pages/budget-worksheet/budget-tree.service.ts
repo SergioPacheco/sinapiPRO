@@ -192,7 +192,7 @@ export class BudgetTreeService {
 
   private expandCompositionOnInsert(row: BudgetRow, selection: any) {
     if (!selection.items?.length) {
-      // Buscar filhos do backend
+      // Buscar filhos e custo do backend
       this.http.get<any>(`/compositions/${selection.id}`).subscribe({
         next: comp => {
           const all = this.rows();
@@ -203,6 +203,11 @@ export class BudgetTreeService {
           all.splice(idx + 1, 0, ...subRows);
           this.rows.set([...all]);
         },
+      });
+      // Buscar custo unitário
+      this.http.get<any>(`/compositions/${selection.id}/cost?state=SP&month=2024-12-01`).subscribe({
+        next: cost => { if (cost?.totalUnitCost) { row.unitCost = cost.totalUnitCost; row.total = (row.quantity || 0) * cost.totalUnitCost; this.rows.set([...this.rows()]); } },
+        error: () => {},
       });
     } else {
       const all = this.rows();

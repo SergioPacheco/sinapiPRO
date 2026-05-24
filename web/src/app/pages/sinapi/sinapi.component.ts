@@ -128,7 +128,7 @@ export class SinapiComponent implements OnInit {
   loadPage(page: number, size: number) {
     this.loading.set(true);
     let url = `/compositions?page=${page}&size=${size}`;
-    if (this.searchText) url += `&search=${encodeURIComponent(this.searchText)}`;
+    if (this.searchText) url += `&q=${encodeURIComponent(this.searchText)}`;
     if (this.filterOrigin) url += `&origin=${this.filterOrigin}`;
     if (this.filterUnit) url += `&unit=${this.filterUnit}`;
     this.http.get<any>(url).subscribe({

@@ -59,6 +59,7 @@ export class LayoutComponent {
     { label: 'Dashboard', icon: 'th-large', route: '/dashboard' },
     { label: 'Obras', icon: 'building', route: '/projects' },
     { label: 'Composições', icon: 'book', route: '/sinapi' },
+    { label: 'Insumos', icon: 'box', route: '/sinapi/materials' },
     { label: 'Comercial', icon: 'briefcase', route: '/commercial' },
     { label: 'Cadastros', icon: 'users', route: '/registry' },
     { label: 'Relatórios', icon: 'file-pdf', route: '/reports' },
