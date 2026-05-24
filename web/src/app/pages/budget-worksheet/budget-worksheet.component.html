@@ -296,3 +296,28 @@
   </div>
 </div>
 }
+
+<!-- Dialog: Gráfico por Etapa -->
+@if (showChart) {
+<div class="comp-overlay" (click)="showChart = false">
+  <div class="comp-dialog" style="width:520px" (click)="$event.stopPropagation()">
+    <header class="comp-header">
+      <span>Gráfico — Distribuição por Etapa</span>
+      <button class="btn-icon" (click)="showChart = false"><i class="pi pi-times"></i></button>
+    </header>
+    <div style="padding:16px">
+      @for (item of chartData; track item.name) {
+        <div style="margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px">
+            <span>{{ item.name }}</span>
+            <span style="color:#6b7280">{{ item.total | number:'1.2-2' }} ({{ item.pct | number:'1.1-1' }}%)</span>
+          </div>
+          <div style="height:16px;background:#2d3139;border-radius:3px;overflow:hidden">
+            <div [style.width.%]="item.pct" style="height:100%;background:linear-gradient(90deg,#3b82f6,#60a5fa);border-radius:3px;transition:width 0.3s"></div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+}

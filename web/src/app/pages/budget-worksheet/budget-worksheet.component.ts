@@ -53,6 +53,11 @@ export class BudgetWorksheetComponent implements OnInit {
   // Configurações
   settings = { rounding: 'TRUNCATE', decQty: 4, decVal: 2, autoItemize: true };
 
+  // Gráfico / Integridade
+  showChart = false;
+  chartData: { name: string; total: number; pct: number }[] = [];
+  integrityResults: string[] = [];
+
   // Undo/Redo
   private undoStack: string[] = [];
   private redoStack: string[] = [];
@@ -78,6 +83,10 @@ export class BudgetWorksheetComponent implements OnInit {
     { separator: true },
     { label: 'Configurações', icon: 'pi pi-cog', command: () => this.loadSettings() },
     { label: 'Informações do Orçamento', icon: 'pi pi-info-circle', command: () => this.loadInfo() },
+    { separator: true },
+    { label: 'Gráfico por Etapa', icon: 'pi pi-chart-pie', command: () => this.openChart() },
+    { label: 'Verificar Integridade', icon: 'pi pi-check-square', command: () => this.verifyIntegrity() },
+    { label: 'Backup Orçamento', icon: 'pi pi-download', command: () => this.backup() },
     { separator: true },
     { label: 'Sintético PDF', icon: 'pi pi-file-pdf', command: () => window.open(`/api/v1/budgets/${this.budgetId}/reports/worksheet.pdf`, '_blank') },
     { label: 'Analítico PDF', icon: 'pi pi-file-pdf', command: () => window.open(`/api/v1/budgets/${this.budgetId}/reports/analytical.pdf`, '_blank') },
@@ -411,6 +420,58 @@ export class BudgetWorksheetComponent implements OnInit {
       }
     }
     return [...map.entries()].map(([type, v]) => ({ type, ...v }));
+  }
+
+  // === GRÁFICO POR ETAPA ===
+  openChart() {
+    const grandTotal = this.tree.summary().directCost || 1;
+    this.chartData = this.tree.rows()
+      .filter(r => r.type === 'LEVEL')
+      .map(r => ({ name: r.description || r.code, total: r.total || 0, pct: ((r.total || 0) / grandTotal) * 100 }));
+    this.showChart = true;
+  }
+
+  // === VERIFICAR INTEGRIDADE ===
+  verifyIntegrity() {
+    const issues: string[] = [];
+    const rows = this.tree.rows();
+    // Itens sem etapa
+    const orphans = rows.filter(r => (r.type === 'COMPOSITION' || r.type === 'INPUT') && !r.stageId);
+    if (orphans.length) issues.push(`${orphans.length} item(ns) sem etapa vinculada`);
+    // Itens com preço zerado
+    const zeros = rows.filter(r => (r.type === 'COMPOSITION' || r.type === 'INPUT') && (!r.unitCost || r.unitCost === 0));
+    if (zeros.length) issues.push(`${zeros.length} item(ns) com preço zerado`);
+    // Itens com quantidade zerada
+    const noQty = rows.filter(r => (r.type === 'COMPOSITION' || r.type === 'INPUT') && (!r.quantity || r.quantity === 0));
+    if (noQty.length) issues.push(`${noQty.length} item(ns) com quantidade zerada`);
+    // Etapas vazias
+    const emptyStages = rows.filter(r => r.type === 'LEVEL' && r.total === 0);
+    if (emptyStages.length) issues.push(`${emptyStages.length} etapa(s) sem itens`);
+    // Itens duplicados (mesmo compositionId na mesma etapa)
+    const seen = new Map<string, number>();
+    for (const r of rows) {
+      if (r.compositionId && r.stageId) {
+        const key = `${r.stageId}-${r.compositionId}`;
+        seen.set(key, (seen.get(key) || 0) + 1);
+      }
+    }
+    const dups = [...seen.values()].filter(v => v > 1).length;
+    if (dups) issues.push(`${dups} composição(ões) duplicada(s) na mesma etapa`);
+
+    if (issues.length === 0) issues.push('✅ Nenhum problema encontrado');
+    this.integrityResults = issues;
+    this.messages.add({ severity: issues[0].startsWith('✅') ? 'success' : 'warn', summary: 'Verificação concluída', detail: issues.join('; ') });
+  }
+
+  // === BACKUP ===
+  backup() {
+    const data = { budget: this.budgetInfo, rows: this.tree.rows().map(r => ({ ...r, _children: undefined, children: undefined })) };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `orcamento-${this.budgetId}-backup.json`; a.click();
+    URL.revokeObjectURL(url);
+    this.messages.add({ severity: 'success', summary: 'Backup exportado' });
   }
 
   rowClass(row: BudgetRow): Record<string, boolean> {
