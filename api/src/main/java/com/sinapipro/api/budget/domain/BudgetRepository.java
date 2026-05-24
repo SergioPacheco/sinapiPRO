@@ -15,6 +15,8 @@ public interface BudgetRepository extends JpaRepository<Budget, UUID>, JpaSpecif
 
     boolean existsByCode(String code);
 
+    long countByStatus(BudgetStatus status);
+
     @Query("""
             SELECT b FROM Budget b
             WHERE (:status IS NULL OR b.status = :status)

@@ -1,12 +1,12 @@
 package com.sinapipro.api.registry.domain;
+import com.sinapipro.api.shared.domain.TenantAwareEntity;
 
 import jakarta.persistence.*;
 import java.util.UUID;
 
 @Entity
 @Table(name = "contractor")
-public class Contractor {
-    @Id @GeneratedValue(strategy = GenerationType.UUID) private UUID id;
+public class Contractor extends TenantAwareEntity {
     @Column(nullable = false, length = 200) private String name;
     @Column(length = 20) private String document;
     @Column(length = 100) private String specialty;
@@ -20,7 +20,6 @@ public class Contractor {
         this.name = name; this.document = document; this.specialty = specialty;
         this.phone = phone; this.email = email; this.city = city; this.state = state;
     }
-    public UUID getId() { return id; }
     public String getName() { return name; }
     public String getDocument() { return document; }
     public String getSpecialty() { return specialty; }

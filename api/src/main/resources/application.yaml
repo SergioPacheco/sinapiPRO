@@ -18,11 +18,15 @@ spring:
       minimum-idle: 4
       pool-name: showcase-pool
   flyway:
-    enabled: true
+    enabled: false
+  sql:
+    init:
+      mode: never
   jpa:
     open-in-view: false
+    defer-datasource-initialization: true
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     properties:
       hibernate:
         jdbc:

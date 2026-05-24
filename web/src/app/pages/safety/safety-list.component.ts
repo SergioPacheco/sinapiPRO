@@ -28,7 +28,7 @@ export class SafetyListComponent implements OnInit {
 
   ngOnInit() {
     const id = this.route.parent?.snapshot.paramMap.get('id');
-    this.http.get<any>(`/projects/${id}/safety-inspections`).subscribe({
+    this.http.get<any>(`/projects/${id}/safety/inspections`).subscribe({
       next: res => { this.items.set(res.content || res); this.loading.set(false); },
       error: () => this.loading.set(false),
     });

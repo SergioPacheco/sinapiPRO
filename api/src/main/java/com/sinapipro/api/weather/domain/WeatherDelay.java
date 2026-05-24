@@ -1,4 +1,5 @@
 package com.sinapipro.api.weather.domain;
+import com.sinapipro.api.shared.domain.TenantAwareEntity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -8,9 +9,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "weather_delay", uniqueConstraints = @UniqueConstraint(columnNames = {"budget_id", "delay_date"}))
-public class WeatherDelay {
+public class WeatherDelay extends TenantAwareEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.UUID) private UUID id;
     @Column(name = "budget_id", nullable = false) private UUID budgetId;
     @Column(name = "delay_date", nullable = false) private LocalDate delayDate;
     @Column(name = "weather_condition", nullable = false, length = 60) private String weatherCondition;
@@ -18,9 +18,7 @@ public class WeatherDelay {
     @Column(name = "full_day_lost", nullable = false) private Boolean fullDayLost;
     @Column(name = "impact_description", length = 500) private String impactDescription;
     @Column(name = "reported_by", length = 140) private String reportedBy;
-    @Column(name = "created_at", nullable = false, updatable = false) private Instant createdAt;
 
-    @PrePersist void prePersist() { createdAt = Instant.now(); }
     protected WeatherDelay() {}
 
     public WeatherDelay(UUID budgetId, LocalDate delayDate, String weatherCondition, BigDecimal hoursLost,
@@ -30,7 +28,6 @@ public class WeatherDelay {
         this.impactDescription = impactDescription; this.reportedBy = reportedBy;
     }
 
-    public UUID getId() { return id; }
     public UUID getBudgetId() { return budgetId; }
     public LocalDate getDelayDate() { return delayDate; }
     public String getWeatherCondition() { return weatherCondition; }

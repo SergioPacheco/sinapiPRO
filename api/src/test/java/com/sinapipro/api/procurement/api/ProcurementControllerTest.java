@@ -2,7 +2,7 @@ package com.sinapipro.api.procurement.api;
 
 import com.sinapipro.api.budget.domain.Budget;
 import com.sinapipro.api.budget.domain.BudgetRepository;
-import com.sinapipro.api.procurement.application.ProcurementReportService;
+import com.sinapipro.api.report.ProcurementReportService;
 import com.sinapipro.api.procurement.application.ProcurementService;
 import com.sinapipro.api.procurement.application.QuotationEmailService;
 import com.sinapipro.api.procurement.domain.*;

@@ -28,7 +28,7 @@ export class InvoiceListComponent implements OnInit {
 
   ngOnInit() {
     const id = this.route.parent?.snapshot.paramMap.get('id');
-    this.http.get<any>(`/projects/${id}/invoices`).subscribe({
+    this.http.get<any>(`/projects/${id}/finance/receivables`).subscribe({
       next: res => { this.items.set(res.content || res); this.loading.set(false); },
       error: () => this.loading.set(false),
     });

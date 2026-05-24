@@ -1,4 +1,5 @@
 package com.sinapipro.api.shared.domain;
+import com.sinapipro.api.shared.domain.TenantAwareEntity;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -13,11 +14,8 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "report_template")
-public class ReportTemplate {
+public class ReportTemplate extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
 
     @Column(nullable = false, length = 100)
     private String name;
@@ -55,7 +53,6 @@ public class ReportTemplate {
         this.description = description;
     }
 
-    public UUID getId() { return id; }
     public String getName() { return name; }
     public String getType() { return type; }
     public String getDescription() { return description; }

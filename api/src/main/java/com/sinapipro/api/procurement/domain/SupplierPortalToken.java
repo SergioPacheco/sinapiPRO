@@ -1,4 +1,5 @@
 package com.sinapipro.api.procurement.domain;
+import com.sinapipro.api.shared.domain.TenantAwareEntity;
 
 import jakarta.persistence.*;
 import java.time.Instant;
@@ -7,11 +8,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "supplier_portal_token")
-public class SupplierPortalToken {
+public class SupplierPortalToken extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
 
     @Column(nullable = false, unique = true, length = 64)
     private String token;
@@ -40,7 +38,6 @@ public class SupplierPortalToken {
         this.expiresAt = Instant.now().plus(expirationDays, ChronoUnit.DAYS);
     }
 
-    public UUID getId() { return id; }
     public String getToken() { return token; }
     public UUID getQuotationId() { return quotationId; }
     public UUID getSupplierId() { return supplierId; }

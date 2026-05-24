@@ -1,4 +1,5 @@
 package com.sinapipro.api.procurement.domain;
+import com.sinapipro.api.shared.domain.TenantAwareEntity;
 
 import jakarta.persistence.*;
 import java.time.Instant;
@@ -6,11 +7,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "quotation_email")
-public class QuotationEmail {
+public class QuotationEmail extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
 
     @Column(name = "quotation_id", nullable = false)
     private UUID quotationId;
@@ -41,7 +39,6 @@ public class QuotationEmail {
         this.supplierEmail = supplierEmail;
     }
 
-    public UUID getId() { return id; }
     public UUID getQuotationId() { return quotationId; }
     public UUID getSupplierId() { return supplierId; }
     public String getSupplierEmail() { return supplierEmail; }

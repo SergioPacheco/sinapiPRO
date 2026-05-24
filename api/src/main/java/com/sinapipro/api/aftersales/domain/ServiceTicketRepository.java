@@ -9,6 +9,8 @@ import java.util.UUID;
 public interface ServiceTicketRepository extends JpaRepository<ServiceTicket, UUID> {
     Page<ServiceTicket> findAll(Pageable pageable);
     Page<ServiceTicket> findByStatus(String status, Pageable pageable);
+    Page<ServiceTicket> findByUnitId(UUID unitId, Pageable pageable);
     List<ServiceTicket> findByUnitId(UUID unitId);
+    List<ServiceTicket> findByStatusInAndDueDateBefore(List<String> statuses, java.time.LocalDate date);
     long countByStatus(String status);
 }

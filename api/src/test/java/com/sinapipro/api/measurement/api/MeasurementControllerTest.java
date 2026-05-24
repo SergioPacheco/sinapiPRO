@@ -1,7 +1,7 @@
 package com.sinapipro.api.measurement.api;
 
 import com.sinapipro.api.budget.domain.Budget;
-import com.sinapipro.api.measurement.application.MeasurementReportService;
+import com.sinapipro.api.report.MeasurementReportService;
 import com.sinapipro.api.measurement.application.MeasurementService;
 import com.sinapipro.api.measurement.domain.*;
 import com.sinapipro.api.shared.error.DomainNotFoundException;

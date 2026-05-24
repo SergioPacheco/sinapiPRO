@@ -1,4 +1,5 @@
 package com.sinapipro.api.shared.domain;
+import com.sinapipro.api.shared.domain.TenantAwareEntity;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -13,11 +14,8 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "trash_item")
-public class TrashItem {
+public class TrashItem extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
 
     @Column(name = "entity_type", nullable = false, length = 40)
     private String entityType;
@@ -52,7 +50,6 @@ public class TrashItem {
         this.expiresAt = Instant.now().plusSeconds(30L * 24 * 60 * 60); // 30 days
     }
 
-    public UUID getId() { return id; }
     public String getEntityType() { return entityType; }
     public UUID getEntityId() { return entityId; }
     public String getEntityName() { return entityName; }

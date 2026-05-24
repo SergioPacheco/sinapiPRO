@@ -1,4 +1,5 @@
 package com.sinapipro.api.equipment.domain;
+import com.sinapipro.api.shared.domain.TenantAwareEntity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -8,8 +9,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "equipment_fueling")
-public class EquipmentFueling {
-    @Id @GeneratedValue(strategy = GenerationType.UUID) private UUID id;
+public class EquipmentFueling extends TenantAwareEntity {
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "equipment_id", nullable = false) private Equipment equipment;
     @Column(name = "budget_id", nullable = false) private UUID budgetId;
     @Column(name = "fueling_date", nullable = false) private LocalDate fuelingDate;
@@ -19,8 +19,6 @@ public class EquipmentFueling {
     @Column(name = "total_cost", nullable = false, precision = 14, scale = 2) private BigDecimal totalCost;
     @Column(precision = 10, scale = 2) private BigDecimal odometer;
     @Column(length = 300) private String notes;
-    @Column(name = "created_at", nullable = false, updatable = false) private Instant createdAt;
-    @PrePersist void prePersist() { createdAt = Instant.now(); }
 
     protected EquipmentFueling() {}
     public EquipmentFueling(Equipment equipment, UUID budgetId, LocalDate fuelingDate, String fuelType,
@@ -31,7 +29,6 @@ public class EquipmentFueling {
         this.odometer = odometer; this.notes = notes;
     }
 
-    public UUID getId() { return id; }
     public Equipment getEquipment() { return equipment; }
     public UUID getBudgetId() { return budgetId; }
     public LocalDate getFuelingDate() { return fuelingDate; }

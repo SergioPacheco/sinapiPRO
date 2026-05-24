@@ -1,4 +1,5 @@
 package com.sinapipro.api.safety.domain;
+import com.sinapipro.api.shared.domain.TenantAwareEntity;
 
 import jakarta.persistence.*;
 import java.time.Instant;
@@ -6,9 +7,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "safety_checklist_template")
-public class SafetyChecklistTemplate {
+public class SafetyChecklistTemplate extends TenantAwareEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(nullable = false, length = 200)
@@ -23,10 +23,7 @@ public class SafetyChecklistTemplate {
     @Column(nullable = false)
     private Boolean active;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt;
 
-    @PrePersist void prePersist() { createdAt = Instant.now(); }
 
     protected SafetyChecklistTemplate() {}
 
@@ -37,7 +34,6 @@ public class SafetyChecklistTemplate {
         this.active = true;
     }
 
-    public UUID getId() { return id; }
     public String getName() { return name; }
     public String getCategory() { return category; }
     public String getItems() { return items; }

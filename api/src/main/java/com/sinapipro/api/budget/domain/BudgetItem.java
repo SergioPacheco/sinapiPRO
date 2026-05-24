@@ -66,4 +66,6 @@ public class BudgetItem extends AuditableEntity {
         this.unitCost = unitCost;
         this.bdiPct = bdiPct;
     }
+
+    public void setUnitCost(BigDecimal unitCost) { this.unitCost = unitCost; }
 }

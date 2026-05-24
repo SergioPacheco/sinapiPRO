@@ -2,7 +2,7 @@ package com.sinapipro.api.budget.api;
 
 import com.sinapipro.api.budget.application.AbcCurveService;
 import com.sinapipro.api.budget.application.BudgetCalculationService;
-import com.sinapipro.api.budget.application.BudgetReportService;
+import com.sinapipro.api.report.BudgetReportService;
 import com.sinapipro.api.budget.application.PriceAdjustmentService;
 import com.sinapipro.api.budget.domain.*;
 import com.sinapipro.api.config.settings.AppSettingsRepository;

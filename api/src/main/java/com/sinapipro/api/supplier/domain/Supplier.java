@@ -68,6 +68,19 @@ public class Supplier extends TenantAwareEntity {
     @Column(nullable = false)
     private Boolean active;
 
+    // V11 enrichment fields
+    @Column(name = "cell_phone", length = 30)
+    private String cellPhone;
+
+    @Column(name = "commercial_phone", length = 30)
+    private String commercialPhone;
+
+    @Column(length = 30)
+    private String whatsapp;
+
+    @Column(name = "payment_due_day")
+    private Integer paymentDueDay;
+
     protected Supplier() {}
 
     public Supplier(String code, String name, String tradeName, String taxId,
@@ -115,6 +128,10 @@ public class Supplier extends TenantAwareEntity {
     public String getNotes() { return notes; }
     public Integer getRating() { return rating; }
     public Boolean getActive() { return active; }
+    public String getCellPhone() { return cellPhone; }
+    public String getCommercialPhone() { return commercialPhone; }
+    public String getWhatsapp() { return whatsapp; }
+    public Integer getPaymentDueDay() { return paymentDueDay; }
 
     public void update(String name, String tradeName, String email, String phone,
                        String contactName, String website, String category,

@@ -1,4 +1,5 @@
 package com.sinapipro.api.inventory.domain;
+import com.sinapipro.api.shared.domain.TenantAwareEntity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -7,8 +8,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "stock_movement")
-public class StockMovement {
-    @Id @GeneratedValue(strategy = GenerationType.UUID) private UUID id;
+public class StockMovement extends TenantAwareEntity {
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "stock_item_id", nullable = false) private StockItem stockItem;
     @Column(nullable = false, length = 20) private String type; // IN, OUT
     @Column(nullable = false, precision = 14, scale = 4) private BigDecimal quantity;
@@ -24,7 +24,6 @@ public class StockMovement {
         this.referenceId = referenceId; this.referenceType = referenceType; this.notes = notes;
     }
 
-    public UUID getId() { return id; }
     public StockItem getStockItem() { return stockItem; }
     public String getType() { return type; }
     public BigDecimal getQuantity() { return quantity; }

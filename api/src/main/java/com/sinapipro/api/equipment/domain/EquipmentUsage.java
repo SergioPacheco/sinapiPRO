@@ -1,4 +1,5 @@
 package com.sinapipro.api.equipment.domain;
+import com.sinapipro.api.shared.domain.TenantAwareEntity;
 
 import jakarta.persistence.*;
 
@@ -9,11 +10,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "equipment_usage")
-public class EquipmentUsage {
+public class EquipmentUsage extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "equipment_id", nullable = false)
@@ -37,11 +35,7 @@ public class EquipmentUsage {
     @Column(length = 300)
     private String notes;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt;
 
-    @PrePersist
-    void prePersist() { createdAt = Instant.now(); }
 
     protected EquipmentUsage() {}
 
@@ -56,7 +50,6 @@ public class EquipmentUsage {
         this.notes = notes;
     }
 
-    public UUID getId() { return id; }
     public Equipment getEquipment() { return equipment; }
     public UUID getBudgetId() { return budgetId; }
     public LocalDate getUsageDate() { return usageDate; }

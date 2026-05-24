@@ -1,4 +1,5 @@
 package com.sinapipro.api.jobcosting.domain;
+import com.sinapipro.api.shared.domain.TenantAwareEntity;
 
 import jakarta.persistence.*;
 
@@ -9,11 +10,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "cost_transaction")
-public class CostTransaction {
+public class CostTransaction extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cost_code_id", nullable = false)
@@ -35,11 +33,7 @@ public class CostTransaction {
     @Column(name = "transaction_date", nullable = false)
     private LocalDate transactionDate;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt;
 
-    @PrePersist
-    void prePersist() { createdAt = Instant.now(); }
 
     protected CostTransaction() {}
 
@@ -53,7 +47,6 @@ public class CostTransaction {
         this.transactionDate = transactionDate;
     }
 
-    public UUID getId() { return id; }
     public CostCode getCostCode() { return costCode; }
     public CostTransactionType getType() { return type; }
     public BigDecimal getAmount() { return amount; }

@@ -1,4 +1,5 @@
 package com.sinapipro.api.schedule.domain;
+import com.sinapipro.api.shared.domain.TenantAwareEntity;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
@@ -6,11 +7,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "schedule_holiday", uniqueConstraints = @UniqueConstraint(columnNames = {"project_id", "holiday_date"}))
-public class Holiday {
+public class Holiday extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
 
     @Column(name = "project_id", nullable = false)
     private UUID projectId;
@@ -33,7 +31,6 @@ public class Holiday {
         this.recurring = recurring;
     }
 
-    public UUID getId() { return id; }
     public UUID getProjectId() { return projectId; }
     public LocalDate getHolidayDate() { return holidayDate; }
     public String getDescription() { return description; }

@@ -1,4 +1,5 @@
 package com.sinapipro.api.document.domain;
+import com.sinapipro.api.shared.domain.TenantAwareEntity;
 
 import jakarta.persistence.*;
 import java.time.Instant;
@@ -6,9 +7,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "document")
-public class Document {
+public class Document extends TenantAwareEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(name = "budget_id")
@@ -41,10 +41,7 @@ public class Document {
     @Column(name = "uploaded_by", length = 140)
     private String uploadedBy;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt;
 
-    @PrePersist void prePersist() { createdAt = Instant.now(); }
 
     protected Document() {}
 
@@ -63,7 +60,6 @@ public class Document {
         this.uploadedBy = uploadedBy;
     }
 
-    public UUID getId() { return id; }
     public UUID getBudgetId() { return budgetId; }
     public String getEntityType() { return entityType; }
     public UUID getEntityId() { return entityId; }

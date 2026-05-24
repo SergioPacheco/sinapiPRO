@@ -1,7 +1,7 @@
 package com.sinapipro.api.procurement.api;
 
 import com.sinapipro.api.budget.domain.BudgetRepository;
-import com.sinapipro.api.procurement.application.ProcurementReportService;
+import com.sinapipro.api.report.ProcurementReportService;
 import com.sinapipro.api.procurement.application.ProcurementService;
 import com.sinapipro.api.procurement.application.ProcurementService.*;
 import com.sinapipro.api.procurement.application.QuotationEmailService;
@@ -196,7 +196,7 @@ public class ProcurementController {
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
     ResponseEntity<byte[]> comparativeMapReport(@PathVariable UUID projectId, @PathVariable UUID quotationId) {
         findQuotationInProject(projectId, quotationId);
-        byte[] pdf = procurementReportService.generateComparativeMapPdf(quotationId);
+        byte[] pdf = procurementReportService.mapaComparativo(quotationId);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=comparative-map-" + quotationId + ".pdf")
                 .contentType(MediaType.APPLICATION_PDF)
@@ -208,7 +208,7 @@ public class ProcurementController {
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
     ResponseEntity<byte[]> orderReport(@PathVariable UUID projectId, @PathVariable UUID orderId) {
         findOrderInProject(projectId, orderId);
-        byte[] pdf = procurementReportService.generatePurchaseOrderPdf(orderId);
+        byte[] pdf = procurementReportService.pedidoCompra(orderId);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=purchase-order-" + orderId + ".pdf")
                 .contentType(MediaType.APPLICATION_PDF)

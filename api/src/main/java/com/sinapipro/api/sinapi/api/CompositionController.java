@@ -175,6 +175,18 @@ public class CompositionController {
         return importService.importCompositions(file.getInputStream(), state.toUpperCase(), referenceMonth, desonerated);
     }
 
+    @Operation(summary = "Import SINAPI ZIP (auto-detects and imports materials + compositions)")
+    @PostMapping(value = "/import/zip", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
+    ZipImportResult importZip(@RequestParam("file") MultipartFile file) throws IOException {
+        return importService.importZip(file.getInputStream(), file.getOriginalFilename());
+    }
+
+    public record ZipImportResult(String state, String referenceMonth, boolean desonerated,
+                                   SinapiImportService.ImportResult materials,
+                                   SinapiImportService.ImportResult compositions) {}
+
     public record CreateCompositionRequest(@NotBlank String code, @NotBlank String description, @NotBlank String unit,
                                             String groupName, List<ItemRequest> items) {}
     public record UpdateCompositionRequest(@NotBlank String description, @NotBlank String unit,

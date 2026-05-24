@@ -1,57 +1,42 @@
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
-
-interface RegistryItem {
-  label: string;
-  icon: string;
-  route: string;
-  description: string;
-}
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-registry',
   standalone: true,
-  imports: [RouterLink, ButtonModule],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet],
   template: `
-    <h2 style="margin:0 0 1rem">Cadastros</h2>
-    <div class="grid">
-      @for (item of items; track item.route) {
-        <div class="col-12 md:col-6 lg:col-4">
-          <a [routerLink]="item.route" class="registry-item">
-            <i [class]="'pi pi-' + item.icon" style="font-size:1.25rem; color:var(--sp-primary)"></i>
-            <div>
-              <div style="font-weight:600; font-size:13px">{{ item.label }}</div>
-              <div class="text-muted" style="font-size:12px">{{ item.description }}</div>
-            </div>
+    <div class="registry-layout">
+      <aside class="registry-sidebar">
+        <div class="sidebar-title">Cadastros</div>
+        @for (item of items; track item.route) {
+          <a [routerLink]="item.route" routerLinkActive="active" class="sidebar-item">
+            <i [class]="'pi pi-' + item.icon"></i>
+            <span>{{ item.label }}</span>
           </a>
-        </div>
-      }
+        }
+      </aside>
+      <main class="registry-content">
+        <router-outlet />
+      </main>
     </div>
   `,
   styles: [`
-    .registry-item {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.875rem 1rem;
-      border-radius: var(--sp-radius);
-      border: 1px solid var(--sp-border);
-      background: var(--sp-surface-card);
-      text-decoration: none;
-      color: inherit;
-      transition: border-color 0.15s;
-    }
-    .registry-item:hover { border-color: var(--sp-primary); }
+    .registry-layout { display: flex; gap: 0; min-height: 500px; margin: -1.25rem 0; }
+    .registry-sidebar { width: 200px; border-right: 1px solid var(--sp-border); padding: 1rem 0; flex-shrink: 0; }
+    .sidebar-title { font-weight: 700; font-size: 13px; padding: 0 1rem 0.75rem; color: var(--sp-text-muted); text-transform: uppercase; }
+    .sidebar-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; font-size: 13px; color: var(--sp-text-muted); text-decoration: none; transition: all 0.15s; }
+    .sidebar-item:hover { background: var(--sp-surface-hover); color: var(--sp-text); }
+    .sidebar-item.active { color: var(--sp-primary); background: color-mix(in srgb, var(--sp-primary) 10%, transparent); border-right: 2px solid var(--sp-primary); }
+    .sidebar-item i { font-size: 0.9rem; width: 18px; }
+    .registry-content { flex: 1; padding: 1rem 1.5rem; overflow-y: auto; }
   `],
 })
 export class RegistryComponent {
-  items: RegistryItem[] = [
-    { label: 'Clientes', icon: 'user', route: '/registry/clients', description: 'Clientes e contratantes' },
-    { label: 'Fornecedores', icon: 'shop', route: '/registry/suppliers', description: 'Fornecedores de materiais' },
-    { label: 'Funcionários', icon: 'id-card', route: '/registry/employees', description: 'Colaboradores e terceirizados' },
-    { label: 'Equipes', icon: 'users', route: '/registry/teams', description: 'Composição de equipes' },
-    { label: 'Equipamentos', icon: 'wrench', route: '/registry/equipment', description: 'Máquinas e veículos' },
-    { label: 'Contas Bancárias', icon: 'credit-card', route: '/registry/bank-accounts', description: 'Bancos da empresa' },
+  items = [
+    { label: 'Clientes', icon: 'user', route: '/registry/clients' },
+    { label: 'Fornecedores', icon: 'shop', route: '/registry/suppliers' },
+    { label: 'Funcionários', icon: 'id-card', route: '/registry/employees' },
+    { label: 'Equipamentos', icon: 'wrench', route: '/equipment' },
   ];
 }

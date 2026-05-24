@@ -1,4 +1,5 @@
 package com.sinapipro.api.inventory.domain;
+import com.sinapipro.api.shared.domain.TenantAwareEntity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -9,14 +10,11 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "stock_requisition")
-public class StockRequisition {
-    @Id @GeneratedValue(strategy = GenerationType.UUID) private UUID id;
+public class StockRequisition extends TenantAwareEntity {
     @Column(name = "budget_id", nullable = false) private UUID budgetId;
     @Column(name = "requested_by", nullable = false, length = 140) private String requestedBy;
     @Column(nullable = false, length = 20) private String status;
     @Column(length = 300) private String notes;
-    @Column(name = "created_at", nullable = false, updatable = false) private Instant createdAt;
-    @PrePersist void prePersist() { createdAt = Instant.now(); }
 
     @OneToMany(mappedBy = "requisition", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StockRequisitionItem> items = new ArrayList<>();
@@ -26,7 +24,6 @@ public class StockRequisition {
         this.budgetId = budgetId; this.requestedBy = requestedBy; this.notes = notes; this.status = "PENDING";
     }
 
-    public UUID getId() { return id; }
     public UUID getBudgetId() { return budgetId; }
     public String getRequestedBy() { return requestedBy; }
     public String getStatus() { return status; }

@@ -48,26 +48,33 @@ import { StatusTagComponent, EmptyStateComponent } from '../../shared/components
     </p-table>
 
     <!-- Import Dialog -->
-    <p-dialog header="Importar Planilha SINAPI" [(visible)]="importVisible" [style]="{width:'550px'}" [modal]="true">
-      <p class="text-muted mb-3">Importe a planilha Excel (.xlsx) baixada do site da Caixa Econômica Federal (SINAPI).</p>
+    <p-dialog header="Importar Planilha SINAPI" [(visible)]="importVisible" [style]="{width:'500px'}" [modal]="true">
+      <p class="text-muted mb-3">Selecione o arquivo .xlsx ou o .zip completo baixado do site da Caixa. O sistema detecta automaticamente o tipo, UF, mês e se é desonerado.</p>
       <div class="flex flex-column gap-3">
-        <div><label>Tipo de Importação</label><p-dropdown [(ngModel)]="importType" [options]="importTypes" styleClass="w-full" /></div>
-        <div class="grid">
-          <div class="col-6"><label>UF</label><p-dropdown [(ngModel)]="importState" [options]="stateOpts" styleClass="w-full" placeholder="Estado" /></div>
-          <div class="col-6"><label>Mês de Referência</label><input pInputText [(ngModel)]="importMonth" class="w-full" placeholder="2025-01-01" /></div>
-        </div>
-        <div class="flex align-items-center gap-2">
-          <input type="checkbox" [(ngModel)]="importDesonerated" id="deson" />
-          <label for="deson">Desonerado</label>
-        </div>
         <div>
-          <label class="mb-2 block">Arquivo Excel (.xlsx)</label>
-          <input type="file" accept=".xlsx,.xls" (change)="onFileSelect($event)" class="w-full" />
+          <label class="mb-2 block font-semibold">Arquivo (.zip ou .xlsx)</label>
+          <input type="file" accept=".xlsx,.xls,.zip" (change)="onFileSelect($event)" class="w-full" />
         </div>
+        @if (importDetected) {
+          <div class="detected-info">
+            <div class="flex justify-content-between"><span>Tipo:</span><strong>{{ importType === 'materials' ? 'Insumos (Preços)' : 'Composições' }}</strong></div>
+            <div class="flex justify-content-between"><span>UF:</span><strong>{{ importState }}</strong></div>
+            <div class="flex justify-content-between"><span>Referência:</span><strong>{{ importMonth }}</strong></div>
+            <div class="flex justify-content-between"><span>Desonerado:</span><strong>{{ importDesonerated ? 'Sim' : 'Não' }}</strong></div>
+          </div>
+        }
+        @if (importFile && !importDetected) {
+          <p class="text-orange-500">⚠️ Não foi possível detectar os parâmetros pelo nome do arquivo. Preencha manualmente:</p>
+          <div class="grid">
+            <div class="col-4"><label>UF</label><p-dropdown [(ngModel)]="importState" [options]="stateOpts" styleClass="w-full" /></div>
+            <div class="col-4"><label>Mês Ref.</label><input pInputText [(ngModel)]="importMonth" class="w-full" placeholder="2024-12-01" /></div>
+            <div class="col-4 flex align-items-end"><input type="checkbox" [(ngModel)]="importDesonerated" id="deson" /><label for="deson" class="ml-2">Desonerado</label></div>
+          </div>
+        }
       </div>
       <ng-template pTemplate="footer">
         <p-button label="Cancelar" severity="secondary" (onClick)="importVisible = false" />
-        <p-button label="Importar" icon="pi pi-upload" (onClick)="doImport()" [loading]="importing()" [disabled]="!importFile || !importState || !importMonth" />
+        <p-button label="Importar" icon="pi pi-upload" (onClick)="doImport()" [loading]="importing()" [disabled]="!importFile || (!isZipFile() && (!importState || !importMonth))" />
       </ng-template>
     </p-dialog>
 
@@ -142,25 +149,75 @@ export class SinapiComponent implements OnInit {
     });
   }
 
-  onFileSelect(event: any) { this.importFile = event.target.files[0]; }
+  importDetected = false;
+
+  isZipFile() { return this.importFile?.name?.endsWith('.zip'); }
+
+  onFileSelect(event: any) {
+    this.importFile = event.target.files[0];
+    this.importDetected = false;
+    if (!this.importFile) return;
+
+    // Detectar parâmetros pelo nome do arquivo
+    // Formato: SINAPI_Preco_Ref_Insumos_SP_202412_NaoDesonerado.xlsx
+    //          SINAPI_Custo_Ref_Composicoes_Analitico_SP_202412_NaoDesonerado.xlsx
+    const name = this.importFile.name;
+
+    // Tipo
+    if (name.includes('Insumos') || name.includes('Preco_Ref')) {
+      this.importType = 'materials';
+    } else if (name.includes('Composicoes') || name.includes('Custo_Ref')) {
+      this.importType = 'compositions';
+    }
+
+    // UF (2 letras maiúsculas antes do AAAAMM)
+    const ufMatch = name.match(/_([A-Z]{2})_(\d{6})/);
+    if (ufMatch) {
+      this.importState = ufMatch[1];
+      const yyyymm = ufMatch[2];
+      this.importMonth = `${yyyymm.substring(0, 4)}-${yyyymm.substring(4, 6)}-01`;
+    }
+
+    // Desonerado
+    this.importDesonerated = name.includes('Desonerado') && !name.includes('NaoDesonerado');
+
+    this.importDetected = !!(this.importState && this.importMonth);
+  }
 
   doImport() {
-    if (!this.importFile || !this.importState || !this.importMonth) return;
+    if (!this.importFile) return;
     this.importing.set(true);
     const formData = new FormData();
     formData.append('file', this.importFile);
-    formData.append('state', this.importState);
-    formData.append('referenceMonth', this.importMonth);
-    formData.append('desonerated', String(this.importDesonerated));
 
-    const endpoint = this.importType === 'materials' ? '/compositions/import/materials' : '/compositions/import/compositions';
+    const isZip = this.importFile.name.endsWith('.zip');
+    let endpoint: string;
+
+    if (isZip) {
+      // ZIP: endpoint auto-detecta tudo
+      endpoint = '/compositions/import/zip';
+    } else {
+      // XLSX individual: precisa dos parâmetros
+      if (!this.importState || !this.importMonth) { this.importing.set(false); return; }
+      formData.append('state', this.importState);
+      formData.append('referenceMonth', this.importMonth);
+      formData.append('desonerated', String(this.importDesonerated));
+      endpoint = this.importType === 'materials' ? '/compositions/import/materials' : '/compositions/import/compositions';
+    }
+
     this.http.post<any>(endpoint, formData).subscribe({
       next: res => {
         this.importing.set(false); this.importVisible = false; this.importFile = null;
-        this.messages.add({ severity: 'success', summary: 'Importação concluída', detail: `${res.imported || res.created || 0} registros importados, ${res.skipped || 0} ignorados`, life: 8000 });
+        if (isZip) {
+          const m = res.materials || {}; const c = res.compositions || {};
+          this.messages.add({ severity: 'success', summary: 'Importação ZIP concluída',
+            detail: `${res.state} ${res.referenceMonth} | Insumos: ${m.created || 0} novos, ${m.updated || 0} atualizados | Composições: ${c.created || 0} novas`, life: 10000 });
+        } else {
+          this.messages.add({ severity: 'success', summary: 'Importação concluída', detail: `${res.created || 0} novos, ${res.updated || 0} atualizados`, life: 8000 });
+        }
         this.search();
       },
-      error: () => this.importing.set(false),
+      error: (err) => { this.importing.set(false); this.messages.add({ severity: 'error', summary: 'Erro na importação', detail: err?.error?.detail || 'Erro desconhecido', life: 8000 }); },
     });
   }
 }

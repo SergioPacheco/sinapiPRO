@@ -105,7 +105,7 @@ public class ProjectController {
         var events = new java.util.ArrayList<ActivityEvent>();
 
         // Recent measurements
-        em.createQuery("SELECT m FROM Measurement m WHERE m.projectId = :pid ORDER BY m.createdAt DESC", Object.class)
+        em.createQuery("SELECT m FROM Measurement m WHERE m.budget.projectId = :pid ORDER BY m.createdAt DESC", Object.class)
                 .setParameter("pid", id).setMaxResults(5).getResultList().forEach(obj -> {
                     var m = (com.sinapipro.api.measurement.domain.Measurement) obj;
                     events.add(new ActivityEvent(m.getId(), "Medição #" + m.getNumber() + " — " + m.getStatus(),
@@ -113,7 +113,7 @@ public class ProjectController {
                 });
 
         // Recent daily logs
-        em.createQuery("SELECT d FROM DailyLog d WHERE d.projectId = :pid ORDER BY d.createdAt DESC", Object.class)
+        em.createQuery("SELECT d FROM DailyLog d WHERE d.budget.projectId = :pid ORDER BY d.createdAt DESC", Object.class)
                 .setParameter("pid", id).setMaxResults(3).getResultList().forEach(obj -> {
                     var d = (com.sinapipro.api.dailylog.domain.DailyLog) obj;
                     events.add(new ActivityEvent(d.getId(), "Diário de obra — " + d.getLogDate(),
@@ -121,7 +121,7 @@ public class ProjectController {
                 });
 
         // Recent purchase orders
-        em.createQuery("SELECT o FROM PurchaseOrder o WHERE o.projectId = :pid ORDER BY o.createdAt DESC", Object.class)
+        em.createQuery("SELECT o FROM PurchaseOrder o WHERE o.budget.projectId = :pid ORDER BY o.createdAt DESC", Object.class)
                 .setParameter("pid", id).setMaxResults(3).getResultList().forEach(obj -> {
                     var o = (com.sinapipro.api.procurement.domain.PurchaseOrder) obj;
                     events.add(new ActivityEvent(o.getId(), "Pedido " + o.getNumber() + " — " + o.getStatus(),
@@ -145,10 +145,10 @@ public class ProjectController {
         var teams = ((Number) em.createQuery("SELECT COUNT(t) FROM Team t WHERE t.projectId = :pid")
                 .setParameter("pid", id).getSingleResult()).longValue();
         var pendingMeasurements = ((Number) em.createQuery(
-                "SELECT COUNT(m) FROM Measurement m WHERE m.projectId = :pid AND m.status IN ('DRAFT','SUBMITTED')")
+                "SELECT COUNT(m) FROM Measurement m WHERE m.budget.projectId = :pid AND m.status IN ('DRAFT','SUBMITTED')")
                 .setParameter("pid", id).getSingleResult()).longValue();
         var pendingOrders = ((Number) em.createQuery(
-                "SELECT COUNT(o) FROM PurchaseOrder o WHERE o.projectId = :pid AND o.status = 'PENDING'")
+                "SELECT COUNT(o) FROM PurchaseOrder o WHERE o.budget.projectId = :pid AND o.status = 'PENDING'")
                 .setParameter("pid", id).getSingleResult()).longValue();
 
         var planning = new PhaseChecklist(
@@ -168,8 +168,12 @@ public class ProjectController {
     }
 
     private long countByProject(String entity, UUID projectId) {
-        return ((Number) em.createQuery("SELECT COUNT(e) FROM " + entity + " e WHERE e.projectId = :pid")
-                .setParameter("pid", projectId).getSingleResult()).longValue();
+        var jpql = switch (entity) {
+            case "Contract", "ScheduleActivity", "Measurement", "DailyLog", "PurchaseOrder" ->
+                    "SELECT COUNT(e) FROM " + entity + " e WHERE e.budget.projectId = :pid";
+            default -> "SELECT COUNT(e) FROM " + entity + " e WHERE e.projectId = :pid";
+        };
+        return ((Number) em.createQuery(jpql).setParameter("pid", projectId).getSingleResult()).longValue();
     }
 
     private Project findOrThrow(UUID id) {
@@ -203,6 +207,12 @@ public class ProjectController {
                                    UUID clientId, UUID employeeId, ProjectType projectType,
                                    ContractRegime contractRegime, String permitNumber,
                                    LocalDate permitExpiry, String ceiCno, String postalCode,
+                                   String neighborhood, String addressNumber, String phone,
+                                   BigDecimal totalBuiltArea, UUID developmentId, UUID branchId,
+                                   String accountingCode, boolean financialControlEnabled,
+                                   boolean stockControlEnabled, boolean budgetControlEnabled,
+                                   boolean costApportionmentEnabled, BigDecimal apportionmentRate,
+                                   BigDecimal purchaseLimitNoAuth, boolean billingToClient,
                                    java.time.Instant createdAt) {
         public static ProjectResponse from(Project p) {
             return new ProjectResponse(p.getId(), p.getCode(), p.getName(), p.getDescription(),
@@ -211,6 +221,12 @@ public class ProjectController {
                     p.getActualEndDate(), p.getStatus(), p.getTotalArea(), p.getTotalBudget(),
                     p.getClientId(), p.getEmployeeId(), p.getProjectType(), p.getContractRegime(),
                     p.getPermitNumber(), p.getPermitExpiry(), p.getCeiCno(), p.getPostalCode(),
+                    p.getNeighborhood(), p.getAddressNumber(), p.getPhone(),
+                    p.getTotalBuiltArea(), p.getDevelopmentId(), p.getBranchId(),
+                    p.getAccountingCode(), p.isFinancialControlEnabled(),
+                    p.isStockControlEnabled(), p.isBudgetControlEnabled(),
+                    p.isCostApportionmentEnabled(), p.getApportionmentRate(),
+                    p.getPurchaseLimitNoAuth(), p.isBillingToClient(),
                     p.getCreatedAt());
         }
     }

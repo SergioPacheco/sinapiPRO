@@ -88,6 +88,48 @@ public class Project extends TenantAwareEntity {
     @Column(name = "postal_code", length = 10)
     private String postalCode;
 
+    @Column(length = 100)
+    private String neighborhood;
+
+    @Column(name = "address_number", length = 20)
+    private String addressNumber;
+
+    @Column(length = 30)
+    private String phone;
+
+    @Column(name = "total_built_area", precision = 14, scale = 2)
+    private BigDecimal totalBuiltArea;
+
+    @Column(name = "development_id")
+    private UUID developmentId;
+
+    @Column(name = "branch_id")
+    private UUID branchId;
+
+    @Column(name = "accounting_code", length = 30)
+    private String accountingCode;
+
+    @Column(name = "financial_control_enabled", nullable = false)
+    private boolean financialControlEnabled;
+
+    @Column(name = "stock_control_enabled", nullable = false)
+    private boolean stockControlEnabled;
+
+    @Column(name = "budget_control_enabled", nullable = false)
+    private boolean budgetControlEnabled;
+
+    @Column(name = "cost_apportionment_enabled", nullable = false)
+    private boolean costApportionmentEnabled;
+
+    @Column(name = "apportionment_rate", precision = 5, scale = 2)
+    private BigDecimal apportionmentRate;
+
+    @Column(name = "purchase_limit_no_auth", precision = 18, scale = 2)
+    private BigDecimal purchaseLimitNoAuth;
+
+    @Column(name = "billing_to_client", nullable = false)
+    private boolean billingToClient;
+
     protected Project() {}
 
     public Project(String code, String name, String customerName) {
@@ -121,6 +163,20 @@ public class Project extends TenantAwareEntity {
     public LocalDate getPermitExpiry() { return permitExpiry; }
     public String getCeiCno() { return ceiCno; }
     public String getPostalCode() { return postalCode; }
+    public String getNeighborhood() { return neighborhood; }
+    public String getAddressNumber() { return addressNumber; }
+    public String getPhone() { return phone; }
+    public BigDecimal getTotalBuiltArea() { return totalBuiltArea; }
+    public UUID getDevelopmentId() { return developmentId; }
+    public UUID getBranchId() { return branchId; }
+    public String getAccountingCode() { return accountingCode; }
+    public boolean isFinancialControlEnabled() { return financialControlEnabled; }
+    public boolean isStockControlEnabled() { return stockControlEnabled; }
+    public boolean isBudgetControlEnabled() { return budgetControlEnabled; }
+    public boolean isCostApportionmentEnabled() { return costApportionmentEnabled; }
+    public BigDecimal getApportionmentRate() { return apportionmentRate; }
+    public BigDecimal getPurchaseLimitNoAuth() { return purchaseLimitNoAuth; }
+    public boolean isBillingToClient() { return billingToClient; }
 
     public void update(String name, String description, String customerName, String customerDocument,
                        String address, String city, String state, String responsibleEngineer,

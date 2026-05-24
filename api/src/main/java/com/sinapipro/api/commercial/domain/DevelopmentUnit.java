@@ -1,4 +1,5 @@
 package com.sinapipro.api.commercial.domain;
+import com.sinapipro.api.shared.domain.TenantAwareEntity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -6,8 +7,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "development_unit", uniqueConstraints = @UniqueConstraint(columnNames = {"development_id", "code"}))
-public class DevelopmentUnit {
-    @Id @GeneratedValue(strategy = GenerationType.UUID) private UUID id;
+public class DevelopmentUnit extends TenantAwareEntity {
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "development_id", nullable = false) private Development development;
     @Column(nullable = false, length = 30) private String code;
     @Column(nullable = false, length = 40) private String type;
@@ -24,7 +24,6 @@ public class DevelopmentUnit {
         this.price = price; this.status = "AVAILABLE"; this.floor = floor; this.bedrooms = bedrooms;
     }
 
-    public UUID getId() { return id; }
     public Development getDevelopment() { return development; }
     public String getCode() { return code; }
     public String getType() { return type; }

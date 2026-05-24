@@ -1,12 +1,12 @@
 package com.sinapipro.api.registry.domain;
+import com.sinapipro.api.shared.domain.TenantAwareEntity;
 
 import jakarta.persistence.*;
 import java.util.UUID;
 
 @Entity
 @Table(name = "finance_category")
-public class FinanceCategory {
-    @Id @GeneratedValue(strategy = GenerationType.UUID) private UUID id;
+public class FinanceCategory extends TenantAwareEntity {
     @Column(nullable = false, unique = true, length = 30) private String code;
     @Column(nullable = false, length = 200) private String name;
     @Column(nullable = false, length = 20) private String type;
@@ -15,7 +15,6 @@ public class FinanceCategory {
     public FinanceCategory(String code, String name, String type) {
         this.code = code; this.name = name; this.type = type;
     }
-    public UUID getId() { return id; }
     public String getCode() { return code; }
     public String getName() { return name; }
     public String getType() { return type; }

@@ -59,6 +59,34 @@ import { StatusTagComponent, CurrencyDisplayComponent, EmptyStateComponent } fro
           </ng-template>
         </p-table>
       </p-tabPanel>
+      <p-tabPanel header="Banco">
+        <div class="flex gap-2 mb-3">
+          <p-calendar [(ngModel)]="bankFrom" dateFormat="dd/mm/yy" placeholder="De" styleClass="w-8rem" />
+          <p-calendar [(ngModel)]="bankTo" dateFormat="dd/mm/yy" placeholder="Até" styleClass="w-8rem" />
+          <p-button label="Filtrar" size="small" (onClick)="loadBankTransactions()" />
+        </div>
+        <p-table [value]="bankTransactions()" styleClass="p-datatable-sm" [paginator]="true" [rows]="15">
+          <ng-template pTemplate="header"><tr><th style="width:100px">Data</th><th>Descrição</th><th style="width:80px">Tipo</th><th style="width:120px" class="text-right">Valor</th><th style="width:80px">Conc.</th></tr></ng-template>
+          <ng-template pTemplate="body" let-t>
+            <tr>
+              <td>{{ t.transactionDate }}</td><td>{{ t.description }}</td>
+              <td><span [class]="t.type === 'CREDIT' ? 'text-green-500' : 'text-red-500'">{{ t.type === 'CREDIT' ? '↑' : '↓' }}</span> {{ t.type }}</td>
+              <td class="text-right">{{ t.amount | number:'1.2-2' }}</td>
+              <td>@if (t.reconciled) { <i class="pi pi-check text-green-500"></i> } @else { <i class="pi pi-circle text-orange-400" title="Pendente"></i> }</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-tabPanel>
+      <p-tabPanel header="Conciliação">
+        <p class="text-muted mb-3">Transações não conciliadas — selecione e confirme o match com o extrato bancário.</p>
+        <p-table [value]="unreconciled()" styleClass="p-datatable-sm" [(selection)]="selectedForReconcile" dataKey="id">
+          <ng-template pTemplate="header"><tr><th style="width:40px"><p-tableHeaderCheckbox /></th><th style="width:100px">Data</th><th>Descrição</th><th style="width:80px">Tipo</th><th style="width:120px" class="text-right">Valor</th></tr></ng-template>
+          <ng-template pTemplate="body" let-t>
+            <tr><td><p-tableCheckbox [value]="t" /></td><td>{{ t.transactionDate }}</td><td>{{ t.description }}</td><td>{{ t.type }}</td><td class="text-right">{{ t.amount | number:'1.2-2' }}</td></tr>
+          </ng-template>
+        </p-table>
+        <p-button label="Conciliar Selecionadas" icon="pi pi-check" size="small" class="mt-3" [disabled]="!selectedForReconcile?.length" (onClick)="reconcileBatch()" />
+      </p-tabPanel>
     </p-tabView>
 
     <!-- Payment Dialog -->
@@ -85,10 +113,15 @@ export class FinanceDashboardComponent implements OnInit {
   payables = signal<any[]>([]);
   receivables = signal<any[]>([]);
   invoices = signal<any[]>([]);
+  bankTransactions = signal<any[]>([]);
+  unreconciled = signal<any[]>([]);
   totals = signal<{ payable: number; receivable: number }>({ payable: 0, receivable: 0 });
   paymentVisible = false;
   payment: any = {};
   paying = signal(false);
+  bankFrom: Date | null = null;
+  bankTo: Date | null = null;
+  selectedForReconcile: any[] = [];
   private selectedPayable: any = null;
 
   ngOnInit() {
@@ -118,6 +151,33 @@ export class FinanceDashboardComponent implements OnInit {
     this.http.post(`/projects/${id}/finance/payables/${this.selectedPayable.id}/pay`, this.payment).subscribe({
       next: () => { this.paymentVisible = false; this.paying.set(false); this.messages.add({ severity: 'success', summary: 'Pagamento registrado' }); this.ngOnInit(); },
       error: () => this.paying.set(false),
+    });
+  }
+
+  loadBankTransactions() {
+    const from = this.bankFrom ? this.bankFrom.toISOString().split('T')[0] : '2020-01-01';
+    const to = this.bankTo ? this.bankTo.toISOString().split('T')[0] : '2030-12-31';
+    this.http.get<any>('/registry/bank-accounts').subscribe(res => {
+      const accounts = res.content || res;
+      if (accounts.length > 0) {
+        const accountId = accounts[0].id;
+        this.http.get<any>(`/bank-accounts/${accountId}/transactions?from=${from}&to=${to}`).subscribe({
+          next: r => { const list = r.content || r; this.bankTransactions.set(list); this.unreconciled.set(list.filter((t: any) => !t.reconciled)); },
+          error: () => {},
+        });
+      }
+    });
+  }
+
+  reconcileBatch() {
+    const ids = this.selectedForReconcile.map((t: any) => t.id);
+    this.http.get<any>('/registry/bank-accounts').subscribe(res => {
+      const accounts = res.content || res;
+      if (accounts.length > 0) {
+        this.http.post(`/bank-accounts/${accounts[0].id}/transactions/reconcile-batch`, ids).subscribe({
+          next: () => { this.messages.add({ severity: 'success', summary: `${ids.length} transações conciliadas` }); this.selectedForReconcile = []; this.loadBankTransactions(); },
+        });
+      }
     });
   }
 }

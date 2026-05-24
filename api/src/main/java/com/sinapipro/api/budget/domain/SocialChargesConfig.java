@@ -1,4 +1,5 @@
 package com.sinapipro.api.budget.domain;
+import com.sinapipro.api.shared.domain.TenantAwareEntity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -9,11 +10,8 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "social_charges_config")
-public class SocialChargesConfig {
+public class SocialChargesConfig extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
 
     @Column(name = "budget_id", nullable = false)
     private UUID budgetId;
@@ -41,7 +39,6 @@ public class SocialChargesConfig {
 
     public SocialChargesConfig() {}
 
-    public UUID getId() { return id; }
     public UUID getBudgetId() { return budgetId; }
     public String getWorkerType() { return workerType; }
     public String getTaxRegime() { return taxRegime; }

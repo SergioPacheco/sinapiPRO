@@ -14,6 +14,8 @@ public interface ProjectRepository extends JpaRepository<Project, UUID> {
 
     boolean existsByCode(String code);
 
+    long countByStatus(ProjectStatus status);
+
     @Query(value = """
             SELECT p.* FROM project p
             WHERE (:query IS NULL OR (p.code ILIKE '%' || cast(:query as text) || '%' OR p.name ILIKE '%' || cast(:query as text) || '%' OR p.customer_name ILIKE '%' || cast(:query as text) || '%'))

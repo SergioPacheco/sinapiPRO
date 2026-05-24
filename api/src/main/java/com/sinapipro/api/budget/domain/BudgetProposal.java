@@ -1,4 +1,5 @@
 package com.sinapipro.api.budget.domain;
+import com.sinapipro.api.shared.domain.TenantAwareEntity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -11,11 +12,8 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "budget_proposal")
-public class BudgetProposal {
+public class BudgetProposal extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
 
     @Column(name = "budget_id", nullable = false)
     private UUID budgetId;
@@ -46,11 +44,9 @@ public class BudgetProposal {
                 .setScale(2, java.math.RoundingMode.HALF_UP);
     }
 
-    public UUID getId() { return id; }
     public UUID getBudgetId() { return budgetId; }
     public String getDescription() { return description; }
     public BigDecimal getDiscountPct() { return discountPct; }
     public BigDecimal getOriginalValue() { return originalValue; }
     public BigDecimal getProposedValue() { return proposedValue; }
-    public Instant getCreatedAt() { return createdAt; }
 }

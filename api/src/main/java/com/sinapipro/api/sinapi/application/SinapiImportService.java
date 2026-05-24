@@ -227,4 +227,58 @@ public class SinapiImportService {
     }
 
     public record ImportResult(String type, int created, int updated, int errors, List<String> errorMessages) {}
+
+    /**
+     * Importa ZIP completo da Caixa. Detecta UF, mês e desonerado pelo nome.
+     * Importa automaticamente: Insumos + Composições Analítico.
+     * Ignora: PDFs, Sintético, Notas.
+     */
+    public com.sinapipro.api.sinapi.api.CompositionController.ZipImportResult importZip(InputStream zipStream, String zipFilename) {
+        // Detectar parâmetros pelo nome do ZIP
+        String state = "SP";
+        LocalDate referenceMonth = LocalDate.now().withDayOfMonth(1);
+        boolean desonerated = false;
+
+        if (zipFilename != null) {
+            var ufMatch = java.util.regex.Pattern.compile("_([A-Z]{2})_(\\d{6})").matcher(zipFilename);
+            if (ufMatch.find()) {
+                state = ufMatch.group(1);
+                var yyyymm = ufMatch.group(2);
+                referenceMonth = LocalDate.of(Integer.parseInt(yyyymm.substring(0, 4)), Integer.parseInt(yyyymm.substring(4, 6)), 1);
+            }
+            desonerated = zipFilename.contains("Desonerado") && !zipFilename.contains("NaoDesonerado");
+        }
+
+        ImportResult materialsResult = new ImportResult("materials", 0, 0, 0, List.of());
+        ImportResult compositionsResult = new ImportResult("compositions", 0, 0, 0, List.of());
+
+        try (var zis = new java.util.zip.ZipInputStream(zipStream)) {
+            java.util.zip.ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                var name = entry.getName();
+                if (entry.isDirectory() || !name.endsWith(".xlsx")) { zis.closeEntry(); continue; }
+
+                // Ler o conteúdo do entry em memória (ZipInputStream não suporta mark/reset)
+                var baos = new java.io.ByteArrayOutputStream();
+                zis.transferTo(baos);
+                var bytes = baos.toByteArray();
+
+                if (name.contains("Preco_Ref_Insumos")) {
+                    materialsResult = importMaterials(new java.io.ByteArrayInputStream(bytes), state, referenceMonth, desonerated);
+                } else if (name.contains("Composicoes_Analitico")) {
+                    compositionsResult = importCompositions(new java.io.ByteArrayInputStream(bytes), state, referenceMonth, desonerated);
+                }
+                // Ignora: Sintetico, PDFs, Família, Notas
+                zis.closeEntry();
+            }
+        } catch (Exception e) {
+            return new com.sinapipro.api.sinapi.api.CompositionController.ZipImportResult(
+                    state, referenceMonth.toString(), desonerated,
+                    new ImportResult("materials", 0, 0, 1, List.of("Erro ao processar ZIP: " + e.getMessage())),
+                    compositionsResult);
+        }
+
+        return new com.sinapipro.api.sinapi.api.CompositionController.ZipImportResult(
+                state, referenceMonth.toString(), desonerated, materialsResult, compositionsResult);
+    }
 }

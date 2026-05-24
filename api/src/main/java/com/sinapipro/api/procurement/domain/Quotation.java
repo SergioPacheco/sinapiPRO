@@ -1,4 +1,5 @@
 package com.sinapipro.api.procurement.domain;
+import com.sinapipro.api.shared.domain.TenantAwareEntity;
 
 import jakarta.persistence.*;
 
@@ -10,11 +11,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "quotation")
-public class Quotation {
+public class Quotation extends TenantAwareEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purchase_request_id", nullable = false)
@@ -25,14 +23,10 @@ public class Quotation {
 
     private LocalDate deadline;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt;
 
     @OneToMany(mappedBy = "quotation", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QuotationResponse> responses = new ArrayList<>();
 
-    @PrePersist
-    void prePersist() { createdAt = Instant.now(); }
 
     protected Quotation() {}
 
@@ -42,7 +36,6 @@ public class Quotation {
         this.deadline = deadline;
     }
 
-    public UUID getId() { return id; }
     public PurchaseRequest getPurchaseRequest() { return purchaseRequest; }
     public String getStatus() { return status; }
     public LocalDate getDeadline() { return deadline; }

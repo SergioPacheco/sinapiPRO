@@ -32,6 +32,24 @@ public class Employee extends TenantAwareEntity {
     @Column(name = "termination_date") private LocalDate terminationDate;
     @Column(nullable = false) private boolean active = true;
 
+    // V11 enrichment fields
+    @Column(name = "birth_date") private LocalDate birthDate;
+    @Column(length = 1) private String gender;
+    @Column(name = "marital_status", length = 20) private String maritalStatus;
+    @Column(length = 20) private String rg;
+    @Column(name = "rg_issuer", length = 20) private String rgIssuer;
+    @Column(length = 20) private String pis;
+    @Column(length = 20) private String ctps;
+    @Column(name = "ctps_series", length = 10) private String ctpsSeries;
+    @Column(name = "bank_code", length = 10) private String bankCode;
+    @Column(name = "bank_agency", length = 20) private String bankAgency;
+    @Column(name = "bank_account_number", length = 30) private String bankAccountNumber;
+    @Column(precision = 14, scale = 2) private BigDecimal salary;
+    @Column(length = 100) private String department;
+    @Column(name = "cost_center_id") private java.util.UUID costCenterId;
+    @Column(name = "dismissal_date") private LocalDate dismissalDate;
+    @Column(name = "dismissal_reason", length = 200) private String dismissalReason;
+
     protected Employee() {}
     public Employee(String employeeCode, String name, String document, String role, String specialty,
                     String type, String employmentStatus, String email, String phone, String mobilePhone,
@@ -70,6 +88,22 @@ public class Employee extends TenantAwareEntity {
     public LocalDate getAdmissionDate() { return admissionDate; }
     public LocalDate getTerminationDate() { return terminationDate; }
     public boolean isActive() { return active; }
+    public LocalDate getBirthDate() { return birthDate; }
+    public String getGender() { return gender; }
+    public String getMaritalStatus() { return maritalStatus; }
+    public String getRg() { return rg; }
+    public String getRgIssuer() { return rgIssuer; }
+    public String getPis() { return pis; }
+    public String getCtps() { return ctps; }
+    public String getCtpsSeries() { return ctpsSeries; }
+    public String getBankCode() { return bankCode; }
+    public String getBankAgency() { return bankAgency; }
+    public String getBankAccountNumber() { return bankAccountNumber; }
+    public BigDecimal getSalary() { return salary; }
+    public String getDepartment() { return department; }
+    public java.util.UUID getCostCenterId() { return costCenterId; }
+    public LocalDate getDismissalDate() { return dismissalDate; }
+    public String getDismissalReason() { return dismissalReason; }
     public void deactivate() { this.active = false; }
 
     public void update(String name, String document, String role, String specialty, String type,

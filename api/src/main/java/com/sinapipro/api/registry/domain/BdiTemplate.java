@@ -1,4 +1,5 @@
 package com.sinapipro.api.registry.domain;
+import com.sinapipro.api.shared.domain.TenantAwareEntity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -6,8 +7,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "bdi_template")
-public class BdiTemplate {
-    @Id @GeneratedValue(strategy = GenerationType.UUID) private UUID id;
+public class BdiTemplate extends TenantAwareEntity {
     @Column(nullable = false, unique = true, length = 100) private String name;
     @Column(nullable = false) private BigDecimal administration = BigDecimal.ZERO;
     @Column(nullable = false) private BigDecimal profit = BigDecimal.ZERO;
@@ -19,7 +19,6 @@ public class BdiTemplate {
         this.name = name; this.administration = administration; this.profit = profit;
         this.financialCost = financialCost; this.taxes = taxes; this.total = total;
     }
-    public UUID getId() { return id; }
     public String getName() { return name; }
     public BigDecimal getAdministration() { return administration; }
     public BigDecimal getProfit() { return profit; }

@@ -19,12 +19,33 @@ import { StatusTagComponent, CurrencyDisplayComponent, EmptyStateComponent, Inli
   template: `
     <div class="flex align-items-center justify-content-between mb-3">
       <h3 style="margin:0">Suprimentos</h3>
-      <p-button label="Novo Pedido" icon="pi pi-plus" size="small" (onClick)="showNewOrder = true" />
+      <div class="flex gap-2">
+        <p-button [icon]="viewMode === 'kanban' ? 'pi pi-th-large' : 'pi pi-list'" [text]="true" (onClick)="viewMode = viewMode === 'kanban' ? 'table' : 'kanban'" title="Alternar visualização" />
+        <p-button label="Novo Pedido" icon="pi pi-plus" size="small" (onClick)="showNewOrder = true" />
+      </div>
     </div>
 
     @if (!loading() && orders().length === 0) {
       <sp-empty title="Nenhum pedido de compra" message="Crie um pedido para iniciar o processo de suprimentos" icon="truck" actionLabel="Criar Pedido" (action)="showNewOrder = true" />
+    } @else if (viewMode === 'kanban') {
+      <!-- KANBAN VIEW -->
+      <div class="kanban-board">
+        @for (col of kanbanColumns; track col.status) {
+          <div class="kanban-col">
+            <div class="kanban-col-header">{{ col.label }} <span class="badge">{{ getByStatus(col.status).length }}</span></div>
+            @for (o of getByStatus(col.status); track o.id) {
+              <div class="kanban-card" (click)="openReceiving(o)">
+                <div class="card-number">{{ o.number }}</div>
+                <div class="card-desc">{{ o.description }}</div>
+                <div class="card-supplier">{{ o.supplierName }}</div>
+                <div class="card-footer"><sp-currency [value]="o.totalAmount" /> <span class="text-muted">{{ o.expectedDeliveryDate }}</span></div>
+              </div>
+            }
+          </div>
+        }
+      </div>
     } @else {
+      <!-- TABLE VIEW -->
       <p-table [value]="orders()" [loading]="loading()" styleClass="p-datatable-sm" [rowHover]="true">
         <ng-template pTemplate="header">
           <tr><th style="width:90px">Número</th><th>Descrição</th><th>Fornecedor</th><th style="width:120px" class="text-right">Valor</th><th style="width:110px">Entrega</th><th style="width:110px">Status</th><th style="width:80px"></th></tr>
@@ -99,6 +120,13 @@ export class ProcurementListComponent implements OnInit {
 
   orders = signal<any[]>([]);
   loading = signal(true);
+  viewMode: 'kanban' | 'table' = 'kanban';
+  kanbanColumns = [
+    { status: 'PENDING', label: 'Pendente' },
+    { status: 'APPROVED', label: 'Aprovado' },
+    { status: 'PARTIAL', label: 'Parcial' },
+    { status: 'RECEIVED', label: 'Recebido' },
+  ];
   showNewOrder = false;
   showReceiving = false;
   selectedSupplier: any = null;
@@ -110,6 +138,8 @@ export class ProcurementListComponent implements OnInit {
   receivingNf = '';
 
   ngOnInit() { this.load(); }
+
+  getByStatus(status: string) { return this.orders().filter(o => o.status === status); }
 
   load() {
     const id = this.route.parent?.snapshot.paramMap.get('id');

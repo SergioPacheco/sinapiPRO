@@ -660,10 +660,16 @@ public class RegistryController {
     record CreateReportTemplateRequest(@NotBlank String name, @NotBlank String type, String description) {}
 
     record ClientResponse(UUID id, String name, String document, String email, String phone,
-                          String address, String city, String state) {
+                          String address, String city, String state,
+                          String tradeName, String personType, String cellPhone, String whatsapp,
+                          String website, String neighborhood, String postalCode,
+                          String billingAddress, Integer preferredDueDay, boolean billingByEmail) {
         static ClientResponse from(Client c) {
             return new ClientResponse(c.getId(), c.getName(), c.getDocument(), c.getEmail(),
-                    c.getPhone(), c.getAddress(), c.getCity(), c.getState());
+                    c.getPhone(), c.getAddress(), c.getCity(), c.getState(),
+                    c.getTradeName(), c.getPersonType(), c.getCellPhone(), c.getWhatsapp(),
+                    c.getWebsite(), c.getNeighborhood(), c.getPostalCode(),
+                    c.getBillingAddress(), c.getPreferredDueDay(), c.isBillingByEmail());
         }
     }
 

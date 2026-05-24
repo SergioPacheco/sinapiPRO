@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
@@ -19,6 +20,7 @@ import { TagModule } from 'primeng/tag';
 })
 export class SupplierListComponent implements OnInit {
   private http = inject(HttpClient);
+  private router = inject(Router);
   items = signal<any[]>([]);
   loading = signal(true);
 

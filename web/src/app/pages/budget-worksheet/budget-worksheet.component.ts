@@ -1,9 +1,9 @@
-import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { TreeTableModule } from 'primeng/treetable';
+import { TreeModule } from 'primeng/tree';
 import { TreeNode } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -11,359 +11,456 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { DropdownModule } from 'primeng/dropdown';
-import { CalendarModule } from 'primeng/calendar';
-import { TabViewModule } from 'primeng/tabview';
-import { MessageService } from 'primeng/api';
 import { MenuModule } from 'primeng/menu';
-import { InlineCreateDrawerComponent } from '../../shared/components';
+import { TooltipModule } from 'primeng/tooltip';
+import { SplitterModule } from 'primeng/splitter';
+import { ToolbarModule } from 'primeng/toolbar';
+import { MessageService } from 'primeng/api';
+import { StatusTagComponent, EmptyStateComponent, ConfirmActionComponent } from '../../shared/components';
+import { BdiDialogComponent } from './bdi-dialog.component';
+
+interface GridRow {
+  id?: string;
+  stageId: string;
+  stageName: string;
+  isStage: boolean;
+  isSubItem?: boolean;
+  code: string;
+  description: string;
+  unit: string;
+  quantity: number | null;
+  unitCost: number | null;
+  total: number;
+  compositionId?: string;
+  editing: boolean;
+  dirty: boolean;
+  expanded?: boolean;
+}
 
 @Component({
   selector: 'app-budget-worksheet',
   standalone: true,
-  imports: [DecimalPipe, FormsModule, TreeTableModule, ButtonModule, DialogModule, InputTextModule, InputNumberModule, AutoCompleteModule, DropdownModule, CalendarModule, TabViewModule, MenuModule, InlineCreateDrawerComponent],
+  imports: [
+    DecimalPipe, NgTemplateOutlet, FormsModule, TreeModule, ButtonModule, DialogModule,
+    InputTextModule, InputNumberModule, AutoCompleteModule, DropdownModule,
+    MenuModule, TooltipModule, SplitterModule, ToolbarModule,
+    StatusTagComponent, EmptyStateComponent, ConfirmActionComponent, BdiDialogComponent,
+  ],
   template: `
-    <div class="flex align-items-center justify-content-between mb-3">
-      <div>
-        <h3 style="margin:0">Planilha Orçamentária</h3>
-        <span class="text-muted">Custo direto: {{ summary().directCost | number:'1.2-2' }} | BDI: {{ summary().bdiPct | number:'1.2-2' }}% | Total: {{ summary().total | number:'1.2-2' }}</span>
+    <!-- Toolbar -->
+    <p-toolbar styleClass="mb-0" [style]="{'border-bottom':'none','border-radius':'6px 6px 0 0'}">
+      <div class="p-toolbar-group-start flex align-items-center gap-2">
+        <h3 style="margin:0">Orçamento</h3>
+        <sp-status [status]="budgetStatus()" />
       </div>
-      <div class="flex gap-2">
-        <p-button label="Adicionar Item" icon="pi pi-plus" size="small" (onClick)="addItemVisible = true" />
-        <p-button label="BDI" icon="pi pi-percentage" severity="secondary" size="small" (onClick)="openBdi()" />
-        <p-button label="Atualizar Data Base" icon="pi pi-refresh" severity="warn" size="small" (onClick)="showUpdateBase = true" />
-        <p-button icon="pi pi-file-pdf" severity="help" size="small" pTooltip="Relatório Analítico" (onClick)="downloadAnalyticalPdf()" />
-        <p-button icon="pi pi-ellipsis-v" severity="secondary" size="small" (onClick)="menu.toggle($event)" />
-        <p-menu #menu [popup]="true" [model]="moreActions" />
+      <div class="p-toolbar-group-center">
+        <span class="text-muted text-sm">
+          Direto: <strong>{{ summary().directCost | number:'1.2-2' }}</strong> |
+          BDI: <strong>{{ summary().bdiPct | number:'1.2-2' }}%</strong> |
+          Total: <strong class="text-primary">{{ summary().total | number:'1.2-2' }}</strong>
+        </span>
       </div>
-    </div>
-
-    <p-treetable [value]="nodes()" [loading]="loading()" styleClass="p-treetable-sm" [scrollable]="true" scrollHeight="calc(100vh - 280px)">
-      <ng-template pTemplate="header">
-        <tr><th style="width:45%">Descrição</th><th style="width:80px">Unid.</th><th style="width:100px" class="text-right">Qtd.</th><th style="width:30px"></th><th style="width:120px" class="text-right">Custo Unit.</th><th style="width:130px" class="text-right">Total</th></tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-rowNode let-rowData="rowData">
-        <tr [ttRow]="rowNode">
-          <td><p-treeTableToggler [rowNode]="rowNode" />
-            @if (rowData.isStage) { <strong>{{ rowData.name }}</strong> } @else { <span class="font-mono text-muted" style="margin-right:0.5rem">{{ rowData.code }}</span>{{ rowData.description }} }
-          </td>
-          <td>{{ rowData.unit || '' }}</td>
-          <td class="text-right">{{ rowData.quantity ? (rowData.quantity | number:'1.2-4') : '' }}</td>
-          <td>@if (!rowData.isStage) { <i class="pi pi-calculator cursor-pointer text-primary" style="font-size:0.85rem" (click)="openMemo(rowData)"></i> }</td>
-          <td class="text-right">{{ rowData.unitCost ? (rowData.unitCost | number:'1.2-2') : '' }}</td>
-          <td class="text-right"><strong>{{ rowData.totalCost | number:'1.2-2' }}</strong></td>
-        </tr>
-      </ng-template>
-    </p-treetable>
-
-    <!-- Add Item Dialog -->
-    <p-dialog header="Adicionar Item" [(visible)]="addItemVisible" [style]="{width:'500px'}" [modal]="true">
-      <div class="flex flex-column gap-3">
-        <div><label>Composição</label><p-autoComplete [(ngModel)]="selectedItem" [suggestions]="itemSuggestions()" (completeMethod)="searchItems($event)" field="description" styleClass="w-full" placeholder="Buscar composição..." /></div>
-        <div><label>Quantidade</label><p-inputNumber [(ngModel)]="addQty" [maxFractionDigits]="4" styleClass="w-full" /></div>
-        @if (selectedItem && !selectedItem.id) {
-          <a class="cursor-pointer text-primary" (click)="openDrawer()"><i class="pi pi-plus mr-1"></i>Criar Composição Própria</a>
+      <div class="p-toolbar-group-end flex gap-1">
+        @if (isEditable()) {
+          <p-button icon="pi pi-folder-plus" pTooltip="Nova Etapa" [text]="true" (onClick)="showStageDialog = true" />
         }
+        <p-button icon="pi pi-percentage" pTooltip="BDI" [text]="true" (onClick)="showBdi = true" />
+        <p-button icon="pi pi-ellipsis-v" [text]="true" (onClick)="menu.toggle($event)" />
+        <p-menu #menu [popup]="true" [model]="menuItems" />
       </div>
-      <ng-template pTemplate="footer">
-        <p-button label="Cancelar" severity="secondary" (onClick)="addItemVisible = false" />
-        <p-button label="Adicionar" icon="pi pi-check" (onClick)="addItem()" [disabled]="!selectedItem?.id" />
-      </ng-template>
-    </p-dialog>
+    </p-toolbar>
 
-    <!-- BDI Dialog with Tabs by Type -->
-    <p-dialog header="Configuração de BDI" [(visible)]="showBdi" [style]="{width:'550px'}" [modal]="true">
-      <p-tabView>
-        @for (tab of bdiTabs; track tab.type) {
-          <p-tabPanel [header]="tab.label">
-            <div class="flex flex-column gap-3">
-              <div class="flex justify-content-between align-items-center"><span>Administração (%)</span><p-inputNumber [(ngModel)]="tab.data.administration" [maxFractionDigits]="4" size="small" styleClass="w-8rem" /></div>
-              <div class="flex justify-content-between align-items-center"><span>Lucro (%)</span><p-inputNumber [(ngModel)]="tab.data.profit" [maxFractionDigits]="4" size="small" styleClass="w-8rem" /></div>
-              <div class="flex justify-content-between align-items-center"><span>Impostos (%)</span><p-inputNumber [(ngModel)]="tab.data.taxes" [maxFractionDigits]="4" size="small" styleClass="w-8rem" /></div>
-              <div class="flex justify-content-between align-items-center"><span>Encargos Sociais (%)</span><p-inputNumber [(ngModel)]="tab.data.socialCharges" [maxFractionDigits]="4" size="small" styleClass="w-8rem" /></div>
-              <div class="flex justify-content-between align-items-center"><span>Despesas Financeiras (%)</span><p-inputNumber [(ngModel)]="tab.data.financialExpenses" [maxFractionDigits]="4" size="small" styleClass="w-8rem" /></div>
-              <div class="flex justify-content-between align-items-center"><span>Riscos (%)</span><p-inputNumber [(ngModel)]="tab.data.risks" [maxFractionDigits]="4" size="small" styleClass="w-8rem" /></div>
-              <div class="flex justify-content-between border-top-1 surface-border pt-2"><strong>Total BDI</strong><strong>{{ bdiTotal(tab.data) | number:'1.2-4' }}%</strong></div>
-            </div>
-          </p-tabPanel>
-        }
-      </p-tabView>
-      <ng-template pTemplate="footer">
-        <p-button label="Cancelar" severity="secondary" (onClick)="showBdi = false" />
-        <p-button label="Salvar" icon="pi pi-check" (onClick)="saveBdi()" [loading]="savingBdi()" />
-      </ng-template>
-    </p-dialog>
-
-    <!-- Update Base Date Dialog -->
-    <p-dialog header="Atualizar Data Base" [(visible)]="showUpdateBase" [style]="{width:'400px'}" [modal]="true">
-      <p class="text-muted mb-3">Recalcula todos os preços com base na tabela SINAPI para o mês/UF selecionados.</p>
-      <div class="flex flex-column gap-3">
-        <div><label>Mês de Referência</label><p-calendar [(ngModel)]="baseDate" view="month" dateFormat="mm/yy" styleClass="w-full" /></div>
-        <div><label>UF</label><p-dropdown [(ngModel)]="baseState" [options]="states" styleClass="w-full" placeholder="Selecione o estado" /></div>
-      </div>
-      <ng-template pTemplate="footer">
-        <p-button label="Cancelar" severity="secondary" (onClick)="showUpdateBase = false" />
-        <p-button label="Atualizar Preços" icon="pi pi-refresh" severity="warn" (onClick)="updateBaseDate()" [loading]="updatingBase()" />
-      </ng-template>
-    </p-dialog>
-
-    <!-- Memo (Memória de Cálculo) Dialog -->
-    <p-dialog header="Memória de Cálculo" [(visible)]="showMemo" [style]="{width:'650px'}" [modal]="true">
-      @if (memoItem) {
-        <p class="text-muted mb-2">{{ memoItem.description }} ({{ memoItem.unit }})</p>
-        <table class="w-full" style="border-collapse:collapse">
-          <thead><tr style="border-bottom:1px solid var(--surface-border)"><th class="text-left p-2">Descrição</th><th class="text-left p-2" style="width:150px">Fórmula</th><th class="text-right p-2" style="width:100px">Resultado</th><th style="width:40px"></th></tr></thead>
+    @if (!loading() && gridRows().length === 0) {
+      <sp-empty title="Planilha vazia" message="Crie a primeira etapa para começar a orçar." icon="folder" actionLabel="Nova Etapa" (action)="showStageDialog = true" />
+    } @else {
+      <!-- Planilha principal (estilo Excel) -->
+      <div class="sheet-container">
+        <table class="sheet">
+          <thead>
+            <tr>
+              <th class="sh-act"></th>
+              <th class="sh-code">Código</th>
+              <th class="sh-desc">Descrição</th>
+              <th class="sh-unit">Un.</th>
+              <th class="sh-qty">Quantidade</th>
+              <th class="sh-cost">Custo Unit.</th>
+              <th class="sh-total">Total</th>
+              @if (isEditable()) { <th class="sh-actions"></th> }
+            </tr>
+          </thead>
           <tbody>
-            @for (line of memoLines; track $index) {
-              <tr>
-                <td class="p-1"><input pInputText [(ngModel)]="line.description" class="w-full" /></td>
-                <td class="p-1"><input pInputText [(ngModel)]="line.formula" class="w-full font-mono" (blur)="evalFormula(line)" /></td>
-                <td class="p-1 text-right font-mono">{{ line.value | number:'1.2-4' }}</td>
-                <td class="p-1"><i class="pi pi-trash cursor-pointer text-red-400" (click)="memoLines.splice($index,1)"></i></td>
-              </tr>
+            @for (row of gridRows(); track row.id || $index) {
+              @if (row.isStage) {
+                <!-- Linha de Etapa (header de grupo) -->
+                <tr class="stage-row">
+                  <td [attr.colspan]="isEditable() ? 8 : 7">
+                    <div class="flex align-items-center gap-2">
+                      <i class="pi pi-folder text-primary" style="font-size:0.85rem"></i>
+                      <strong>{{ row.stageName }}</strong>
+                      <span class="text-muted text-xs ml-auto">{{ row.total | number:'1.2-2' }}</span>
+                      @if (isEditable()) {
+                        <i class="pi pi-plus cursor-pointer text-primary ml-2" style="font-size:0.8rem" pTooltip="Inserir item" (click)="insertNewRow(row.stageId)"></i>
+                        <i class="pi pi-trash cursor-pointer text-red-400 ml-1" style="font-size:0.8rem" pTooltip="Excluir etapa" (click)="deleteStage(row.stageId)"></i>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              } @else {
+                <!-- Linha de Item (editável inline) -->
+                <tr class="item-row" [class.row-dirty]="row.dirty" [class.row-new]="!row.id" [class.row-sub]="row.isSubItem">
+                  <td class="sh-act">
+                    @if (row.compositionId && row.id && !row.isSubItem) {
+                      <i [class]="row.expanded ? 'pi pi-minus-circle cursor-pointer text-orange-500' : 'pi pi-plus-circle cursor-pointer text-blue-500'" style="font-size:0.85rem" [pTooltip]="row.expanded ? 'Recolher' : 'Expandir insumos'" (click)="toggleExpand(row)"></i>
+                    }
+                  </td>
+                  <td class="sh-code">
+                    @if (row.editing && !row.compositionId) {
+                      <input class="cell" [(ngModel)]="row.code" (keydown.enter)="resolveByCode(row)" placeholder="Código..." />
+                    } @else {
+                      <span class="font-mono text-xs">{{ row.code }}</span>
+                    }
+                  </td>
+                  <td class="sh-desc">
+                    @if (row.editing && !row.compositionId) {
+                      <p-autoComplete [(ngModel)]="row.description" [suggestions]="suggestions()" (completeMethod)="searchComp($event)" (onSelect)="onSelectComp(row, $event)" field="description" styleClass="w-full" inputStyleClass="cell" placeholder="Buscar..." [forceSelection]="false" />
+                    } @else {
+                      <span>{{ row.description }}</span>
+                    }
+                  </td>
+                  <td class="sh-unit"><span class="text-muted">{{ row.unit }}</span></td>
+                  <td class="sh-qty">
+                    @if (isEditable()) {
+                      <input type="number" class="cell text-right" [(ngModel)]="row.quantity" (input)="onCellEdit(row)" (keydown.enter)="onEnter(row)" step="0.01" min="0" />
+                    } @else {
+                      <span class="text-right">{{ row.quantity | number:'1.2-4' }}</span>
+                    }
+                  </td>
+                  <td class="sh-cost">
+                    @if (isEditable()) {
+                      <input type="number" class="cell text-right" [(ngModel)]="row.unitCost" (input)="onCellEdit(row)" step="0.01" min="0" />
+                    } @else {
+                      <span class="text-right">{{ row.unitCost | number:'1.2-2' }}</span>
+                    }
+                  </td>
+                  <td class="sh-total text-right font-mono">{{ row.total | number:'1.2-2' }}</td>
+                  @if (isEditable()) {
+                    <td class="sh-actions">
+                      @if (row.dirty && row.compositionId) {
+                        <i class="pi pi-circle-fill text-orange-400" style="font-size:0.5rem" pTooltip="Não salvo"></i>
+                      }
+                      <i class="pi pi-times cursor-pointer text-red-400 ml-1" style="font-size:0.75rem" (click)="removeRow(row)"></i>
+                    </td>
+                  }
+                </tr>
+              }
             }
+            <!-- Linha vazia para inserção rápida (sempre no final de cada etapa) -->
           </tbody>
-          <tfoot><tr style="border-top:2px solid var(--surface-border)"><td colspan="2" class="p-2"><strong>TOTAL</strong></td><td class="p-2 text-right font-mono"><strong>{{ memoTotal() | number:'1.2-4' }}</strong></td><td></td></tr></tfoot>
         </table>
-        <p-button label="+ Linha" icon="pi pi-plus" size="small" [text]="true" (onClick)="memoLines.push({description:'',formula:'',value:0})" styleClass="mt-2" />
+      </div>
+
+      <!-- Barra de ações inferior -->
+      @if (isEditable() && dirtyCount() > 0) {
+        <div class="save-bar">
+          <span>{{ dirtyCount() }} alterações não salvas</span>
+          <p-button label="Salvar" icon="pi pi-save" size="small" (onClick)="saveAll()" [loading]="saving()" />
+        </div>
       }
+    }
+
+    <!-- Stage Dialog -->
+    <p-dialog header="Nova Etapa" [(visible)]="showStageDialog" [style]="{width:'380px'}" [modal]="true">
+      <div class="flex flex-column gap-3">
+        <div><label>Nome</label><input pInputText [(ngModel)]="newStageName" class="w-full" placeholder="Ex: Infraestrutura" (keydown.enter)="createStage()" /></div>
+        <div><label>Pai (opcional)</label>
+          <p-dropdown [(ngModel)]="newStageParentId" [options]="stageOpts()" optionLabel="label" optionValue="value" placeholder="Raiz" [showClear]="true" styleClass="w-full" />
+        </div>
+      </div>
       <ng-template pTemplate="footer">
-        <p-button label="Cancelar" severity="secondary" (onClick)="showMemo = false" />
-        <p-button label="Salvar e aplicar quantidade" icon="pi pi-check" (onClick)="saveMemo()" [loading]="savingMemo()" />
+        <p-button label="Cancelar" severity="secondary" (onClick)="showStageDialog = false" />
+        <p-button label="Criar" icon="pi pi-check" (onClick)="createStage()" [disabled]="!newStageName" />
       </ng-template>
     </p-dialog>
 
-    <!-- Create Composition Drawer -->
-    <sp-drawer #drawer header="Nova Composição Própria" (save)="saveNewComp()">
-      <div class="flex flex-column gap-3">
-        <div><label>Código</label><input pInputText [(ngModel)]="newComp.sinapiCode" class="w-full" placeholder="P-001" /></div>
-        <div><label>Descrição</label><input pInputText [(ngModel)]="newComp.description" class="w-full" /></div>
-        <div><label>Unidade</label><input pInputText [(ngModel)]="newComp.unit" class="w-full" /></div>
-        <h5>Itens</h5>
-        @for (item of newComp.items; track $index) {
-          <div class="grid mb-1">
-            <div class="col-5"><p-autoComplete [(ngModel)]="item.description" [suggestions]="matSuggestions()" (completeMethod)="searchMaterials($event)" field="description" styleClass="w-full" /></div>
-            <div class="col-3"><p-inputNumber [(ngModel)]="item.coefficient" [maxFractionDigits]="4" styleClass="w-full" placeholder="Coef." /></div>
-            <div class="col-3"><input pInputText [(ngModel)]="item.unit" class="w-full" placeholder="Un." /></div>
-            <div class="col-1"><p-button icon="pi pi-trash" severity="danger" [text]="true" (onClick)="newComp.items.splice($index,1)" /></div>
-          </div>
-        }
-        <p-button label="Adicionar Item" icon="pi pi-plus" size="small" [text]="true" (onClick)="newComp.items.push({description:'',coefficient:1,unit:'UN'})" />
-      </div>
-    </sp-drawer>
+    <app-bdi-dialog [visible]="showBdi" (visibleChange)="showBdi = $event" [budgetId]="budgetId!" (saved)="loadWorksheet()" />
+    <sp-confirm #confirmApprove header="Aprovar" message="Aprovar este orçamento?" confirmLabel="Aprovar" [severity]="'success'" (confirmed)="changeStatus('APPROVED')" />
+    <sp-confirm #confirmEffectuate header="Efetivar" message="Efetivar para execução?" confirmLabel="Efetivar" [severity]="'warn'" (confirmed)="effectuate()" />
   `,
+  styles: [`
+    .sheet-container { border: 1px solid var(--surface-border); border-top: none; border-radius: 0 0 6px 6px; overflow: auto; max-height: calc(100vh - 200px); }
+    .sheet { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .sheet thead { position: sticky; top: 0; z-index: 2; }
+    .sheet th { background: var(--surface-100); padding: 8px 10px; text-align: left; border-bottom: 2px solid var(--surface-border); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; color: var(--text-color-secondary); }
+    .sheet td { padding: 0; border-bottom: 1px solid var(--surface-50); }
+    .stage-row td { background: var(--surface-50); padding: 6px 10px !important; border-bottom: 1px solid var(--surface-border); }
+    .item-row:hover { background: var(--highlight-bg); }
+    .item-row.row-dirty { background: var(--orange-50); }
+    .item-row.row-new { background: var(--blue-50); }
+    .item-row.row-sub { background: var(--surface-50); font-size: 0.8rem; color: var(--text-color-secondary); }
+    .sh-act { width: 30px; text-align: center; padding: 0 2px !important; }
+    .sh-code { width: 100px; }
+    .sh-desc { min-width: 280px; }
+    .sh-unit { width: 50px; }
+    .sh-qty { width: 100px; }
+    .sh-cost { width: 110px; }
+    .sh-total { width: 120px; padding-right: 10px !important; }
+    .sh-actions { width: 50px; text-align: center; padding: 0 4px !important; }
+    .cell { width: 100%; border: none; background: transparent; padding: 7px 10px; outline: none; font-size: 0.85rem; }
+    .cell:focus { background: var(--surface-0); box-shadow: inset 0 0 0 2px var(--primary-color); }
+    :host ::ng-deep .p-autocomplete { width: 100%; }
+    :host ::ng-deep .p-autocomplete input.cell { border: none !important; box-shadow: none !important; padding: 7px 10px !important; }
+    :host ::ng-deep .p-autocomplete input.cell:focus { box-shadow: inset 0 0 0 2px var(--primary-color) !important; }
+    .save-bar { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: var(--orange-50); border: 1px solid var(--orange-200); border-radius: 6px; margin-top: 8px; font-size: 0.85rem; }
+  `],
 })
 export class BudgetWorksheetComponent implements OnInit {
-  @ViewChild('drawer') drawer!: InlineCreateDrawerComponent;
   private route = inject(ActivatedRoute);
   private http = inject(HttpClient);
   private messages = inject(MessageService);
 
-  nodes = signal<TreeNode[]>([]);
-  summary = signal<any>({ directCost: 0, bdiPct: 0, total: 0 });
   loading = signal(true);
+  budgetStatus = signal('DRAFT');
+  summary = signal<any>({ directCost: 0, bdiPct: 0, total: 0 });
+  gridRows = signal<GridRow[]>([]);
+  suggestions = signal<any[]>([]);
+  stageOpts = signal<{ label: string; value: string }[]>([]);
+  saving = signal(false);
 
-  // Add Item
-  addItemVisible = false;
-  selectedItem: any = null;
-  addQty = 1;
-  itemSuggestions = signal<any[]>([]);
-  matSuggestions = signal<any[]>([]);
-  newComp: any = { sinapiCode: 'P-', description: '', unit: 'UN', items: [] };
-
-  // BDI
+  // Dialogs
+  showStageDialog = false;
   showBdi = false;
-  savingBdi = signal(false);
-  bdiTabs = [
-    { type: 'ALL', label: 'Geral', data: { administration: 0, profit: 0, taxes: 0, socialCharges: 0, financialExpenses: 0, risks: 0 } },
-    { type: 'MATERIAL', label: 'Material', data: { administration: 0, profit: 0, taxes: 0, socialCharges: 0, financialExpenses: 0, risks: 0 } },
-    { type: 'LABOR', label: 'Mão de Obra', data: { administration: 0, profit: 0, taxes: 0, socialCharges: 0, financialExpenses: 0, risks: 0 } },
-    { type: 'EQUIPMENT', label: 'Equipamento', data: { administration: 0, profit: 0, taxes: 0, socialCharges: 0, financialExpenses: 0, risks: 0 } },
-    { type: 'SERVICE', label: 'Serviço', data: { administration: 0, profit: 0, taxes: 0, socialCharges: 0, financialExpenses: 0, risks: 0 } },
+  newStageName = '';
+  newStageParentId: string | null = null;
+
+  get budgetId() { return this.route.snapshot.paramMap.get('budgetId'); }
+  isEditable = computed(() => this.budgetStatus() === 'DRAFT');
+  dirtyCount = computed(() => this.gridRows().filter(r => !r.isStage && r.dirty && r.compositionId && r.quantity).length);
+
+  menuItems = [
+    { label: 'Aprovar', icon: 'pi pi-check-circle', command: () => this.changeStatus('APPROVED') },
+    { label: 'Efetivar', icon: 'pi pi-lock', command: () => this.effectuate() },
+    { label: 'Reverter', icon: 'pi pi-undo', command: () => this.revert() },
+    { separator: true },
+    { label: 'Sintético PDF', icon: 'pi pi-file-pdf', command: () => window.open(`/api/v1/budgets/${this.budgetId}/reports/worksheet.pdf`, '_blank') },
+    { label: 'Analítico PDF', icon: 'pi pi-file-pdf', command: () => window.open(`/api/v1/budgets/${this.budgetId}/reports/analytical.pdf`, '_blank') },
+    { label: 'Curva ABC', icon: 'pi pi-chart-bar', command: () => window.open(`/api/v1/budgets/${this.budgetId}/reports/abc-services.pdf`, '_blank') },
   ];
 
-  // Update Base Date
-  showUpdateBase = false;
-  updatingBase = signal(false);
-  baseDate: Date | null = null;
-  baseState = '';
-  states = ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO'].map(s => ({ label: s, value: s }));
+  ngOnInit() { this.loadWorksheet(); }
 
-  // Memo
-  showMemo = false;
-  savingMemo = signal(false);
-  memoItem: any = null;
-  memoLines: any[] = [];
-
-  private get budgetId() { return this.route.snapshot.paramMap.get('budgetId'); }
-
-  moreActions = [
-    { label: 'Duplicar Itens/Etapas', icon: 'pi pi-copy', command: () => this.duplicateItems() },
-    { label: 'Importar de Outro Orçamento', icon: 'pi pi-download', command: () => this.showImportDialog = true },
-    { label: 'Comparar Orçamentos', icon: 'pi pi-arrows-h', command: () => this.showCompareDialog = true },
-    { label: 'Substituir Item', icon: 'pi pi-sync', command: () => this.showSubstituteDialog = true },
-    { separator: true },
-    { label: 'Curva ABC Materiais', icon: 'pi pi-chart-bar', command: () => window.open(`/api/v1/budgets/${this.budgetId}/reports/abc-services.pdf`, '_blank') },
-    { label: 'Planilha Sintética PDF', icon: 'pi pi-file-pdf', command: () => window.open(`/api/v1/budgets/${this.budgetId}/reports/worksheet.pdf`, '_blank') },
-    { separator: true },
-    { label: 'Propostas para Pregão', icon: 'pi pi-briefcase', command: () => this.loadProposals() },
-    { label: 'Tags', icon: 'pi pi-tag', command: () => this.showTags = true },
-    { label: 'Encargos Sociais', icon: 'pi pi-users', command: () => this.loadSocialCharges() },
-  ];
-
-  // Sprint 3 dialogs
-  showImportDialog = false;
-  showCompareDialog = false;
-  showSubstituteDialog = false;
-  importBudgetId = '';
-  compareBudgetId = '';
-  substituteItemId = ''; substituteNewCompId = '';
-
-  // Sprint 6 dialogs
-  showProposals = false; proposals = signal<any[]>([]);
-  showTags = false;
-  showSocialCharges = false; socialCharges = signal<any[]>([]);
-  newProposal = { description: '', discountPct: 0 };
-
-  ngOnInit() {
+  loadWorksheet() {
+    this.loading.set(true);
     this.http.get<any>(`/budgets/${this.budgetId}/worksheet`).subscribe({
-      next: ws => { this.summary.set({ directCost: ws.directCost, bdiPct: ws.bdiPct * 100, total: ws.total }); this.nodes.set(ws.stages.map((s: any) => this.stageToNode(s))); this.loading.set(false); },
+      next: ws => {
+        this.summary.set({ directCost: ws.directCost, bdiPct: (ws.bdiPct || 0) * 100, total: ws.total });
+        this.gridRows.set(this.worksheetToGrid(ws.stages));
+        this.stageOpts.set(this.flatStages(ws.stages));
+        this.loading.set(false);
+      },
       error: () => this.loading.set(false),
     });
-  }
-
-  // --- Add Item ---
-  searchItems(event: any) {
-    this.http.get<any[]>(`/compositions/items/search?q=${encodeURIComponent(event.query)}`).subscribe(res => this.itemSuggestions.set(res));
-  }
-  searchMaterials(event: any) {
-    this.http.get<any[]>(`/compositions/items/search?q=${encodeURIComponent(event.query)}`).subscribe(res => this.matSuggestions.set(res));
-  }
-  addItem() {
-    this.http.post(`/budgets/${this.budgetId}/worksheet/items`, { compositionId: this.selectedItem.id, quantity: this.addQty }).subscribe({
-      next: () => { this.addItemVisible = false; this.messages.add({ severity: 'success', summary: 'Item adicionado' }); this.ngOnInit(); },
-    });
-  }
-  openDrawer() { this.newComp = { sinapiCode: 'P-', description: '', unit: 'UN', items: [] }; this.drawer.open(); }
-  saveNewComp() {
-    this.http.post<any>('/compositions', { ...this.newComp, origin: 'PROPRIO' }).subscribe({
-      next: res => { this.drawer.close(); this.selectedItem = res; this.messages.add({ severity: 'success', summary: 'Composição criada' }); },
+    this.http.get<any>(`/budgets/${this.budgetId}`).subscribe({
+      next: b => this.budgetStatus.set(b.status || 'DRAFT'),
     });
   }
 
-  // --- BDI ---
-  openBdi() {
-    for (const tab of this.bdiTabs) {
-      this.http.get<any>(`/budgets/${this.budgetId}/bdi?itemType=${tab.type}`).subscribe(b => {
-        tab.data = { administration: b.administration || 0, profit: b.profit || 0, taxes: b.taxes || 0, socialCharges: b.socialCharges || 0, financialExpenses: b.financialExpenses || 0, risks: b.risks || 0 };
+  // --- Expand/collapse composition (show inputs) ---
+  toggleExpand(row: GridRow) {
+    const rows = this.gridRows();
+    const idx = rows.indexOf(row);
+    if (row.expanded) {
+      // Collapse: remove sub-items below this row
+      let removeCount = 0;
+      for (let i = idx + 1; i < rows.length; i++) {
+        if (rows[i].isSubItem) removeCount++;
+        else break;
+      }
+      rows.splice(idx + 1, removeCount);
+      row.expanded = false;
+      this.gridRows.set([...rows]);
+    } else {
+      // Expand: fetch composition items and insert below
+      this.http.get<any>(`/compositions/${row.compositionId}`).subscribe({
+        next: comp => {
+          const subRows: GridRow[] = (comp.items || []).map((item: any) => ({
+            isStage: false, isSubItem: true, stageId: row.stageId, stageName: '',
+            code: item.code || '', description: '  ↳ ' + item.description,
+            unit: item.unit || '', quantity: item.coefficient, unitCost: null, total: 0,
+            editing: false, dirty: false,
+          }));
+          rows.splice(idx + 1, 0, ...subRows);
+          row.expanded = true;
+          this.gridRows.set([...rows]);
+        },
       });
     }
-    this.showBdi = true;
-  }
-  bdiTotal(d: any): number { return (d.administration || 0) + (d.profit || 0) + (d.taxes || 0) + (d.socialCharges || 0) + (d.financialExpenses || 0) + (d.risks || 0); }
-  saveBdi() {
-    this.savingBdi.set(true);
-    const batch = this.bdiTabs.map(t => ({ itemType: t.type, ...t.data }));
-    this.http.put(`/budgets/${this.budgetId}/bdi/batch`, batch).subscribe({
-      next: () => { this.showBdi = false; this.savingBdi.set(false); this.messages.add({ severity: 'success', summary: 'BDI salvo' }); this.ngOnInit(); },
-      error: () => this.savingBdi.set(false),
-    });
   }
 
-  // --- Update Base Date ---
-  updateBaseDate() {
-    if (!this.baseDate || !this.baseState) return;
-    this.updatingBase.set(true);
-    const referenceDate = this.baseDate.toISOString().slice(0, 10);
-    this.http.post<any>(`/budgets/${this.budgetId}/update-base-date`, { referenceDate, state: this.baseState }).subscribe({
+  // --- Inline editing ---
+  onCellEdit(row: GridRow) {
+    row.total = (row.quantity || 0) * (row.unitCost || 0);
+    row.dirty = true;
+  }
+
+  onEnter(row: GridRow) {
+    // Se a linha está completa, inserir nova linha abaixo
+    if (row.compositionId && row.quantity) {
+      this.insertNewRow(row.stageId, row);
+    }
+  }
+
+  resolveByCode(row: GridRow) {
+    if (!row.code) return;
+    this.http.get<any>(`/compositions?search=${encodeURIComponent(row.code)}&size=1`).subscribe({
       next: res => {
-        this.updatingBase.set(false); this.showUpdateBase = false;
-        this.messages.add({ severity: 'success', summary: `Preços atualizados`, detail: `${res.updatedPrices} atualizados, ${res.divergentPrices} divergentes` });
-        this.ngOnInit();
+        const items = res.content || res;
+        if (items.length > 0) this.fillRow(row, items[0]);
       },
-      error: () => this.updatingBase.set(false),
     });
   }
 
-  // --- Memo (Memória de Cálculo) ---
-  openMemo(item: any) {
-    this.memoItem = item;
-    this.memoLines = [];
-    this.http.get<any>(`/budgets/${this.budgetId}/items/${item.id}/memo`).subscribe({
-      next: memo => { this.memoLines = memo.lines || []; this.showMemo = true; },
-      error: () => { this.memoLines = [{ description: '', formula: '', value: 0 }]; this.showMemo = true; },
-    });
-  }
-  evalFormula(line: any) {
-    try { line.value = Function('"use strict"; return (' + line.formula.replace(/,/g, '.').replace(/×/g, '*') + ')')(); } catch { /* keep current */ }
-  }
-  memoTotal(): number { return this.memoLines.reduce((sum: number, l: any) => sum + (l.value || 0), 0); }
-  saveMemo() {
-    this.savingMemo.set(true);
-    const body = { lines: this.memoLines.filter((l: any) => l.description || l.formula), result: this.memoTotal() };
-    this.http.put(`/budgets/${this.budgetId}/items/${this.memoItem.id}/memo`, body).subscribe({
-      next: () => { this.savingMemo.set(false); this.showMemo = false; this.messages.add({ severity: 'success', summary: 'Memória salva' }); this.ngOnInit(); },
-      error: () => this.savingMemo.set(false),
+  searchComp(event: any) {
+    this.http.get<any>(`/compositions?search=${encodeURIComponent(event.query)}&size=10`).subscribe({
+      next: res => this.suggestions.set(res.content || res),
     });
   }
 
-  // --- PDF Report ---
-  downloadAnalyticalPdf() {
-    window.open(`/api/v1/budgets/${this.budgetId}/reports/analytical.pdf`, '_blank');
+  onSelectComp(row: GridRow, comp: any) {
+    this.fillRow(row, comp);
   }
 
-  // --- Sprint 3: Duplicate ---
-  duplicateItems() {
-    this.http.post(`/budgets/${this.budgetId}/duplicate`, {}).subscribe({
-      next: () => { this.messages.add({ severity: 'success', summary: 'Itens duplicados' }); this.ngOnInit(); },
-    });
+  private fillRow(row: GridRow, comp: any) {
+    row.compositionId = comp.id;
+    row.code = comp.sinapiCode;
+    row.description = comp.description;
+    row.unit = comp.unit;
+    row.editing = false;
+    row.dirty = true;
   }
 
-  // --- Sprint 3: Import from another budget ---
-  importFromBudget() {
-    if (!this.importBudgetId) return;
-    this.http.post(`/budgets/${this.budgetId}/import-items`, { sourceBudgetId: this.importBudgetId }).subscribe({
-      next: () => { this.showImportDialog = false; this.messages.add({ severity: 'success', summary: 'Itens importados' }); this.ngOnInit(); },
-    });
-  }
-
-  // --- Sprint 3: Compare budgets ---
-  compareBudgets() {
-    if (!this.compareBudgetId) return;
-    window.open(`/api/v1/budgets/${this.budgetId}/compare/${this.compareBudgetId}`, '_blank');
-  }
-
-  // --- Sprint 3: Substitute item ---
-  substituteItem() {
-    if (!this.substituteItemId || !this.substituteNewCompId) return;
-    this.http.put(`/budgets/${this.budgetId}/items/${this.substituteItemId}/substitute`, { newCompositionId: this.substituteNewCompId }).subscribe({
-      next: () => { this.showSubstituteDialog = false; this.messages.add({ severity: 'success', summary: 'Item substituído' }); this.ngOnInit(); },
-    });
-  }
-
-  // --- Sprint 6: Proposals ---
-  loadProposals() {
-    this.http.get<any[]>(`/budgets/${this.budgetId}/proposals`).subscribe(p => { this.proposals.set(p); this.showProposals = true; });
-  }
-  createProposal() {
-    this.http.post(`/budgets/${this.budgetId}/proposals`, this.newProposal).subscribe(() => {
-      this.messages.add({ severity: 'success', summary: 'Proposta criada' }); this.loadProposals();
-    });
-  }
-
-  // --- Sprint 6: Social Charges ---
-  loadSocialCharges() {
-    this.http.get<any[]>(`/budgets/${this.budgetId}/social-charges`).subscribe(s => { this.socialCharges.set(s); this.showSocialCharges = true; });
-  }
-
-  // --- Helpers ---
-  private stageToNode(stage: any): TreeNode {
-    return {
-      data: { isStage: true, name: stage.name, totalCost: stage.subtotal },
-      children: [
-        ...stage.items.map((i: any) => ({ data: { isStage: false, id: i.id, code: i.code, description: i.description, unit: i.unit, quantity: i.quantity, unitCost: i.unitCost, totalCost: i.totalCost } })),
-        ...(stage.children || []).map((c: any) => this.stageToNode(c)),
-      ],
-      expanded: true,
+  insertNewRow(stageId: string, afterRow?: GridRow) {
+    const rows = this.gridRows();
+    const newRow: GridRow = {
+      stageId, stageName: '', isStage: false, code: '', description: '', unit: '',
+      quantity: null, unitCost: null, total: 0, editing: true, dirty: false,
     };
+    if (afterRow) {
+      const idx = rows.indexOf(afterRow);
+      rows.splice(idx + 1, 0, newRow);
+    } else {
+      // Inserir no final da etapa
+      let insertIdx = rows.length;
+      for (let i = rows.length - 1; i >= 0; i--) {
+        if (rows[i].stageId === stageId) { insertIdx = i + 1; break; }
+      }
+      rows.splice(insertIdx, 0, newRow);
+    }
+    this.gridRows.set([...rows]);
+  }
+
+  removeRow(row: GridRow) {
+    if (row.id) {
+      // Item existente — deletar no backend
+      this.http.delete(`/budgets/${this.budgetId}/items/${row.id}`).subscribe({
+        next: () => { this.messages.add({ severity: 'success', summary: 'Item excluído' }); this.loadWorksheet(); },
+      });
+    } else {
+      // Linha nova não salva — remover do grid
+      const rows = this.gridRows().filter(r => r !== row);
+      this.gridRows.set(rows);
+    }
+  }
+
+  // --- Save all dirty rows ---
+  saveAll() {
+    const dirty = this.gridRows().filter(r => !r.isStage && r.dirty && r.compositionId && r.quantity);
+    if (dirty.length === 0) return;
+
+    // Agrupar por stageId
+    const byStage = new Map<string, GridRow[]>();
+    for (const row of dirty) {
+      const list = byStage.get(row.stageId) || [];
+      list.push(row);
+      byStage.set(row.stageId, list);
+    }
+
+    this.saving.set(true);
+    let pending = byStage.size;
+
+    for (const [stageId, rows] of byStage) {
+      const items = rows.filter(r => !r.id).map(r => ({ compositionId: r.compositionId, quantity: r.quantity, unitCost: r.unitCost || undefined }));
+      if (items.length === 0) { pending--; if (pending === 0) this.onSaveComplete(); continue; }
+
+      this.http.post<any>(`/budgets/${this.budgetId}/stages/${stageId}/items/bulk`, items).subscribe({
+        next: () => { pending--; if (pending === 0) this.onSaveComplete(); },
+        error: () => { pending--; if (pending === 0) this.onSaveComplete(); },
+      });
+    }
+  }
+
+  private onSaveComplete() {
+    this.saving.set(false);
+    this.messages.add({ severity: 'success', summary: 'Salvo' });
+    this.loadWorksheet();
+  }
+
+  // --- Stage CRUD ---
+  createStage() {
+    const sortOrder = this.stageOpts().length + 1;
+    this.http.post(`/budgets/${this.budgetId}/stages`, { name: this.newStageName, sortOrder, parentId: this.newStageParentId }).subscribe({
+      next: () => { this.showStageDialog = false; this.newStageName = ''; this.newStageParentId = null; this.messages.add({ severity: 'success', summary: 'Etapa criada' }); this.loadWorksheet(); },
+    });
+  }
+
+  deleteStage(stageId: string) {
+    this.http.delete(`/budgets/${this.budgetId}/stages/${stageId}`).subscribe({
+      next: () => { this.messages.add({ severity: 'success', summary: 'Etapa excluída' }); this.loadWorksheet(); },
+    });
+  }
+
+  // --- Workflow ---
+  changeStatus(status: string) {
+    this.http.put(`/budgets/${this.budgetId}`, { status }).subscribe({
+      next: () => { this.budgetStatus.set(status); this.messages.add({ severity: 'success', summary: `Status: ${status}` }); },
+    });
+  }
+  effectuate() {
+    this.http.post<any>(`/budgets/${this.budgetId}/effectuate`, {}).subscribe({
+      next: r => { this.budgetStatus.set(r.status || 'EFFECTIVE'); this.messages.add({ severity: 'success', summary: 'Efetivado' }); },
+    });
+  }
+  revert() {
+    this.http.post<any>(`/budgets/${this.budgetId}/revert`, {}).subscribe({
+      next: r => { this.budgetStatus.set(r.status || 'APPROVED'); this.messages.add({ severity: 'success', summary: 'Revertido' }); },
+    });
+  }
+
+  // --- Transform worksheet API response to flat grid ---
+  private worksheetToGrid(stages: any[]): GridRow[] {
+    const rows: GridRow[] = [];
+    const walk = (list: any[]) => {
+      for (const s of list) {
+        const stageTotal = (s.items || []).reduce((sum: number, i: any) => sum + (i.totalCost || 0), 0);
+        rows.push({ isStage: true, stageId: s.id, stageName: s.name, code: '', description: '', unit: '', quantity: null, unitCost: null, total: stageTotal, editing: false, dirty: false });
+        for (const i of s.items || []) {
+          rows.push({ isStage: false, id: i.id, stageId: s.id, stageName: s.name, code: i.code, description: i.description, unit: i.unit, quantity: i.quantity, unitCost: i.unitCost, total: i.totalCost, compositionId: i.compositionId, editing: false, dirty: false });
+        }
+        if (s.children?.length) walk(s.children);
+      }
+    };
+    walk(stages);
+    return rows;
+  }
+
+  private flatStages(stages: any[]): { label: string; value: string }[] {
+    const result: { label: string; value: string }[] = [];
+    const walk = (list: any[], prefix = '') => {
+      for (const s of list) {
+        result.push({ label: prefix + s.name, value: s.id });
+        if (s.children?.length) walk(s.children, prefix + '  ');
+      }
+    };
+    walk(stages);
+    return result;
   }
 }

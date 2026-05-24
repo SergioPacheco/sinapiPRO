@@ -2,7 +2,7 @@ package com.sinapipro.api.measurement.api;
 
 import com.sinapipro.api.measurement.application.MeasurementService;
 import com.sinapipro.api.measurement.application.MeasurementService.*;
-import com.sinapipro.api.measurement.application.MeasurementReportService;
+import com.sinapipro.api.report.MeasurementReportService;
 import com.sinapipro.api.measurement.domain.*;
 import com.sinapipro.api.shared.api.PageResponse;
 import com.sinapipro.api.shared.error.DomainNotFoundException;
@@ -221,7 +221,7 @@ public class MeasurementController {
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
     ResponseEntity<byte[]> bulletinReport(@PathVariable UUID projectId, @PathVariable UUID id) {
         findMeasurementInProject(projectId, id);
-        byte[] pdf = measurementReportService.generateBulletinPdf(id);
+        byte[] pdf = measurementReportService.boletimAcumulado(id);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=measurement-bulletin-" + id + ".pdf")
                 .contentType(MediaType.APPLICATION_PDF)
@@ -278,7 +278,7 @@ public class MeasurementController {
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
     ResponseEntity<byte[]> photoReport(@PathVariable UUID projectId, @PathVariable UUID id) {
         findMeasurementInProject(projectId, id);
-        byte[] pdf = measurementReportService.generatePhotoReportPdf(id);
+        byte[] pdf = measurementReportService.rdoCompleto(id);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=measurement-photos-" + id + ".pdf")
                 .contentType(MediaType.APPLICATION_PDF)

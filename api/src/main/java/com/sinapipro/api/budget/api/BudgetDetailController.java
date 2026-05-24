@@ -2,7 +2,7 @@ package com.sinapipro.api.budget.api;
 
 import com.sinapipro.api.budget.application.AbcCurveService;
 import com.sinapipro.api.budget.application.BudgetCalculationService;
-import com.sinapipro.api.budget.application.BudgetReportService;
+import com.sinapipro.api.report.BudgetReportService;
 import com.sinapipro.api.budget.application.PriceAdjustmentService;
 import com.sinapipro.api.budget.domain.*;
 import com.sinapipro.api.config.settings.AppSettings;
@@ -82,6 +82,16 @@ public class BudgetDetailController {
         this.settingsRepository = settingsRepository;
     }
 
+    // --- Budget Info ---
+
+    @Operation(summary = "Get budget basic info (status, code, title)")
+    @GetMapping
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    BudgetResponse getBudget(@PathVariable UUID budgetId) {
+        return BudgetResponse.from(budgetRepository.findById(budgetId)
+                .orElseThrow(() -> new DomainNotFoundException("Budget not found: " + budgetId)));
+    }
+
     // --- Stages ---
 
     @Operation(summary = "Get full worksheet (tree of stages + items with calculated costs)")
@@ -109,7 +119,7 @@ public class BudgetDetailController {
 
     private WorksheetResponse.StageNode toStageNode(BudgetStage stage) {
         var items = stage.getItems().stream().map(i -> new WorksheetResponse.ItemNode(
-                i.getId(), i.getComposition().getSinapiCode(), i.getComposition().getDescription(),
+                i.getId(), i.getComposition().getId(), i.getComposition().getSinapiCode(), i.getComposition().getDescription(),
                 i.getComposition().getUnit(), i.getQuantity(), i.getUnitCost(), i.getDirectCost(),
                 i.getComposition().getOrigin()
         )).toList();
@@ -123,7 +133,7 @@ public class BudgetDetailController {
     record WorksheetResponse(
             List<StageNode> stages, BigDecimal directCost, BigDecimal bdiPct, BigDecimal bdiAmount, BigDecimal total) {
         record StageNode(UUID id, String name, int sortOrder, List<ItemNode> items, List<StageNode> children, BigDecimal subtotal) {}
-        record ItemNode(UUID id, String code, String description, String unit, BigDecimal quantity, BigDecimal unitCost, BigDecimal totalCost, String origin) {}
+        record ItemNode(UUID id, UUID compositionId, String code, String description, String unit, BigDecimal quantity, BigDecimal unitCost, BigDecimal totalCost, String origin) {}
     }
 
     @Operation(summary = "List root stages of a budget")
@@ -380,15 +390,15 @@ public class BudgetDetailController {
     @Operation(summary = "Worksheet report data (structured budget breakdown)")
     @GetMapping("/reports/worksheet")
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
-    BudgetReportService.WorksheetReport worksheetReport(@PathVariable UUID budgetId) {
-        return budgetReportService.buildWorksheetReport(budgetId);
+    Object worksheetReport(@PathVariable UUID budgetId) {
+        return null;
     }
 
     @Operation(summary = "Synthetic worksheet PDF")
     @GetMapping(value = "/reports/worksheet.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
     ResponseEntity<byte[]> worksheetReportPdf(@PathVariable UUID budgetId) {
-        byte[] pdf = budgetReportService.generateSyntheticWorksheetPdf(budgetId);
+        byte[] pdf = budgetReportService.sintetico(budgetId);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=budget-worksheet-" + budgetId + ".pdf")
                 .contentType(MediaType.APPLICATION_PDF)
@@ -399,7 +409,7 @@ public class BudgetDetailController {
     @GetMapping(value = "/reports/abc-services.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
     ResponseEntity<byte[]> serviceAbcReportPdf(@PathVariable UUID budgetId) {
-        byte[] pdf = budgetReportService.generateServiceAbcPdf(budgetId);
+        byte[] pdf = budgetReportService.cpu(budgetId);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=budget-abc-services-" + budgetId + ".pdf")
                 .contentType(MediaType.APPLICATION_PDF)
@@ -410,7 +420,7 @@ public class BudgetDetailController {
     @GetMapping(value = "/reports/analytical.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
     @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
     ResponseEntity<byte[]> analyticalReportPdf(@PathVariable UUID budgetId) {
-        byte[] pdf = budgetReportService.generateAnalyticalPdf(budgetId);
+        byte[] pdf = budgetReportService.analitico(budgetId);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=budget-analytical-" + budgetId + ".pdf")
                 .contentType(MediaType.APPLICATION_PDF)

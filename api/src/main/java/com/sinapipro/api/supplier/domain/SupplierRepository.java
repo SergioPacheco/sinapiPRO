@@ -5,12 +5,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface SupplierRepository extends JpaRepository<Supplier, UUID> {
 
     Optional<Supplier> findByCode(String code);
+    List<Supplier> findByActiveTrue();
+    List<Supplier> findByCategoryAndActiveTrue(String category);
 
     boolean existsByCode(String code);
 

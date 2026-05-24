@@ -1,4 +1,5 @@
 package com.sinapipro.api.notification.domain;
+import com.sinapipro.api.shared.domain.TenantAwareEntity;
 
 import jakarta.persistence.*;
 import java.time.Instant;
@@ -6,9 +7,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "notification")
-public class Notification {
+public class Notification extends TenantAwareEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.UUID) private UUID id;
     @Column(name = "budget_id") private UUID budgetId;
     @Column(nullable = false, length = 40) private String type;
     @Column(nullable = false, length = 20) private String severity; // INFO, WARNING, CRITICAL
@@ -18,9 +18,7 @@ public class Notification {
     @Column(name = "entity_id") private UUID entityId;
     @Column(length = 140) private String recipient;
     @Column(nullable = false) private Boolean read;
-    @Column(name = "created_at", nullable = false, updatable = false) private Instant createdAt;
 
-    @PrePersist void prePersist() { createdAt = Instant.now(); }
     protected Notification() {}
 
     public Notification(UUID budgetId, String type, String severity, String title, String message,
@@ -30,7 +28,6 @@ public class Notification {
         this.entityId = entityId; this.recipient = recipient; this.read = false;
     }
 
-    public UUID getId() { return id; }
     public UUID getBudgetId() { return budgetId; }
     public String getType() { return type; }
     public String getSeverity() { return severity; }
@@ -40,7 +37,6 @@ public class Notification {
     public UUID getEntityId() { return entityId; }
     public String getRecipient() { return recipient; }
     public Boolean getRead() { return read; }
-    public Instant getCreatedAt() { return createdAt; }
 
     public void markRead() { this.read = true; }
 }

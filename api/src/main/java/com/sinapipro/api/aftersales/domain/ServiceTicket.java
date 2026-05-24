@@ -1,4 +1,5 @@
 package com.sinapipro.api.aftersales.domain;
+import com.sinapipro.api.shared.domain.TenantAwareEntity;
 
 import jakarta.persistence.*;
 import java.time.Instant;
@@ -7,8 +8,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "service_ticket")
-public class ServiceTicket {
-    @Id @GeneratedValue(strategy = GenerationType.UUID) private UUID id;
+public class ServiceTicket extends TenantAwareEntity {
     @Column(name = "unit_id") private UUID unitId;
     @Column(name = "client_name", nullable = false, length = 200) private String clientName;
     @Column(nullable = false, length = 60) private String category;
@@ -30,7 +30,6 @@ public class ServiceTicket {
         this.description = description; this.priority = priority; this.status = "OPEN"; this.dueDate = dueDate;
     }
 
-    public UUID getId() { return id; }
     public UUID getUnitId() { return unitId; }
     public String getClientName() { return clientName; }
     public String getCategory() { return category; }

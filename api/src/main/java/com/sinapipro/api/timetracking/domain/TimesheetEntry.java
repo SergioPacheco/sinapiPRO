@@ -1,4 +1,5 @@
 package com.sinapipro.api.timetracking.domain;
+import com.sinapipro.api.shared.domain.TenantAwareEntity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -8,9 +9,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "timesheet_entry")
-public class TimesheetEntry {
+public class TimesheetEntry extends TenantAwareEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.UUID) private UUID id;
     @Column(name = "budget_id", nullable = false) private UUID budgetId;
     @Column(name = "cost_code_id") private UUID costCodeId;
     @Column(name = "worker_name", nullable = false, length = 140) private String workerName;
@@ -22,9 +22,7 @@ public class TimesheetEntry {
     @Column(name = "units_produced", precision = 10, scale = 2) private BigDecimal unitsProduced;
     @Column(name = "unit_type", length = 30) private String unitType;
     @Column(length = 300) private String notes;
-    @Column(name = "created_at", nullable = false, updatable = false) private Instant createdAt;
 
-    @PrePersist void prePersist() { createdAt = Instant.now(); }
     protected TimesheetEntry() {}
 
     public TimesheetEntry(UUID budgetId, UUID costCodeId, String workerName, String role, LocalDate workDate,
@@ -36,7 +34,6 @@ public class TimesheetEntry {
         this.unitsProduced = unitsProduced; this.unitType = unitType; this.notes = notes;
     }
 
-    public UUID getId() { return id; }
     public UUID getBudgetId() { return budgetId; }
     public UUID getCostCodeId() { return costCodeId; }
     public String getWorkerName() { return workerName; }
