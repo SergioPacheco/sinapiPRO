@@ -70,11 +70,24 @@ import { DropdownModule } from 'primeng/dropdown';
       </aside>
       <div class="layout-main">
         <header class="layout-topbar">
+          <!-- Breadcrumb -->
+          <nav class="breadcrumb">
+            @for (seg of getBreadcrumb(); track $index) {
+              @if ($index > 0) { <i class="pi pi-angle-right" style="font-size:10px;color:var(--sp-text-muted);margin:0 4px"></i> }
+              <span [style.color]="$last ? 'var(--sp-text)' : 'var(--sp-text-muted)'" style="font-size:12px">{{ seg }}</span>
+            }
+          </nav>
           @if (obraId) {
             <span class="topbar-obra">{{ obraNome() }}</span>
           }
           <span style="flex:1"></span>
-          <i class="pi pi-bell" style="cursor:pointer;color:var(--sp-text-muted)"></i>
+          <i class="pi pi-bell" style="cursor:pointer;color:var(--sp-text-muted)" (click)="showNotifications = !showNotifications"></i>
+          @if (showNotifications) {
+            <div class="notif-panel">
+              <strong style="font-size:11px;color:var(--sp-text-muted)">Notificações</strong>
+              <div style="margin-top:8px;font-size:12px;color:var(--sp-text-muted)">Nenhuma notificação pendente</div>
+            </div>
+          }
           <div class="topbar-user" (click)="userMenu.toggle($event)">
             <span class="user-avatar">{{ initials() }}</span>
             <span class="user-name">{{ auth.user()?.name || 'Usuário' }}</span>
@@ -105,6 +118,8 @@ import { DropdownModule } from 'primeng/dropdown';
     .nav-item i { font-size:0.85rem; width:18px; text-align:center; }
     .sidebar-footer { padding:0.5rem 0.75rem; border-top:1px solid var(--sp-border); }
     .topbar-obra { font-size:12px; font-weight:600; color:var(--sp-text); background:var(--sp-surface-hover); padding:4px 10px; border-radius:4px; }
+    .breadcrumb { display:flex; align-items:center; }
+    .notif-panel { position:absolute; top:44px; right:60px; width:250px; background:var(--sp-surface-card); border:1px solid var(--sp-border); border-radius:8px; padding:12px; box-shadow:0 8px 24px rgba(0,0,0,0.3); z-index:100; }
     .topbar-user { display:flex; align-items:center; gap:0.4rem; cursor:pointer; padding:0.2rem 0.4rem; border-radius:5px; }
     .topbar-user:hover { background:var(--sp-surface-hover); }
     .user-avatar { width:26px; height:26px; border-radius:50%; background:var(--sp-primary); color:white; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; }
@@ -119,6 +134,7 @@ export class LayoutComponent implements OnInit {
   obras = signal<any[]>([]);
   obraId: string | null = null;
   collapsed = false;
+  showNotifications = false;
 
   userMenuItems = [
     { label: 'Perfil', icon: 'pi pi-user', routerLink: '/profile' },
@@ -150,5 +166,11 @@ export class LayoutComponent implements OnInit {
   initials() {
     const name = this.auth.user()?.name || '';
     return name.split(' ').map((w: string) => w[0]).join('').substring(0, 2).toUpperCase();
+  }
+
+  getBreadcrumb(): string[] {
+    const url = this.router.url;
+    const map: Record<string, string> = { dashboard: 'Dashboard', projects: 'Obras', budgets: 'Orçamentos', sinapi: 'SINAPI', registry: 'Cadastros', settings: 'Configurações', contracts: 'Contratos', measurements: 'Medições', procurement: 'Suprimentos', finance: 'Financeiro', schedule: 'Cronograma', 'daily-logs': 'Diário', timesheets: 'Mão de Obra', safety: 'Segurança', documents: 'Documentos', summary: 'Resumo' };
+    return url.split('/').filter(s => s && !s.match(/^[0-9a-f-]{36}$/)).map(s => map[s] || s).slice(0, 3);
   }
 }
