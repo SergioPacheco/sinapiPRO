@@ -88,11 +88,15 @@ export class BudgetWorksheetComponent implements OnInit {
 
   // Context menu (botão direito)
   contextMenuItems = [
-    { label: 'Novo Item', icon: 'pi pi-plus', command: () => this.insertItem() },
-    { label: 'Excluir', icon: 'pi pi-trash', command: () => this.deleteSelected() },
+    { label: 'Novo Item (Insert)', icon: 'pi pi-plus', command: () => this.insertItem() },
+    { label: 'Excluir (Delete)', icon: 'pi pi-trash', command: () => this.deleteWithConfirm() },
+    { separator: true },
+    { label: 'Copiar (Ctrl+C)', icon: 'pi pi-clone', command: () => this.copyItems() },
+    { label: 'Colar (Ctrl+V)', icon: 'pi pi-clipboard', command: () => this.pasteItems() },
     { separator: true },
     { label: 'Acessar Composição', icon: 'pi pi-list', command: () => this.openComposition() },
     { label: 'Salvar como Própria', icon: 'pi pi-copy', command: () => this.saveAsOwn() },
+    { label: 'Alterar Todas Iguais', icon: 'pi pi-sync', command: () => this.applyToAllEqual() },
     { separator: true },
     { label: 'Expandir', icon: 'pi pi-angle-down', command: () => { if (this.selectedRow) this.tree.toggle(this.selectedRow); } },
     { label: 'Aplicar Preço a Iguais', icon: 'pi pi-equals', command: () => this.applyPriceToEquals() },
