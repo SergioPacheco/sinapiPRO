@@ -43,7 +43,7 @@ import { StatusTagComponent } from '../../shared/components';
           <td style="font-size:0.8rem">{{ s.category }}</td>
           <td style="font-size:0.8rem">{{ s.phone }}</td>
           <td><sp-status [status]="s.status || 'APPROVED'" /></td>
-          <td><p-button icon="pi pi-pencil" [text]="true" size="small" (onClick)="edit(s)" /></td>
+          <td><p-button icon="pi pi-pencil" [text]="true" size="small" (onClick)="edit(s)" /><p-button icon="pi pi-star" [text]="true" size="small" severity="warn" (onClick)="evaluate(s)" pTooltip="Avaliar" /></td>
         </tr>
       </ng-template>
     </p-table>
@@ -99,6 +99,16 @@ export class SupplierListComponent implements OnInit {
   edit(s: any) { this.form = { ...s }; this.showNew = true; }
 
   filter(event: any) { /* PrimeNG global filter handles it */ }
+
+  /** Avaliação do Fornecedor */
+  evaluate(s: any) {
+    const score = prompt(`Avaliação de ${s.name} (0-10):`, '8');
+    if (score !== null) {
+      this.http.post(`/suppliers/${s.id}/evaluations`, { score: Number(score), criteria: 'GERAL', notes: 'Avaliação manual' }).subscribe({
+        next: () => this.messages.add({ severity: 'success', summary: `Fornecedor avaliado: ${score}/10` }),
+      });
+    }
+  }
 
   save() {
     if (this.form.id) {
