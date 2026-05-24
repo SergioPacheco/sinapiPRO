@@ -29,7 +29,8 @@ $mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
 .toolbar-center { display: flex; gap: 16px; }
 .metric { font-size: 11px; color: $muted; strong { color: $text; } }
 .metric.total strong { color: $primary; }
-.toolbar-right { display: flex; align-items: center; gap: 4px; }
+.toolbar-right { display: flex; align-items: center; gap: 2px; }
+.toolbar-sep { width: 1px; height: 18px; background: rgba(255,255,255,0.1); margin: 0 4px; }
 
 .btn-primary {
   display: inline-flex; align-items: center; gap: 5px;

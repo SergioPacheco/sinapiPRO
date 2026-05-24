@@ -1,20 +1,33 @@
-<!-- Toolbar -->
+<!-- Toolbar com ícones (estilo Strato) -->
 <header class="toolbar">
   <div class="toolbar-left">
     <span class="toolbar-title">Planilha Orçamentária</span>
     <sp-status [status]="tree.budgetStatus()" />
   </div>
   <div class="toolbar-center">
-    <span class="metric">Custo Direto <strong>{{ tree.summary().directCost | number:'1.2-2' }}</strong></span>
+    <span class="metric">Direto <strong>{{ tree.summary().directCost | number:'1.2-2' }}</strong></span>
     <span class="metric">BDI <strong>{{ tree.summary().bdiPct | number:'1.2-2' }}%</strong></span>
     <span class="metric total">Total <strong>{{ tree.summary().total | number:'1.2-2' }}</strong></span>
   </div>
   <div class="toolbar-right">
-    <button class="btn-primary" (click)="insertItem()" pTooltip="Insert"><i class="pi pi-plus"></i> Novo Item</button>
-    <button class="btn-icon" (click)="deleteSelected()" [disabled]="!selectedRow" pTooltip="Excluir"><i class="pi pi-trash"></i></button>
-    <button class="btn-icon" (click)="showBdi = true" pTooltip="BDI"><i class="pi pi-percentage"></i></button>
-    <button class="btn-icon" (click)="tree.saveAll()" [disabled]="tree.dirtyCount() === 0" pTooltip="Salvar"><i class="pi pi-save"></i></button>
-    <button class="btn-icon" (click)="menu.toggle($event)"><i class="pi pi-ellipsis-v"></i></button>
+    <button class="btn-primary" (click)="insertItem()" pTooltip="Novo Item (Insert)"><i class="pi pi-plus"></i></button>
+    <button class="btn-icon" (click)="deleteWithConfirm()" [disabled]="!selectedRow" pTooltip="Excluir (Delete)"><i class="pi pi-trash"></i></button>
+    <span class="toolbar-sep"></span>
+    <button class="btn-icon" (click)="copyItems()" [disabled]="!selectedRow" pTooltip="Copiar (Ctrl+C)"><i class="pi pi-clone"></i></button>
+    <button class="btn-icon" (click)="pasteItems()" [disabled]="clipboard.length === 0" pTooltip="Colar (Ctrl+V)"><i class="pi pi-clipboard"></i></button>
+    <span class="toolbar-sep"></span>
+    <button class="btn-icon" (click)="openComposition()" [disabled]="!selectedRow?.compositionId" pTooltip="Acessar Composição"><i class="pi pi-list"></i></button>
+    <button class="btn-icon" (click)="saveAsOwn()" [disabled]="!selectedRow?.compositionId" pTooltip="Salvar como Própria"><i class="pi pi-copy"></i></button>
+    <span class="toolbar-sep"></span>
+    <button class="btn-icon" (click)="openFind()" pTooltip="Localizar (Ctrl+F)"><i class="pi pi-search"></i></button>
+    <button class="btn-icon" (click)="expandAll()" pTooltip="Expandir Tudo"><i class="pi pi-angle-double-down"></i></button>
+    <button class="btn-icon" (click)="collapseAll()" pTooltip="Colapsar Tudo"><i class="pi pi-angle-double-up"></i></button>
+    <span class="toolbar-sep"></span>
+    <button class="btn-icon" (click)="showBdi = true" pTooltip="BDI / Taxas"><i class="pi pi-percentage"></i></button>
+    <button class="btn-icon" (click)="tree.load(budgetId!)" pTooltip="Recalcular"><i class="pi pi-refresh"></i></button>
+    <button class="btn-icon" (click)="tree.saveAll()" [disabled]="tree.dirtyCount() === 0" pTooltip="Salvar (Ctrl+S)"><i class="pi pi-save"></i></button>
+    <span class="toolbar-sep"></span>
+    <button class="btn-icon" (click)="menu.toggle($event)" pTooltip="Mais opções"><i class="pi pi-ellipsis-v"></i></button>
     <p-menu #menu [popup]="true" [model]="menuItems" />
   </div>
 </header>
