@@ -35,10 +35,9 @@ import { DropdownModule } from 'primeng/dropdown';
           @if (obraId) {
             <span class="nav-section">OBRA</span>
             <a class="nav-item" [routerLink]="['/projects', obraId, 'summary']" routerLinkActive="active"><i class="pi pi-info-circle"></i><span>Resumo</span></a>
-            <a class="nav-item" [routerLink]="['/projects', obraId, 'budgets']" routerLinkActive="active"><i class="pi pi-calculator"></i><span>Orçamentos</span></a>
             <a class="nav-item" [routerLink]="['/projects', obraId, 'contracts']" routerLinkActive="active"><i class="pi pi-file"></i><span>Contratos</span></a>
             <a class="nav-item" [routerLink]="['/projects', obraId, 'measurements']" routerLinkActive="active"><i class="pi pi-check-square"></i><span>Medições</span></a>
-            <a class="nav-item sub" [routerLink]="['/projects', obraId, 'schedule']" routerLinkActive="active"><i class="pi pi-chart-line"></i><span>Cronograma</span></a>
+            <a class="nav-item" [routerLink]="['/projects', obraId, 'schedule']" routerLinkActive="active"><i class="pi pi-chart-line"></i><span>Cronograma</span></a>
 
             <span class="nav-section">SUPRIMENTOS</span>
             <a class="nav-item" [routerLink]="['/projects', obraId, 'procurement']" routerLinkActive="active"><i class="pi pi-shopping-cart"></i><span>Requisições</span></a>

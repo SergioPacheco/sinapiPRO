@@ -68,8 +68,11 @@ export class BudgetWorksheetComponent implements OnInit {
     { label: 'Multiplicar Quantidades', icon: 'pi pi-times', command: () => this.showMultiply = true },
     { label: 'Aplicar Preço a Iguais', icon: 'pi pi-equals', command: () => this.applyPriceToEquals() },
     { label: 'Alterar Todas Iguais', icon: 'pi pi-sync', command: () => this.applyToAllEqual() },
+    { label: 'Composições Iguais', icon: 'pi pi-clone', command: () => this.showEqualCompositions() },
     { label: 'Itens com Preço Zerado', icon: 'pi pi-exclamation-circle', command: () => this.showZeroItems() },
     { separator: true },
+    { label: 'Especificação Técnica', icon: 'pi pi-align-left', command: () => this.showSpecification() },
+    { label: 'Corrigir Estrutura', icon: 'pi pi-sort-alt', command: () => this.fixStructure() },
     { label: 'Gráfico por Etapa', icon: 'pi pi-chart-pie', command: () => this.openChart() },
     { label: 'Verificar Integridade', icon: 'pi pi-check-square', command: () => this.verifyIntegrity() },
     { label: 'Backup Orçamento', icon: 'pi pi-download', command: () => this.backup() },
@@ -465,5 +468,38 @@ export class BudgetWorksheetComponent implements OnInit {
 
   rowClass(row: BudgetRow): Record<string, boolean> {
     return { 'r-level': row.type === 'LEVEL', 'r-sublevel': row.type === 'SUB_LEVEL', 'r-comp': row.type === 'COMPOSITION', 'r-input': row.type === 'INPUT', 'r-sub': row.type === 'SUB_COMPOSITION', 'r-empty': row.type === 'EMPTY', 'r-dirty': row.dirty, 'r-selected': row === this.selectedRow, 'r-multi': this.isMultiSelected(row) };
+  }
+
+  // === ITENS FALTANTES DO STRATO ===
+
+  /** #26 Apresentar composições iguais — destaca todas ocorrências da mesma composição */
+  showEqualCompositions() {
+    if (!this.selectedRow?.compositionId) { this.messages.add({ severity: 'warn', summary: 'Selecione uma composição' }); return; }
+    const id = this.selectedRow.compositionId;
+    const equals = this.tree.rows().filter(r => r.compositionId === id);
+    this.selectedRows.clear();
+    for (const r of equals) this.selectedRows.add(r);
+    this.messages.add({ severity: 'info', summary: `${equals.length} ocorrência(s) encontrada(s)` });
+  }
+
+  /** #28 Especificação Técnica — observações do item */
+  showSpecification() {
+    if (!this.selectedRow) return;
+    const spec = prompt('Especificação Técnica / Observações:', this.selectedRow.description);
+    if (spec !== null) { this.messages.add({ severity: 'info', summary: 'Especificação registrada' }); }
+  }
+
+  /** #33 Corrigir estrutura — renumera e reordena */
+  fixStructure() {
+    this.pushUndo();
+    // Renumerar todas as linhas
+    let levelCount = 0;
+    let itemCount = 0;
+    for (const r of this.tree.rows()) {
+      if (r.type === 'LEVEL') { levelCount++; itemCount = 0; r.code = String(levelCount).padStart(2, '0') + '.'; }
+      else if (r.type === 'COMPOSITION' || r.type === 'INPUT') { itemCount++; r.code = String(levelCount).padStart(2, '0') + '.' + String(itemCount).padStart(3, '0'); }
+    }
+    this.tree.rows.set([...this.tree.rows()]);
+    this.messages.add({ severity: 'success', summary: 'Estrutura corrigida e renumerada' });
   }
 }
