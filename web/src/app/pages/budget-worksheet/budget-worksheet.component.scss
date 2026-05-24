@@ -155,6 +155,15 @@ tr:hover .del-btn { opacity: 1; }
 // === Info label ===
 .info-label { display: block; font-size: 10px; color: $muted; text-transform: uppercase; margin-bottom: 2px; }
 
+// === Summary bar ===
+.summary-bar {
+  display: flex; align-items: center; gap: 16px;
+  padding: 5px 14px; background: $card; border: 1px solid $border; border-top: none;
+  font-size: 11px; color: $muted;
+  .summary-item strong { color: $text; }
+  .summary-item.total strong { color: $primary; }
+}
+
 // === Composition Dialog ===
 .comp-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000;

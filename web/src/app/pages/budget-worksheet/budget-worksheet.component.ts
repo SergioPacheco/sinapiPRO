@@ -73,6 +73,8 @@ export class BudgetWorksheetComponent implements OnInit {
     { label: 'Recalcular Valores', icon: 'pi pi-refresh', command: () => this.tree.load(this.budgetId!) },
     { label: 'Multiplicar Quantidades', icon: 'pi pi-times', command: () => this.showMultiply = true },
     { label: 'Aplicar Preço a Iguais', icon: 'pi pi-equals', command: () => this.applyPriceToEquals() },
+    { label: 'Alterar Todas Iguais', icon: 'pi pi-sync', command: () => this.applyToAllEqual() },
+    { label: 'Itens com Preço Zerado', icon: 'pi pi-exclamation-circle', command: () => this.showZeroItems() },
     { separator: true },
     { label: 'Configurações', icon: 'pi pi-cog', command: () => this.loadSettings() },
     { label: 'Informações do Orçamento', icon: 'pi pi-info-circle', command: () => this.loadInfo() },
@@ -359,6 +361,52 @@ export class BudgetWorksheetComponent implements OnInit {
     this.http.put(`/budgets/${this.budgetId}`, { roundingMethod: this.settings.rounding, decimalPlaces: this.settings.decQty }).subscribe({
       next: () => { this.showSettings = false; this.messages.add({ severity: 'success', summary: 'Configurações salvas' }); },
     });
+  }
+
+  // === ALTERAR TODAS COMPOSIÇÕES IGUAIS ===
+  applyToAllEqual() {
+    if (!this.selectedRow?.compositionId) { this.messages.add({ severity: 'warn', summary: 'Selecione uma composição' }); return; }
+    this.pushUndo();
+    const src = this.selectedRow;
+    let count = 0;
+    for (const r of this.tree.rows()) {
+      if (r.compositionId === src.compositionId && r !== src && (r.type === 'COMPOSITION' || r.type === 'INPUT')) {
+        r.quantity = src.quantity;
+        r.unitCost = src.unitCost;
+        r.total = (r.quantity || 0) * (r.unitCost || 0);
+        r.dirty = true;
+        count++;
+      }
+    }
+    this.tree.rows.set([...this.tree.rows()]);
+    this.messages.add({ severity: 'success', summary: `Alteração replicada para ${count} item(ns) iguais` });
+  }
+
+  // === APRESENTAR ITENS ZERADOS ===
+  showZeroItems() {
+    const zeros = this.tree.rows().filter(r => (r.type === 'COMPOSITION' || r.type === 'INPUT') && (!r.unitCost || r.unitCost === 0));
+    if (zeros.length === 0) { this.messages.add({ severity: 'info', summary: 'Nenhum item com preço zerado' }); return; }
+    // Highlight itens zerados
+    this.selectedRows.clear();
+    for (const r of zeros) this.selectedRows.add(r);
+    this.selectedRow = zeros[0];
+    setTimeout(() => document.querySelector('tr.r-selected')?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 50);
+    this.messages.add({ severity: 'warn', summary: `${zeros.length} item(ns) com preço zerado` });
+  }
+
+  // === RESUMO POR TIPO ===
+  getSummaryByType(): { type: string; count: number; total: number }[] {
+    const map = new Map<string, { count: number; total: number }>();
+    for (const r of this.tree.rows()) {
+      if (r.type === 'COMPOSITION' || r.type === 'INPUT') {
+        const key = r.type === 'COMPOSITION' ? 'Composições' : 'Insumos';
+        const entry = map.get(key) || { count: 0, total: 0 };
+        entry.count++;
+        entry.total += r.total || 0;
+        map.set(key, entry);
+      }
+    }
+    return [...map.entries()].map(([type, v]) => ({ type, ...v }));
   }
 
   rowClass(row: BudgetRow): Record<string, boolean> {

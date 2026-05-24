@@ -135,6 +135,14 @@
   </table>
 </div>
 
+<!-- Resumo por tipo -->
+<div class="summary-bar">
+  @for (s of getSummaryByType(); track s.type) {
+    <span class="summary-item">{{ s.type }}: <strong>{{ s.count }}</strong> ({{ s.total | number:'1.2-2' }})</span>
+  }
+  <span class="summary-item total">Total: <strong>{{ tree.summary().total | number:'1.2-2' }}</strong></span>
+</div>
+
 @if (tree.dirtyCount() > 0) {
   <footer class="dirty-bar">
     <span>{{ tree.dirtyCount() }} alteração(ões) pendente(s)</span>
