@@ -101,7 +101,13 @@
             }
           </td>
           <!-- Cód.Ref -->
-          <td class="cell-ref">{{ row.refCode }}</td>
+          <td class="cell-ref">
+            @if (row.type === 'EMPTY') {
+              <input class="inline-input" style="font-family:monospace;font-size:10.5px" [(ngModel)]="row.refCode" placeholder="Cód." (keydown)="onRefCodeTab(row, $event)" />
+            } @else {
+              {{ row.refCode }}
+            }
+          </td>
           <!-- Descrição -->
           <td class="cell-desc" [style.padding-left.px]="row.type === 'SUB_COMPOSITION' ? 20 : 6">
             @if (row.type === 'EMPTY') {

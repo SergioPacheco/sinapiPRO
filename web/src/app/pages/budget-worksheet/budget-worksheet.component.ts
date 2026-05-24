@@ -98,8 +98,10 @@ export class BudgetWorksheetComponent implements OnInit {
     { label: 'Acessar Composição', icon: 'pi pi-list', command: () => this.openComposition() },
     { label: 'Salvar como Própria', icon: 'pi pi-copy', command: () => this.saveAsOwn() },
     { label: 'Alterar Todas Iguais', icon: 'pi pi-sync', command: () => this.applyToAllEqual() },
+    { label: 'Composições Iguais', icon: 'pi pi-clone', command: () => this.showEqualCompositions() },
     { separator: true },
     { label: 'Expandir', icon: 'pi pi-angle-down', command: () => { if (this.selectedRow) this.tree.toggle(this.selectedRow); } },
+    { label: 'Especificação Técnica', icon: 'pi pi-align-left', command: () => this.showSpecification() },
     { label: 'Aplicar Preço a Iguais', icon: 'pi pi-equals', command: () => this.applyPriceToEquals() },
   ];
 
@@ -472,6 +474,25 @@ export class BudgetWorksheetComponent implements OnInit {
 
   // === ITENS FALTANTES DO STRATO ===
 
+  /** #3 Tab no campo Cód.Ref busca insumo automaticamente */
+  onRefCodeTab(row: BudgetRow, event: KeyboardEvent) {
+    if (event.key === 'Tab' && row.refCode && !row.compositionId) {
+      event.preventDefault();
+      // Buscar composição/insumo pelo código
+      this.http.get<any>(`/compositions?q=${encodeURIComponent(row.refCode)}&size=1`).subscribe({
+        next: res => {
+          const items = res.content || res;
+          if (items.length > 0) {
+            this.tree.resolveRow(row, { ...items[0], _type: 'COMPOSITION' });
+            this.messages.add({ severity: 'success', summary: `Encontrado: ${items[0].description}` });
+          } else {
+            this.messages.add({ severity: 'warn', summary: 'Código não encontrado' });
+          }
+        },
+      });
+    }
+  }
+
   /** #26 Apresentar composições iguais — destaca todas ocorrências da mesma composição */
   showEqualCompositions() {
     if (!this.selectedRow?.compositionId) { this.messages.add({ severity: 'warn', summary: 'Selecione uma composição' }); return; }
@@ -492,7 +513,6 @@ export class BudgetWorksheetComponent implements OnInit {
   /** #33 Corrigir estrutura — renumera e reordena */
   fixStructure() {
     this.pushUndo();
-    // Renumerar todas as linhas
     let levelCount = 0;
     let itemCount = 0;
     for (const r of this.tree.rows()) {
