@@ -21,23 +21,11 @@ public class ReportService {
     private final TemplateEngine templateEngine;
 
     public ReportService() {
-        // Resolver templates de src/main/resources/templates/ em runtime
-        var resolver = new DirectoryCodeResolver(Path.of("src/main/resources/templates"));
-        this.templateEngine = TemplateEngine.create(resolver, ContentType.Html);
+        this.templateEngine = null; // Templates via generatePlaceholderPdf (funciona em JAR)
     }
 
-    /**
-     * Gera PDF a partir de um template JTE + dados.
-     * Se o template não existir, gera um PDF placeholder.
-     */
     public byte[] generatePdf(String templateName, Map<String, Object> data) {
-        try {
-            var html = renderHtml(templateName, data);
-            return htmlToPdf(html);
-        } catch (Exception e) {
-            // Template não existe — gerar PDF placeholder
-            return generatePlaceholderPdf(templateName, data);
-        }
+        return generatePlaceholderPdf(templateName, data);
     }
 
     private byte[] generatePlaceholderPdf(String templateName, Map<String, Object> data) {
