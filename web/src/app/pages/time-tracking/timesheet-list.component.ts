@@ -1,139 +1,126 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { DecimalPipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
-import { TabViewModule } from 'primeng/tabview';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
-import { DropdownModule } from 'primeng/dropdown';
+import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { CalendarModule } from 'primeng/calendar';
-import { TagModule } from 'primeng/tag';
+import { DropdownModule } from 'primeng/dropdown';
 import { MessageService } from 'primeng/api';
-import { StatusTagComponent, CurrencyDisplayComponent } from '../../shared/components';
+import { StatusTagComponent } from '../../shared/components';
 
 @Component({
   selector: 'app-timesheet-list',
   standalone: true,
-  imports: [FormsModule, TableModule, TabViewModule, ButtonModule, DialogModule, DropdownModule, InputNumberModule, CalendarModule, TagModule, StatusTagComponent, CurrencyDisplayComponent],
+  imports: [DecimalPipe, FormsModule, TableModule, ButtonModule, DialogModule, InputTextModule, InputNumberModule, CalendarModule, DropdownModule, StatusTagComponent],
   template: `
     <div class="flex align-items-center justify-content-between mb-3">
-      <h3 style="margin:0">Mão de Obra</h3>
-      <div class="flex gap-2 align-items-center">
-        <p-dropdown [options]="periods()" [(ngModel)]="selectedPeriod" optionLabel="label" placeholder="Competência" styleClass="w-10rem" (onChange)="loadPeriodData()" />
-        <p-tag [value]="selectedPeriod?.status || ''" [severity]="selectedPeriod?.status === 'OPEN' ? 'success' : 'secondary'" />
-        <p-button label="Lançar Horas" icon="pi pi-plus" size="small" (onClick)="showLancar = true" [disabled]="selectedPeriod?.status !== 'OPEN'" />
+      <h2 style="margin:0;color:var(--sp-text)">Mão de Obra</h2>
+      <div class="flex gap-2">
+        <p-button label="Apontar Horas" icon="pi pi-plus" size="small" (onClick)="showNew = true" />
+        <p-button label="Competências" icon="pi pi-calendar" size="small" severity="secondary" (onClick)="showPeriods = true" />
       </div>
     </div>
 
-    <p-tabView>
-      <p-tabPanel header="Apontamento">
-        <p-table [value]="timesheets()" styleClass="p-datatable-sm" [paginator]="true" [rows]="15">
-          <ng-template pTemplate="header"><tr><th>Funcionário</th><th style="width:100px">Data</th><th style="width:80px">Tipo</th><th style="width:80px" class="text-right">Horas</th><th style="width:120px">Etapa</th></tr></ng-template>
-          <ng-template pTemplate="body" let-t>
-            <tr><td>{{ t.employeeName }}</td><td>{{ t.date }}</td><td><p-tag [value]="t.hourType" [severity]="t.hourType === 'NORMAL' ? 'info' : 'warn'" /></td><td class="text-right font-semibold">{{ t.hours }}h</td><td>{{ t.activity }}</td></tr>
-          </ng-template>
-        </p-table>
-      </p-tabPanel>
-
-      <p-tabPanel header="Banco de Horas">
-        <p-table [value]="hourBank()" styleClass="p-datatable-sm">
-          <ng-template pTemplate="header"><tr><th>Funcionário</th><th style="width:100px">Data</th><th style="width:80px">Tipo</th><th style="width:80px" class="text-right">Horas</th><th>Descrição</th></tr></ng-template>
-          <ng-template pTemplate="body" let-h>
-            <tr><td>{{ h.employeeName }}</td><td>{{ h.referenceDate }}</td><td><span [class]="h.type === 'CREDIT' ? 'text-green-500' : 'text-red-500'">{{ h.type }}</span></td><td class="text-right font-semibold">{{ h.hours }}h</td><td>{{ h.description }}</td></tr>
-          </ng-template>
-        </p-table>
-      </p-tabPanel>
-
-      <p-tabPanel header="Resumo">
-        <div class="grid">
-          @for (s of summary(); track s.employee) {
-            <div class="col-12 md:col-6 lg:col-4">
-              <div class="summary-card">
-                <div class="font-semibold">{{ s.employee }}</div>
-                <div class="grid mt-2" style="font-size:13px">
-                  <div class="col-6">Normal: <strong>{{ s.normal }}h</strong></div>
-                  <div class="col-6">Extra 50%: <strong>{{ s.he50 }}h</strong></div>
-                  <div class="col-6">Extra 100%: <strong>{{ s.he100 }}h</strong></div>
-                  <div class="col-6">Noturna: <strong>{{ s.noturna }}h</strong></div>
-                  <div class="col-12 mt-1 font-semibold">Total: {{ s.total }}h</div>
-                </div>
-              </div>
-            </div>
-          }
+    <!-- Competências -->
+    @if (showPeriods) {
+      <div class="mb-3" style="background:var(--sp-surface-card);border:1px solid var(--sp-border);border-radius:6px;padding:12px">
+        <div class="flex align-items-center justify-content-between mb-2">
+          <strong style="font-size:12px">Períodos de Competência</strong>
+          <p-button label="Novo Período" icon="pi pi-plus" size="small" [text]="true" (onClick)="createPeriod()" />
         </div>
-      </p-tabPanel>
-    </p-tabView>
-
-    <!-- Dialog: Fechar/Abrir Competência -->
-    <div class="flex gap-2 mt-3">
-      @if (selectedPeriod?.status === 'OPEN') { <p-button label="Fechar Competência" icon="pi pi-lock" severity="warn" size="small" (onClick)="closePeriod()" /> }
-      @if (selectedPeriod?.status === 'CLOSED') { <p-button label="Reabrir" icon="pi pi-lock-open" severity="secondary" size="small" (onClick)="reopenPeriod()" /> }
-    </div>
-
-    <!-- Dialog: Lançar Horas -->
-    <p-dialog header="Lançar Horas" [(visible)]="showLancar" [style]="{width:'400px'}" [modal]="true">
-      <div class="flex flex-column gap-3">
-        <div><label>Funcionário</label><p-dropdown [options]="employees()" [(ngModel)]="newEntry.employeeId" optionLabel="name" optionValue="id" styleClass="w-full" /></div>
-        <div><label>Data</label><p-calendar [(ngModel)]="newEntry.date" dateFormat="dd/mm/yy" styleClass="w-full" /></div>
-        <div><label>Tipo Hora</label><p-dropdown [options]="hourTypes" [(ngModel)]="newEntry.hourType" styleClass="w-full" /></div>
-        <div><label>Horas</label><p-inputNumber [(ngModel)]="newEntry.hours" [min]="0.5" [max]="24" [step]="0.5" styleClass="w-full" /></div>
+        <p-table [value]="periods()" styleClass="p-datatable-sm" [rowHover]="true">
+          <ng-template pTemplate="body" let-p>
+            <tr>
+              <td>{{ p.yearMonth }}</td>
+              <td><sp-status [status]="p.status" /></td>
+              <td style="width:100px">
+                @if (p.status === 'OPEN') { <p-button label="Fechar" size="small" severity="warn" [text]="true" (onClick)="closePeriod(p.id)" /> }
+                @if (p.status === 'CLOSED') { <p-button label="Reabrir" size="small" [text]="true" (onClick)="reopenPeriod(p.id)" /> }
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
       </div>
-      <ng-template pTemplate="footer"><p-button label="Salvar" icon="pi pi-check" (onClick)="saveEntry()" /></ng-template>
+    }
+
+    <!-- Apontamentos -->
+    <p-table [value]="entries()" [loading]="loading()" styleClass="p-datatable-sm p-datatable-gridlines" [rowHover]="true" [paginator]="true" [rows]="15">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Funcionário</th>
+          <th style="width:80px">Data</th>
+          <th style="width:60px" class="text-right">Horas</th>
+          <th style="width:80px">Tipo</th>
+          <th>Atividade</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-e>
+        <tr>
+          <td>{{ e.employeeName }}</td>
+          <td style="font-size:0.8rem">{{ e.date }}</td>
+          <td class="text-right font-mono">{{ e.hours | number:'1.1-1' }}</td>
+          <td style="font-size:0.8rem">{{ e.hourType || 'Normal' }}</td>
+          <td style="font-size:0.85rem;color:var(--sp-text-muted)">{{ e.activity }}</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage"><tr><td colspan="5" class="text-center" style="padding:2rem;color:var(--sp-text-muted)">Nenhum apontamento</td></tr></ng-template>
+    </p-table>
+
+    <!-- Novo Apontamento -->
+    <p-dialog header="Apontar Horas" [(visible)]="showNew" [style]="{width:'450px'}" [modal]="true">
+      <div class="flex flex-column gap-3" style="font-size:12px">
+        <div><label>Funcionário</label><p-dropdown [(ngModel)]="form.employeeId" [options]="employees()" optionLabel="name" optionValue="id" placeholder="Selecionar..." styleClass="w-full" [filter]="true" /></div>
+        <div class="grid">
+          <div class="col-4"><label>Data</label><p-calendar [(ngModel)]="form.date" dateFormat="dd/mm/yy" styleClass="w-full" /></div>
+          <div class="col-4"><label>Horas</label><p-inputNumber [(ngModel)]="form.hours" [maxFractionDigits]="1" styleClass="w-full" /></div>
+          <div class="col-4"><label>Tipo</label><p-dropdown [(ngModel)]="form.hourType" [options]="hourTypes" styleClass="w-full" /></div>
+        </div>
+        <div><label>Atividade</label><input pInputText [(ngModel)]="form.activity" class="w-full" /></div>
+      </div>
+      <ng-template pTemplate="footer">
+        <p-button label="Cancelar" severity="secondary" (onClick)="showNew = false" />
+        <p-button label="Salvar" icon="pi pi-check" (onClick)="create()" />
+      </ng-template>
     </p-dialog>
   `,
-  styles: [`.summary-card { background: var(--sp-surface-card); border: 1px solid var(--sp-border); border-radius: var(--sp-radius); padding: 1rem; }`],
 })
 export class TimesheetListComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private http = inject(HttpClient);
   private messages = inject(MessageService);
 
+  entries = signal<any[]>([]);
   periods = signal<any[]>([]);
-  timesheets = signal<any[]>([]);
-  hourBank = signal<any[]>([]);
-  summary = signal<any[]>([]);
   employees = signal<any[]>([]);
-  selectedPeriod: any = null;
-  showLancar = false;
-  newEntry: any = { employeeId: null, date: new Date(), hourType: 'NORMAL', hours: 8 };
-  hourTypes = ['NORMAL', 'HE50', 'HE100', 'NOTURNA', 'FERIADO'].map(v => ({ label: v, value: v }));
+  loading = signal(true);
+  showNew = false;
+  showPeriods = false;
+  form: any = { hours: 8 };
+  hourTypes = ['Normal', 'Extra 50%', 'Extra 100%', 'Noturna'].map(t => ({ label: t, value: t }));
+
+  private get pid() { return this.route.parent?.snapshot.paramMap.get('id'); }
 
   ngOnInit() {
-    const id = this.route.parent?.snapshot.paramMap.get('id');
-    this.http.get<any>(`/projects/${id}/labor/competency-periods`).subscribe(res => {
-      const list = (res.content || res).map((p: any) => ({ ...p, label: p.yearMonth }));
-      this.periods.set(list);
-      if (list.length) { this.selectedPeriod = list[0]; this.loadPeriodData(); }
-    });
-    this.http.get<any>('/registry/employees?page=0&size=100').subscribe(res => this.employees.set(res.content || res));
+    this.http.get<any>(`/projects/${this.pid}/timesheets`).subscribe({ next: r => { this.entries.set(r.content || r); this.loading.set(false); }, error: () => this.loading.set(false) });
+    this.http.get<any>(`/projects/${this.pid}/labor/competency-periods`).subscribe({ next: r => this.periods.set(r.content || r || []) });
+    this.http.get<any>('/registry/employees?page=0&size=100').subscribe({ next: r => this.employees.set(r.content || r) });
   }
 
-  loadPeriodData() {
-    const id = this.route.parent?.snapshot.paramMap.get('id');
-    this.http.get<any>(`/projects/${id}/timesheets`).subscribe(res => this.timesheets.set(res.content || res));
-    this.http.get<any>(`/projects/${id}/labor/hour-bank/${this.selectedPeriod?.id || 'none'}`).subscribe({ next: res => this.hourBank.set(res), error: () => this.hourBank.set([]) });
+  create() {
+    const body = { ...this.form, date: this.form.date?.toISOString?.()?.slice(0, 10) };
+    this.http.post(`/projects/${this.pid}/timesheets`, body).subscribe({ next: () => { this.showNew = false; this.messages.add({ severity: 'success', summary: 'Horas apontadas' }); this.ngOnInit(); } });
   }
 
-  saveEntry() {
-    const id = this.route.parent?.snapshot.paramMap.get('id');
-    this.http.post(`/projects/${id}/timesheets`, this.newEntry).subscribe({
-      next: () => { this.showLancar = false; this.messages.add({ severity: 'success', summary: 'Horas lançadas' }); this.loadPeriodData(); },
-    });
+  createPeriod() {
+    const ym = prompt('Mês (YYYY-MM-01):', new Date().toISOString().slice(0, 8) + '01');
+    if (ym) this.http.post(`/projects/${this.pid}/labor/competency-periods`, { yearMonth: ym }).subscribe({ next: () => this.ngOnInit() });
   }
 
-  closePeriod() {
-    const id = this.route.parent?.snapshot.paramMap.get('id');
-    this.http.post(`/projects/${id}/labor/competency-periods/${this.selectedPeriod.id}/close`, { closedBy: 'admin' }).subscribe({
-      next: () => { this.selectedPeriod.status = 'CLOSED'; this.messages.add({ severity: 'info', summary: 'Competência fechada' }); },
-    });
-  }
-
-  reopenPeriod() {
-    const id = this.route.parent?.snapshot.paramMap.get('id');
-    this.http.post(`/projects/${id}/labor/competency-periods/${this.selectedPeriod.id}/reopen`, {}).subscribe({
-      next: () => { this.selectedPeriod.status = 'OPEN'; this.messages.add({ severity: 'info', summary: 'Competência reaberta' }); },
-    });
-  }
+  closePeriod(id: string) { this.http.post(`/projects/${this.pid}/labor/competency-periods/${id}/close`, { closedBy: 'admin' }).subscribe({ next: () => { this.messages.add({ severity: 'warn', summary: 'Competência fechada' }); this.ngOnInit(); } }); }
+  reopenPeriod(id: string) { this.http.post(`/projects/${this.pid}/labor/competency-periods/${id}/reopen`, {}).subscribe({ next: () => { this.messages.add({ severity: 'success', summary: 'Reaberta' }); this.ngOnInit(); } }); }
 }
