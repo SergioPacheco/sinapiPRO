@@ -21,8 +21,9 @@ public class ReportService {
     private final TemplateEngine templateEngine;
 
     public ReportService() {
-        // Em produção, usar templates pré-compilados. Em dev, resolver do classpath.
-        this.templateEngine = TemplateEngine.createPrecompiled(ContentType.Html);
+        // Resolver templates de src/main/resources/templates/ em runtime
+        var resolver = new DirectoryCodeResolver(Path.of("src/main/resources/templates"));
+        this.templateEngine = TemplateEngine.create(resolver, ContentType.Html);
     }
 
     /**

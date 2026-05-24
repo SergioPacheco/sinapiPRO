@@ -20,7 +20,12 @@ public class BudgetReportService {
     }
 
     public byte[] analitico(UUID id) { return reportService.generatePdf("reports/budget/analitico.jte", Map.of("budget", budgetRepo.findById(id).orElseThrow(), "items", itemRepo.findAllByBudgetId(id))); }
-    public byte[] sintetico(UUID id) { return reportService.generatePdf("reports/budget/sintetico.jte", Map.of("budget", budgetRepo.findById(id).orElseThrow())); }
+    public byte[] sintetico(UUID id) {
+        var budget = budgetRepo.findById(id).orElseThrow();
+        var items = itemRepo.findAllByBudgetId(id);
+        var total = items.stream().map(BudgetItem::getDirectCost).reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+        return reportService.generatePdf("reports/budget/sintetico.jte", Map.of("budget", budget, "items", items, "total", total));
+    }
     public byte[] cpu(UUID id) { return reportService.generatePdf("reports/budget/cpu.jte", Map.of("items", itemRepo.findAllByBudgetId(id))); }
     public byte[] cronogramaFinanceiro(UUID id) { return reportService.generatePdf("reports/budget/cronograma-financeiro.jte", Map.of("budgetId", id)); }
     public byte[] analiseCompras(UUID id) { return reportService.generatePdf("reports/budget/analise-compras.jte", Map.of("budgetId", id)); }
