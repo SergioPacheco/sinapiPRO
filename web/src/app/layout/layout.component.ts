@@ -58,11 +58,14 @@ export class LayoutComponent {
   menu = [
     { label: 'Dashboard', icon: 'th-large', route: '/dashboard' },
     { label: 'Obras', icon: 'building', route: '/projects' },
-    { label: 'Composições', icon: 'book', route: '/sinapi' },
-    { label: 'Insumos', icon: 'box', route: '/sinapi/materials' },
-    { label: 'Comercial', icon: 'briefcase', route: '/commercial' },
+    { label: 'Orçamentos', icon: 'calculator', route: '/budgets' },
+    { label: 'Contratos', icon: 'file', route: '/contracts' },
+    { label: 'Medições', icon: 'check-square', route: '/measurements' },
+    { label: 'Suprimentos', icon: 'shopping-cart', route: '/procurement' },
+    { label: 'Financeiro', icon: 'dollar', route: '/finance' },
+    { label: 'Diário de Obra', icon: 'calendar', route: '/daily-logs' },
+    { label: 'SINAPI', icon: 'database', route: '/sinapi' },
     { label: 'Cadastros', icon: 'users', route: '/registry' },
-    { label: 'Relatórios', icon: 'file-pdf', route: '/reports' },
     { label: 'Configurações', icon: 'cog', route: '/settings' },
   ];
 
