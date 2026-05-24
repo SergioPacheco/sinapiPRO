@@ -10,8 +10,8 @@
     <span class="metric total">Total <strong>{{ tree.summary().total | number:'1.2-2' }}</strong></span>
   </div>
   <div class="toolbar-right">
-    <button class="btn-primary" (click)="insertItem()" pTooltip="Novo Item (Insert)"><i class="pi pi-plus"></i></button>
-    <button class="btn-icon" (click)="deleteWithConfirm()" [disabled]="!selectedRow" pTooltip="Excluir (Delete)"><i class="pi pi-trash"></i></button>
+    <button class="btn-primary" (click)="insertItem()" pTooltip="Novo Item (Insert)" [disabled]="isReadOnly"><i class="pi pi-plus"></i></button>
+    <button class="btn-icon" (click)="deleteWithConfirm()" [disabled]="!selectedRow || isReadOnly" pTooltip="Excluir (Delete)"><i class="pi pi-trash"></i></button>
     <span class="toolbar-sep"></span>
     <button class="btn-icon" (click)="copyItems()" [disabled]="!selectedRow" pTooltip="Copiar (Ctrl+C)"><i class="pi pi-clone"></i></button>
     <button class="btn-icon" (click)="pasteItems()" [disabled]="clipboard.length === 0" pTooltip="Colar (Ctrl+V)"><i class="pi pi-clipboard"></i></button>
@@ -33,6 +33,20 @@
 </header>
 
 <!-- Spreadsheet Grid -->
+<!-- Base de Preço / UF (#17 estilo Strato) -->
+<div class="base-bar">
+  <span class="base-label">Base Preço:</span>
+  <select class="base-select" [(ngModel)]="basePreco"><option value="SINAPI">SINAPI</option><option value="PROPRIO">Própria</option></select>
+  <span class="base-label">UF:</span>
+  <select class="base-select" [(ngModel)]="baseState">
+    @for (uf of ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO']; track uf) { <option [value]="uf">{{ uf }}</option> }
+  </select>
+  <span class="base-label">Mês:</span>
+  <input class="base-select" style="width:90px" type="month" [(ngModel)]="baseMonth" />
+  <button class="btn-icon" (click)="updateBasePrice()" pTooltip="Atualizar preços pela base"><i class="pi pi-refresh"></i></button>
+  @if (isReadOnly) { <span class="readonly-badge">🔒 SOMENTE LEITURA</span> }
+</div>
+
 <div class="spreadsheet" #spreadsheetEl>
   <table>
     <colgroup>

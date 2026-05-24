@@ -156,6 +156,16 @@ tr:hover .del-btn { opacity: 1; }
 // === Info label ===
 .info-label { display: block; font-size: 10px; color: $muted; text-transform: uppercase; margin-bottom: 2px; }
 
+// === Base bar (#17) ===
+.base-bar {
+  display: flex; align-items: center; gap: 8px; padding: 4px 14px;
+  background: darken($card, 2%); border: 1px solid $border; border-top: none;
+  font-size: 11px; color: $muted;
+}
+.base-label { font-weight: 600; font-size: 10px; text-transform: uppercase; }
+.base-select { background: $bg; border: 1px solid $border; border-radius: 3px; padding: 2px 6px; font-size: 11px; color: $text; }
+.readonly-badge { margin-left: auto; background: rgba(239,68,68,0.15); color: #ef4444; padding: 2px 8px; border-radius: 3px; font-size: 10px; font-weight: 600; }
+
 // === Summary bar ===
 .summary-bar {
   display: flex; align-items: center; gap: 16px;

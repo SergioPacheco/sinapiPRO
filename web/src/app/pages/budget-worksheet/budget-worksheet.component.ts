@@ -58,6 +58,14 @@ export class BudgetWorksheetComponent implements OnInit {
   chartData: { name: string; total: number; pct: number }[] = [];
   integrityResults: string[] = [];
 
+  // #17 Base de Preço / Insumo
+  basePreco = 'SINAPI';
+  baseState = 'SP';
+  baseMonth = '2024-12-01';
+
+  // #34 Proteção
+  isReadOnly = false;
+
   // Undo/Redo
   private undoStack: string[] = [];
   private redoStack: string[] = [];
@@ -105,7 +113,13 @@ export class BudgetWorksheetComponent implements OnInit {
     { label: 'Aplicar Preço a Iguais', icon: 'pi pi-equals', command: () => this.applyPriceToEquals() },
   ];
 
-  ngOnInit() { this.tree.load(this.budgetId!); }
+  ngOnInit() {
+    this.tree.load(this.budgetId!);
+    // #34 Verificar se orçamento está bloqueado
+    this.http.get<any>(`/budgets/${this.budgetId}`).subscribe({
+      next: b => { this.isReadOnly = b.status === 'EFFECTIVE' || b.status === 'IN_EXECUTION'; this.baseState = b.state || 'SP'; this.baseMonth = b.referenceDate || '2024-12-01'; },
+    });
+  }
 
   // === Keyboard Navigation ===
   @HostListener('document:keydown', ['$event'])
@@ -521,5 +535,15 @@ export class BudgetWorksheetComponent implements OnInit {
     }
     this.tree.rows.set([...this.tree.rows()]);
     this.messages.add({ severity: 'success', summary: 'Estrutura corrigida e renumerada' });
+  }
+
+  /** #17 Atualizar Base de Preço — recalcula todos os preços pela base selecionada */
+  updateBasePrice() {
+    this.http.post<any>(`/budgets/${this.budgetId}/update-base-date`, { referenceDate: this.baseMonth, state: this.baseState }).subscribe({
+      next: res => {
+        this.messages.add({ severity: 'success', summary: `Preços atualizados`, detail: `${res.updatedPrices} atualizados, ${res.divergentPrices} divergentes` });
+        this.tree.load(this.budgetId!);
+      },
+    });
   }
 }
