@@ -46,7 +46,7 @@ class WipReportServiceTest {
         Budget budget = mock(Budget.class);
         Measurement m = new Measurement(budget, 1, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 31), BigDecimal.ZERO);
         m.submit();
-        m.approve();
+        m.approve("test-user");
         m.getItems().add(new MeasurementItem(m, (UUID) null, "Work", new BigDecimal("1"), new BigDecimal("100000")));
 
         when(measurementRepository.findByBudgetIdOrderByNumberDesc(budgetId)).thenReturn(List.of(m));
@@ -68,7 +68,7 @@ class WipReportServiceTest {
         Budget budget = mock(Budget.class);
         Measurement m = new Measurement(budget, 1, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 31), BigDecimal.ZERO);
         m.submit();
-        m.approve();
+        m.approve("test-user");
         m.getItems().add(new MeasurementItem(m, (UUID) null, "Work", new BigDecimal("1"), new BigDecimal("100000")));
 
         when(measurementRepository.findByBudgetIdOrderByNumberDesc(budgetId)).thenReturn(List.of(m));
@@ -89,7 +89,7 @@ class WipReportServiceTest {
         Budget budget = mock(Budget.class);
         Measurement m = new Measurement(budget, 1, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 31), BigDecimal.ZERO);
         m.submit();
-        m.approve();
+        m.approve("test-user");
         m.getItems().add(new MeasurementItem(m, (UUID) null, "Work", new BigDecimal("1"), new BigDecimal("50000")));
 
         when(measurementRepository.findByBudgetIdOrderByNumberDesc(budgetId)).thenReturn(List.of(m));

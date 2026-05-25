@@ -10,21 +10,23 @@ spring:
       file: compose.yaml
       lifecycle-management: start-and-stop
   datasource:
-    url: jdbc:postgresql://localhost:5432/sinapipro
-    username: sinapipro
-    password: sinapipro
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/sinapipro}
+    username: ${DB_USERNAME:sinapipro}
+    password: ${DB_PASSWORD:sinapipro}
     hikari:
       maximum-pool-size: 20
       minimum-idle: 4
       pool-name: showcase-pool
   flyway:
-    enabled: false
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
   sql:
     init:
       mode: never
   jpa:
     open-in-view: false
-    defer-datasource-initialization: true
+    defer-datasource-initialization: false
     hibernate:
       ddl-auto: update
     properties:
@@ -48,7 +50,7 @@ server:
   port: 8080
   shutdown: graceful
   tomcat:
-    connection-timeout: 300s
+    connection-timeout: 30s
 
 management:
   server:
@@ -64,10 +66,10 @@ management:
       show-details: always
   tracing:
     sampling:
-      probability: 1.0
+      probability: ${OTEL_SAMPLING:1.0}
   otlp:
     tracing:
-      endpoint: http://localhost:4318/v1/traces
+      endpoint: ${OTEL_ENDPOINT:http://localhost:4318/v1/traces}
 
 logging:
   structured:
@@ -87,10 +89,10 @@ springdoc:
 sinapipro:
   security:
     issuer: sinapipro
-    secret: 0123456789abcdef0123456789abcdef0123456789abcdef
+    secret: ${JWT_SECRET:dev-only-unsafe-key-replace-in-production-min-48-chars!!}
     demo-user:
-      username: admin@sinapipro.dev
-      password: SinapiPro#2026
+      username: ${DEMO_USER:admin@sinapipro.dev}
+      password: ${DEMO_PASSWORD:SinapiPro#2026}
       roles:
         - ADMIN
         - USER
@@ -115,3 +117,24 @@ spring.mail:
   properties:
     mail.smtp.auth: ${MAIL_AUTH:false}
     mail.smtp.starttls.enable: ${MAIL_STARTTLS:false}
+
+# Resilience4j — Circuit Breaker + Retry para integrações externas
+resilience4j:
+  circuitbreaker:
+    instances:
+      emailService:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 3
+        register-health-indicator: true
+  retry:
+    instances:
+      emailService:
+        max-attempts: 3
+        wait-duration: 500ms
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - org.springframework.mail.MailException
+          - java.net.ConnectException
+          - java.net.SocketTimeoutException

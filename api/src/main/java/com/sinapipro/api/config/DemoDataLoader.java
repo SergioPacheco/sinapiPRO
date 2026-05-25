@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 @Component
+@org.springframework.context.annotation.Profile("dev")
 public class DemoDataLoader implements ApplicationRunner {
 
     private final EntityManager em;
@@ -36,11 +37,6 @@ public class DemoDataLoader implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         if (projectRepo.count() > 0) return;
 
-        // Criar coluna search_vector (tsvector não é criada pelo Hibernate ddl-auto)
-        try { em.createNativeQuery("ALTER TABLE composition ADD COLUMN IF NOT EXISTS search_vector tsvector").executeUpdate(); } catch (Exception ignored) {}
-        try { em.createNativeQuery("ALTER TABLE material ADD COLUMN IF NOT EXISTS search_vector tsvector").executeUpdate(); } catch (Exception ignored) {}
-        try { em.createNativeQuery("CREATE INDEX IF NOT EXISTS idx_composition_search ON composition USING gin(search_vector)").executeUpdate(); } catch (Exception ignored) {}
-        try { em.createNativeQuery("CREATE INDEX IF NOT EXISTS idx_material_search ON material USING gin(search_vector)").executeUpdate(); } catch (Exception ignored) {}
         var faker = new Faker(new Locale("pt", "BR"));
         var tenantId = UUID.fromString("00000000-0000-0000-0000-000000000001");
 

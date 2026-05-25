@@ -21,6 +21,7 @@ import com.sinapipro.api.jobcosting.domain.CostTransactionRepository;
 import com.sinapipro.api.jobcosting.domain.CostTransactionType;
 import com.sinapipro.api.measurement.domain.*;
 import com.sinapipro.api.shared.error.DomainNotFoundException;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,11 +36,13 @@ public class MeasurementService {
     private final CostTransactionRepository costTransactionRepository;
     private final InvoiceRepository invoiceRepository;
     private final ReceivableRepository receivableRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public MeasurementService(MeasurementRepository measurementRepository, BudgetRepository budgetRepository,
                               BudgetItemRepository budgetItemRepository,
                               CostCodeRepository costCodeRepository, CostTransactionRepository costTransactionRepository,
-                              InvoiceRepository invoiceRepository, ReceivableRepository receivableRepository) {
+                              InvoiceRepository invoiceRepository, ReceivableRepository receivableRepository,
+                              ApplicationEventPublisher eventPublisher) {
         this.measurementRepository = measurementRepository;
         this.budgetRepository = budgetRepository;
         this.budgetItemRepository = budgetItemRepository;
@@ -47,6 +50,7 @@ public class MeasurementService {
         this.costTransactionRepository = costTransactionRepository;
         this.invoiceRepository = invoiceRepository;
         this.receivableRepository = receivableRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -92,14 +96,17 @@ public class MeasurementService {
     public Measurement submit(UUID measurementId) {
         var m = findOrThrow(measurementId);
         m.submit();
-        return measurementRepository.save(m);
+        var saved = measurementRepository.save(m);
+        saved.drainEvents().forEach(eventPublisher::publishEvent);
+        return saved;
     }
 
     @Transactional
     public Measurement approve(UUID measurementId) {
         var m = findOrThrow(measurementId);
-        m.approve();
+        m.approve("system"); // TODO: extract from SecurityContext
         var saved = measurementRepository.save(m);
+        saved.drainEvents().forEach(eventPublisher::publishEvent);
 
         // Virtual threads: cost transactions and invoice generation run in parallel
         try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {

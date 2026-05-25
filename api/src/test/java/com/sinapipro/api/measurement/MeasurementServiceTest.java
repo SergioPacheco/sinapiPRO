@@ -38,13 +38,14 @@ class MeasurementServiceTest {
     @Mock CostTransactionRepository costTransactionRepository;
     @Mock InvoiceRepository invoiceRepository;
     @Mock com.sinapipro.api.finance.domain.ReceivableRepository receivableRepository;
+    @Mock org.springframework.context.ApplicationEventPublisher eventPublisher;
 
     MeasurementService service;
 
     @BeforeEach
     void setUp() {
         service = new MeasurementService(measurementRepository, budgetRepository, budgetItemRepository, costCodeRepository,
-                costTransactionRepository, invoiceRepository, receivableRepository);
+                costTransactionRepository, invoiceRepository, receivableRepository, eventPublisher);
     }
 
     @Test
@@ -111,7 +112,7 @@ class MeasurementServiceTest {
 
         Measurement approved = new Measurement(budget, 1, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 31), new BigDecimal("0.10"));
         approved.submit();
-        approved.approve();
+        approved.approve("test-user");
         approved.getItems().add(new MeasurementItem(approved, (UUID) null, "Item 1", new BigDecimal("5"), new BigDecimal("200")));
 
         Measurement draft = new Measurement(budget, 2, LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 28), new BigDecimal("0.10"));
@@ -135,7 +136,7 @@ class MeasurementServiceTest {
 
         Measurement m = new Measurement(budget, 1, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 31), BigDecimal.ZERO);
         m.submit();
-        m.approve();
+        m.approve("test-user");
         m.getItems().add(new MeasurementItem(m, (UUID) null, "Item", new BigDecimal("10"), new BigDecimal("100")));
 
         when(measurementRepository.findByBudgetIdOrderByNumberDesc(budgetId)).thenReturn(List.of(m));

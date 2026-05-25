@@ -51,7 +51,7 @@ class CashFlowServiceTest {
 
         Measurement m = new Measurement(budget, 1, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 31), BigDecimal.ZERO);
         m.submit();
-        m.approve();
+        m.approve("test-user");
         m.getItems().add(new MeasurementItem(m, (UUID) null, "Work", new BigDecimal("1"), new BigDecimal("10000")));
 
         when(measurementRepository.findByBudgetIdOrderByNumberDesc(budgetId)).thenReturn(List.of(m));
@@ -95,7 +95,7 @@ class CashFlowServiceTest {
         // Income in Jan: 20000
         Measurement m = new Measurement(budget, 1, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 31), BigDecimal.ZERO);
         m.submit();
-        m.approve();
+        m.approve("test-user");
         m.getItems().add(new MeasurementItem(m, (UUID) null, "Work", new BigDecimal("1"), new BigDecimal("20000")));
 
         // Expense in Feb: 8000

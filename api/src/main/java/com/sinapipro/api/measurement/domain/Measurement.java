@@ -3,12 +3,26 @@ package com.sinapipro.api.measurement.domain;
 import com.sinapipro.api.budget.domain.Budget;
 import com.sinapipro.api.shared.domain.AuditableEntity;
 import jakarta.persistence.*;
+import org.springframework.data.domain.AbstractAggregateRoot;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+/**
+ * Aggregate Root — Measurement (Medição de Obra).
+ *
+ * Invariantes protegidas:
+ * - State machine: DRAFT → SUBMITTED → APPROVED → PAID (ou SUBMITTED → DRAFT via reject)
+ * - Período deve ser válido (start <= end)
+ * - Retenção entre 0 e 1
+ *
+ * Domain Events publicados nas transições de estado.
+ */
 @Entity
 @Table(name = "measurement", uniqueConstraints = @UniqueConstraint(columnNames = {"budget_id", "number"}))
 public class Measurement extends AuditableEntity {
@@ -43,7 +57,7 @@ public class Measurement extends AuditableEntity {
     private boolean extraItem = false;
 
     @Column(name = "change_order_id")
-    private java.util.UUID changeOrderId;
+    private UUID changeOrderId;
 
     @Column(name = "imported_from", length = 100)
     private String importedFrom;
@@ -51,9 +65,16 @@ public class Measurement extends AuditableEntity {
     @OneToMany(mappedBy = "measurement", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MeasurementItem> items = new ArrayList<>();
 
+    /** Domain events pendentes — coletados pelo service após save */
+    @Transient
+    private final List<MeasurementEvent> domainEvents = new ArrayList<>();
+
     protected Measurement() {}
 
     public Measurement(Budget budget, Integer number, LocalDate periodStart, LocalDate periodEnd, BigDecimal retentionPct) {
+        if (periodStart.isAfter(periodEnd)) throw new IllegalArgumentException("periodStart must be <= periodEnd");
+        if (retentionPct.compareTo(BigDecimal.ZERO) < 0 || retentionPct.compareTo(BigDecimal.ONE) > 0)
+            throw new IllegalArgumentException("retentionPct must be between 0 and 1");
         this.budget = budget;
         this.number = number;
         this.periodStart = periodStart;
@@ -61,6 +82,66 @@ public class Measurement extends AuditableEntity {
         this.retentionPct = retentionPct;
         this.status = MeasurementStatus.DRAFT;
     }
+
+    // === State Machine (transições protegidas) ===
+
+    public void submit() {
+        requireStatus(MeasurementStatus.DRAFT, "submit");
+        this.status = MeasurementStatus.SUBMITTED;
+        registerEvent(new MeasurementEvent.Submitted(getId(), budget.getId(), number, getGrossAmount(), Instant.now()));
+    }
+
+    public void approve(String approvedBy) {
+        requireStatus(MeasurementStatus.SUBMITTED, "approve");
+        this.status = MeasurementStatus.APPROVED;
+        registerEvent(new MeasurementEvent.Approved(getId(), budget.getId(), number, getNetAmount(), approvedBy, Instant.now()));
+    }
+
+    public void pay() {
+        requireStatus(MeasurementStatus.APPROVED, "pay");
+        this.status = MeasurementStatus.PAID;
+        registerEvent(new MeasurementEvent.Paid(getId(), budget.getId(), number, getNetAmount(), Instant.now()));
+    }
+
+    public void reject(String reason) {
+        requireStatus(MeasurementStatus.SUBMITTED, "reject");
+        this.status = MeasurementStatus.DRAFT;
+        this.rejectionReason = reason;
+        registerEvent(new MeasurementEvent.Rejected(getId(), budget.getId(), number, reason, Instant.now()));
+    }
+
+    // === Calculated Values ===
+
+    public BigDecimal getGrossAmount() {
+        return items.stream().map(MeasurementItem::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public BigDecimal getNetAmount() {
+        BigDecimal gross = getGrossAmount();
+        return gross.subtract(gross.multiply(retentionPct)).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    // === Domain Event support ===
+
+    private void registerEvent(MeasurementEvent event) {
+        domainEvents.add(event);
+    }
+
+    /** Retorna e limpa eventos pendentes (chamado pelo service após save) */
+    public List<MeasurementEvent> drainEvents() {
+        var events = List.copyOf(domainEvents);
+        domainEvents.clear();
+        return events;
+    }
+
+    // === Guards ===
+
+    private void requireStatus(MeasurementStatus required, String action) {
+        if (status != required)
+            throw new IllegalStateException("Cannot " + action + " measurement in status " + status + " (requires " + required + ")");
+    }
+
+    // === Getters ===
 
     public Budget getBudget() { return budget; }
     public Integer getNumber() { return number; }
@@ -70,41 +151,10 @@ public class Measurement extends AuditableEntity {
     public BigDecimal getRetentionPct() { return retentionPct; }
     public String getNotes() { return notes; }
     public List<MeasurementItem> getItems() { return items; }
-
-    public BigDecimal getGrossAmount() {
-        return items.stream().map(MeasurementItem::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    public BigDecimal getNetAmount() {
-        BigDecimal gross = getGrossAmount();
-        return gross.subtract(gross.multiply(retentionPct)).setScale(2, java.math.RoundingMode.HALF_UP);
-    }
-
-    public void submit() {
-        if (status != MeasurementStatus.DRAFT) throw new IllegalStateException("Can only submit DRAFT measurements");
-        this.status = MeasurementStatus.SUBMITTED;
-    }
-
-    public void approve() {
-        if (status != MeasurementStatus.SUBMITTED) throw new IllegalStateException("Can only approve SUBMITTED measurements");
-        this.status = MeasurementStatus.APPROVED;
-    }
-
-    public void pay() {
-        if (status != MeasurementStatus.APPROVED) throw new IllegalStateException("Can only pay APPROVED measurements");
-        this.status = MeasurementStatus.PAID;
-    }
-
-    public void reject(String reason) {
-        if (status != MeasurementStatus.SUBMITTED) throw new IllegalStateException("Can only reject SUBMITTED measurements");
-        this.status = MeasurementStatus.DRAFT;
-        this.rejectionReason = reason;
-    }
-
     public String getRejectionReason() { return rejectionReason; }
     public boolean isExtraItem() { return extraItem; }
-    public java.util.UUID getChangeOrderId() { return changeOrderId; }
-    public void setChangeOrderId(java.util.UUID changeOrderId) { this.changeOrderId = changeOrderId; }
+    public UUID getChangeOrderId() { return changeOrderId; }
+    public void setChangeOrderId(UUID changeOrderId) { this.changeOrderId = changeOrderId; }
     public String getImportedFrom() { return importedFrom; }
     public void setImportedFrom(String importedFrom) { this.importedFrom = importedFrom; }
 }

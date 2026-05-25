@@ -1,0 +1,13 @@
+# Profile DEV — usado para desenvolvimento local
+# Ativa: ddl-auto update, demo data, flyway com clean
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+  flyway:
+    clean-disabled: false
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE

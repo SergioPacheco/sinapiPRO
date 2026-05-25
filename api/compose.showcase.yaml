@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: sinapipro
       POSTGRES_PASSWORD: sinapipro
     ports:
-      - "5432:5432"
+      - "5499:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -23,14 +23,19 @@ services:
       dockerfile: Dockerfile
     container_name: sinapipro-app
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sinapipro
-      SPRING_DATASOURCE_USERNAME: sinapipro
-      SPRING_DATASOURCE_PASSWORD: sinapipro
+      SPRING_PROFILES_ACTIVE: dev
+      DB_URL: jdbc:postgresql://postgres:5432/sinapipro
+      DB_USERNAME: sinapipro
+      DB_PASSWORD: sinapipro
+      JWT_SECRET: showcase-dev-key-not-for-production-min-48-chars!!
       SPRING_DOCKER_COMPOSE_ENABLED: "false"
-      MANAGEMENT_OTLP_TRACING_ENDPOINT: http://otel-lgtm:4318/v1/traces
+      OTEL_ENDPOINT: http://otel-lgtm:4318/v1/traces
+      OTEL_SAMPLING: "1.0"
+      MAIL_HOST: mailhog
+      MAIL_PORT: "1025"
     ports:
-      - "8080:8080"
-      - "8081:8081"
+      - "8180:8080"
+      - "8181:8081"
     depends_on:
       postgres:
         condition: service_healthy
@@ -45,7 +50,7 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - promdata:/prometheus
     ports:
-      - "9090:9090"
+      - "9190:9090"
     depends_on:
       app:
         condition: service_started
@@ -57,10 +62,14 @@ services:
     environment:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/slo-dashboard.json
     ports:
-      - "3000:3000"
+      - "3200:3000"
     volumes:
       - grafanadata:/var/lib/grafana
+      - ../grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - ./grafana-provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./grafana-provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
     depends_on:
       prometheus:
         condition: service_started
@@ -70,9 +79,17 @@ services:
     image: grafana/otel-lgtm:0.11.8
     container_name: sinapipro-otel
     ports:
-      - "4317:4317"
-      - "4318:4318"
-      - "3100:3100"
+      - "4417:4317"
+      - "4418:4318"
+      - "3101:3100"
+    restart: unless-stopped
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: sinapipro-mailhog
+    ports:
+      - "1125:1025"
+      - "8125:8025"
     restart: unless-stopped
 
 volumes:

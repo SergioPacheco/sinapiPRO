@@ -1,0 +1,18 @@
+# Profile PROD — schema gerenciado exclusivamente por Flyway
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    clean-disabled: true
+    baseline-on-migrate: false
+
+management:
+  tracing:
+    sampling:
+      probability: 0.1
+
+logging:
+  level:
+    com.sinapipro: INFO
+    org.hibernate.SQL: WARN

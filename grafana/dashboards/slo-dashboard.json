@@ -1,0 +1,72 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "title": "Request Rate (req/s)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [{ "expr": "rate(http_server_requests_seconds_count{application=\"sinapipro-api\"}[5m])", "legendFormat": "{{method}} {{uri}}" }],
+      "fieldConfig": { "defaults": { "unit": "reqps" } }
+    },
+    {
+      "title": "Latency p95 (ms)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [{ "expr": "histogram_quantile(0.95, rate(http_server_requests_seconds_bucket{application=\"sinapipro-api\"}[5m]))*1000", "legendFormat": "p95" }],
+      "fieldConfig": { "defaults": { "unit": "ms", "thresholds": { "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 300}, {"color": "red", "value": 1000}] } } }
+    },
+    {
+      "title": "Error Rate (%)",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 8 },
+      "targets": [{ "expr": "sum(rate(http_server_requests_seconds_count{application=\"sinapipro-api\",status=~\"5..\"}[5m])) / sum(rate(http_server_requests_seconds_count{application=\"sinapipro-api\"}[5m])) * 100", "legendFormat": "error %" }],
+      "fieldConfig": { "defaults": { "unit": "percent", "thresholds": { "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 0.5}, {"color": "red", "value": 1}] } } }
+    },
+    {
+      "title": "Availability (SLO: 99.5%)",
+      "type": "gauge",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 8 },
+      "targets": [{ "expr": "(1 - sum(rate(http_server_requests_seconds_count{application=\"sinapipro-api\",status=~\"5..\"}[30m])) / sum(rate(http_server_requests_seconds_count{application=\"sinapipro-api\"}[30m]))) * 100", "legendFormat": "availability" }],
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 95, "max": 100, "thresholds": { "steps": [{"color": "red", "value": null}, {"color": "yellow", "value": 99}, {"color": "green", "value": 99.5}] } } }
+    },
+    {
+      "title": "JVM Heap Usage",
+      "type": "timeseries",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 8 },
+      "targets": [{ "expr": "jvm_memory_used_bytes{application=\"sinapipro-api\",area=\"heap\"} / jvm_memory_max_bytes{application=\"sinapipro-api\",area=\"heap\"} * 100", "legendFormat": "heap %" }],
+      "fieldConfig": { "defaults": { "unit": "percent", "max": 100 } }
+    },
+    {
+      "title": "HikariCP Active Connections",
+      "type": "timeseries",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 8 },
+      "targets": [{ "expr": "hikaricp_connections_active{pool=\"showcase-pool\"}", "legendFormat": "active" }, { "expr": "hikaricp_connections_max{pool=\"showcase-pool\"}", "legendFormat": "max" }],
+      "fieldConfig": { "defaults": { "unit": "short" } }
+    },
+    {
+      "title": "Circuit Breaker — Email Service",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 12 },
+      "targets": [{ "expr": "resilience4j_circuitbreaker_state{name=\"emailService\"}", "legendFormat": "state" }],
+      "fieldConfig": { "defaults": { "mappings": [{"type": "value", "options": {"0": {"text": "CLOSED", "color": "green"}, "1": {"text": "OPEN", "color": "red"}, "2": {"text": "HALF_OPEN", "color": "yellow"}}}] } }
+    },
+    {
+      "title": "Business: Measurements by Status",
+      "type": "piechart",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 12 },
+      "targets": [{ "expr": "measurement_status_total", "legendFormat": "{{status}}" }]
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["sinapipro", "slo"],
+  "templating": { "list": [] },
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "SinapiPRO — SLO Dashboard",
+  "uid": "sinapipro-slo",
+  "version": 1
+}

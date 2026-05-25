@@ -1,13 +1,13 @@
 services:
   postgres:
-    image: postgres:16
+    image: postgres:17.5
     container_name: sinapipro-postgres
     environment:
       POSTGRES_DB: sinapipro
       POSTGRES_USER: sinapipro
       POSTGRES_PASSWORD: sinapipro
     ports:
-      - "5499:5432"
+      - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
@@ -15,4 +15,3 @@ services:
       retries: 10
     labels:
       org.springframework.boot.service-connection: postgres
-      org.springframework.boot.jdbc.parameters: "stringtype=unspecified"
