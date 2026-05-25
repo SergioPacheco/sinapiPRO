@@ -1,31 +1,34 @@
 # Arquitetura de Fluxos de Negócio — SinapiPRO
 
 > Documento de referência para orquestração de processos ponta-a-ponta.
-> Identifica o estado atual (CRUDs soltos), os fluxos ideais e as lacunas a resolver.
+> Identifica o que já funciona, os fluxos ideais e as lacunas de UX a resolver.
 
 ---
 
-## Diagnóstico: O Problema Atual
+## Estado Atual (2026-05-25)
 
-O SinapiPRO tem **34 controllers** e **10 abas no workspace da obra**, mas funciona como uma coleção de CRUDs independentes. O usuário cadastra algo e não sabe para onde ir depois.
+### ✅ Já implementado no backend
 
-### Sintomas
+| Fluxo | Status | Onde |
+|-------|--------|------|
+| Medição com workflow | DRAFT→SUBMITTED→APPROVED→PAID + history | `measurement` module |
+| Suprimentos end-to-end | Requisição→Cotação→Pedido→Recebimento | `procurement` module |
+| Contratos com aditivos | ACTIVE + change orders + retenção | `contract` module |
+| Financeiro com parcelas | Pagar/receber + installments + banco | `finance` module |
+| Cronograma CPM | Atividades + dependências + baselines | `schedule` module |
+| Job Costing | Orçado × comprometido × realizado | `jobcosting` module |
+| Portal Fornecedor | Token + cotação online | `procurement.SupplierPortalController` |
 
-| Sintoma | Exemplo |
-|---------|---------|
-| **Sem "next action"** | Crio uma obra → caio no resumo vazio → e agora? |
-| **Sem dashboard de processo** | Não sei se a obra está no orçamento, contrato ou execução |
-| **Abas sem sequência** | As 10 abas são iguais visualmente, sem indicar progresso |
-| **Cadastros desconectados** | Cadastro fornecedor em Cadastros, mas na hora do contrato não encontro |
-| **Sem workflow de status** | Medição não tem DRAFT→SUBMITTED→APPROVED visível |
-| **Sem onboarding de obra** | Obra nova não guia o usuário pelos passos obrigatórios |
+### ⚠️ Lacunas de UX (backend existe, frontend precisa orquestrar)
 
-### Anti-padrões identificados
+| Lacuna | Impacto | Solução proposta |
+|--------|---------|-----------------|
+| Sem "next action" após criar obra | Usuário perdido | Wizard de onboarding (ver seção abaixo) |
+| Sem dashboard de fase da obra | Não sabe se está em orçamento/execução | Progress bar por fase no workspace |
+| Abas sem indicador de completude | 10 abas iguais visualmente | Badges com contagem/status |
+| Sem breadcrumb de processo | Onde estou no ciclo? | Stepper horizontal no topo |
 
-1. **Menu → Lista → Form → Salvar → Lista** (loop sem saída)
-2. **Abas como menu** (10 abas = 10 mundos isolados)
-3. **Sem breadcrumb de processo** (onde estou no ciclo da obra?)
-4. **Sem indicadores de completude** (orçamento feito? contrato assinado?)
+O restante deste documento descreve os **fluxos ideais** e como o frontend deve orquestrar os endpoints existentes.
 
 ---
 
