@@ -19,10 +19,22 @@ public class ChartOfAccounts extends TenantAwareEntity {
         this.code = code; this.name = name; this.parentId = parentId; this.type = type; this.level = level;
     }
 
+    @Column(length = 500) private String description;
+    @Column(name = "accepts_entries", nullable = false) private boolean acceptsEntries = false;
+
     public String getCode() { return code; }
     public String getName() { return name; }
     public UUID getParentId() { return parentId; }
     public String getType() { return type; }
     public int getLevel() { return level; }
     public boolean isActive() { return active; }
+    public String getDescription() { return description; }
+    public boolean isAcceptsEntries() { return acceptsEntries; }
+
+    public void deactivate() { this.active = false; }
+
+    public void update(String code, String name, UUID parentId, String type, int level, String description, boolean acceptsEntries) {
+        this.code = code; this.name = name; this.parentId = parentId; this.type = type;
+        this.level = level; this.description = description; this.acceptsEntries = acceptsEntries;
+    }
 }
