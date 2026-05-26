@@ -37,6 +37,8 @@ export class RegistryComponent {
     { label: 'Clientes', icon: 'user', route: '/registry/clients' },
     { label: 'Fornecedores', icon: 'shop', route: '/registry/suppliers' },
     { label: 'Funcionários', icon: 'id-card', route: '/registry/employees' },
-    { label: 'Equipamentos', icon: 'wrench', route: '/equipment' },
+    { label: 'Transportadores', icon: 'car', route: '/registry/transporters' },
+    { label: 'Representantes', icon: 'users', route: '/registry/sales-reps' },
+    { label: 'Empreiteiros', icon: 'hammer', route: '/registry/contractors' },
   ];
 }
