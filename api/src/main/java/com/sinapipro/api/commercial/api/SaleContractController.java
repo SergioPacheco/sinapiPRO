@@ -3,6 +3,7 @@ package com.sinapipro.api.commercial.api;
 import com.sinapipro.api.commercial.application.*;
 import com.sinapipro.api.commercial.application.CommissionService.CommissionSummary;
 import com.sinapipro.api.commercial.application.ContractCancellationService.CancellationResult;
+import com.sinapipro.api.commercial.application.SalesProposalService.*;
 import com.sinapipro.api.commercial.domain.*;
 import com.sinapipro.api.shared.api.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,15 +32,18 @@ public class SaleContractController {
     private final SaleInstallmentService installmentService;
     private final ContractCancellationService cancellationService;
     private final CommissionService commissionService;
+    private final SalesProposalService proposalService;
 
     public SaleContractController(SaleContractService contractService,
                                    SaleInstallmentService installmentService,
                                    ContractCancellationService cancellationService,
-                                   CommissionService commissionService) {
+                                   CommissionService commissionService,
+                                   SalesProposalService proposalService) {
         this.contractService = contractService;
         this.installmentService = installmentService;
         this.cancellationService = cancellationService;
         this.commissionService = commissionService;
+        this.proposalService = proposalService;
     }
 
     // --- Contracts ---
@@ -134,6 +138,37 @@ public class SaleContractController {
         return commissionService.calculate(contractId);
     }
 
+    // --- 9.2 Simulação de parcelas ---
+
+    @Operation(summary = "Simulate installments for a proposal (no persistence)")
+    @PostMapping("/simulate")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    InstallmentSimulation simulate(@PathVariable UUID developmentId, @Valid @RequestBody SimulateRequest req) {
+        return proposalService.simulate(req.totalAmount(), req.downPayment(), req.installmentCount(),
+                req.monthlyRate(), req.amortizationType(), req.firstDueDate());
+    }
+
+    // --- 9.6 Cessão/transferência ---
+
+    @Operation(summary = "Transfer contract to a new buyer")
+    @PostMapping("/contracts/{contractId}/transfer")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    TransferResult transfer(@PathVariable UUID developmentId, @PathVariable UUID contractId,
+                             @Valid @RequestBody TransferRequest req) {
+        return proposalService.transfer(contractId, req.newContractNumber(), req.newBuyerId(), req.transferDate());
+    }
+
+    // --- 9.8 Repasse bancário ---
+
+    @Operation(summary = "Register bank handover (financing)")
+    @PostMapping("/contracts/{contractId}/bank-handover")
+    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    BankHandover bankHandover(@PathVariable UUID developmentId, @PathVariable UUID contractId,
+                               @Valid @RequestBody BankHandoverRequest req) {
+        return proposalService.registerBankHandover(contractId, req.bankName(), req.financedAmount(),
+                req.submissionDate(), req.status(), req.notes());
+    }
+
     // DTOs
     record CreateContractRequest(@NotBlank String contractNumber, @NotNull LocalDate contractDate,
                                   @NotNull BigDecimal totalAmount, int installmentCount,
@@ -146,6 +181,11 @@ public class SaleContractController {
     record AdjustRequest(@NotNull BigDecimal indexFactor) {}
     record PayRequest(@NotNull BigDecimal amount, LocalDate date, BigDecimal interest, BigDecimal fine, BigDecimal discount) {}
     record AdjustResult(int adjustedCount) {}
+    record SimulateRequest(@NotNull BigDecimal totalAmount, BigDecimal downPayment, int installmentCount,
+                           BigDecimal monthlyRate, String amortizationType, @NotNull LocalDate firstDueDate) {}
+    record TransferRequest(@NotBlank String newContractNumber, UUID newBuyerId, @NotNull LocalDate transferDate) {}
+    record BankHandoverRequest(@NotBlank String bankName, @NotNull BigDecimal financedAmount,
+                               @NotNull LocalDate submissionDate, String status, String notes) {}
 
     record ContractResponse(UUID id, String contractNumber, LocalDate contractDate, String status,
                              BigDecimal totalAmount, BigDecimal downPayment, int installmentCount,
