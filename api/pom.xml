@@ -171,6 +171,12 @@
             <artifactId>fastexcel</artifactId>
             <version>0.18.4</version>
         </dependency>
+        <!-- Reporting: PDF via headless browser (charts, complex layouts) -->
+        <dependency>
+            <groupId>com.microsoft.playwright</groupId>
+            <artifactId>playwright</artifactId>
+            <version>1.49.0</version>
+        </dependency>
     </dependencies>
 
     <build>

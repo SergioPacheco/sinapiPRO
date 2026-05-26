@@ -4,16 +4,15 @@ import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
 import gg.jte.output.StringOutput;
-import gg.jte.resolve.DirectoryCodeResolver;
+import gg.jte.resolve.ResourceCodeResolver;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
-import java.nio.file.Path;
 import java.util.Map;
 
 /**
- * Serviço central de geração de relatórios PDF via JTE + OpenHTMLtoPDF.
- * Templates ficam em src/main/resources/templates/reports/
+ * Sprint 24 — Serviço central de geração de relatórios PDF.
+ * Factory pattern: JTE (tabular) ou Playwright (gráficos).
  */
 @Service
 public class ReportService {
@@ -21,45 +20,32 @@ public class ReportService {
     private final TemplateEngine templateEngine;
 
     public ReportService() {
-        this.templateEngine = null; // Templates via generatePlaceholderPdf (funciona em JAR)
+        var resolver = new ResourceCodeResolver("templates/reports");
+        this.templateEngine = TemplateEngine.create(resolver, ContentType.Html);
     }
 
+    /**
+     * Gera PDF via JTE template + OpenHTMLtoPDF (relatórios tabulares).
+     */
     public byte[] generatePdf(String templateName, Map<String, Object> data) {
-        return generatePlaceholderPdf(templateName, data);
-    }
-
-    private byte[] generatePlaceholderPdf(String templateName, Map<String, Object> data) {
-        var rows = data.entrySet().stream()
-                .map(e -> "<tr><td>" + escapeXml(e.getKey()) + "</td><td>" + escapeXml(e.getValue() != null ? e.getValue().toString().substring(0, Math.min(80, e.getValue().toString().length())) : "—") + "</td></tr>")
-                .reduce("", String::concat);
-        var html = """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-            <html xmlns="http://www.w3.org/1999/xhtml"><head><style>
-            body { font-family: Arial, sans-serif; padding: 40px; color: #333; }
-            h1 { color: #1a56db; border-bottom: 2px solid #1a56db; padding-bottom: 10px; }
-            .info { background: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0; }
-            table { width: 100%%; border-collapse: collapse; margin-top: 20px; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px; }
-            th { background: #1a56db; color: white; }
-            .footer { margin-top: 40px; font-size: 11px; color: #666; border-top: 1px solid #ddd; padding-top: 10px; }
-            </style></head><body>
-            <h1>SinapiPRO</h1>
-            <div class="info"><p><strong>Relat&#243;rio:</strong> %s</p><p><strong>Gerado em:</strong> %s</p></div>
-            <table><tr><th>Par&#226;metro</th><th>Valor</th></tr>%s</table>
-            <div class="footer"><p>SinapiPRO v0.1.0</p></div>
-            </body></html>
-            """.formatted(
-                escapeXml(templateName),
-                java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
-                rows
-        );
+        var html = renderHtml(templateName, data);
         return htmlToPdf(html);
     }
 
-    private String escapeXml(String s) {
-        if (s == null) return "";
-        return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
+    /**
+     * Gera PDF com template base (header empresa + footer paginação).
+     */
+    public byte[] generateWithBaseTemplate(String title, String bodyHtml, Map<String, Object> meta) {
+        var companyName = meta.getOrDefault("companyName", "SinapiPRO").toString();
+        var generatedAt = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+
+        var fullHtml = BASE_TEMPLATE
+                .replace("{{TITLE}}", escapeXml(title))
+                .replace("{{COMPANY}}", escapeXml(companyName))
+                .replace("{{GENERATED_AT}}", generatedAt)
+                .replace("{{BODY}}", bodyHtml);
+
+        return htmlToPdf(fullHtml);
     }
 
     /**
@@ -86,4 +72,38 @@ public class ReportService {
             throw new ReportGenerationException("Failed to generate PDF", e);
         }
     }
+
+    private String escapeXml(String s) {
+        if (s == null) return "";
+        return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+    }
+
+    /** Template base com header empresa e footer paginação (CSS paged media) */
+    private static final String BASE_TEMPLATE = """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+        <html xmlns="http://www.w3.org/1999/xhtml"><head><style>
+        @page { size: A4; margin: 20mm 15mm 25mm 15mm;
+            @top-center { content: "{{COMPANY}}"; font-size: 9px; color: #666; }
+            @bottom-left { content: "{{TITLE}}"; font-size: 8px; color: #999; }
+            @bottom-right { content: "P\\00E1gina " counter(page) " de " counter(pages); font-size: 8px; color: #999; }
+        }
+        body { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #333; line-height: 1.4; }
+        h1 { color: #1a56db; font-size: 18px; border-bottom: 2px solid #1a56db; padding-bottom: 6px; margin-bottom: 12px; }
+        h2 { color: #374151; font-size: 14px; margin-top: 16px; }
+        table { width: 100%%; border-collapse: collapse; margin: 10px 0; }
+        th { background: #1a56db; color: white; padding: 6px 8px; text-align: left; font-size: 10px; }
+        td { border-bottom: 1px solid #e5e7eb; padding: 5px 8px; font-size: 10px; }
+        tr:nth-child(even) td { background: #f9fafb; }
+        .meta { background: #f3f4f6; padding: 10px; border-radius: 4px; margin-bottom: 12px; font-size: 10px; }
+        .total { font-weight: bold; background: #eef2ff; }
+        .right { text-align: right; }
+        .footer-info { margin-top: 20px; font-size: 9px; color: #666; border-top: 1px solid #ddd; padding-top: 8px; }
+        </style></head><body>
+        <h1>{{TITLE}}</h1>
+        <div class="meta"><strong>Gerado em:</strong> {{GENERATED_AT}} | <strong>Empresa:</strong> {{COMPANY}}</div>
+        {{BODY}}
+        <div class="footer-info">SinapiPRO - Sistema de Gest&#227;o de Obras</div>
+        </body></html>
+        """;
 }
