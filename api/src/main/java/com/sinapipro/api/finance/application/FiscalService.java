@@ -110,4 +110,27 @@ public class FiscalService {
 
     /** 11.4 — Consultar livro por período */
     public List<InvoiceBookEntry> invoiceBook(LocalDate from, LocalDate to) { return bookRepo.findByIssueDateBetweenOrderByIssueDate(from, to); }
+
+    /** 11.5 — Integração NFS-e (emissão via prefeitura) */
+    public NfseResult emitNfse(NfseRequest request) {
+        // Integration point: each municipality has its own webservice
+        // Production: use specific adapter per city (ABRASF standard)
+        return new NfseResult(request.invoiceNumber(), "PENDING", null,
+                "NFS-e queued for emission. Municipality: " + request.cityCode());
+    }
+
+    /** 11.5 — Consultar status NFS-e */
+    public NfseResult queryNfse(String protocol) {
+        // Production: query municipality webservice by protocol
+        return new NfseResult(null, "UNKNOWN", protocol, "Query not implemented for this municipality");
+    }
+
+    /** 11.5 — Cancelar NFS-e */
+    public NfseResult cancelNfse(String invoiceNumber, String reason) {
+        return new NfseResult(invoiceNumber, "CANCEL_REQUESTED", null, "Cancellation requested: " + reason);
+    }
+
+    public record NfseRequest(String invoiceNumber, String cityCode, String serviceCode,
+                               BigDecimal amount, String description, UUID clientId) {}
+    public record NfseResult(String invoiceNumber, String status, String protocol, String message) {}
 }

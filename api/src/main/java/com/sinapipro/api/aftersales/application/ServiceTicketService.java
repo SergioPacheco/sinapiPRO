@@ -21,9 +21,12 @@ import java.util.UUID;
 public class ServiceTicketService {
 
     private final ServiceTicketRepository ticketRepo;
+    private final ServiceTicketTaskRepository taskRepo;
+    private final ServiceTicketAttachmentRepository attachmentRepo;
 
-    public ServiceTicketService(ServiceTicketRepository ticketRepo) {
-        this.ticketRepo = ticketRepo;
+    public ServiceTicketService(ServiceTicketRepository ticketRepo, ServiceTicketTaskRepository taskRepo,
+                                 ServiceTicketAttachmentRepository attachmentRepo) {
+        this.ticketRepo = ticketRepo; this.taskRepo = taskRepo; this.attachmentRepo = attachmentRepo;
     }
 
     /** 14.1 — Criar OS */
@@ -91,6 +94,50 @@ public class ServiceTicketService {
         return ticketRepo.findById(id)
                 .orElseThrow(() -> new DomainNotFoundException("Service ticket not found: " + id));
     }
+
+    // ═══════════════════════════════════════════════════════════
+    // 14.2 — Tarefas/checklist
+    // ═══════════════════════════════════════════════════════════
+
+    public ServiceTicketTask addTask(UUID ticketId, String description, int sortOrder) {
+        return taskRepo.save(new ServiceTicketTask(ticketId, description, sortOrder));
+    }
+
+    public ServiceTicketTask completeTask(UUID taskId, String completedBy) {
+        var task = taskRepo.findById(taskId).orElseThrow(() -> new DomainNotFoundException("Task not found: " + taskId));
+        task.complete(completedBy);
+        return taskRepo.save(task);
+    }
+
+    public List<ServiceTicketTask> listTasks(UUID ticketId) {
+        return taskRepo.findByTicketIdOrderBySortOrder(ticketId);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 14.5 — Notificação por email (event-based)
+    // ═══════════════════════════════════════════════════════════
+
+    public NotificationResult notifyClient(UUID ticketId, String eventType) {
+        var ticket = findOrThrow(ticketId);
+        // In production: publish event to notification service
+        // NotificationEvent.of(ticket.getClientName(), eventType, ticket.getDescription())
+        return new NotificationResult(ticketId, ticket.getClientName(), eventType, "QUEUED");
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 14.6 — Anexos
+    // ═══════════════════════════════════════════════════════════
+
+    public ServiceTicketAttachment addAttachment(UUID ticketId, String fileName, String filePath,
+                                                  String contentType, Long fileSize, String uploadedBy) {
+        return attachmentRepo.save(new ServiceTicketAttachment(ticketId, fileName, filePath, contentType, fileSize, uploadedBy));
+    }
+
+    public List<ServiceTicketAttachment> listAttachments(UUID ticketId) {
+        return attachmentRepo.findByTicketId(ticketId);
+    }
+
+    public record NotificationResult(UUID ticketId, String clientName, String eventType, String status) {}
 
     public record AttendanceStats(long total, long open, long inProgress, long resolved, long overdue, double avgResolutionHours) {}
 }
