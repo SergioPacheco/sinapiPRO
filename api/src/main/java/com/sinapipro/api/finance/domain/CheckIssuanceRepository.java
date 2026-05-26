@@ -6,4 +6,5 @@ import java.util.UUID;
 
 public interface CheckIssuanceRepository extends JpaRepository<CheckIssuance, UUID> {
     List<CheckIssuance> findByBankAccountIdAndStatus(UUID bankAccountId, String status);
+    List<CheckIssuance> findByStatus(String status);
 }
