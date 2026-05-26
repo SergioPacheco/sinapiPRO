@@ -86,9 +86,15 @@ public class FleetService {
     private final VehicleRepository vehicleRepo;
     private final VehicleFuelingRepository fuelingRepo;
     private final VehicleMaintenanceRepository maintenanceRepo;
+    private final VehicleIncidentRepository incidentRepo;
+    private final EquipmentRentalRepository rentalRepo;
 
-    public FleetService(VehicleRepository vehicleRepo, VehicleFuelingRepository fuelingRepo, VehicleMaintenanceRepository maintenanceRepo) {
-        this.vehicleRepo = vehicleRepo; this.fuelingRepo = fuelingRepo; this.maintenanceRepo = maintenanceRepo;
+    public FleetService(VehicleRepository vehicleRepo, VehicleFuelingRepository fuelingRepo,
+                        VehicleMaintenanceRepository maintenanceRepo, VehicleIncidentRepository incidentRepo,
+                        EquipmentRentalRepository rentalRepo) {
+        this.vehicleRepo = vehicleRepo; this.fuelingRepo = fuelingRepo;
+        this.maintenanceRepo = maintenanceRepo; this.incidentRepo = incidentRepo;
+        this.rentalRepo = rentalRepo;
     }
 
     /** 12.1 — Cadastro veículo */
@@ -143,4 +149,104 @@ public class FleetService {
     }
 
     public record VehicleTCO(UUID vehicleId, BigDecimal fuelCost, BigDecimal maintenanceCost, BigDecimal totalCost, BigDecimal kmPerLiter, int fuelingCount, int maintenanceCount) {}
+
+    /** 12.4 — Registrar multa ou sinistro */
+    public VehicleIncident registerIncident(UUID vehicleId, String type, LocalDate date, String description,
+                                             BigDecimal cost, UUID driverId) {
+        return incidentRepo.save(new VehicleIncident(vehicleId, type, date, description, cost, driverId));
+    }
+
+    /** 12.4 — Listar multas/sinistros de um veículo */
+    public List<VehicleIncident> listIncidents(UUID vehicleId) {
+        return incidentRepo.findByVehicleIdOrderByIncidentDateDesc(vehicleId);
+    }
+
+    /** 12.6 — Registrar locação de equipamento */
+    public EquipmentRental createRental(UUID equipmentId, UUID projectId, LocalDate startDate,
+                                         LocalDate expectedEndDate, BigDecimal dailyRate) {
+        return rentalRepo.save(new EquipmentRental(equipmentId, projectId, startDate, expectedEndDate, dailyRate));
+    }
+
+    /** 12.6 — Devolver equipamento */
+    public EquipmentRental returnRental(UUID rentalId, LocalDate returnDate) {
+        var rental = rentalRepo.findById(rentalId).orElseThrow();
+        rental.returnEquipment(returnDate);
+        return rentalRepo.save(rental);
+    }
+
+    /** 12.6 — Locações ativas */
+    public List<EquipmentRental> activeRentals() {
+        return rentalRepo.findByStatus("ACTIVE");
+    }
+}
+
+// --- 12.4 Multas e sinistros ---
+
+@Entity @Table(name = "vehicle_incident")
+class VehicleIncident extends TenantAwareEntity {
+    @Column(name = "vehicle_id", nullable = false) private UUID vehicleId;
+    @Column(nullable = false, length = 20) private String type; // FINE, ACCIDENT, THEFT
+    @Column(name = "incident_date", nullable = false) private LocalDate incidentDate;
+    @Column(nullable = false, length = 500) private String description;
+    @Column(precision = 12, scale = 2) private BigDecimal cost;
+    @Column(name = "driver_id") private UUID driverId;
+    @Column(nullable = false, length = 20) private String status = "OPEN";
+
+    protected VehicleIncident() {}
+    public VehicleIncident(UUID vehicleId, String type, LocalDate date, String description, BigDecimal cost, UUID driverId) {
+        this.vehicleId = vehicleId; this.type = type; this.incidentDate = date;
+        this.description = description; this.cost = cost; this.driverId = driverId;
+    }
+    public UUID getVehicleId() { return vehicleId; }
+    public String getType() { return type; }
+    public LocalDate getIncidentDate() { return incidentDate; }
+    public String getDescription() { return description; }
+    public BigDecimal getCost() { return cost; }
+    public UUID getDriverId() { return driverId; }
+    public String getStatus() { return status; }
+}
+
+// --- 12.6 Locação de equipamentos ---
+
+@Entity @Table(name = "equipment_rental")
+class EquipmentRental extends TenantAwareEntity {
+    @Column(name = "equipment_id", nullable = false) private UUID equipmentId;
+    @Column(name = "project_id", nullable = false) private UUID projectId;
+    @Column(name = "start_date", nullable = false) private LocalDate startDate;
+    @Column(name = "expected_end_date") private LocalDate expectedEndDate;
+    @Column(name = "actual_end_date") private LocalDate actualEndDate;
+    @Column(name = "daily_rate", nullable = false, precision = 12, scale = 2) private BigDecimal dailyRate;
+    @Column(name = "total_cost", precision = 12, scale = 2) private BigDecimal totalCost;
+    @Column(nullable = false, length = 20) private String status = "ACTIVE";
+
+    protected EquipmentRental() {}
+    public EquipmentRental(UUID equipmentId, UUID projectId, LocalDate startDate, LocalDate expectedEndDate, BigDecimal dailyRate) {
+        this.equipmentId = equipmentId; this.projectId = projectId; this.startDate = startDate;
+        this.expectedEndDate = expectedEndDate; this.dailyRate = dailyRate;
+    }
+    public UUID getEquipmentId() { return equipmentId; }
+    public UUID getProjectId() { return projectId; }
+    public LocalDate getStartDate() { return startDate; }
+    public LocalDate getExpectedEndDate() { return expectedEndDate; }
+    public LocalDate getActualEndDate() { return actualEndDate; }
+    public BigDecimal getDailyRate() { return dailyRate; }
+    public BigDecimal getTotalCost() { return totalCost; }
+    public String getStatus() { return status; }
+
+    public void returnEquipment(LocalDate returnDate) {
+        this.actualEndDate = returnDate;
+        this.status = "RETURNED";
+        long days = java.time.temporal.ChronoUnit.DAYS.between(startDate, returnDate);
+        this.totalCost = dailyRate.multiply(BigDecimal.valueOf(Math.max(days, 1)));
+    }
+}
+
+// --- Repositories for new entities ---
+interface VehicleIncidentRepository extends JpaRepository<VehicleIncident, UUID> {
+    List<VehicleIncident> findByVehicleIdOrderByIncidentDateDesc(UUID vehicleId);
+}
+
+interface EquipmentRentalRepository extends JpaRepository<EquipmentRental, UUID> {
+    List<EquipmentRental> findByStatus(String status);
+    List<EquipmentRental> findByEquipmentId(UUID equipmentId);
 }
