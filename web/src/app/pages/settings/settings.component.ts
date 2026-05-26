@@ -1,81 +1,138 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { InputTextModule } from 'primeng/inputtext';
+import { TabViewModule } from 'primeng/tabview';
+import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
-import { DropdownModule } from 'primeng/dropdown';
-import { MessageService } from 'primeng/api';
-import { AuthService } from '../../core/services/auth.service';
+import { DialogModule } from 'primeng/dialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { CheckboxModule } from 'primeng/checkbox';
+import { ChipModule } from 'primeng/chip';
 
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [FormsModule, InputTextModule, ButtonModule, DropdownModule],
+  imports: [FormsModule, TabViewModule, TableModule, ButtonModule, DialogModule, InputTextModule, MultiSelectModule, CheckboxModule, ChipModule],
   template: `
-    <h2 style="margin:0 0 1.5rem;color:var(--sp-text)">Configurações</h2>
+    <h2 style="margin:0 0 1rem;color:var(--sp-text)">Configurações</h2>
 
-    <div class="settings-grid">
-      <!-- Empresa -->
-      <section class="settings-section">
-        <h3>Empresa</h3>
-        <div class="field"><label>Nome da Empresa</label><input pInputText [(ngModel)]="config.companyName" class="w-full" /></div>
-        <div class="field"><label>CNPJ</label><input pInputText [(ngModel)]="config.cnpj" class="w-full" /></div>
-        <div class="field"><label>Endereço</label><input pInputText [(ngModel)]="config.address" class="w-full" /></div>
-      </section>
-
-      <!-- Orçamento -->
-      <section class="settings-section">
-        <h3>Orçamento (Padrão)</h3>
-        <div class="field"><label>Arredondamento</label>
-          <p-dropdown [(ngModel)]="config.defaultRounding" [options]="roundingOpts" styleClass="w-full" />
+    <p-tabView>
+      <p-tabPanel header="Usuários">
+        <div class="flex justify-content-end mb-2">
+          <p-button label="Novo Usuário" icon="pi pi-user-plus" size="small" (onClick)="showUserDialog = true; userEditing = {}" />
         </div>
-        <div class="field"><label>Casas Decimais (Quantidade)</label><input pInputText type="number" [(ngModel)]="config.defaultDecQty" class="w-full" /></div>
-        <div class="field"><label>Casas Decimais (Valor)</label><input pInputText type="number" [(ngModel)]="config.defaultDecVal" class="w-full" /></div>
-        <div class="field"><label>UF Padrão</label><input pInputText [(ngModel)]="config.defaultState" class="w-full" maxlength="2" /></div>
-      </section>
+        <p-table [value]="users()" styleClass="p-datatable-sm p-datatable-gridlines" [paginator]="true" [rows]="15">
+          <ng-template pTemplate="header"><tr><th>Nome</th><th>Email</th><th>Perfis</th><th>Obras</th><th>Ativo</th><th style="width:80px"></th></tr></ng-template>
+          <ng-template pTemplate="body" let-u><tr>
+            <td>{{u.name}}</td>
+            <td style="font-size:0.8rem">{{u.email}}</td>
+            <td>@for(r of u.roles; track r){<p-chip [label]="r" styleClass="mr-1" />}</td>
+            <td style="font-size:0.8rem">{{u.projectAccess?.length ? u.projectAccess.length + ' obras' : 'Todas'}}</td>
+            <td><i [class]="u.active ? 'pi pi-check-circle text-green-500' : 'pi pi-times-circle text-red-500'"></i></td>
+            <td><p-button icon="pi pi-pencil" [text]="true" size="small" (onClick)="editUser(u)" /></td>
+          </tr></ng-template>
+        </p-table>
+      </p-tabPanel>
 
-      <!-- Sistema -->
-      <section class="settings-section">
-        <h3>Sistema</h3>
-        <div class="field"><label>Tema</label>
-          <p-dropdown [(ngModel)]="config.theme" [options]="themeOpts" styleClass="w-full" />
+      <p-tabPanel header="Perfis (Roles)">
+        <div class="flex justify-content-end mb-2">
+          <p-button label="Novo Perfil" icon="pi pi-plus" size="small" (onClick)="showRoleDialog = true; roleEditing = {permissions:[]}" />
+          <p-button label="Carregar Padrões" icon="pi pi-download" size="small" severity="secondary" class="ml-2" (onClick)="initDefaults()" />
         </div>
-        <div class="field"><label>Idioma</label>
-          <p-dropdown [(ngModel)]="config.language" [options]="langOpts" styleClass="w-full" />
-        </div>
-        <div class="field"><label>Fuso Horário</label><input pInputText [(ngModel)]="config.timezone" class="w-full" /></div>
-      </section>
-    </div>
+        <p-table [value]="roles()" styleClass="p-datatable-sm p-datatable-gridlines">
+          <ng-template pTemplate="header"><tr><th>Nome</th><th>Descrição</th><th>Permissões</th><th style="width:60px"></th></tr></ng-template>
+          <ng-template pTemplate="body" let-r><tr>
+            <td style="font-weight:600">{{r.name}}</td>
+            <td style="font-size:0.85rem">{{r.description}}</td>
+            <td style="font-size:0.8rem">{{r.permissionsCount}} permissões</td>
+            <td><p-button icon="pi pi-pencil" [text]="true" size="small" (onClick)="editRole(r)" /></td>
+          </tr></ng-template>
+        </p-table>
+      </p-tabPanel>
 
-    <div style="margin-top:1.5rem">
-      <p-button label="Salvar Configurações" icon="pi pi-save" (onClick)="save()" />
-    </div>
+      <p-tabPanel header="Permissões">
+        @for(group of permissionGroups(); track group.module) {
+          <div class="mb-3">
+            <strong style="font-size:12px;color:var(--sp-text-muted)">{{group.module}}</strong>
+            <div class="flex flex-wrap gap-1 mt-1">
+              @for(p of group.permissions; track p) { <p-chip [label]="p" styleClass="text-xs" /> }
+            </div>
+          </div>
+        }
+      </p-tabPanel>
+    </p-tabView>
+
+    <p-dialog header="Usuário" [(visible)]="showUserDialog" [modal]="true" [style]="{width:'500px'}">
+      <div class="flex flex-column gap-3 pt-2">
+        <input pInputText [(ngModel)]="userEditing.name" placeholder="Nome *" class="w-full" />
+        <input pInputText [(ngModel)]="userEditing.email" placeholder="Email *" class="w-full" />
+        <p-multiSelect [options]="roles()" [(ngModel)]="userEditing.roleIds" optionLabel="name" optionValue="id" placeholder="Perfis" styleClass="w-full" />
+      </div>
+      <ng-template pTemplate="footer">
+        <p-button label="Cancelar" [text]="true" (onClick)="showUserDialog = false" />
+        <p-button label="Salvar" icon="pi pi-check" (onClick)="saveUser()" />
+      </ng-template>
+    </p-dialog>
+
+    <p-dialog header="Perfil" [(visible)]="showRoleDialog" [modal]="true" [style]="{width:'600px'}">
+      <div class="flex flex-column gap-3 pt-2">
+        <input pInputText [(ngModel)]="roleEditing.name" placeholder="Nome do perfil *" class="w-full" />
+        <input pInputText [(ngModel)]="roleEditing.description" placeholder="Descrição" class="w-full" />
+        <div style="max-height:300px;overflow-y:auto">
+          @for(group of permissionGroups(); track group.module) {
+            <div class="mb-2">
+              <strong style="font-size:11px">{{group.module}}</strong>
+              <div class="flex flex-wrap gap-2 mt-1">
+                @for(p of group.permissions; track p) {
+                  <label class="flex align-items-center gap-1" style="font-size:11px">
+                    <p-checkbox [(ngModel)]="roleEditing.permissions" [value]="p" /><span>{{p.split('.')[1]}}</span>
+                  </label>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+      <ng-template pTemplate="footer">
+        <p-button label="Salvar" icon="pi pi-check" (onClick)="saveRole()" />
+      </ng-template>
+    </p-dialog>
   `,
-  styles: [`
-    .settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
-    .settings-section { background: var(--sp-surface-card); border: 1px solid var(--sp-border); border-radius: 8px; padding: 20px; }
-    .settings-section h3 { margin: 0 0 16px; font-size: 14px; color: var(--sp-text); }
-    .field { margin-bottom: 12px; }
-    .field label { display: block; font-size: 11px; color: var(--sp-text-muted); text-transform: uppercase; margin-bottom: 4px; }
-  `],
+  styles: [`:host ::ng-deep .p-chip { font-size: 10px !important; }`]
 })
-export class SettingsComponent implements OnInit {
+export class SettingsComponent {
   private http = inject(HttpClient);
-  private messages = inject(MessageService);
-
-  config: any = { defaultRounding: 'TRUNCATE', defaultDecQty: 4, defaultDecVal: 2, defaultState: 'SP', theme: 'dark', language: 'pt-BR', timezone: 'America/Sao_Paulo' };
-  roundingOpts = [{ label: 'Truncamento (TCU)', value: 'TRUNCATE' }, { label: 'ABNT', value: 'ROUND_ABNT' }, { label: 'Simples', value: 'ROUND_SIMPLE' }];
-  themeOpts = [{ label: 'Escuro', value: 'dark' }, { label: 'Claro', value: 'light' }];
-  langOpts = [{ label: 'Português (BR)', value: 'pt-BR' }, { label: 'English', value: 'en' }];
+  users = signal<any[]>([]);
+  roles = signal<any[]>([]);
+  permissionGroups = signal<any[]>([]);
+  showUserDialog = false; userEditing: any = {};
+  showRoleDialog = false; roleEditing: any = { permissions: [] };
 
   ngOnInit() {
-    this.http.get<any>('/settings').subscribe({ next: r => { if (r) Object.assign(this.config, r); }, error: () => {} });
+    this.http.get<any[]>('/users').subscribe({ next: r => this.users.set(r || []), error: () => {} });
+    this.http.get<any[]>('/roles').subscribe({ next: r => this.roles.set(r || []), error: () => {} });
+    this.http.get<any[]>('/roles/permissions').subscribe({ next: r => this.permissionGroups.set(r || []), error: () => {} });
   }
 
-  save() {
-    this.http.put('/settings', this.config).subscribe({
-      next: () => this.messages.add({ severity: 'success', summary: 'Configurações salvas' }),
-      error: () => this.messages.add({ severity: 'success', summary: 'Configurações salvas localmente' }),
-    });
+  editUser(u: any) { this.userEditing = { ...u, roleIds: [] }; this.showUserDialog = true; }
+  editRole(r: any) { this.roleEditing = { ...r, permissions: [...(r.permissions || [])] }; this.showRoleDialog = true; }
+
+  saveUser() {
+    const req = this.userEditing.id
+      ? this.http.put(`/users/${this.userEditing.id}/roles`, this.userEditing.roleIds || [])
+      : this.http.post('/users', this.userEditing);
+    req.subscribe(() => { this.showUserDialog = false; this.ngOnInit(); });
+  }
+
+  saveRole() {
+    const req = this.roleEditing.id
+      ? this.http.put(`/roles/${this.roleEditing.id}`, this.roleEditing)
+      : this.http.post('/roles', this.roleEditing);
+    req.subscribe(() => { this.showRoleDialog = false; this.ngOnInit(); });
+  }
+
+  initDefaults() {
+    this.http.post<any[]>('/roles/initialize-defaults', {}).subscribe(() => this.ngOnInit());
   }
 }
