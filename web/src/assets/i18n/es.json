@@ -1,0 +1,145 @@
+{
+  "app": {
+    "name": "SinapiPRO",
+    "tagline": "Gestión Integral de Obras"
+  },
+  "nav": {
+    "dashboard": "Panel",
+    "projects": "Proyectos",
+    "budgets": "Presupuestos",
+    "measurements": "Mediciones",
+    "schedule": "Cronograma",
+    "procurement": "Compras",
+    "finance": "Finanzas",
+    "equipment": "Equipos",
+    "safety": "Seguridad",
+    "documents": "Documentos",
+    "reports": "Informes",
+    "settings": "Configuración",
+    "sinapi": "SINAPI",
+    "commercial": "Comercial",
+    "registry": "Registros",
+    "notifications": "Notificaciones",
+    "profile": "Perfil",
+    "logout": "Salir"
+  },
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "create": "Crear",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "export": "Exportar",
+    "import": "Importar",
+    "back": "Volver",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "confirm": "Confirmar",
+    "close": "Cerrar",
+    "loading": "Cargando...",
+    "noData": "No se encontraron registros",
+    "actions": "Acciones",
+    "status": "Estado",
+    "date": "Fecha",
+    "total": "Total",
+    "description": "Descripción",
+    "code": "Código",
+    "name": "Nombre",
+    "value": "Valor",
+    "quantity": "Cantidad",
+    "unit": "Unidad",
+    "yes": "Sí",
+    "no": "No"
+  },
+  "auth": {
+    "login": "Iniciar Sesión",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "forgotPassword": "¿Olvidó su contraseña?",
+    "welcome": "Bienvenido a SinapiPRO"
+  },
+  "dashboard": {
+    "title": "Panel de Control",
+    "activeProjects": "Proyectos Activos",
+    "pendingMeasurements": "Mediciones Pendientes",
+    "overduePayables": "Cuentas Vencidas",
+    "monthlyRevenue": "Ingresos Mensuales"
+  },
+  "budget": {
+    "title": "Presupuestos",
+    "create": "Nuevo Presupuesto",
+    "worksheet": "Planilla",
+    "stages": "Etapas",
+    "items": "Ítems",
+    "bdi": "BDI (Gastos Generales)",
+    "totalCost": "Costo Total",
+    "totalPrice": "Precio Total",
+    "abcCurve": "Curva ABC",
+    "status": {
+      "DRAFT": "Borrador",
+      "APPROVED": "Aprobado",
+      "REVISION": "En Revisión",
+      "CLOSED": "Cerrado"
+    }
+  },
+  "measurement": {
+    "title": "Mediciones",
+    "create": "Nueva Medición",
+    "period": "Período",
+    "accumulated": "Acumulado",
+    "approve": "Aprobar",
+    "reject": "Rechazar",
+    "submit": "Enviar para Aprobación",
+    "status": {
+      "DRAFT": "Borrador",
+      "SUBMITTED": "Enviada",
+      "APPROVED": "Aprobada",
+      "REJECTED": "Rechazada",
+      "PAID": "Pagada"
+    }
+  },
+  "finance": {
+    "title": "Finanzas",
+    "payables": "Cuentas por Pagar",
+    "receivables": "Cuentas por Cobrar",
+    "cashFlow": "Flujo de Caja",
+    "invoices": "Facturas",
+    "dueDate": "Vencimiento",
+    "amount": "Monto",
+    "paid": "Pagado",
+    "pending": "Pendiente",
+    "overdue": "Vencido"
+  },
+  "project": {
+    "title": "Proyectos",
+    "create": "Nuevo Proyecto",
+    "client": "Cliente",
+    "startDate": "Fecha Inicio",
+    "endDate": "Fecha Fin",
+    "progress": "Progreso",
+    "status": {
+      "PLANNING": "Planificación",
+      "IN_PROGRESS": "En Ejecución",
+      "COMPLETED": "Completado",
+      "SUSPENDED": "Suspendido"
+    }
+  },
+  "procurement": {
+    "title": "Compras",
+    "requests": "Requisiciones",
+    "quotations": "Cotizaciones",
+    "orders": "Órdenes de Compra",
+    "receiving": "Recepción",
+    "inventory": "Inventario"
+  },
+  "schedule": {
+    "title": "Cronograma",
+    "gantt": "Diagrama Gantt",
+    "criticalPath": "Ruta Crítica",
+    "sCurve": "Curva S",
+    "baseline": "Línea Base",
+    "progress": "Avance Físico"
+  }
+}

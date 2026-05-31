@@ -3,6 +3,7 @@ import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/rou
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../core/services/auth.service';
+import { LangSwitcherComponent } from '../shared/components/lang-switcher.component';
 import { ButtonModule } from 'primeng/button';
 import { MenuModule } from 'primeng/menu';
 import { DropdownModule } from 'primeng/dropdown';
@@ -10,7 +11,7 @@ import { DropdownModule } from 'primeng/dropdown';
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, FormsModule, ButtonModule, MenuModule, DropdownModule],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, FormsModule, ButtonModule, MenuModule, DropdownModule, LangSwitcherComponent],
   template: `
     <div class="layout-wrapper" [class.sidebar-collapsed]="collapsed">
       <aside class="layout-sidebar">
@@ -87,6 +88,7 @@ import { DropdownModule } from 'primeng/dropdown';
             <span class="topbar-obra">{{ obraNome() }}</span>
           }
           <span style="flex:1"></span>
+          <app-lang-switcher />
           <i class="pi pi-bell" style="cursor:pointer;color:var(--sp-text-muted)" (click)="showNotifications = !showNotifications"></i>
           @if (showNotifications) {
             <div class="notif-panel">

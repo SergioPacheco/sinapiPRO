@@ -1,0 +1,145 @@
+{
+  "app": {
+    "name": "SinapiPRO",
+    "tagline": "Complete Construction Management"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "projects": "Projects",
+    "budgets": "Budgets",
+    "measurements": "Measurements",
+    "schedule": "Schedule",
+    "procurement": "Procurement",
+    "finance": "Finance",
+    "equipment": "Equipment",
+    "safety": "Safety",
+    "documents": "Documents",
+    "reports": "Reports",
+    "settings": "Settings",
+    "sinapi": "SINAPI",
+    "commercial": "Commercial",
+    "registry": "Registry",
+    "notifications": "Notifications",
+    "profile": "Profile",
+    "logout": "Logout"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "confirm": "Confirm",
+    "close": "Close",
+    "loading": "Loading...",
+    "noData": "No records found",
+    "actions": "Actions",
+    "status": "Status",
+    "date": "Date",
+    "total": "Total",
+    "description": "Description",
+    "code": "Code",
+    "name": "Name",
+    "value": "Value",
+    "quantity": "Quantity",
+    "unit": "Unit",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "auth": {
+    "login": "Sign In",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "welcome": "Welcome to SinapiPRO"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "activeProjects": "Active Projects",
+    "pendingMeasurements": "Pending Measurements",
+    "overduePayables": "Overdue Payables",
+    "monthlyRevenue": "Monthly Revenue"
+  },
+  "budget": {
+    "title": "Budgets",
+    "create": "New Budget",
+    "worksheet": "Worksheet",
+    "stages": "Stages",
+    "items": "Items",
+    "bdi": "BDI (Overhead & Profit)",
+    "totalCost": "Total Cost",
+    "totalPrice": "Total Price",
+    "abcCurve": "ABC Curve",
+    "status": {
+      "DRAFT": "Draft",
+      "APPROVED": "Approved",
+      "REVISION": "Under Revision",
+      "CLOSED": "Closed"
+    }
+  },
+  "measurement": {
+    "title": "Measurements",
+    "create": "New Measurement",
+    "period": "Period",
+    "accumulated": "Accumulated",
+    "approve": "Approve",
+    "reject": "Reject",
+    "submit": "Submit for Approval",
+    "status": {
+      "DRAFT": "Draft",
+      "SUBMITTED": "Submitted",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "PAID": "Paid"
+    }
+  },
+  "finance": {
+    "title": "Finance",
+    "payables": "Accounts Payable",
+    "receivables": "Accounts Receivable",
+    "cashFlow": "Cash Flow",
+    "invoices": "Invoices",
+    "dueDate": "Due Date",
+    "amount": "Amount",
+    "paid": "Paid",
+    "pending": "Pending",
+    "overdue": "Overdue"
+  },
+  "project": {
+    "title": "Projects",
+    "create": "New Project",
+    "client": "Client",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "progress": "Progress",
+    "status": {
+      "PLANNING": "Planning",
+      "IN_PROGRESS": "In Progress",
+      "COMPLETED": "Completed",
+      "SUSPENDED": "Suspended"
+    }
+  },
+  "procurement": {
+    "title": "Procurement",
+    "requests": "Requisitions",
+    "quotations": "Quotations",
+    "orders": "Purchase Orders",
+    "receiving": "Receiving",
+    "inventory": "Inventory"
+  },
+  "schedule": {
+    "title": "Schedule",
+    "gantt": "Gantt Chart",
+    "criticalPath": "Critical Path",
+    "sCurve": "S-Curve",
+    "baseline": "Baseline",
+    "progress": "Physical Progress"
+  }
+}
