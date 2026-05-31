@@ -24,7 +24,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import io.micrometer.observation.annotation.Observed;
+
 @Service
+@Observed(name = "budget.service")
 @Transactional(readOnly = true)
 public class BudgetService {
 

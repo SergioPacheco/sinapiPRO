@@ -25,7 +25,10 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import io.micrometer.observation.annotation.Observed;
+
 @Service
+@Observed(name = "measurement.service")
 @Transactional(readOnly = true)
 public class MeasurementService {
 

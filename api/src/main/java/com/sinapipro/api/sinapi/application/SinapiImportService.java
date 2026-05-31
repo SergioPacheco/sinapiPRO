@@ -9,7 +9,10 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import io.micrometer.observation.annotation.Observed;
+
 @Service
+@Observed(name = "sinapi.import")
 public class SinapiImportService {
 
     private final MaterialRepository materialRepository;
