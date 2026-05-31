@@ -24,7 +24,7 @@ import java.util.UUID;
 @Tag(name = "Budget Operations", description = "Efetivação, digitação rápida, cronograma financeiro, reajuste, análise")
 @RestController
 @RequestMapping("/api/v1/budgets/{budgetId}")
-@PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+@PreAuthorize("@perm.check('budget.read')")
 public class BudgetOperationsController {
 
     private final BudgetEffectivenessService effectivenessService;
@@ -47,7 +47,7 @@ public class BudgetOperationsController {
 
     @Operation(summary = "Effectuate budget (lock for execution)")
     @PostMapping("/effectuate")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     BudgetStatusResponse effectuate(@PathVariable UUID budgetId) {
         var budget = effectivenessService.effectuate(budgetId);
         return new BudgetStatusResponse(budget.getId(), budget.getStatus());
@@ -55,7 +55,7 @@ public class BudgetOperationsController {
 
     @Operation(summary = "Revert effectuation (back to APPROVED)")
     @PostMapping("/revert")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     BudgetStatusResponse revert(@PathVariable UUID budgetId) {
         var budget = effectivenessService.revert(budgetId);
         return new BudgetStatusResponse(budget.getId(), budget.getStatus());
@@ -63,7 +63,7 @@ public class BudgetOperationsController {
 
     @Operation(summary = "Bulk insert items into a stage")
     @PostMapping("/stages/{stageId}/bulk-items")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     @ResponseStatus(HttpStatus.CREATED)
     BulkInsertResponse bulkInsert(@PathVariable UUID budgetId, @PathVariable UUID stageId,
                                    @Valid @RequestBody @NotEmpty List<BulkItemEntry> entries) {
@@ -79,7 +79,7 @@ public class BudgetOperationsController {
 
     @Operation(summary = "Get financial schedule with custom weights")
     @PostMapping("/financial-schedule")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     List<MonthlyAmount> financialScheduleWeighted(@PathVariable UUID budgetId,
                                                    @RequestBody List<BigDecimal> weights) {
         return scheduleService.generateSchedule(budgetId, weights);
@@ -87,7 +87,7 @@ public class BudgetOperationsController {
 
     @Operation(summary = "Adjust prices by item class/type")
     @PostMapping("/adjust-by-class")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     AdjustmentResult adjustByClass(@PathVariable UUID budgetId,
                                     @RequestBody @NotNull Map<String, BigDecimal> adjustments) {
         return adjustmentService.adjustByClass(budgetId, adjustments);

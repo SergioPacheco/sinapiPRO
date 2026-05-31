@@ -1,235 +1,143 @@
-# 🚀 Deploy e Observabilidade
+# Deploy & Operações
 
-## Ambientes
-
-```mermaid
-graph LR
-    subgraph "Development"
-        DEV[mvn spring-boot:run]
-        PG_DEV[(PostgreSQL<br/>via Docker Compose)]
-        DEV --> PG_DEV
-    end
-
-    subgraph "Showcase (compose.showcase.yaml)"
-        APP[sinapipro-api<br/>Java 25 JAR]
-        PG[(PostgreSQL 17)]
-        PROM[Prometheus]
-        GRAF[Grafana]
-        OTEL[OTel Collector]
-
-        APP --> PG
-        PROM -->|scrape| APP
-        APP -->|OTLP| OTEL
-        GRAF -->|PromQL| PROM
-    end
-```
-
-## Development (Local)
+## Desenvolvimento Local (um comando)
 
 ```bash
-# Terminal 1 — Backend (API + PostgreSQL)
-cd api
-mvn spring-boot:run -s .mvn/settings.xml
-# http://localhost:8080 (Swagger: /swagger-ui.html)
+docker compose -f compose.dev.yaml up --build
+```
 
-# Terminal 2 — Frontend (Angular)
+Isso inicia:
+- **PostgreSQL 17.5** (porta 5432, dados persistidos em volume)
+- **API** (porta 8080, Spring Boot com Flyway auto-migration)
+- **Frontend** (porta 4200, nginx servindo Angular build)
+
+### Credenciais padrão
+| Serviço | Usuário | Senha |
+|---------|---------|-------|
+| App (login) | admin@sinapipro.dev | SinapiPro#2026 |
+| PostgreSQL | sinapipro | sinapipro |
+
+### Parar
+```bash
+docker compose -f compose.dev.yaml down        # mantém dados
+docker compose -f compose.dev.yaml down -v     # apaga volumes (reset)
+```
+
+---
+
+## Desenvolvimento sem Docker
+
+### Pré-requisitos
+- Java 25 (SDKMAN: `sdk install java 25-tem`)
+- Node 20+ (nvm: `nvm use 20`)
+- PostgreSQL 17 rodando localmente (ou via `cd api && docker compose up`)
+
+### Backend
+```bash
+cd api
+docker compose up -d                          # sobe apenas PG
+mvn spring-boot:run -s .mvn/settings.xml      # API em http://localhost:8080
+```
+
+### Frontend
+```bash
 cd web
-nvm use 22
-npx ng serve
-# http://localhost:4200 (proxy /api/v1 → :8080)
-# Login: admin@sinapipro.dev / SinapiPro#2026
+npm install --legacy-peer-deps
+npx ng serve                                  # http://localhost:4200 (proxy → 8080)
 ```
 
-O Spring Boot Docker Compose inicia o PostgreSQL automaticamente (`compose.yaml`):
+---
 
+## Produção (Kubernetes)
+
+### Pré-requisitos
+- Cluster K8s (EKS, GKE, AKS ou on-prem)
+- Helm 3.x
+- Container registry (GHCR, ECR, etc.)
+- PostgreSQL gerenciado (RDS, Cloud SQL)
+- S3/MinIO para storage de documentos
+
+### Build das imagens
+```bash
+# API
+cd api && docker build -t ghcr.io/sinapipro/api:v1.0.0 .
+docker push ghcr.io/sinapipro/api:v1.0.0
+
+# Frontend
+cd web && docker build -t ghcr.io/sinapipro/web:v1.0.0 .
+docker push ghcr.io/sinapipro/web:v1.0.0
+```
+
+### Deploy com Helm
+```bash
+# Criar secret do banco
+kubectl create secret generic sinapipro-db-secret \
+  --from-literal=url=jdbc:postgresql://pg-host:5432/sinapipro \
+  --from-literal=username=sinapipro \
+  --from-literal=password=<SENHA_SEGURA>
+
+# Instalar
+helm install sinapipro ./helm/sinapipro \
+  --set api.image.tag=v1.0.0 \
+  --set frontend.image.tag=v1.0.0 \
+  --set ingress.host=sinapipro.empresa.com.br \
+  --set storage.type=s3 \
+  --set storage.bucket=sinapipro-docs
+
+# Atualizar
+helm upgrade sinapipro ./helm/sinapipro --set api.image.tag=v1.1.0
+```
+
+### Variáveis de ambiente (produção)
 ```yaml
-services:
-  postgres:
-    image: postgres:17
-    environment:
-      POSTGRES_DB: sinapipro
-      POSTGRES_USER: sinapipro
-      POSTGRES_PASSWORD: sinapipro
-    ports:
-      - "5432:5432"
+SPRING_PROFILES_ACTIVE: prod
+SPRING_DATASOURCE_URL: jdbc:postgresql://host:5432/sinapipro
+SINAPIPRO_SECURITY_SECRET: <JWT_SECRET_32+_CHARS>
+SINAPIPRO_STORAGE_TYPE: s3
+SINAPIPRO_STORAGE_S3_BUCKET: sinapipro-documents
+SPRING_MAIL_HOST: smtp.empresa.com.br
+SPRING_MAIL_PORT: 587
+SPRING_MAIL_USERNAME: noreply@empresa.com.br
+SINAPIPRO_WEATHER_API_KEY: <OPENWEATHERMAP_KEY>
 ```
-
-## Showcase (Full Stack)
-
-```bash
-docker compose -f compose.showcase.yaml up -d
-```
-
-Inclui:
-- **App** — JAR executável (Java 25, Virtual Threads)
-- **PostgreSQL 17** — banco de dados
-- **Prometheus** — coleta de métricas
-- **Grafana** — dashboards (porta 3000)
-- **OpenTelemetry Collector** — pipeline de traces
-
-## Docker Build
-
-```dockerfile
-FROM eclipse-temurin:25-jre-alpine
-WORKDIR /app
-COPY target/sinapipro-api-*.jar app.jar
-EXPOSE 8080
-ENTRYPOINT ["java", "--enable-preview", "-jar", "app.jar"]
-```
-
-Build:
-```bash
-cd api
-mvn package -s .mvn/settings.xml -DskipTests
-docker build -t sinapipro/api:latest .
-```
-
-## GraalVM Native Image
-
-```bash
-cd api
-mvn package -Pnative -s .mvn/settings.xml
-# Gera binário nativo em target/sinapipro-api
-```
-
-Startup: ~50ms (vs ~2s com JVM).
 
 ---
 
 ## Observabilidade
 
-### Endpoints
+### Stack (compose.showcase.yaml)
+- **Prometheus** — métricas (porta 9090)
+- **Grafana** — dashboards (porta 3000, admin/admin)
+- **OpenTelemetry Collector** — traces distribuídos
+- **Spring Actuator** — /actuator/health, /actuator/metrics, /actuator/prometheus
 
-| Endpoint | Descrição |
-|----------|-----------|
-| `/actuator/health` | Health check (público) |
-| `/actuator/health/liveness` | Kubernetes liveness probe |
-| `/actuator/health/readiness` | Kubernetes readiness probe |
-| `/actuator/prometheus` | Métricas Prometheus (ROLE_ADMIN) |
-| `/actuator/info` | Informações da aplicação (público) |
-| `/api/v1/events` | SSE stream de eventos (autenticado) |
-
-### Métricas Customizadas
-
+### Health checks
 ```
-# Operações de negócio
-sinapipro_business_operations_total{domain="budget", type="created"}
-sinapipro_business_operations_total{domain="measurement", type="approved"}
-
-# Observações (latência por operação)
-budget.findAll (timer)
-budget.create (timer)
-measurement.approve (timer)
-```
-
-### Tracing (OpenTelemetry)
-
-```yaml
-# application.yaml
-management:
-  tracing:
-    sampling:
-      probability: 1.0  # 100% em dev, ajustar em prod
-  otlp:
-    tracing:
-      endpoint: http://otel-collector:4318/v1/traces
-```
-
-Cada request gera um trace com spans para:
-- Controller → Service → Repository
-- Queries SQL (via Hibernate instrumentation)
-- Chamadas HTTP externas
-
-### Logs
-
-Formato JSON estruturado em produção:
-```json
-{
-  "timestamp": "2025-03-15T10:30:00Z",
-  "level": "INFO",
-  "traceId": "abc123",
-  "spanId": "def456",
-  "logger": "com.sinapipro.api.budget.application.BudgetService",
-  "message": "Budget created",
-  "budgetId": "uuid",
-  "code": "ORC-001"
-}
+GET /actuator/health           → status geral
+GET /actuator/health/readiness → pronto para receber tráfego
+GET /actuator/health/liveness  → processo vivo
 ```
 
 ---
 
-## Configuração
-
-### application.yaml (principais)
-
-```yaml
-spring:
-  threads:
-    virtual:
-      enabled: true          # Virtual Threads para todas as requests
-
-  datasource:
-    url: jdbc:postgresql://localhost:5432/sinapipro
-    username: sinapipro
-    password: sinapipro
-    hikari:
-      maximum-pool-size: 20  # Virtual Threads: pool menor é OK
-
-  jpa:
-    open-in-view: false      # Performance: sem lazy loading em controllers
-    hibernate:
-      ddl-auto: validate     # Flyway gerencia schema
-
-  flyway:
-    enabled: true
-    locations: classpath:db/migration
-
-server:
-  shutdown: graceful         # Drain connections antes de parar
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,prometheus
-  metrics:
-    tags:
-      application: sinapipro-api
-```
-
-### Variáveis de Ambiente (Produção)
-
-| Variável | Descrição | Default |
-|----------|-----------|---------|
-| `SPRING_DATASOURCE_URL` | JDBC URL do PostgreSQL | `jdbc:postgresql://localhost:5432/sinapipro` |
-| `SPRING_DATASOURCE_USERNAME` | Usuário do banco | `sinapipro` |
-| `SPRING_DATASOURCE_PASSWORD` | Senha do banco | `sinapipro` |
-| `SINAPIPRO_SECURITY_SECRET` | Chave HMAC para JWT | (obrigatório) |
-| `MANAGEMENT_OTLP_TRACING_ENDPOINT` | Endpoint OTLP | `http://localhost:4318/v1/traces` |
-
----
-
-## Health Checks
+## Backup & Recovery
 
 ```bash
-# Liveness (app está rodando?)
-curl http://localhost:8080/actuator/health/liveness
-# {"status":"UP"}
+# Backup
+pg_dump -h localhost -U sinapipro sinapipro > backup_$(date +%Y%m%d).sql
 
-# Readiness (app está pronta para receber tráfego?)
-curl http://localhost:8080/actuator/health/readiness
-# {"status":"UP","components":{"db":{"status":"UP"},"diskSpace":{"status":"UP"}}}
+# Restore
+psql -h localhost -U sinapipro sinapipro < backup_20260527.sql
 ```
 
-## CI/CD
+## Flyway Migrations
 
-Pipeline (`.github/workflows/showcase-ci.yml`):
+Migrations em `api/src/main/resources/db/migration/` (V1–V11). Executam automaticamente no startup.
 
-```mermaid
-flowchart LR
-    A[Push/PR] --> B[Build + Compile]
-    B --> C[Unit Tests<br/>Testcontainers]
-    C --> D[JaCoCo Coverage]
-    D --> E[Docker Build]
-    E --> F[OWASP Dependency Check]
+```bash
+# Verificar status
+cd api && mvn flyway:info -s .mvn/settings.xml
+
+# Reparar (se migration falhou)
+cd api && mvn flyway:repair -s .mvn/settings.xml
 ```

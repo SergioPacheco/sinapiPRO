@@ -80,6 +80,7 @@ public class Budget extends AuditableEntity {
     public String getTitle() { return title; }
     public String getCustomerName() { return customerName; }
     public BigDecimal getTotalAmount() { return totalAmount; }
+    public void setTotalAmount(BigDecimal totalAmount) { this.totalAmount = totalAmount; }
     public BudgetStatus getStatus() { return status; }
     public boolean isActive() { return active; }
     public void setActive(boolean active) { this.active = active; }

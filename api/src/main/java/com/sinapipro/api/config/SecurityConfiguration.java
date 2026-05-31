@@ -27,10 +27,12 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.proc.SecurityContext;
+import com.sinapipro.api.security.application.UserProvisioningFilter;
 
 @Configuration
 @EnableMethodSecurity
@@ -38,8 +40,10 @@ public class SecurityConfiguration {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                            Converter<Jwt, JwtAuthenticationToken> jwtAuthenticationConverter) throws Exception {
+                                            Converter<Jwt, JwtAuthenticationToken> jwtAuthenticationConverter,
+                                            UserProvisioningFilter userProvisioningFilter) throws Exception {
         return http
+                .addFilterAfter(userProvisioningFilter, BearerTokenAuthenticationFilter.class)
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .httpBasic(httpBasic -> httpBasic.disable())

@@ -89,7 +89,16 @@ class CompositionCostServiceTest {
     }
 
     private void setId(Object entity, UUID id) throws Exception {
-        var field = entity.getClass().getSuperclass().getDeclaredField("id");
+        var type = entity.getClass();
+        java.lang.reflect.Field field = null;
+        while (type != null && field == null) {
+            try {
+                field = type.getDeclaredField("id");
+            } catch (NoSuchFieldException ignored) {
+                type = type.getSuperclass();
+            }
+        }
+        if (field == null) throw new NoSuchFieldException("id");
         field.setAccessible(true);
         field.set(entity, id);
     }

@@ -717,8 +717,8 @@ CREATE TABLE IF NOT EXISTS team_member (
 -- INDEXES (performance)
 -- ============================================================
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_budget_item_budget ON budget_item(budget_id);
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_measurement_item_measurement ON measurement_item(measurement_id);
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_cost_transaction_code ON cost_transaction(cost_code_id);
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_schedule_activity_project ON schedule_activity(project_id);
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_daily_log_project_date ON daily_log(project_id, log_date);
+CREATE INDEX IF NOT EXISTS idx_budget_item_stage ON budget_item(stage_id);
+CREATE INDEX IF NOT EXISTS idx_measurement_item_measurement ON measurement_item(measurement_id);
+CREATE INDEX IF NOT EXISTS idx_cost_transaction_code ON cost_transaction(cost_code_id);
+CREATE INDEX IF NOT EXISTS idx_schedule_activity_project ON schedule_activity(project_id);
+CREATE INDEX IF NOT EXISTS idx_daily_log_project_date ON daily_log(project_id, log_date);

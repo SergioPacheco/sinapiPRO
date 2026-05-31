@@ -37,7 +37,7 @@ spring:
         format_sql: true
   jackson:
     deserialization:
-      fail-on-unknown-properties: true
+      fail-on-unknown-properties: false
   mvc:
     problemdetails:
       enabled: true

@@ -66,14 +66,14 @@ public class ProcurementController {
 
     @Operation(summary = "List purchase requests for a budget")
     @GetMapping("/requests")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('procurement.read')")
     PageResponse<PurchaseRequestResponse> listRequests(@PathVariable UUID projectId, @PageableDefault(size = 20) Pageable pageable) {
         return PageResponse.from(requestRepository.findByBudgetId(projectId, pageable).map(PurchaseRequestResponse::from));
     }
 
     @Operation(summary = "Create a purchase request")
     @PostMapping("/requests")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('procurement.write')")
     ResponseEntity<PurchaseRequestResponse> createRequest(@PathVariable UUID projectId,
                                                           @Valid @RequestBody CreatePurchaseRequestReq req) {
         var budget = budgetRepository.findById(projectId)
@@ -88,7 +88,7 @@ public class ProcurementController {
 
     @Operation(summary = "Create a quotation for a purchase request")
     @PostMapping("/requests/{requestId}/quotations")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('procurement.write')")
     @ResponseStatus(HttpStatus.CREATED)
     QuotationSummary createQuotation(@PathVariable UUID projectId, @PathVariable UUID requestId,
                                      @Valid @RequestBody CreateQuotationReq req) {
@@ -99,7 +99,7 @@ public class ProcurementController {
 
     @Operation(summary = "Add supplier response to a quotation")
     @PostMapping("/quotations/{quotationId}/responses")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('procurement.write')")
     @ResponseStatus(HttpStatus.CREATED)
     SupplierQuote addResponse(@PathVariable UUID projectId, @PathVariable UUID quotationId,
                               @Valid @RequestBody AddQuotationResponseReq req) {
@@ -111,7 +111,7 @@ public class ProcurementController {
 
     @Operation(summary = "Comparative analysis of quotation responses")
     @GetMapping("/quotations/{quotationId}/analysis")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('procurement.read')")
     ComparativeAnalysis analyze(@PathVariable UUID projectId, @PathVariable UUID quotationId) {
         findQuotationInProject(projectId, quotationId);
         return procurementService.analyze(quotationId);
@@ -119,7 +119,7 @@ public class ProcurementController {
 
     @Operation(summary = "List quotations for a budget (optionally filtered by purchase order)")
     @GetMapping("/quotations")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('procurement.read')")
     PageResponse<QuotationListResponse> listQuotations(@PathVariable UUID projectId,
                                                         @RequestParam(required = false) UUID orderId,
                                                         @PageableDefault(size = 20) Pageable pageable) {
@@ -133,7 +133,7 @@ public class ProcurementController {
 
     @Operation(summary = "Generate purchase order from best quotation price")
     @PostMapping("/quotations/{quotationId}/generate-order")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('procurement.write')")
     @ResponseStatus(HttpStatus.CREATED)
     PurchaseOrderResponse generateOrder(@PathVariable UUID projectId, @PathVariable UUID quotationId,
                                         @Valid @RequestBody GenerateOrderReq req) {
@@ -144,7 +144,7 @@ public class ProcurementController {
 
     @Operation(summary = "List purchase orders for a budget")
     @GetMapping("/orders")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('procurement.read')")
     PageResponse<PurchaseOrderResponse> listOrders(@PathVariable UUID projectId, @PageableDefault(size = 20) Pageable pageable) {
         return PageResponse.from(procurementService.listOrdersPaged(projectId, pageable).map(PurchaseOrderResponse::from));
     }
@@ -153,7 +153,7 @@ public class ProcurementController {
 
     @Operation(summary = "Register receiving for a purchase order")
     @PostMapping("/orders/{orderId}/receive")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('procurement.write')")
     @ResponseStatus(HttpStatus.CREATED)
     ReceivingResponse receive(@PathVariable UUID projectId, @PathVariable UUID orderId,
                               @Valid @RequestBody ReceiveReq req) {
@@ -166,7 +166,7 @@ public class ProcurementController {
 
     @Operation(summary = "Approve a purchase order")
     @PostMapping("/orders/{orderId}/approve")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('procurement.write')")
     PurchaseOrderResponse approveOrder(@PathVariable UUID projectId, @PathVariable UUID orderId) {
         findOrderInProject(projectId, orderId);
         return PurchaseOrderResponse.from(procurementService.approveOrder(orderId));
@@ -174,7 +174,7 @@ public class ProcurementController {
 
     @Operation(summary = "Reject a purchase order")
     @PostMapping("/orders/{orderId}/reject")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('procurement.write')")
     PurchaseOrderResponse rejectOrder(@PathVariable UUID projectId, @PathVariable UUID orderId) {
         findOrderInProject(projectId, orderId);
         return PurchaseOrderResponse.from(procurementService.rejectOrder(orderId));
@@ -184,7 +184,7 @@ public class ProcurementController {
 
     @Operation(summary = "List overdue purchase orders (past expected delivery and not fully received)")
     @GetMapping("/orders/overdue")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('procurement.read')")
     List<PurchaseOrderResponse> overdueOrders(@PathVariable UUID projectId) {
         return procurementService.findOverdueOrders(projectId).stream().map(PurchaseOrderResponse::from).toList();
     }
@@ -193,7 +193,7 @@ public class ProcurementController {
 
     @Operation(summary = "Quotation comparative map PDF")
     @GetMapping(value = "/quotations/{quotationId}/reports/comparative-map.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('procurement.read')")
     ResponseEntity<byte[]> comparativeMapReport(@PathVariable UUID projectId, @PathVariable UUID quotationId) {
         findQuotationInProject(projectId, quotationId);
         byte[] pdf = procurementReportService.mapaComparativo(quotationId);
@@ -205,7 +205,7 @@ public class ProcurementController {
 
     @Operation(summary = "Purchase order PDF")
     @GetMapping(value = "/orders/{orderId}/reports/order.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('procurement.read')")
     ResponseEntity<byte[]> orderReport(@PathVariable UUID projectId, @PathVariable UUID orderId) {
         findOrderInProject(projectId, orderId);
         byte[] pdf = procurementReportService.pedidoCompra(orderId);
@@ -219,7 +219,7 @@ public class ProcurementController {
 
     @Operation(summary = "Set cost code distribution for a purchase order")
     @PostMapping("/orders/{orderId}/cost-distribution")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('procurement.write')")
     @ResponseStatus(HttpStatus.CREATED)
     List<CostDistributionResponse> setCostDistribution(@PathVariable UUID projectId, @PathVariable UUID orderId,
                                                        @Valid @RequestBody List<CostDistributionRequest> distributions) {
@@ -234,7 +234,7 @@ public class ProcurementController {
 
     @Operation(summary = "Get cost distribution for a purchase order")
     @GetMapping("/orders/{orderId}/cost-distribution")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('procurement.read')")
     List<CostDistributionResponse> getCostDistribution(@PathVariable UUID projectId, @PathVariable UUID orderId) {
         findOrderInProject(projectId, orderId);
         return costDistributionRepository.findByPurchaseOrderId(orderId).stream()
@@ -334,7 +334,7 @@ public class ProcurementController {
 
     @Operation(summary = "Send quotation request email to a supplier")
     @PostMapping("/quotations/{quotationId}/send-email")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('procurement.write')")
     ResponseEntity<EmailResponse> sendQuotationEmail(@PathVariable UUID projectId, @PathVariable UUID quotationId,
                                                      @Valid @RequestBody SendEmailRequest req) {
         findQuotationInProject(projectId, quotationId);
@@ -345,7 +345,7 @@ public class ProcurementController {
 
     @Operation(summary = "List emails sent for a quotation")
     @GetMapping("/quotations/{quotationId}/emails")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('procurement.read')")
     List<EmailResponse> listQuotationEmails(@PathVariable UUID projectId, @PathVariable UUID quotationId) {
         findQuotationInProject(projectId, quotationId);
         return quotationEmailService.findByQuotationId(quotationId).stream()

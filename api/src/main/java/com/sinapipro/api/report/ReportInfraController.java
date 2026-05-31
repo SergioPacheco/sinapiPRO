@@ -18,7 +18,7 @@ import java.util.UUID;
 @Tag(name = "Report Infrastructure", description = "Sprint 24: Generic Excel export, async report jobs")
 @RestController
 @RequestMapping("/api/v1/reports")
-@PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+@PreAuthorize("@perm.check('report.read')")
 public class ReportInfraController {
 
     private final ExcelExportService excelService;
@@ -38,7 +38,7 @@ public class ReportInfraController {
 
     @Operation(summary = "Generic Excel export from any data set")
     @PostMapping("/export/excel")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('report.read')")
     ResponseEntity<byte[]> exportExcel(@Valid @RequestBody ExcelExportRequest req) {
         var bytes = excelService.export(req.sheetName(), req.headers(), req.rows());
         return ResponseEntity.ok()

@@ -46,7 +46,7 @@ public class EmployeeSubResourceController {
 
     @Operation(summary = "List trainings for an employee")
     @GetMapping("/trainings")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     PageResponse<EmployeeTraining> listTrainings(@PathVariable UUID employeeId, @PageableDefault(size = 20) Pageable pageable) {
         ensureEmployeeExists(employeeId);
         return PageResponse.from(trainingRepository.findByEmployeeIdOrderByCreatedAtDesc(employeeId, pageable));
@@ -54,7 +54,7 @@ public class EmployeeSubResourceController {
 
     @Operation(summary = "Add training to employee")
     @PostMapping("/trainings")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     ResponseEntity<EmployeeTraining> createTraining(@PathVariable UUID employeeId, @Valid @RequestBody CreateTrainingRequest req) {
         ensureEmployeeExists(employeeId);
         var training = trainingRepository.save(new EmployeeTraining(employeeId, req.trainingName(), req.regulatoryStandard(), req.completionDate(), req.expiryDate(), req.hours(), req.institution(), req.certificatePath(), req.notes()));
@@ -63,7 +63,7 @@ public class EmployeeSubResourceController {
 
     @Operation(summary = "Update a training")
     @PutMapping("/trainings/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     EmployeeTraining updateTraining(@PathVariable UUID employeeId, @PathVariable UUID id, @Valid @RequestBody CreateTrainingRequest req) {
         ensureEmployeeExists(employeeId);
         var training = trainingRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("Training not found: " + id));
@@ -73,7 +73,7 @@ public class EmployeeSubResourceController {
 
     @Operation(summary = "Delete a training")
     @DeleteMapping("/trainings/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteTraining(@PathVariable UUID employeeId, @PathVariable UUID id) {
         ensureEmployeeExists(employeeId);
@@ -85,7 +85,7 @@ public class EmployeeSubResourceController {
 
     @Operation(summary = "List EPI deliveries for an employee")
     @GetMapping("/epi-deliveries")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     PageResponse<EmployeeEpiDelivery> listEpiDeliveries(@PathVariable UUID employeeId, @PageableDefault(size = 20) Pageable pageable) {
         ensureEmployeeExists(employeeId);
         return PageResponse.from(epiRepository.findByEmployeeIdOrderByCreatedAtDesc(employeeId, pageable));
@@ -93,7 +93,7 @@ public class EmployeeSubResourceController {
 
     @Operation(summary = "Add EPI delivery to employee")
     @PostMapping("/epi-deliveries")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     ResponseEntity<EmployeeEpiDelivery> createEpiDelivery(@PathVariable UUID employeeId, @Valid @RequestBody CreateEpiDeliveryRequest req) {
         ensureEmployeeExists(employeeId);
         var epi = epiRepository.save(new EmployeeEpiDelivery(employeeId, req.epiDescription(), req.caNumber(), req.deliveryDate(), req.expiryDate(), req.quantity(), req.signaturePath()));
@@ -102,7 +102,7 @@ public class EmployeeSubResourceController {
 
     @Operation(summary = "Update an EPI delivery")
     @PutMapping("/epi-deliveries/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     EmployeeEpiDelivery updateEpiDelivery(@PathVariable UUID employeeId, @PathVariable UUID id, @Valid @RequestBody CreateEpiDeliveryRequest req) {
         ensureEmployeeExists(employeeId);
         var epi = epiRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("EPI delivery not found: " + id));
@@ -112,7 +112,7 @@ public class EmployeeSubResourceController {
 
     @Operation(summary = "Delete an EPI delivery")
     @DeleteMapping("/epi-deliveries/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteEpiDelivery(@PathVariable UUID employeeId, @PathVariable UUID id) {
         ensureEmployeeExists(employeeId);
@@ -124,7 +124,7 @@ public class EmployeeSubResourceController {
 
     @Operation(summary = "List medical exams for an employee")
     @GetMapping("/medical-exams")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     PageResponse<EmployeeMedicalExam> listMedicalExams(@PathVariable UUID employeeId, @PageableDefault(size = 20) Pageable pageable) {
         ensureEmployeeExists(employeeId);
         return PageResponse.from(medicalExamRepository.findByEmployeeIdOrderByCreatedAtDesc(employeeId, pageable));
@@ -132,7 +132,7 @@ public class EmployeeSubResourceController {
 
     @Operation(summary = "Add medical exam to employee")
     @PostMapping("/medical-exams")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     ResponseEntity<EmployeeMedicalExam> createMedicalExam(@PathVariable UUID employeeId, @Valid @RequestBody CreateMedicalExamRequest req) {
         ensureEmployeeExists(employeeId);
         var exam = medicalExamRepository.save(new EmployeeMedicalExam(employeeId, req.examType(), req.examDate(), req.expiryDate(), req.physician(), req.crm(), req.result(), req.notes()));
@@ -141,7 +141,7 @@ public class EmployeeSubResourceController {
 
     @Operation(summary = "Update a medical exam")
     @PutMapping("/medical-exams/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     EmployeeMedicalExam updateMedicalExam(@PathVariable UUID employeeId, @PathVariable UUID id, @Valid @RequestBody CreateMedicalExamRequest req) {
         ensureEmployeeExists(employeeId);
         var exam = medicalExamRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("Medical exam not found: " + id));
@@ -151,7 +151,7 @@ public class EmployeeSubResourceController {
 
     @Operation(summary = "Delete a medical exam")
     @DeleteMapping("/medical-exams/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteMedicalExam(@PathVariable UUID employeeId, @PathVariable UUID id) {
         ensureEmployeeExists(employeeId);

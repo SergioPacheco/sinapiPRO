@@ -21,7 +21,7 @@ import java.util.UUID;
 @Tag(name = "Receivable Installments", description = "Parcelas de contas a receber e recebimentos")
 @RestController
 @RequestMapping("/api/v1/receivables")
-@PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+@PreAuthorize("@perm.check('finance.read')")
 public class ReceivableInstallmentController {
 
     private final ReceivableInstallmentService installmentService;
@@ -35,7 +35,7 @@ public class ReceivableInstallmentController {
 
     @Operation(summary = "Generate installments (Price amortization)")
     @PostMapping("/{receivableId}/installments/price")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('finance.write')")
     @ResponseStatus(HttpStatus.CREATED)
     List<InstallmentResponse> generatePrice(@PathVariable UUID receivableId,
                                              @Valid @RequestBody GenerateRequest req) {
@@ -46,7 +46,7 @@ public class ReceivableInstallmentController {
 
     @Operation(summary = "Generate installments (SAC amortization)")
     @PostMapping("/{receivableId}/installments/sac")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('finance.write')")
     @ResponseStatus(HttpStatus.CREATED)
     List<InstallmentResponse> generateSAC(@PathVariable UUID receivableId,
                                            @Valid @RequestBody GenerateRequest req) {
@@ -64,7 +64,7 @@ public class ReceivableInstallmentController {
 
     @Operation(summary = "Receive payment for an installment")
     @PostMapping("/installments/{installmentId}/receive")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('finance.write')")
     InstallmentResponse receive(@PathVariable UUID installmentId,
                                  @Valid @RequestBody ReceiveRequest req) {
         var result = paymentService.receive(installmentId, req.receivedAmount(),

@@ -25,7 +25,7 @@ public class AppSettings {
     public void setValue(String value) { this.value = value; }
 
     // Well-known keys
-    public static final String DEFAULT_STATE = "default.state";
-    public static final String DEFAULT_REFERENCE_MONTH = "default.referenceMonth";
-    public static final String DEFAULT_DESONERATED = "default.desonerated";
+    public static final String DEFAULT_STATE = "DEFAULT_STATE";
+    public static final String DEFAULT_REFERENCE_MONTH = "DEFAULT_REFERENCE_MONTH";
+    public static final String DEFAULT_DESONERATED = "DEFAULT_DESONERATED";
 }

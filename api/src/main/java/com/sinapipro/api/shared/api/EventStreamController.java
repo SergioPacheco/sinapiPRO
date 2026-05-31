@@ -25,7 +25,7 @@ public class EventStreamController {
 
     @Operation(summary = "Subscribe to real-time domain events via SSE")
     @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('settings.read')")
     Flux<ServerSentEvent<DomainEvent>> stream() {
         return eventPublisher.stream();
     }

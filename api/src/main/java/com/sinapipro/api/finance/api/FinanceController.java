@@ -48,14 +48,14 @@ public class FinanceController {
 
     @Operation(summary = "List accounts payable")
     @GetMapping("/payables")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('finance.read')")
     PageResponse<PayableResponse> listPayables(@PathVariable UUID projectId, @PageableDefault(size = 20) Pageable pageable) {
         return PageResponse.from(financeService.listPayables(projectId, pageable).map(PayableResponse::from));
     }
 
     @Operation(summary = "Create an account payable")
     @PostMapping("/payables")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('finance.write')")
     ResponseEntity<PayableResponse> createPayable(@PathVariable UUID projectId, @Valid @RequestBody CreatePayableRequest req) {
         var payable = financeService.createPayable(projectId, req.supplierId(), req.description(), req.amount(),
                 req.dueDate(), req.category(), req.purchaseOrderId(), req.measurementId(), req.notes());
@@ -65,21 +65,21 @@ public class FinanceController {
 
     @Operation(summary = "Pay an account payable")
     @PostMapping("/payables/{id}/pay")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('finance.pay')")
     PayableResponse payPayable(@PathVariable UUID projectId, @PathVariable UUID id, @Valid @RequestBody PayRequest req) {
         return PayableResponse.from(financeService.payPayable(id, req.amount(), req.date()));
     }
 
     @Operation(summary = "Cancel an account payable")
     @PostMapping("/payables/{id}/cancel")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('finance.write')")
     PayableResponse cancelPayable(@PathVariable UUID projectId, @PathVariable UUID id) {
         return PayableResponse.from(financeService.cancelPayable(id));
     }
 
     @Operation(summary = "List overdue payables")
     @GetMapping("/payables/overdue")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('finance.read')")
     List<PayableResponse> overduePayables(@PathVariable UUID projectId) {
         return financeService.overduePayables(projectId).stream().map(PayableResponse::from).toList();
     }
@@ -88,14 +88,14 @@ public class FinanceController {
 
     @Operation(summary = "List accounts receivable")
     @GetMapping("/receivables")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('finance.read')")
     PageResponse<ReceivableResponse> listReceivables(@PathVariable UUID projectId, @PageableDefault(size = 20) Pageable pageable) {
         return PageResponse.from(financeService.listReceivables(projectId, pageable).map(ReceivableResponse::from));
     }
 
     @Operation(summary = "Create an account receivable")
     @PostMapping("/receivables")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('finance.write')")
     ResponseEntity<ReceivableResponse> createReceivable(@PathVariable UUID projectId, @Valid @RequestBody CreateReceivableRequest req) {
         var receivable = financeService.createReceivable(projectId, req.description(), req.amount(),
                 req.dueDate(), req.category(), req.measurementId(), req.invoiceId(), req.notes());
@@ -105,21 +105,21 @@ public class FinanceController {
 
     @Operation(summary = "Register payment received")
     @PostMapping("/receivables/{id}/receive")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('finance.receive')")
     ReceivableResponse receivePayment(@PathVariable UUID projectId, @PathVariable UUID id, @Valid @RequestBody PayRequest req) {
         return ReceivableResponse.from(financeService.receivePayment(id, req.amount(), req.date()));
     }
 
     @Operation(summary = "Cancel an account receivable")
     @PostMapping("/receivables/{id}/cancel")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('finance.write')")
     ReceivableResponse cancelReceivable(@PathVariable UUID projectId, @PathVariable UUID id) {
         return ReceivableResponse.from(financeService.cancelReceivable(id));
     }
 
     @Operation(summary = "List overdue receivables")
     @GetMapping("/receivables/overdue")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('finance.read')")
     List<ReceivableResponse> overdueReceivables(@PathVariable UUID projectId) {
         return financeService.overdueReceivables(projectId).stream().map(ReceivableResponse::from).toList();
     }
@@ -128,14 +128,14 @@ public class FinanceController {
 
     @Operation(summary = "Cash flow summary (current balance and projections)")
     @GetMapping("/cash-flow/summary")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('finance.read')")
     CashFlowSummary cashFlowSummary(@PathVariable UUID projectId) {
         return financeService.cashFlowSummary(projectId);
     }
 
     @Operation(summary = "Cash flow projection by month")
     @GetMapping("/cash-flow/projection")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('finance.read')")
     CashFlowProjection cashFlowProjection(@PathVariable UUID projectId,
                                            @RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
         return financeService.cashFlowProjection(projectId, startDate, endDate);
@@ -143,7 +143,7 @@ public class FinanceController {
 
     @Operation(summary = "Consolidated cash flow across multiple projects")
     @GetMapping("/cash-flow/consolidated")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('finance.read')")
     FinanceService.ConsolidatedCashFlow consolidatedCashFlow(@PathVariable UUID projectId,
                                                              @RequestParam List<UUID> projectIds) {
         return financeService.consolidatedCashFlow(projectIds);
@@ -153,28 +153,28 @@ public class FinanceController {
 
     @Operation(summary = "Consolidated budget vs actual report (per cost code)")
     @GetMapping("/budget-vs-actual")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('finance.read')")
     BudgetVsActualReport budgetVsActual(@PathVariable UUID projectId) {
         return budgetVsActualService.consolidatedReport(projectId);
     }
 
     @Operation(summary = "Cost by input/composition (budgeted vs actual per service)")
     @GetMapping("/cost-by-input")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('finance.read')")
     List<CostByInputLine> costByInput(@PathVariable UUID projectId) {
         return budgetVsActualService.costByInput(projectId);
     }
 
     @Operation(summary = "Cost by period (actual and committed grouped by month)")
     @GetMapping("/cost-by-period")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('finance.read')")
     CostByPeriodReport costByPeriod(@PathVariable UUID projectId) {
         return budgetVsActualService.costByPeriod(projectId);
     }
 
     @Operation(summary = "Budget vs actual PDF report")
     @GetMapping(value = "/budget-vs-actual/reports/report.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('finance.read')")
     ResponseEntity<byte[]> budgetVsActualPdf(@PathVariable UUID projectId) {
         byte[] pdf = budgetVsActualReportService.generatePdf(projectId);
         return ResponseEntity.ok()

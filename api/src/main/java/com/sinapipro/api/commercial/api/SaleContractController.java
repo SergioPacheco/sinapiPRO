@@ -25,7 +25,7 @@ import java.util.UUID;
 @Tag(name = "Sale Contracts", description = "Vendas imobiliárias: contratos, parcelas, reajuste, distrato, comissões")
 @RestController
 @RequestMapping("/api/v1/developments/{developmentId}/sales")
-@PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+@PreAuthorize("@perm.check('commercial.read')")
 public class SaleContractController {
 
     private final SaleContractService contractService;
@@ -54,7 +54,7 @@ public class SaleContractController {
     }
 
     @PostMapping("/contracts")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('commercial.write')")
     @ResponseStatus(HttpStatus.CREATED)
     ContractResponse create(@PathVariable UUID developmentId, @Valid @RequestBody CreateContractRequest req) {
         var contract = contractService.create(developmentId, req.contractNumber(), req.contractDate(),
@@ -69,27 +69,27 @@ public class SaleContractController {
     }
 
     @PostMapping("/contracts/{contractId}/sign")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('commercial.write')")
     ContractResponse sign(@PathVariable UUID developmentId, @PathVariable UUID contractId,
                            @RequestBody(required = false) SignRequest req) {
         return ContractResponse.from(contractService.sign(contractId, req != null ? req.signingDate() : null));
     }
 
     @PostMapping("/contracts/{contractId}/activate")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('commercial.write')")
     ContractResponse activate(@PathVariable UUID developmentId, @PathVariable UUID contractId) {
         return ContractResponse.from(contractService.activate(contractId));
     }
 
     @PostMapping("/contracts/{contractId}/cancel")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('commercial.write')")
     CancellationResult cancel(@PathVariable UUID developmentId, @PathVariable UUID contractId,
                                @Valid @RequestBody CancelRequest req) {
         return cancellationService.cancel(contractId, req.reason(), req.finePct());
     }
 
     @PostMapping("/contracts/{contractId}/broker")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('commercial.write')")
     ContractResponse setBroker(@PathVariable UUID developmentId, @PathVariable UUID contractId,
                                 @Valid @RequestBody SetBrokerRequest req) {
         return ContractResponse.from(contractService.setBroker(contractId, req.brokerId(), req.commissionRate()));
@@ -98,7 +98,7 @@ public class SaleContractController {
     // --- Installments ---
 
     @PostMapping("/contracts/{contractId}/installments/generate")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('commercial.write')")
     @ResponseStatus(HttpStatus.CREATED)
     List<InstallmentResponse> generateInstallments(@PathVariable UUID developmentId, @PathVariable UUID contractId,
                                                     @Valid @RequestBody GenerateRequest req) {
@@ -112,14 +112,14 @@ public class SaleContractController {
     }
 
     @PostMapping("/contracts/{contractId}/installments/adjust")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('commercial.write')")
     AdjustResult adjustByIndex(@PathVariable UUID developmentId, @PathVariable UUID contractId,
                                 @RequestBody AdjustRequest req) {
         return new AdjustResult(installmentService.adjustByIndex(contractId, req.indexFactor()));
     }
 
     @PostMapping("/installments/{installmentId}/pay")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('commercial.write')")
     InstallmentResponse pay(@PathVariable UUID developmentId, @PathVariable UUID installmentId,
                              @Valid @RequestBody PayRequest req) {
         return InstallmentResponse.from(installmentService.pay(installmentId, req.amount(),
@@ -142,7 +142,7 @@ public class SaleContractController {
 
     @Operation(summary = "Simulate installments for a proposal (no persistence)")
     @PostMapping("/simulate")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('commercial.read')")
     InstallmentSimulation simulate(@PathVariable UUID developmentId, @Valid @RequestBody SimulateRequest req) {
         return proposalService.simulate(req.totalAmount(), req.downPayment(), req.installmentCount(),
                 req.monthlyRate(), req.amortizationType(), req.firstDueDate());
@@ -152,7 +152,7 @@ public class SaleContractController {
 
     @Operation(summary = "Transfer contract to a new buyer")
     @PostMapping("/contracts/{contractId}/transfer")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('commercial.write')")
     TransferResult transfer(@PathVariable UUID developmentId, @PathVariable UUID contractId,
                              @Valid @RequestBody TransferRequest req) {
         return proposalService.transfer(contractId, req.newContractNumber(), req.newBuyerId(), req.transferDate());
@@ -162,7 +162,7 @@ public class SaleContractController {
 
     @Operation(summary = "Register bank handover (financing)")
     @PostMapping("/contracts/{contractId}/bank-handover")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('commercial.write')")
     BankHandover bankHandover(@PathVariable UUID developmentId, @PathVariable UUID contractId,
                                @Valid @RequestBody BankHandoverRequest req) {
         return proposalService.registerBankHandover(contractId, req.bankName(), req.financedAmount(),

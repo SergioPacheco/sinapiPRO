@@ -15,7 +15,17 @@ public final class DefaultRoles {
     public static final Map<String, RoleDefinition> ROLES = Map.of(
         "ADMIN", new RoleDefinition("Administrador",
             "Acesso total ao sistema. Gerencia usuários, configurações e todos os módulos.",
-            Set.of(ADMIN_FULL)),
+            Set.of(ADMIN_FULL, PROJECT_READ, PROJECT_WRITE, PROJECT_DELETE,
+                   BUDGET_READ, BUDGET_WRITE, BUDGET_EFFECTUATE, BUDGET_EXPORT,
+                   MEASUREMENT_READ, MEASUREMENT_WRITE, MEASUREMENT_APPROVE, MEASUREMENT_REJECT,
+                   PROCUREMENT_READ, PROCUREMENT_WRITE, PROCUREMENT_APPROVE,
+                   FINANCE_READ, FINANCE_WRITE, FINANCE_PAY, FINANCE_RECEIVE, FINANCE_RECONCILE,
+                   COMMERCIAL_READ, COMMERCIAL_WRITE, COMMERCIAL_CANCEL,
+                   LABOR_READ, LABOR_WRITE, LABOR_CLOSE_PERIOD,
+                   REGISTRY_READ, REGISTRY_WRITE,
+                   REPORT_READ, REPORT_EXPORT,
+                   SETTINGS_READ, SETTINGS_WRITE, SETTINGS_MANAGE_USERS,
+                   SINAPI_IMPORT)),
 
         "ENGENHEIRO", new RoleDefinition("Engenheiro de Obra",
             "Gerencia obras, orçamentos, medições, cronograma. Aprova medições.",

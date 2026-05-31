@@ -111,7 +111,7 @@ class BudgetServiceTest {
                 BigDecimal.valueOf(100000), BudgetStatus.APPROVED, LocalDate.now(), null, Map.of());
         Page<Budget> page = new PageImpl<>(List.of(budget));
 
-        when(repository.findFiltered(BudgetStatus.APPROVED, null, pageable)).thenReturn(page);
+        when(repository.findFiltered(null, BudgetStatus.APPROVED, null, pageable)).thenReturn(page);
 
         Page<Budget> result = service.findAll(filter, pageable);
 

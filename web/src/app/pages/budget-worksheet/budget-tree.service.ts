@@ -35,6 +35,8 @@ export class BudgetTreeService {
   rows = signal<BudgetRow[]>([]);
   budgetId = signal<string | null>(null);
   budgetStatus = signal('DRAFT');
+  budgetState = signal('SP');
+  budgetReferenceDate = signal('2024-12-01');
   summary = signal({ directCost: 0, bdiPct: 0, bdiAmount: 0, total: 0 });
 
   visibleRows = computed(() => this.rows().filter(r => !r.hidden));
@@ -49,16 +51,32 @@ export class BudgetTreeService {
       },
     });
     this.http.get<any>(`/budgets/${budgetId}`).subscribe({
-      next: b => this.budgetStatus.set(b.status || 'DRAFT'),
+      next: b => {
+        this.budgetStatus.set(b.status || 'DRAFT');
+        this.budgetState.set(b.state || 'SP');
+        this.budgetReferenceDate.set(b.referenceDate || '2024-12-01');
+      },
     });
   }
 
   /** Insere linha vazia ABAIXO do índice dado (ou no final) */
   insertEmpty(afterIndex: number): BudgetRow {
     const all = this.rows();
+    if (!all.some(r => r.type === 'LEVEL')) {
+      const stage: BudgetRow = {
+        type: 'LEVEL', level: 0, expanded: true, code: '', refCode: '', description: 'Etapa 1',
+        unit: '', quantity: null, unitCost: null, leisSociais: 0, bdi: 0, total: 0,
+        editable: false, dirty: true, hidden: false,
+      };
+      all.push(stage);
+      this.rows.set([...all]);
+      this.saveStage(stage);
+      afterIndex = 0;
+    }
+
     const ref = all[afterIndex];
     const level = ref ? (ref.type === 'LEVEL' || ref.type === 'SUB_LEVEL' ? ref.level + 1 : ref.level) : 0;
-    const stageId = ref?.stageId;
+    const stageId = ref?.stageId || this.findStageIdForIndex(afterIndex);
     const newRow: BudgetRow = {
       type: 'EMPTY', level, expanded: false, code: '', refCode: '', description: '',
       unit: '', quantity: null, unitCost: null, leisSociais: 0, bdi: 0, total: 0,
@@ -92,7 +110,8 @@ export class BudgetTreeService {
       this.saveStage(row);
     } else {
       // Composição ou Insumo
-      row.type = selection.items?.length > 0 || selection._type === 'COMPOSITION' ? 'COMPOSITION' : 'INPUT';
+      row.type = 'COMPOSITION';
+      row.stageId ||= this.findStageIdForRow(row);
       row.compositionId = selection.id;
       row.refCode = selection.sinapiCode || '';
       row.description = selection.description;
@@ -166,19 +185,76 @@ export class BudgetTreeService {
 
   /** Salvar todas as linhas dirty */
   saveAll() {
-    const dirty = this.rows().filter(r => r.dirty && r.compositionId && r.quantity && r.stageId);
+    const dirty = this.rows().filter(r =>
+      r.dirty && r.type === 'COMPOSITION' && r.compositionId && r.quantity !== null && r.quantity > 0 && r.stageId);
     if (!dirty.length) return;
+
+    const requests: Array<() => void> = [];
     const byStage = new Map<string, BudgetRow[]>();
-    for (const r of dirty) { const l = byStage.get(r.stageId!) || []; l.push(r); byStage.set(r.stageId!, l); }
-    let pending = byStage.size;
-    for (const [stageId, items] of byStage) {
-      const body = items.filter(r => !r.id).map(r => ({ compositionId: r.compositionId, quantity: r.quantity, unitCost: r.unitCost || undefined }));
-      if (!body.length) { pending--; if (!pending) this.onSaved(); continue; }
-      this.http.post(`/budgets/${this.budgetId()}/stages/${stageId}/items/bulk`, body).subscribe({
-        next: () => { pending--; if (!pending) this.onSaved(); },
-        error: () => { pending--; if (!pending) this.onSaved(); },
-      });
+    for (const r of dirty.filter(r => !r.id)) {
+      const l = byStage.get(r.stageId!) || [];
+      l.push(r);
+      byStage.set(r.stageId!, l);
     }
+
+    for (const [stageId, items] of byStage) {
+      const body = items.map(r => ({
+        compositionId: r.compositionId,
+        quantity: r.quantity,
+        unitCost: r.unitCost || undefined,
+        bdiPct: this.toDecimalBdi(r),
+      }));
+      requests.push(() => this.http.post(`/budgets/${this.budgetId()}/stages/${stageId}/items/bulk`, body).subscribe({
+        next: done,
+        error: fail,
+      }));
+    }
+
+    for (const r of dirty.filter(r => r.id)) {
+      const body = {
+        quantity: r.quantity,
+        unitCost: r.unitCost || 0,
+        bdiPct: this.toDecimalBdi(r),
+      };
+      requests.push(() => this.http.put(`/budgets/${this.budgetId()}/items/${r.id}`, body).subscribe({
+        next: done,
+        error: fail,
+      }));
+    }
+
+    if (!requests.length) return;
+    let pending = requests.length;
+    let failed = 0;
+    const finish = () => {
+      pending--;
+      if (pending > 0) return;
+      if (failed) {
+        this.messages.add({ severity: 'warn', summary: 'Algumas alterações não foram salvas' });
+        this.load(this.budgetId()!);
+      } else {
+        this.onSaved();
+      }
+    };
+    function done() { finish(); }
+    function fail() { failed++; finish(); }
+    requests.forEach(run => run());
+  }
+
+  private toDecimalBdi(row: BudgetRow): number {
+    const pct = row.bdi && row.bdi > 0 ? row.bdi : this.summary().bdiPct;
+    return (pct || 0) / 100;
+  }
+
+  private findStageIdForIndex(index: number): string | undefined {
+    const all = this.rows();
+    for (let i = Math.min(index, all.length - 1); i >= 0; i--) {
+      if (all[i].stageId) return all[i].stageId;
+    }
+    return undefined;
+  }
+
+  private findStageIdForRow(row: BudgetRow): string | undefined {
+    return this.findStageIdForIndex(this.rows().indexOf(row));
   }
 
   private onSaved() { this.messages.add({ severity: 'success', summary: 'Salvo' }); this.load(this.budgetId()!); }
@@ -186,7 +262,18 @@ export class BudgetTreeService {
   private saveStage(row: BudgetRow) {
     const sortOrder = this.rows().filter(r => r.type === 'LEVEL').indexOf(row) + 1;
     this.http.post<any>(`/budgets/${this.budgetId()}/stages`, { name: row.description, sortOrder }).subscribe({
-      next: res => { row.stageId = res.id; row.id = res.id; row.dirty = false; },
+      next: res => {
+        row.stageId = res.id;
+        row.id = res.id;
+        row.dirty = false;
+        const all = this.rows();
+        const idx = all.indexOf(row);
+        for (let i = idx + 1; i < all.length && all[i].level > row.level; i++) {
+          if (!all[i].stageId) all[i].stageId = res.id;
+        }
+        this.renumberRows(all);
+        this.rows.set([...all]);
+      },
     });
   }
 
@@ -205,7 +292,7 @@ export class BudgetTreeService {
         },
       });
       // Buscar custo unitário
-      this.http.get<any>(`/compositions/${selection.id}/cost?state=SP&month=2024-12-01`).subscribe({
+      this.http.get<any>(`/compositions/${selection.id}/cost?state=${this.budgetState()}&month=${this.budgetReferenceDate()}`).subscribe({
         next: cost => { if (cost?.totalUnitCost) { row.unitCost = cost.totalUnitCost; row.total = (row.quantity || 0) * cost.totalUnitCost; this.rows.set([...this.rows()]); } },
         error: () => {},
       });
@@ -235,7 +322,7 @@ export class BudgetTreeService {
       for (const s of list) {
         rows.push({ type: 'LEVEL', level, expanded: true, id: s.id, stageId: s.id, code: '', refCode: '', description: s.name.replace(/^\d+\.\s*/, ''), unit: '', quantity: null, unitCost: null, leisSociais: 0, bdi: 0, total: s.subtotal || 0, editable: false, dirty: false, hidden: false });
         for (const i of s.items || []) {
-          rows.push({ type: 'COMPOSITION', level: level + 1, expanded: false, id: i.id, stageId: s.id, compositionId: i.compositionId, code: '', refCode: i.code, description: i.description, unit: i.unit, quantity: i.quantity, unitCost: i.unitCost, leisSociais: 0, bdi: 0, total: i.totalCost, editable: false, dirty: false, hidden: false });
+          rows.push({ type: 'COMPOSITION', level: level + 1, expanded: false, id: i.id, stageId: s.id, compositionId: i.compositionId, code: '', refCode: i.code, description: i.description, unit: i.unit, quantity: i.quantity, unitCost: i.unitCost, leisSociais: 0, bdi: (i.bdiPct || 0) * 100, total: i.totalCost, editable: false, dirty: false, hidden: false });
         }
         if (s.children?.length) walk(s.children, level + 1);
       }

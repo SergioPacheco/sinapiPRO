@@ -42,14 +42,14 @@ public class DocumentController {
 
     @Operation(summary = "List documents for a budget")
     @GetMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     PageResponse<DocumentResponse> list(@PathVariable UUID projectId, @PageableDefault(size = 20) Pageable pageable) {
         return PageResponse.from(documentService.listByBudget(projectId, pageable).map(DocumentResponse::from));
     }
 
     @Operation(summary = "Upload a document")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     @ResponseStatus(HttpStatus.CREATED)
     DocumentResponse upload(@PathVariable UUID projectId,
                             @RequestParam("file") MultipartFile file,
@@ -62,7 +62,7 @@ public class DocumentController {
 
     @Operation(summary = "List document versions for an entity")
     @GetMapping("/versions")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     List<DocumentResponse> versions(@PathVariable UUID projectId,
                                     @RequestParam String entityType, @RequestParam UUID entityId) {
         return documentService.listVersions(entityType, entityId).stream().map(DocumentResponse::from).toList();
@@ -72,7 +72,7 @@ public class DocumentController {
 
     @Operation(summary = "Add a new version to an existing document")
     @PostMapping("/{documentId}/versions")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     @Transactional
     @ResponseStatus(HttpStatus.CREATED)
     VersionResponse addVersion(@PathVariable UUID projectId, @PathVariable UUID documentId,
@@ -87,7 +87,7 @@ public class DocumentController {
 
     @Operation(summary = "List version history of a document")
     @GetMapping("/{documentId}/versions")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     List<VersionResponse> listVersionHistory(@PathVariable UUID projectId, @PathVariable UUID documentId) {
         return versionRepository.findByDocumentIdOrderByVersionNumberDesc(documentId).stream()
                 .map(VersionResponse::from).toList();

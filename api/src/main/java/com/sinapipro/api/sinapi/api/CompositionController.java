@@ -32,7 +32,7 @@ import java.util.UUID;
 @Tag(name = "Compositions", description = "SINAPI composition catalog")
 @RestController
 @RequestMapping("/api/v1/compositions")
-@PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+@PreAuthorize("@perm.check('budget.read')")
 public class CompositionController {
 
     private final CompositionRepository compositionRepository;
@@ -93,7 +93,7 @@ public class CompositionController {
 
     @Operation(summary = "Copy SINAPI composition to custom catalog")
     @PostMapping("/{id}/copy")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('sinapi.import')")
     @ResponseStatus(HttpStatus.CREATED)
     @Transactional
     CompositionResponse copy(@PathVariable UUID id) {
@@ -102,7 +102,7 @@ public class CompositionController {
 
     @Operation(summary = "Create custom composition")
     @PostMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('sinapi.import')")
     @ResponseStatus(HttpStatus.CREATED)
     CompositionResponse create(@Valid @RequestBody CreateCompositionRequest req) {
         var comp = new Composition(req.code(), req.description(), req.unit(), req.groupName(), "PROPRIO");
@@ -124,7 +124,7 @@ public class CompositionController {
 
     @Operation(summary = "Update custom composition (creates new version)")
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('sinapi.import')")
     @Transactional
     CompositionResponse update(@PathVariable UUID id, @Valid @RequestBody UpdateCompositionRequest req) {
         var items = req.items() != null ? req.items().stream()
@@ -136,7 +136,7 @@ public class CompositionController {
 
     @Operation(summary = "Delete custom composition")
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('sinapi.import')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void delete(@PathVariable UUID id) {
         Composition c = compositionRepository.findById(id)

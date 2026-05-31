@@ -9,12 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.Map;
-
 @Tag(name = "Settings", description = "Global application settings")
 @RestController
 @RequestMapping("/api/v1/settings")
-@PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+@PreAuthorize("@perm.check('settings.read')")
 public class SettingsController {
 
     private final AppSettingsRepository repository;
@@ -43,16 +41,54 @@ public class SettingsController {
         return settings;
     }
 
+    @Operation(summary = "Get company settings")
+    @GetMapping("/company")
+    public CompanySettings getCompany() {
+        return new CompanySettings(
+                getValue("COMPANY_NAME", ""),
+                getValue("COMPANY_CNPJ", ""),
+                getValue("COMPANY_STATE_REGISTRATION", ""),
+                getValue("COMPANY_ADDRESS", ""),
+                getValue("COMPANY_CITY", ""),
+                getValue("COMPANY_STATE", ""),
+                getValue("COMPANY_ZIP_CODE", ""),
+                getValue("COMPANY_PHONE", ""),
+                getValue("COMPANY_EMAIL", ""),
+                getValue("COMPANY_WEBSITE", "")
+        );
+    }
+
+    @Operation(summary = "Update company settings")
+    @PutMapping("/company")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
+    public CompanySettings updateCompany(@RequestBody CompanySettings settings) {
+        save("COMPANY_NAME", settings.name());
+        save("COMPANY_CNPJ", settings.cnpj());
+        save("COMPANY_STATE_REGISTRATION", settings.stateRegistration());
+        save("COMPANY_ADDRESS", settings.address());
+        save("COMPANY_CITY", settings.city());
+        save("COMPANY_STATE", settings.state());
+        save("COMPANY_ZIP_CODE", settings.zipCode());
+        save("COMPANY_PHONE", settings.phone());
+        save("COMPANY_EMAIL", settings.email());
+        save("COMPANY_WEBSITE", settings.website());
+        return settings;
+    }
+
     private String getValue(String key, String defaultValue) {
         return repository.findById(key).map(AppSettings::getValue).orElse(defaultValue);
     }
 
     private void save(String key, String value) {
         repository.findById(key).ifPresentOrElse(
-                s -> s.setValue(value),
-                () -> repository.save(new AppSettings(key, value))
+                s -> s.setValue(value != null ? value : ""),
+                () -> repository.save(new AppSettings(key, value != null ? value : ""))
         );
     }
 
     public record GlobalSettings(@NotBlank String state, @NotBlank String referenceMonth, boolean desonerated) {}
+    public record CompanySettings(String name, String cnpj, String stateRegistration, String address,
+                                  String city, String state, String zipCode, String phone,
+                                  String email, String website) {}
 }

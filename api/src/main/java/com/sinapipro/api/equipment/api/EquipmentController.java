@@ -49,14 +49,14 @@ public class EquipmentController {
 
     @Operation(summary = "List all equipment")
     @GetMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     PageResponse<EquipmentResponse> list(@PageableDefault(size = 20) Pageable pageable) {
         return PageResponse.from(equipmentService.list(pageable).map(EquipmentResponse::from));
     }
 
     @Operation(summary = "Create equipment")
     @PostMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     ResponseEntity<EquipmentResponse> create(@Valid @RequestBody CreateEquipmentRequest req) {
         Equipment e = equipmentService.create(req.code(), req.name(), req.type(), req.brand(),
                 req.model(), req.year(), req.licensePlate(), req.hourlyCost());
@@ -66,7 +66,7 @@ public class EquipmentController {
 
     @Operation(summary = "Record equipment usage")
     @PostMapping("/{equipmentId}/usage")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     @ResponseStatus(HttpStatus.CREATED)
     UsageResponse recordUsage(@PathVariable UUID equipmentId, @Valid @RequestBody RecordUsageRequest req) {
         EquipmentUsage u = equipmentService.recordUsage(equipmentId, req.budgetId(), req.usageDate(),
@@ -76,7 +76,7 @@ public class EquipmentController {
 
     @Operation(summary = "List usage history for equipment")
     @GetMapping("/{equipmentId}/usage")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     List<UsageResponse> listUsage(@PathVariable UUID equipmentId) {
         return usageRepository.findByEquipmentIdOrderByUsageDateDesc(equipmentId).stream()
                 .map(UsageResponse::from).toList();
@@ -84,7 +84,7 @@ public class EquipmentController {
 
     @Operation(summary = "Schedule maintenance")
     @PostMapping("/{equipmentId}/maintenance-schedule")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     EquipmentResponse scheduleMaintenance(@PathVariable UUID equipmentId,
                                           @Valid @RequestBody MaintenanceScheduleRequest req) {
         Equipment e = equipmentService.scheduleMaintenace(equipmentId, req.nextHours(), req.nextDate());
@@ -93,14 +93,14 @@ public class EquipmentController {
 
     @Operation(summary = "Get maintenance alerts (equipment due for maintenance)")
     @GetMapping("/maintenance-alerts")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     List<MaintenanceAlert> maintenanceAlerts() {
         return equipmentService.getMaintenanceAlerts();
     }
 
     @Operation(summary = "Equipment cost summary for a budget")
     @GetMapping("/cost-summary")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     EquipmentCostSummary costSummary(@RequestParam UUID budgetId) {
         return equipmentService.costSummary(budgetId);
     }
@@ -109,7 +109,7 @@ public class EquipmentController {
 
     @Operation(summary = "Record equipment fueling")
     @PostMapping("/{equipmentId}/fueling")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     @ResponseStatus(HttpStatus.CREATED)
     FuelingResponse recordFueling(@PathVariable UUID equipmentId, @Valid @RequestBody RecordFuelingRequest req) {
         var equipment = equipmentRepository.findById(equipmentId)
@@ -121,7 +121,7 @@ public class EquipmentController {
 
     @Operation(summary = "List fueling history for equipment")
     @GetMapping("/{equipmentId}/fueling")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     List<FuelingResponse> listFueling(@PathVariable UUID equipmentId) {
         return fuelingRepository.findByEquipmentIdOrderByFuelingDateDesc(equipmentId).stream()
                 .map(FuelingResponse::from).toList();

@@ -19,7 +19,7 @@ import java.util.UUID;
 @Tag(name = "Labor", description = "Mão de obra: competência, banco de horas, salários, tabela de preços")
 @RestController
 @RequestMapping("/api/v1/projects/{projectId}/labor")
-@PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+@PreAuthorize("@perm.check('labor.read')")
 public class LaborController {
 
     private final LaborService service;
@@ -34,21 +34,21 @@ public class LaborController {
     }
 
     @PostMapping("/competency-periods")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('labor.write')")
     @ResponseStatus(HttpStatus.CREATED)
     PeriodResponse openPeriod(@PathVariable UUID projectId, @Valid @RequestBody OpenPeriodRequest req) {
         return PeriodResponse.from(service.openPeriod(projectId, req.yearMonth()));
     }
 
     @PostMapping("/competency-periods/{periodId}/close")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('labor.write')")
     PeriodResponse closePeriod(@PathVariable UUID projectId, @PathVariable UUID periodId,
                                 @RequestBody CloseRequest req) {
         return PeriodResponse.from(service.closePeriod(periodId, req.closedBy()));
     }
 
     @PostMapping("/competency-periods/{periodId}/reopen")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('labor.write')")
     PeriodResponse reopenPeriod(@PathVariable UUID projectId, @PathVariable UUID periodId) {
         return PeriodResponse.from(service.reopenPeriod(periodId));
     }
@@ -66,7 +66,7 @@ public class LaborController {
     }
 
     @PostMapping("/hour-bank")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('labor.write')")
     @ResponseStatus(HttpStatus.CREATED)
     HourBankResponse addHours(@PathVariable UUID projectId, @Valid @RequestBody AddHoursRequest req) {
         var entry = service.addHours(req.employeeId(), projectId, req.competencyId(),
@@ -83,7 +83,7 @@ public class LaborController {
     }
 
     @PostMapping("/salary-history")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('labor.write')")
     @ResponseStatus(HttpStatus.CREATED)
     SalaryResponse addSalary(@PathVariable UUID projectId, @Valid @RequestBody AddSalaryRequest req) {
         return SalaryResponse.from(service.addSalaryRecord(req.employeeId(), req.effectiveDate(),
@@ -98,7 +98,7 @@ public class LaborController {
     }
 
     @PostMapping("/price-tables")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('labor.write')")
     @ResponseStatus(HttpStatus.CREATED)
     PriceTableResponse createPriceTable(@PathVariable UUID projectId, @Valid @RequestBody CreateTableRequest req) {
         return PriceTableResponse.from(service.createPriceTable(req.name(), req.validFrom()));
@@ -110,7 +110,7 @@ public class LaborController {
     }
 
     @PostMapping("/price-tables/{tableId}/items")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('labor.write')")
     @ResponseStatus(HttpStatus.CREATED)
     TableItemResponse addTableItem(@PathVariable UUID projectId, @PathVariable UUID tableId,
                                     @Valid @RequestBody AddTableItemRequest req) {

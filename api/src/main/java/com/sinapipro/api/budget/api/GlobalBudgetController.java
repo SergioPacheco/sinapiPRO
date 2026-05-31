@@ -36,7 +36,7 @@ public class GlobalBudgetController {
 
     @Operation(summary = "List all budgets across projects with filters")
     @GetMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     PageResponse<GlobalBudgetResponse> listAll(
             @RequestParam(required = false) BudgetStatus status,
             @RequestParam(required = false) UUID projectId,

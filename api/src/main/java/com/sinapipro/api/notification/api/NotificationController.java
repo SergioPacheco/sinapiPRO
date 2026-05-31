@@ -26,21 +26,21 @@ public class NotificationController {
 
     @Operation(summary = "Generate alerts for a budget (scans RFIs, equipment, contracts)")
     @PostMapping("/projects/{projectId}/notifications/generate")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     List<NotificationResponse> generate(@PathVariable UUID projectId) {
         return notificationService.generateAlerts(projectId).stream().map(NotificationResponse::from).toList();
     }
 
     @Operation(summary = "Get unread notifications for a user")
     @GetMapping("/notifications")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     PageResponse<NotificationResponse> unread(Principal principal, @PageableDefault(size = 20) Pageable pageable) {
         return PageResponse.from(notificationService.getUnread(principal.getName(), pageable).map(NotificationResponse::from));
     }
 
     @Operation(summary = "Mark notification as read")
     @PostMapping("/notifications/{id}/read")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void markRead(@PathVariable UUID id) {
         notificationService.markRead(id);
@@ -48,7 +48,7 @@ public class NotificationController {
 
     @Operation(summary = "Count unread notifications")
     @GetMapping("/notifications/count")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     UnreadCount countUnread(Principal principal) {
         return new UnreadCount(notificationService.countUnread(principal.getName()));
     }

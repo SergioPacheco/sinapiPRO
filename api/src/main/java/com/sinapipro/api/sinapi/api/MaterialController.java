@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @Tag(name = "Materials", description = "SINAPI material/input catalog")
 @RestController
 @RequestMapping("/api/v1/materials")
-@PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+@PreAuthorize("@perm.check('budget.read')")
 public class MaterialController {
 
     private final MaterialRepository repository;
@@ -69,7 +69,7 @@ public class MaterialController {
 
     @Operation(summary = "Add price to material")
     @PostMapping("/{id}/prices")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('sinapi.import')")
     @Transactional
     @ResponseStatus(HttpStatus.CREATED)
     MaterialDetailResponse addPrice(@PathVariable UUID id, @Valid @RequestBody AddPriceRequest req) {
@@ -90,7 +90,7 @@ public class MaterialController {
 
     @Operation(summary = "Create custom material")
     @PostMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('sinapi.import')")
     @ResponseStatus(HttpStatus.CREATED)
     MaterialResponse create(@Valid @RequestBody CreateMaterialRequest req) {
         var material = new Material(req.code(), req.description(), req.unit(), "PROPRIO");
@@ -99,7 +99,7 @@ public class MaterialController {
 
     @Operation(summary = "Update custom material")
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('sinapi.import')")
     MaterialResponse update(@PathVariable UUID id, @Valid @RequestBody UpdateMaterialRequest req) {
         Material m = repository.findById(id)
                 .orElseThrow(() -> new DomainNotFoundException("Material not found: " + id));
@@ -110,7 +110,7 @@ public class MaterialController {
 
     @Operation(summary = "Delete custom material")
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('sinapi.import')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void delete(@PathVariable UUID id) {
         Material m = repository.findById(id)

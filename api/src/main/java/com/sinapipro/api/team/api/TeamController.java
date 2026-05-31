@@ -32,20 +32,20 @@ public class TeamController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('project.read')")
     public List<TeamResponse> list(@RequestParam(required = false) UUID projectId) {
         var teams = projectId != null ? repository.findByProjectId(projectId) : repository.findByActiveTrue();
         return teams.stream().map(this::toResponse).toList();
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('project.read')")
     public TeamResponse getById(@PathVariable UUID id) {
         return toResponse(findTeam(id));
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('project.write')")
     @ResponseStatus(HttpStatus.CREATED)
     public TeamResponse create(@Valid @RequestBody CreateTeamRequest req) {
         var team = new Team();
@@ -63,7 +63,7 @@ public class TeamController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('project.write')")
     public TeamResponse update(@PathVariable UUID id, @Valid @RequestBody UpdateTeamRequest req) {
         var team = findTeam(id);
         team.setName(req.name());
@@ -81,7 +81,7 @@ public class TeamController {
     }
 
     @PostMapping("/{id}/members")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('project.write')")
     public TeamResponse addMember(@PathVariable UUID id, @Valid @RequestBody MemberRequest req) {
         var team = findTeam(id);
         team.addMember(createMember(req));
@@ -89,7 +89,7 @@ public class TeamController {
     }
 
     @DeleteMapping("/{id}/members/{employeeId}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('project.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeMember(@PathVariable UUID id, @PathVariable UUID employeeId) {
         var team = findTeam(id);
@@ -98,7 +98,7 @@ public class TeamController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('project.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id) {
         var team = findTeam(id);

@@ -1,6 +1,6 @@
 package com.sinapipro.api.finance;
 
-import com.sinapipro.api.finance.application.AgingReportService;
+import com.sinapipro.api.finance.application.FinanceAgingService;
 import com.sinapipro.api.finance.application.CostApportionmentService;
 import com.sinapipro.api.finance.application.DreService;
 import com.sinapipro.api.finance.domain.*;
@@ -27,14 +27,14 @@ import static org.mockito.Mockito.*;
 class FinanceServicesTest {
 
     @Nested
-    @DisplayName("AgingReportService")
+    @DisplayName("FinanceAgingService")
     class AgingTests {
         @Mock PayableRepository payableRepo;
         @Mock ReceivableRepository receivableRepo;
-        AgingReportService service;
+        FinanceAgingService service;
 
         @BeforeEach
-        void setUp() { service = new AgingReportService(payableRepo, receivableRepo); }
+        void setUp() { service = new FinanceAgingService(payableRepo, receivableRepo); }
 
         @Test
         @DisplayName("should classify overdue payables into aging buckets")

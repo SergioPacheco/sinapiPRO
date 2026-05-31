@@ -43,7 +43,7 @@ import { StatusTagComponent } from '../../shared/components';
               <td class="text-right font-mono">{{ p.amount | number:'1.2-2' }}</td>
               <td style="font-size:0.8rem">{{ p.dueDate }}</td>
               <td><sp-status [status]="p.status || 'OPEN'" /></td>
-              <td>@if (p.status !== 'PAID') { <p-button icon="pi pi-check" [text]="true" size="small" severity="success" (onClick)="payItem(p.id)" pTooltip="Pagar" /> }</td>
+              <td>@if (p.status !== 'PAID') { <p-button icon="pi pi-check" [text]="true" size="small" severity="success" (onClick)="payItem(p)" pTooltip="Pagar" /> }</td>
             </tr>
           </ng-template>
         </p-table>
@@ -63,7 +63,7 @@ import { StatusTagComponent } from '../../shared/components';
               <td style="font-size:0.8rem">{{ r.dueDate }}</td>
               <td style="font-size:0.8rem;color:var(--sp-text-muted)">{{ r.type }}</td>
               <td><sp-status [status]="r.status || 'OPEN'" /></td>
-              <td>@if (r.status !== 'RECEIVED') { <p-button icon="pi pi-check" [text]="true" size="small" severity="success" (onClick)="receiveItem(r.id)" pTooltip="Receber" /> }</td>
+              <td>@if (r.status !== 'RECEIVED') { <p-button icon="pi pi-check" [text]="true" size="small" severity="success" (onClick)="receiveItem(r)" pTooltip="Receber" /> }</td>
             </tr>
           </ng-template>
         </p-table>
@@ -167,13 +167,13 @@ export class FinanceDashboardComponent implements OnInit {
 
   ngOnInit() {
     const today = new Date().toISOString().slice(0, 10);
-    this.http.get<any>('/payables?size=100').subscribe({
+    this.http.get<any>(`/projects/${this.pid}/finance/payables?size=100`).subscribe({
       next: r => {
         const items = r.content || r || [];
         this.payables.set(items);
         const pagar = items.filter((i: any) => i.status !== 'PAID').reduce((s: number, i: any) => s + (i.amount || 0), 0);
         const vencidas = items.filter((i: any) => i.dueDate < today && i.status !== 'PAID').reduce((s: number, i: any) => s + (i.amount || 0), 0);
-        this.http.get<any>('/receivables?size=100').subscribe({
+        this.http.get<any>(`/projects/${this.pid}/finance/receivables?size=100`).subscribe({
           next: rr => {
             const rItems = rr.content || rr || [];
             this.receivables.set(rItems);
@@ -210,15 +210,24 @@ export class FinanceDashboardComponent implements OnInit {
   }
 
   createPayable() {
-    const body = { ...this.payForm, dueDate: this.payForm.dueDate?.toISOString?.()?.slice(0, 10), projectId: this.pid };
-    this.http.post('/payables', body).subscribe({ next: () => { this.showNewPay = false; this.payForm = {}; this.messages.add({ severity: 'success', summary: 'Despesa criada' }); this.ngOnInit(); } });
+    const body = { ...this.payForm, dueDate: this.payForm.dueDate?.toISOString?.()?.slice(0, 10) };
+    this.http.post(`/projects/${this.pid}/finance/payables`, body).subscribe({ next: () => { this.showNewPay = false; this.payForm = {}; this.messages.add({ severity: 'success', summary: 'Despesa criada' }); this.ngOnInit(); } });
   }
 
   faturar() {
-    const body = { description: this.fatForm.description, amount: this.fatForm.amount, dueDate: this.fatForm.dueDate?.toISOString?.()?.slice(0, 10), type: 'FATURAMENTO', projectId: this.pid };
-    this.http.post('/receivables', body).subscribe({ next: () => { this.showFaturar = false; this.fatForm = {}; this.messages.add({ severity: 'success', summary: 'Faturamento gerado' }); this.ngOnInit(); } });
+    const body = { description: this.fatForm.description, amount: this.fatForm.amount, dueDate: this.fatForm.dueDate?.toISOString?.()?.slice(0, 10), category: 'FATURAMENTO' };
+    this.http.post(`/projects/${this.pid}/finance/receivables`, body).subscribe({ next: () => { this.showFaturar = false; this.fatForm = {}; this.messages.add({ severity: 'success', summary: 'Faturamento gerado' }); this.ngOnInit(); } });
   }
 
-  payItem(id: string) { this.http.post(`/payables/${id}/pay`, {}).subscribe({ next: () => { this.messages.add({ severity: 'success', summary: 'Pago' }); this.ngOnInit(); }, error: () => this.messages.add({ severity: 'success', summary: 'Marcado como pago' }) }); }
-  receiveItem(id: string) { this.http.post(`/receivables/${id}/receive`, { amount: 0, receivedDate: new Date().toISOString().slice(0, 10) }).subscribe({ next: () => { this.messages.add({ severity: 'success', summary: 'Recebido' }); this.ngOnInit(); } }); }
+  payItem(item: any) {
+    const amount = item.amount - (item.paidAmount || 0);
+    this.http.post(`/projects/${this.pid}/finance/payables/${item.id}/pay`, { amount, date: new Date().toISOString().slice(0, 10) })
+      .subscribe({ next: () => { this.messages.add({ severity: 'success', summary: 'Pago' }); this.ngOnInit(); } });
+  }
+
+  receiveItem(item: any) {
+    const amount = item.amount - (item.receivedAmount || 0);
+    this.http.post(`/projects/${this.pid}/finance/receivables/${item.id}/receive`, { amount, date: new Date().toISOString().slice(0, 10) })
+      .subscribe({ next: () => { this.messages.add({ severity: 'success', summary: 'Recebido' }); this.ngOnInit(); } });
+  }
 }

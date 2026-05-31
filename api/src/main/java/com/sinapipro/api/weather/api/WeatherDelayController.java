@@ -24,13 +24,13 @@ public class WeatherDelayController {
     public WeatherDelayController(WeatherDelayRepository repository) { this.repository = repository; }
 
     @Operation(summary = "List weather delays") @GetMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     List<WeatherDelayResponse> list(@PathVariable UUID projectId) {
         return repository.findByBudgetIdOrderByDelayDateDesc(projectId).stream().map(WeatherDelayResponse::from).toList();
     }
 
     @Operation(summary = "Record a weather delay") @PostMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')") @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("@perm.check('budget.write')") @ResponseStatus(HttpStatus.CREATED)
     WeatherDelayResponse record(@PathVariable UUID projectId, @Valid @RequestBody CreateWeatherDelayRequest req) {
         WeatherDelay wd = repository.save(new WeatherDelay(projectId, req.delayDate(), req.weatherCondition(),
                 req.hoursLost(), req.fullDayLost() != null && req.fullDayLost(), req.impactDescription(), req.reportedBy()));
@@ -38,7 +38,7 @@ public class WeatherDelayController {
     }
 
     @Operation(summary = "Weather delay impact summary") @GetMapping("/summary")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     WeatherDelaySummary summary(@PathVariable UUID projectId) {
         return new WeatherDelaySummary(
                 repository.findByBudgetIdOrderByDelayDateDesc(projectId).size(),

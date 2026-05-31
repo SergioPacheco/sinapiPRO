@@ -26,7 +26,7 @@ public class TrashController {
 
     @Operation(summary = "List all trashed items")
     @GetMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('settings.read')")
     List<TrashItem> list(@RequestParam(required = false) String entityType) {
         if (entityType != null) return repository.findByEntityTypeOrderByDeletedAtDesc(entityType);
         return repository.findAllByOrderByDeletedAtDesc();
@@ -34,7 +34,7 @@ public class TrashController {
 
     @Operation(summary = "Restore a trashed item (returns snapshot for client-side restoration)")
     @PostMapping("/{id}/restore")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('settings.write')")
     TrashItem restore(@PathVariable UUID id) {
         TrashItem item = repository.findById(id)
                 .orElseThrow(() -> new DomainNotFoundException("Trash item not found: " + id));
@@ -44,7 +44,7 @@ public class TrashController {
 
     @Operation(summary = "Permanently delete a trashed item")
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('settings.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void purge(@PathVariable UUID id) {
         if (!repository.existsById(id)) throw new DomainNotFoundException("Trash item not found: " + id);
@@ -53,7 +53,7 @@ public class TrashController {
 
     @Operation(summary = "Purge all expired items")
     @DeleteMapping("/expired")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('settings.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void purgeExpired() {
         repository.deleteAll(repository.findByExpiresAtBefore(Instant.now()));

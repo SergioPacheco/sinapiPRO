@@ -30,7 +30,7 @@ public class SupplierController {
 
     @Operation(summary = "List suppliers with filters and pagination")
     @GetMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     PageResponse<SupplierResponse> list(
             @RequestParam(required = false) Boolean active,
             @RequestParam(required = false) String name,
@@ -41,14 +41,14 @@ public class SupplierController {
 
     @Operation(summary = "Get supplier by ID")
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     SupplierResponse findById(@PathVariable UUID id) {
         return SupplierResponse.from(supplierService.findById(id));
     }
 
     @Operation(summary = "Create a new supplier")
     @PostMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     ResponseEntity<SupplierResponse> create(@Valid @RequestBody CreateSupplierRequest request) {
         Supplier supplier = supplierService.create(request);
         SupplierResponse response = SupplierResponse.from(supplier);
@@ -57,14 +57,14 @@ public class SupplierController {
 
     @Operation(summary = "Update an existing supplier")
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     SupplierResponse update(@PathVariable UUID id, @Valid @RequestBody UpdateSupplierRequest request) {
         return SupplierResponse.from(supplierService.update(id, request));
     }
 
     @Operation(summary = "Delete a supplier")
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void delete(@PathVariable UUID id) {
         supplierService.delete(id);

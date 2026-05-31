@@ -26,7 +26,7 @@ import java.util.UUID;
 @Tag(name = "Projects", description = "Gestão de Obras")
 @RestController
 @RequestMapping("/api/v1/projects")
-@PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+@PreAuthorize("@perm.check('project.read')")
 public class ProjectController {
 
     private final ProjectRepository repository;
@@ -53,7 +53,7 @@ public class ProjectController {
 
     @Operation(summary = "Create new project (obra)")
     @PostMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('project.write')")
     @ResponseStatus(HttpStatus.CREATED)
     ProjectResponse create(@Valid @RequestBody CreateProjectRequest req) {
         if (repository.existsByCode(req.code())) {
@@ -70,7 +70,7 @@ public class ProjectController {
 
     @Operation(summary = "Update project")
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('project.write')")
     ProjectResponse update(@PathVariable UUID id, @Valid @RequestBody UpdateProjectRequest req) {
         var project = findOrThrow(id);
         project.update(req.name(), req.description(), req.customerName(), req.customerDocument(),
@@ -83,7 +83,7 @@ public class ProjectController {
 
     @Operation(summary = "Update project status")
     @PatchMapping("/{id}/status")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('project.write')")
     ProjectResponse updateStatus(@PathVariable UUID id, @RequestBody StatusRequest req) {
         var project = findOrThrow(id);
         project.updateStatus(req.status());
@@ -92,7 +92,7 @@ public class ProjectController {
 
     @Operation(summary = "Delete project")
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('project.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void delete(@PathVariable UUID id) {
         repository.delete(findOrThrow(id));

@@ -1,0 +1,37 @@
+replicaCount: 2
+
+api:
+  image:
+    repository: ghcr.io/sinapipro/api
+    tag: latest
+  resources:
+    requests: { cpu: 500m, memory: 512Mi }
+    limits: { cpu: 2000m, memory: 1Gi }
+  env:
+    SPRING_PROFILES_ACTIVE: prod
+    JAVA_OPTS: "-XX:+UseZGC -XX:MaxRAMPercentage=75"
+
+frontend:
+  image:
+    repository: ghcr.io/sinapipro/web
+    tag: latest
+  resources:
+    requests: { cpu: 100m, memory: 64Mi }
+    limits: { cpu: 500m, memory: 128Mi }
+
+postgresql:
+  enabled: true
+  auth:
+    database: sinapipro
+    username: sinapipro
+    existingSecret: sinapipro-db-secret
+
+ingress:
+  enabled: true
+  className: nginx
+  host: sinapipro.example.com
+  tls: true
+
+storage:
+  type: s3
+  bucket: sinapipro-documents

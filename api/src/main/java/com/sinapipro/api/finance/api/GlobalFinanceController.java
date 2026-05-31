@@ -38,7 +38,7 @@ public class GlobalFinanceController {
 
     @Operation(summary = "List all payables across projects")
     @GetMapping("/payables")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('finance.read')")
     PageResponse<GlobalPayableResponse> listPayables(
             @RequestParam(required = false) PaymentStatus status,
             @RequestParam(required = false) UUID supplierId,
@@ -67,7 +67,7 @@ public class GlobalFinanceController {
 
     @Operation(summary = "List all receivables across projects")
     @GetMapping("/receivables")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('finance.read')")
     PageResponse<GlobalReceivableResponse> listReceivables(
             @RequestParam(required = false) PaymentStatus status,
             @RequestParam(required = false) LocalDate dueDateFrom,

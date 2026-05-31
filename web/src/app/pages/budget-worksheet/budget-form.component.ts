@@ -36,7 +36,16 @@ export class BudgetFormComponent {
   private router = inject(Router);
   private messages = inject(MessageService);
   saving = signal(false);
-  form: any = { status: 'DRAFT', roundingMethod: 'TRUNCATE', decimalPlaces: 4, totalAmount: 0 };
+  form: any = {
+    status: 'DRAFT',
+    roundingMethod: 'TRUNCATE',
+    decimalPlaces: 4,
+    totalAmount: 0,
+    startDate: new Date(),
+    referenceDate: '2024-12-01',
+    state: 'SP',
+    metadata: {},
+  };
   roundingOptions = [
     { label: 'Truncamento (TCU)', value: 'TRUNCATE' },
     { label: 'Arredondamento ABNT', value: 'ROUND_ABNT' },

@@ -1,5 +1,19 @@
 -- V11: RBAC — Users, user_role, user_project_access
 
+CREATE TABLE IF NOT EXISTS role (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    name varchar(50) NOT NULL UNIQUE,
+    description varchar(200),
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS role_permission (
+    role_id uuid NOT NULL REFERENCES role(id),
+    permission varchar(100) NOT NULL,
+    PRIMARY KEY (role_id, permission)
+);
+
 CREATE TABLE IF NOT EXISTS app_user (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id uuid,

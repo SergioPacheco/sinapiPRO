@@ -36,7 +36,7 @@ public class GlobalProcurementController {
 
     @Operation(summary = "List all purchase orders across projects")
     @GetMapping("/orders")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('procurement.read')")
     PageResponse<GlobalPurchaseOrderResponse> listOrders(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) UUID supplierId,

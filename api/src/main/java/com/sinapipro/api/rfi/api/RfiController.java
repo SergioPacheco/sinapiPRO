@@ -35,14 +35,14 @@ public class RfiController {
 
     @Operation(summary = "List RFIs for a budget")
     @GetMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     PageResponse<RfiResponse> list(@PathVariable UUID projectId, @PageableDefault(size = 20) Pageable pageable) {
         return PageResponse.from(rfiRepository.findByBudgetId(projectId, pageable).map(RfiResponse::from));
     }
 
     @Operation(summary = "Create an RFI")
     @PostMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     ResponseEntity<RfiResponse> create(@PathVariable UUID projectId, @Valid @RequestBody CreateRfiRequest req) {
         int nextNumber = rfiRepository.countByBudgetId(projectId) + 1;
         Rfi rfi = rfiRepository.save(new Rfi(projectId, nextNumber, req.subject(), req.question(),
@@ -53,7 +53,7 @@ public class RfiController {
 
     @Operation(summary = "Get RFI detail")
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     RfiResponse get(@PathVariable UUID projectId, @PathVariable UUID id) {
         return RfiResponse.from(rfiRepository.findById(id)
                 .orElseThrow(() -> new DomainNotFoundException("RFI not found: " + id)));
@@ -61,7 +61,7 @@ public class RfiController {
 
     @Operation(summary = "Answer an RFI")
     @PostMapping("/{id}/answer")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     @Transactional
     RfiResponse answer(@PathVariable UUID projectId, @PathVariable UUID id, @Valid @RequestBody AnswerRfiRequest req) {
         Rfi rfi = rfiRepository.findById(id)
@@ -72,7 +72,7 @@ public class RfiController {
 
     @Operation(summary = "Close an RFI")
     @PostMapping("/{id}/close")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     @Transactional
     RfiResponse close(@PathVariable UUID projectId, @PathVariable UUID id) {
         Rfi rfi = rfiRepository.findById(id)
@@ -83,7 +83,7 @@ public class RfiController {
 
     @Operation(summary = "List overdue RFIs")
     @GetMapping("/overdue")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     List<RfiResponse> overdue(@PathVariable UUID projectId) {
         return rfiRepository.findByBudgetIdAndStatus(projectId, RfiStatus.OPEN).stream()
                 .filter(Rfi::isOverdue).map(RfiResponse::from).toList();

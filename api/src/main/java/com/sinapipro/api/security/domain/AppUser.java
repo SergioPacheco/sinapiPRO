@@ -36,6 +36,7 @@ public class AppUser extends TenantAwareEntity {
     public String getEmail() { return email; }
     public String getName() { return name; }
     public String getExternalId() { return externalId; }
+    public void setExternalId(String externalId) { this.externalId = externalId; }
     public boolean isActive() { return active; }
     public Set<Role> getRoles() { return roles; }
     public Set<UUID> getProjectAccess() { return projectAccess; }

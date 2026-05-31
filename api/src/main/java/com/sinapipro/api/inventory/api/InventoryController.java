@@ -42,14 +42,14 @@ public class InventoryController {
 
     @Operation(summary = "Stock position (all items with current quantity)")
     @GetMapping("/items")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('procurement.read')")
     List<StockItemResponse> stockPosition(@PathVariable UUID projectId) {
         return itemRepository.findByBudgetIdOrderByDescription(projectId).stream().map(StockItemResponse::from).toList();
     }
 
     @Operation(summary = "Items below minimum stock")
     @GetMapping("/items/below-minimum")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('procurement.read')")
     List<StockItemResponse> belowMinimum(@PathVariable UUID projectId) {
         return itemRepository.findByBudgetIdOrderByDescription(projectId).stream()
                 .filter(StockItem::isBelowMinimum).map(StockItemResponse::from).toList();
@@ -57,7 +57,7 @@ public class InventoryController {
 
     @Operation(summary = "Create a stock item")
     @PostMapping("/items")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('procurement.write')")
     ResponseEntity<StockItemResponse> createItem(@PathVariable UUID projectId, @Valid @RequestBody CreateStockItemRequest req) {
         var item = itemRepository.save(new StockItem(projectId, req.description(), req.unit(), req.minQuantity(), req.location()));
         return ResponseEntity.created(URI.create("/api/v1/projects/" + projectId + "/inventory/items/" + item.getId()))
@@ -68,7 +68,7 @@ public class InventoryController {
 
     @Operation(summary = "Record stock entry (IN)")
     @PostMapping("/items/{itemId}/entry")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('procurement.write')")
     @Transactional
     @ResponseStatus(HttpStatus.CREATED)
     MovementResponse recordEntry(@PathVariable UUID projectId, @PathVariable UUID itemId, @Valid @RequestBody MovementRequest req) {
@@ -81,7 +81,7 @@ public class InventoryController {
 
     @Operation(summary = "Record stock exit (OUT)")
     @PostMapping("/items/{itemId}/exit")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('procurement.write')")
     @Transactional
     @ResponseStatus(HttpStatus.CREATED)
     MovementResponse recordExit(@PathVariable UUID projectId, @PathVariable UUID itemId, @Valid @RequestBody MovementRequest req) {
@@ -94,7 +94,7 @@ public class InventoryController {
 
     @Operation(summary = "Movement history for a stock item")
     @GetMapping("/items/{itemId}/movements")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('procurement.read')")
     List<MovementResponse> movements(@PathVariable UUID projectId, @PathVariable UUID itemId) {
         return movementRepository.findByStockItemIdOrderByMovedAtDesc(itemId).stream().map(MovementResponse::from).toList();
     }
@@ -103,14 +103,14 @@ public class InventoryController {
 
     @Operation(summary = "List requisitions")
     @GetMapping("/requisitions")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('procurement.read')")
     PageResponse<RequisitionResponse> listRequisitions(@PathVariable UUID projectId, @PageableDefault(size = 20) Pageable pageable) {
         return PageResponse.from(requisitionRepository.findByBudgetId(projectId, pageable).map(RequisitionResponse::from));
     }
 
     @Operation(summary = "Create a stock requisition")
     @PostMapping("/requisitions")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('procurement.write')")
     @Transactional
     ResponseEntity<RequisitionResponse> createRequisition(@PathVariable UUID projectId, @Valid @RequestBody CreateRequisitionRequest req) {
         var requisition = new StockRequisition(projectId, req.requestedBy(), req.notes());
@@ -125,7 +125,7 @@ public class InventoryController {
 
     @Operation(summary = "Approve and deliver a requisition (removes from stock)")
     @PostMapping("/requisitions/{reqId}/deliver")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('procurement.write')")
     @Transactional
     RequisitionResponse deliverRequisition(@PathVariable UUID projectId, @PathVariable UUID reqId) {
         var requisition = requisitionRepository.findById(reqId)

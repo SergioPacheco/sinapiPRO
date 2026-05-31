@@ -45,21 +45,21 @@ public class DailyLogController {
 
     @Operation(summary = "List daily logs for a budget")
     @GetMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     PageResponse<DailyLogResponse> list(@PathVariable UUID projectId, @PageableDefault(size = 20) Pageable pageable) {
         return PageResponse.from(dailyLogRepository.findByBudgetId(projectId, pageable).map(DailyLogResponse::from));
     }
 
     @Operation(summary = "Get daily log detail with all entries")
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     DailyLogDetailResponse get(@PathVariable UUID projectId, @PathVariable UUID id) {
         return DailyLogDetailResponse.from(findInProject(projectId, id));
     }
 
     @Operation(summary = "Create a daily log entry")
     @PostMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     ResponseEntity<DailyLogResponse> create(@PathVariable UUID projectId, @Valid @RequestBody CreateDailyLogRequest req) {
         List<LaborInput> labor = req.labor() != null
                 ? req.labor().stream().map(l -> new LaborInput(l.workerName(), l.role(), l.hours())).toList() : null;
@@ -76,7 +76,7 @@ public class DailyLogController {
 
     @Operation(summary = "Summary of all daily logs (total hours, occurrences)")
     @GetMapping("/summary")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     DailyLogSummary summary(@PathVariable UUID projectId) {
         return dailyLogService.summary(projectId);
     }
@@ -85,7 +85,7 @@ public class DailyLogController {
 
     @Operation(summary = "Add labor entry to an existing daily log")
     @PostMapping("/{id}/labor")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     @Transactional
     @ResponseStatus(HttpStatus.CREATED)
     LaborResponse addLabor(@PathVariable UUID projectId, @PathVariable UUID id, @Valid @RequestBody LaborEntry req) {
@@ -98,7 +98,7 @@ public class DailyLogController {
 
     @Operation(summary = "Add equipment entry to an existing daily log")
     @PostMapping("/{id}/equipment")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     @Transactional
     @ResponseStatus(HttpStatus.CREATED)
     EquipmentResponse addEquipment(@PathVariable UUID projectId, @PathVariable UUID id, @Valid @RequestBody EquipmentEntry req) {
@@ -112,7 +112,7 @@ public class DailyLogController {
 
     @Operation(summary = "Add occurrence to an existing daily log")
     @PostMapping("/{id}/occurrences")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     @Transactional
     @ResponseStatus(HttpStatus.CREATED)
     OccurrenceResponse addOccurrence(@PathVariable UUID projectId, @PathVariable UUID id, @Valid @RequestBody OccurrenceEntry req) {
@@ -125,7 +125,7 @@ public class DailyLogController {
 
     @Operation(summary = "Add photo reference to an existing daily log")
     @PostMapping("/{id}/photos")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     @Transactional
     @ResponseStatus(HttpStatus.CREATED)
     PhotoResponse addPhoto(@PathVariable UUID projectId, @PathVariable UUID id, @Valid @RequestBody PhotoEntry req) {
@@ -138,7 +138,7 @@ public class DailyLogController {
 
     @Operation(summary = "RDO PDF report (daily construction log)")
     @GetMapping(value = "/{id}/reports/rdo.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     ResponseEntity<byte[]> rdoReport(@PathVariable UUID projectId, @PathVariable UUID id) {
         findInProject(projectId, id);
         byte[] pdf = dailyLogReportService.generateRdoPdf(id);
@@ -152,7 +152,7 @@ public class DailyLogController {
 
     @Operation(summary = "Add task entry to an existing daily log (links to schedule activity)")
     @PostMapping("/{id}/tasks")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     @Transactional
     @ResponseStatus(HttpStatus.CREATED)
     TaskResponse addTask(@PathVariable UUID projectId, @PathVariable UUID id, @Valid @RequestBody TaskEntry req) {
@@ -167,7 +167,7 @@ public class DailyLogController {
 
     @Operation(summary = "Add material entry/exit to an existing daily log")
     @PostMapping("/{id}/materials")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     @Transactional
     @ResponseStatus(HttpStatus.CREATED)
     MaterialResponse addMaterial(@PathVariable UUID projectId, @PathVariable UUID id, @Valid @RequestBody MaterialEntry req) {
@@ -190,7 +190,7 @@ public class DailyLogController {
 
     @Operation(summary = "Sign a daily log (digital signature by inspector)")
     @PostMapping("/{id}/sign")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     @Transactional
     SignatureResponse sign(@PathVariable UUID projectId, @PathVariable UUID id, @Valid @RequestBody SignRequest req) {
         var log = findInProject(projectId, id);
@@ -203,7 +203,7 @@ public class DailyLogController {
 
     @Operation(summary = "Photo report PDF (photos with captions)")
     @GetMapping(value = "/{id}/reports/photo-report.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     ResponseEntity<byte[]> photoReport(@PathVariable UUID projectId, @PathVariable UUID id) {
         findInProject(projectId, id);
         byte[] pdf = dailyLogReportService.generatePhotoReportPdf(id);

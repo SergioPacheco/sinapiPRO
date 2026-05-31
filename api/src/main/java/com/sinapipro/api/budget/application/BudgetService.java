@@ -54,7 +54,7 @@ public class BudgetService {
 
     public Page<Budget> findAll(BudgetFilter filter, Pageable pageable) {
         return observationService.observe("budget.findAll", "budget",
-                () -> repository.findFiltered(filter.status(), filter.customerName(), pageable));
+                () -> repository.findFiltered(filter.projectId(), filter.status(), filter.customerName(), pageable));
     }
 
     public Budget findById(UUID id) {
@@ -69,6 +69,11 @@ public class BudgetService {
 
     @Transactional
     public Budget create(CreateBudgetRequest request) {
+        return create(null, request);
+    }
+
+    @Transactional
+    public Budget create(UUID projectId, CreateBudgetRequest request) {
         return observationService.observe("budget.create", "budget", () -> {
             if (repository.existsByCode(request.code())) {
                 throw new BudgetCodeAlreadyExistsException(request.code());
@@ -77,6 +82,12 @@ public class BudgetService {
                     request.code(), request.title(), request.customerName(),
                     request.totalAmount(), request.status(), request.startDate(),
                     request.endDate(), request.metadata());
+            budget.setProjectId(projectId);
+            if (request.referenceDate() != null) budget.setReferenceDate(request.referenceDate());
+            if (request.state() != null) budget.setState(request.state());
+            if (request.roundingMethod() != null) budget.setRoundingMethod(request.roundingMethod());
+            if (request.decimalPlaces() != null) budget.setDecimalPlaces(request.decimalPlaces());
+            if (request.itemMask() != null) budget.setItemMask(request.itemMask());
             var saved = repository.save(budget);
             metricsService.record("budget", OperationEventType.CREATED);
             eventPublisher.publish("budget", OperationEventType.CREATED,
@@ -91,6 +102,11 @@ public class BudgetService {
             var budget = findById(id);
             budget.update(request.title(), request.customerName(), request.totalAmount(),
                     request.status(), request.startDate(), request.endDate(), request.metadata());
+            if (request.referenceDate() != null) budget.setReferenceDate(request.referenceDate());
+            if (request.state() != null) budget.setState(request.state());
+            if (request.roundingMethod() != null) budget.setRoundingMethod(request.roundingMethod());
+            if (request.decimalPlaces() != null) budget.setDecimalPlaces(request.decimalPlaces());
+            if (request.itemMask() != null) budget.setItemMask(request.itemMask());
             var saved = repository.save(budget);
             metricsService.record("budget", OperationEventType.UPDATED);
             eventPublisher.publish("budget", OperationEventType.UPDATED,
@@ -109,6 +125,12 @@ public class BudgetService {
             var copy = repository.save(new Budget(
                     code, title, source.getCustomerName(), source.getTotalAmount(),
                     BudgetStatus.DRAFT, source.getStartDate(), source.getEndDate(), source.getMetadata()));
+            copy.setProjectId(source.getProjectId());
+            copy.setReferenceDate(source.getReferenceDate());
+            copy.setState(source.getState());
+            copy.setRoundingMethod(source.getRoundingMethod());
+            copy.setDecimalPlaces(source.getDecimalPlaces());
+            copy.setItemMask(source.getItemMask());
 
             bdiConfigRepository.findAllByBudgetId(sourceId).forEach(bdi -> {
                 var copiedBdi = new BdiConfig(
@@ -132,6 +154,9 @@ public class BudgetService {
         return observationService.observe("budget.activate", "budget", () -> {
             var selected = findById(id);
             repository.findAll().forEach(budget -> {
+                if (!java.util.Objects.equals(budget.getProjectId(), selected.getProjectId())) {
+                    return;
+                }
                 boolean wasActive = budget.isActive();
                 budget.setActive(budget.getId().equals(id));
                 if (budget.getId().equals(id)) {

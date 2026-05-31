@@ -32,7 +32,7 @@ public class AfterSalesController {
 
     @Operation(summary = "List service tickets")
     @GetMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('commercial.read')")
     PageResponse<TicketResponse> list(@RequestParam(required = false) String status,
                                       @PageableDefault(size = 20) Pageable pageable) {
         var page = status != null
@@ -43,14 +43,14 @@ public class AfterSalesController {
 
     @Operation(summary = "Get ticket detail")
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('commercial.read')")
     TicketResponse get(@PathVariable UUID id) {
         return TicketResponse.from(findOrThrow(id));
     }
 
     @Operation(summary = "Open a service ticket")
     @PostMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('commercial.write')")
     ResponseEntity<TicketResponse> create(@Valid @RequestBody CreateTicketRequest req) {
         var ticket = ticketRepository.save(new ServiceTicket(req.unitId(), req.clientName(),
                 req.category(), req.description(), req.priority() != null ? req.priority() : "MEDIUM", req.dueDate()));
@@ -60,7 +60,7 @@ public class AfterSalesController {
 
     @Operation(summary = "Assign ticket to a technician")
     @PostMapping("/{id}/assign")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('commercial.write')")
     @Transactional
     TicketResponse assign(@PathVariable UUID id, @Valid @RequestBody AssignRequest req) {
         var ticket = findOrThrow(id);
@@ -70,7 +70,7 @@ public class AfterSalesController {
 
     @Operation(summary = "Resolve a ticket")
     @PostMapping("/{id}/resolve")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('commercial.write')")
     @Transactional
     TicketResponse resolve(@PathVariable UUID id, @Valid @RequestBody ResolveRequest req) {
         var ticket = findOrThrow(id);
@@ -80,7 +80,7 @@ public class AfterSalesController {
 
     @Operation(summary = "Close a resolved ticket")
     @PostMapping("/{id}/close")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('commercial.write')")
     @Transactional
     TicketResponse close(@PathVariable UUID id) {
         var ticket = findOrThrow(id);
@@ -90,7 +90,7 @@ public class AfterSalesController {
 
     @Operation(summary = "Reopen a ticket")
     @PostMapping("/{id}/reopen")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('commercial.write')")
     @Transactional
     TicketResponse reopen(@PathVariable UUID id) {
         var ticket = findOrThrow(id);
@@ -100,7 +100,7 @@ public class AfterSalesController {
 
     @Operation(summary = "Ticket summary (counts by status)")
     @GetMapping("/summary")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('commercial.read')")
     TicketSummary summary() {
         return new TicketSummary(
                 ticketRepository.countByStatus("OPEN"),

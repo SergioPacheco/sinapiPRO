@@ -35,7 +35,7 @@ public class ClientContactController {
 
     @Operation(summary = "List contacts for a client")
     @GetMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     PageResponse<ClientContact> list(@PathVariable UUID clientId, @PageableDefault(size = 20) Pageable pageable) {
         ensureClientExists(clientId);
         return PageResponse.from(contactRepository.findByClientIdOrderByCreatedAtDesc(clientId, pageable));
@@ -43,7 +43,7 @@ public class ClientContactController {
 
     @Operation(summary = "Create a contact for a client")
     @PostMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @Transactional
     ResponseEntity<ClientContact> create(@PathVariable UUID clientId, @Valid @RequestBody CreateContactRequest req) {
         ensureClientExists(clientId);
@@ -56,7 +56,7 @@ public class ClientContactController {
 
     @Operation(summary = "Update a contact")
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @Transactional
     ClientContact update(@PathVariable UUID clientId, @PathVariable UUID id, @Valid @RequestBody CreateContactRequest req) {
         ensureClientExists(clientId);
@@ -71,7 +71,7 @@ public class ClientContactController {
 
     @Operation(summary = "Delete a contact")
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void delete(@PathVariable UUID clientId, @PathVariable UUID id) {
         ensureClientExists(clientId);

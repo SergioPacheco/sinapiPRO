@@ -72,14 +72,14 @@ public class AdvancedRegistryController {
 
     @Operation(summary = "List active transporters")
     @GetMapping("/transporters")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     List<TransporterResponse> listTransporters() {
         return transporterRepository.findAll().stream().filter(Transporter::isActive).map(TransporterResponse::from).toList();
     }
 
     @Operation(summary = "Create a transporter")
     @PostMapping("/transporters")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     ResponseEntity<TransporterResponse> createTransporter(@Valid @RequestBody TransporterRequest req) {
         var t = transporterRepository.save(new Transporter(req.name(), req.document(), req.vehiclePlate(),
                 req.vehicleType(), req.phone(), req.cellPhone(), req.whatsapp(), req.email(),
@@ -91,7 +91,7 @@ public class AdvancedRegistryController {
 
     @Operation(summary = "Update a transporter")
     @PutMapping("/transporters/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     TransporterResponse updateTransporter(@PathVariable UUID id, @Valid @RequestBody TransporterRequest req) {
         var t = transporterRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("Transporter not found: " + id));
         t.update(req.name(), req.document(), req.vehiclePlate(), req.vehicleType(), req.phone(),
@@ -102,7 +102,7 @@ public class AdvancedRegistryController {
 
     @Operation(summary = "Deactivate a transporter")
     @DeleteMapping("/transporters/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteTransporter(@PathVariable UUID id) {
         var t = transporterRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("Transporter not found: " + id));
@@ -127,14 +127,14 @@ public class AdvancedRegistryController {
 
     @Operation(summary = "List active sales representatives")
     @GetMapping("/sales-representatives")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     List<SalesRepResponse> listSalesReps() {
         return salesRepRepository.findAll().stream().filter(SalesRepresentative::isActive).map(SalesRepResponse::from).toList();
     }
 
     @Operation(summary = "Create a sales representative")
     @PostMapping("/sales-representatives")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     ResponseEntity<SalesRepResponse> createSalesRep(@Valid @RequestBody SalesRepRequest req) {
         var r = salesRepRepository.save(new SalesRepresentative(req.name(), req.document(), req.phone(),
                 req.cellPhone(), req.whatsapp(), req.email(), req.commissionRate(), req.region(), req.notes()));
@@ -145,7 +145,7 @@ public class AdvancedRegistryController {
 
     @Operation(summary = "Update a sales representative")
     @PutMapping("/sales-representatives/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     SalesRepResponse updateSalesRep(@PathVariable UUID id, @Valid @RequestBody SalesRepRequest req) {
         var r = salesRepRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("Sales representative not found: " + id));
         r.update(req.name(), req.document(), req.phone(), req.cellPhone(), req.whatsapp(),
@@ -156,7 +156,7 @@ public class AdvancedRegistryController {
 
     @Operation(summary = "Deactivate a sales representative")
     @DeleteMapping("/sales-representatives/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteSalesRep(@PathVariable UUID id) {
         var r = salesRepRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("Sales representative not found: " + id));
@@ -178,7 +178,7 @@ public class AdvancedRegistryController {
 
     @Operation(summary = "List root input categories (tree roots)")
     @GetMapping("/input-categories")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     List<InputCategoryResponse> listInputCategories(@RequestParam(required = false) UUID parentId) {
         var list = parentId != null
                 ? inputCategoryRepository.findByParentIdAndActiveTrue(parentId)
@@ -188,7 +188,7 @@ public class AdvancedRegistryController {
 
     @Operation(summary = "Create an input category")
     @PostMapping("/input-categories")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     ResponseEntity<InputCategoryResponse> createInputCategory(@Valid @RequestBody InputCategoryRequest req) {
         var c = inputCategoryRepository.save(new InputCategory(req.code(), req.name(), req.parentId(), req.level()));
         return ResponseEntity.created(URI.create("/api/v1/registry/input-categories/" + c.getId()))
@@ -197,7 +197,7 @@ public class AdvancedRegistryController {
 
     @Operation(summary = "Update an input category")
     @PutMapping("/input-categories/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     InputCategoryResponse updateInputCategory(@PathVariable UUID id, @Valid @RequestBody InputCategoryRequest req) {
         var c = inputCategoryRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("Input category not found: " + id));
         c.update(req.code(), req.name(), req.parentId(), req.level());
@@ -206,7 +206,7 @@ public class AdvancedRegistryController {
 
     @Operation(summary = "Deactivate an input category")
     @DeleteMapping("/input-categories/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteInputCategory(@PathVariable UUID id) {
         var c = inputCategoryRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("Input category not found: " + id));
@@ -227,14 +227,14 @@ public class AdvancedRegistryController {
 
     @Operation(summary = "List settings for a project")
     @GetMapping("/projects/{projectId}/settings")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     List<ProjectSettingResponse> listProjectSettings(@PathVariable UUID projectId) {
         return projectSettingsRepository.findByProjectId(projectId).stream().map(ProjectSettingResponse::from).toList();
     }
 
     @Operation(summary = "Create or update a project setting")
     @PutMapping("/projects/{projectId}/settings")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     ProjectSettingResponse upsertProjectSetting(@PathVariable UUID projectId, @Valid @RequestBody ProjectSettingRequest req) {
         var setting = projectSettingsRepository.findByProjectIdAndKey(projectId, req.key())
                 .map(s -> { s.updateValue(req.value()); return s; })
@@ -244,7 +244,7 @@ public class AdvancedRegistryController {
 
     @Operation(summary = "Delete a project setting")
     @DeleteMapping("/projects/{projectId}/settings/{key}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteProjectSetting(@PathVariable UUID projectId, @PathVariable String key) {
         projectSettingsRepository.findByProjectIdAndKey(projectId, key)
@@ -265,7 +265,7 @@ public class AdvancedRegistryController {
 
     @Operation(summary = "List contact info for an entity (client, supplier, employee)")
     @GetMapping("/contacts/{entityType}/{entityId}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     List<ContactInfoResponse> listContacts(@PathVariable String entityType, @PathVariable UUID entityId) {
         return contactInfoRepository.findByEntityTypeAndEntityId(entityType.toUpperCase(), entityId)
                 .stream().map(ContactInfoResponse::from).toList();
@@ -273,7 +273,7 @@ public class AdvancedRegistryController {
 
     @Operation(summary = "Add contact info to an entity")
     @PostMapping("/contacts/{entityType}/{entityId}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     ResponseEntity<ContactInfoResponse> addContact(@PathVariable String entityType, @PathVariable UUID entityId,
                                                    @Valid @RequestBody ContactInfoRequest req) {
         var c = contactInfoRepository.save(new ContactInfo(entityType.toUpperCase(), entityId, req.infoType(), req.label(), req.value(), req.primary()));
@@ -283,7 +283,7 @@ public class AdvancedRegistryController {
 
     @Operation(summary = "Update a contact info entry")
     @PutMapping("/contacts/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     ContactInfoResponse updateContact(@PathVariable UUID id, @Valid @RequestBody ContactInfoRequest req) {
         var c = contactInfoRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("Contact info not found: " + id));
         c.update(req.infoType(), req.label(), req.value(), req.primary());
@@ -292,7 +292,7 @@ public class AdvancedRegistryController {
 
     @Operation(summary = "Delete a contact info entry")
     @DeleteMapping("/contacts/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteContact(@PathVariable UUID id) {
         contactInfoRepository.deleteById(id);
@@ -312,7 +312,7 @@ public class AdvancedRegistryController {
 
     @Operation(summary = "Get audit history for an entity")
     @GetMapping("/audit/{entityType}/{entityId}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     List<AuditLogResponse> getAuditHistory(@PathVariable String entityType, @PathVariable UUID entityId,
                                            @PageableDefault(size = 50) Pageable pageable) {
         return auditService.getHistory(entityType.toUpperCase(), entityId, pageable)
@@ -336,7 +336,7 @@ public class AdvancedRegistryController {
 
     @Operation(summary = "List chart of accounts (tree roots or children)")
     @GetMapping("/chart-of-accounts")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     List<ChartOfAccountsResponse> listChartOfAccounts(@RequestParam(required = false) UUID parentId) {
         var list = parentId != null
                 ? chartOfAccountsRepository.findByParentIdAndActiveTrue(parentId)
@@ -346,7 +346,7 @@ public class AdvancedRegistryController {
 
     @Operation(summary = "Create a chart of accounts entry")
     @PostMapping("/chart-of-accounts")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     ResponseEntity<ChartOfAccountsResponse> createChartOfAccounts(@Valid @RequestBody ChartOfAccountsRequest req) {
         var c = chartOfAccountsRepository.save(new ChartOfAccounts(req.code(), req.name(), req.parentId(), req.type(), req.level()));
         c.update(req.code(), req.name(), req.parentId(), req.type(), req.level(), req.description(), req.acceptsEntries());
@@ -357,7 +357,7 @@ public class AdvancedRegistryController {
 
     @Operation(summary = "Update a chart of accounts entry")
     @PutMapping("/chart-of-accounts/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     ChartOfAccountsResponse updateChartOfAccounts(@PathVariable UUID id, @Valid @RequestBody ChartOfAccountsRequest req) {
         var c = chartOfAccountsRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("Chart of accounts not found: " + id));
         c.update(req.code(), req.name(), req.parentId(), req.type(), req.level(), req.description(), req.acceptsEntries());
@@ -366,7 +366,7 @@ public class AdvancedRegistryController {
 
     @Operation(summary = "Deactivate a chart of accounts entry")
     @DeleteMapping("/chart-of-accounts/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteChartOfAccounts(@PathVariable UUID id) {
         var c = chartOfAccountsRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("Chart of accounts not found: " + id));

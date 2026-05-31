@@ -65,14 +65,14 @@ public class ScheduleController {
 
     @Operation(summary = "List schedule activities")
     @GetMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     List<ActivityResponse> list(@PathVariable UUID projectId) {
         return activityRepository.findByBudgetIdOrderBySortOrder(projectId).stream().map(ActivityResponse::from).toList();
     }
 
     @Operation(summary = "Create a schedule activity")
     @PostMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     ResponseEntity<ActivityResponse> create(@PathVariable UUID projectId, @Valid @RequestBody CreateActivityRequest req) {
         Budget budget = budgetRepository.findById(projectId)
                 .orElseThrow(() -> new DomainNotFoundException("Budget not found: " + projectId));
@@ -84,7 +84,7 @@ public class ScheduleController {
 
     @Operation(summary = "Update activity progress")
     @PatchMapping("/{activityId}/progress")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     ActivityResponse updateProgress(@PathVariable UUID projectId, @PathVariable UUID activityId,
                                     @Valid @RequestBody UpdateProgressRequest req) {
         ScheduleActivity activity = findActivityInProject(projectId, activityId);
@@ -94,7 +94,7 @@ public class ScheduleController {
 
     @Operation(summary = "Update activity dates (drag & drop on Gantt chart)")
     @PatchMapping("/{activityId}/dates")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     ActivityResponse updateDates(@PathVariable UUID projectId, @PathVariable UUID activityId,
                                  @Valid @RequestBody UpdateDatesRequest req) {
         ScheduleActivity activity = findActivityInProject(projectId, activityId);
@@ -104,7 +104,7 @@ public class ScheduleController {
 
     @Operation(summary = "Batch update activity dates (multi-drag on Gantt)")
     @PatchMapping("/batch-dates")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     List<ActivityResponse> batchUpdateDates(@PathVariable UUID projectId,
                                            @Valid @RequestBody List<BatchDateEntry> entries) {
         return entries.stream().map(entry -> {
@@ -116,7 +116,7 @@ public class ScheduleController {
 
     @Operation(summary = "Gantt chart data (activities with dependencies for rendering)")
     @GetMapping("/gantt")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     GanttData ganttData(@PathVariable UUID projectId) {
         var activities = activityRepository.findByBudgetIdOrderBySortOrder(projectId);
         var dependencies = dependencyRepository.findByBudgetId(projectId);
@@ -132,7 +132,7 @@ public class ScheduleController {
 
     @Operation(summary = "Delete an activity")
     @DeleteMapping("/{activityId}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void delete(@PathVariable UUID projectId, @PathVariable UUID activityId) {
         findActivityInProject(projectId, activityId);
@@ -141,21 +141,21 @@ public class ScheduleController {
 
     @Operation(summary = "S-Curve data (planned vs actual cumulative by month)")
     @GetMapping("/s-curve")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     SCurveService.SCurveData sCurve(@PathVariable UUID projectId) {
         return sCurveService.calculate(projectId);
     }
 
     @Operation(summary = "Critical path analysis (CPM)")
     @GetMapping("/critical-path")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     CriticalPathService.CriticalPathResult criticalPath(@PathVariable UUID projectId) {
         return criticalPathService.calculate(projectId);
     }
 
     @Operation(summary = "Physical-financial schedule PDF")
     @GetMapping(value = "/reports/physical-financial.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     ResponseEntity<byte[]> physicalFinancialReport(@PathVariable UUID projectId) {
         byte[] pdf = scheduleReportService.generatePhysicalFinancialPdf(projectId);
         return ResponseEntity.ok()
@@ -166,7 +166,7 @@ public class ScheduleController {
 
     @Operation(summary = "Add dependency between activities")
     @PostMapping("/dependencies")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     @ResponseStatus(HttpStatus.CREATED)
     DependencyResponse addDependency(@PathVariable UUID projectId, @Valid @RequestBody CreateDependencyRequest req) {
         ScheduleActivity predecessor = findActivityInProject(projectId, req.predecessorId());
@@ -180,7 +180,7 @@ public class ScheduleController {
 
     @Operation(summary = "Save current schedule as a baseline snapshot")
     @PostMapping("/baselines")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     ResponseEntity<BaselineResponse> createBaseline(@PathVariable UUID projectId, @Valid @RequestBody CreateBaselineRequest req) {
         var activities = activityRepository.findByBudgetIdOrderBySortOrder(projectId);
         var snapshot = activities.stream().map(a -> new ScheduleBaseline.ActivitySnapshot(
@@ -193,7 +193,7 @@ public class ScheduleController {
 
     @Operation(summary = "List baselines for this project")
     @GetMapping("/baselines")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     List<BaselineResponse> listBaselines(@PathVariable UUID projectId) {
         return baselineRepository.findByProjectIdOrderByCreatedAtDesc(projectId).stream()
                 .map(BaselineResponse::from).toList();
@@ -201,7 +201,7 @@ public class ScheduleController {
 
     @Operation(summary = "Get baseline detail with activity snapshots")
     @GetMapping("/baselines/{baselineId}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     ScheduleBaseline getBaseline(@PathVariable UUID projectId, @PathVariable UUID baselineId) {
         return findBaselineInProject(projectId, baselineId);
     }
@@ -210,7 +210,7 @@ public class ScheduleController {
 
     @Operation(summary = "Auto-distribute dates sequentially based on duration and dependencies")
     @PostMapping("/distribute-dates")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     List<ActivityResponse> distributeDates(@PathVariable UUID projectId, @Valid @RequestBody DistributeDatesRequest req) {
         var activities = activityRepository.findByBudgetIdOrderBySortOrder(projectId);
         if (activities.isEmpty()) return List.of();

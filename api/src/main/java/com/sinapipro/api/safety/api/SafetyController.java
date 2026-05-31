@@ -48,14 +48,14 @@ public class SafetyController {
 
     @Operation(summary = "List active checklist templates")
     @GetMapping("/safety/templates")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     List<TemplateResponse> listTemplates() {
         return templateRepository.findByActiveTrue().stream().map(TemplateResponse::from).toList();
     }
 
     @Operation(summary = "Create a checklist template")
     @PostMapping("/safety/templates")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     @ResponseStatus(HttpStatus.CREATED)
     TemplateResponse createTemplate(@Valid @RequestBody CreateTemplateRequest req) {
         SafetyChecklistTemplate t = templateRepository.save(
@@ -67,7 +67,7 @@ public class SafetyController {
 
     @Operation(summary = "List inspections for a budget")
     @GetMapping("/projects/{projectId}/safety/inspections")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     PageResponse<InspectionResponse> listInspections(@PathVariable UUID projectId,
                                                      @PageableDefault(size = 20) Pageable pageable) {
         return PageResponse.from(inspectionRepository.findByBudgetId(projectId, pageable).map(InspectionResponse::from));
@@ -75,7 +75,7 @@ public class SafetyController {
 
     @Operation(summary = "Record an inspection")
     @PostMapping("/projects/{projectId}/safety/inspections")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     ResponseEntity<InspectionResponse> recordInspection(@PathVariable UUID projectId,
                                                         @Valid @RequestBody CreateInspectionRequest req) {
         SafetyChecklistTemplate template = templateRepository.findById(req.templateId())
@@ -91,7 +91,7 @@ public class SafetyController {
 
     @Operation(summary = "List incidents for a budget")
     @GetMapping("/projects/{projectId}/safety/incidents")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     PageResponse<IncidentResponse> listIncidents(@PathVariable UUID projectId,
                                                   @PageableDefault(size = 20) Pageable pageable) {
         return PageResponse.from(incidentRepository.findByBudgetId(projectId, pageable).map(IncidentResponse::from));
@@ -99,7 +99,7 @@ public class SafetyController {
 
     @Operation(summary = "Report a safety incident")
     @PostMapping("/projects/{projectId}/safety/incidents")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     @ResponseStatus(HttpStatus.CREATED)
     IncidentResponse reportIncident(@PathVariable UUID projectId, @Valid @RequestBody CreateIncidentRequest req) {
         SafetyIncident incident = incidentRepository.save(new SafetyIncident(projectId, req.incidentDate(),
@@ -109,7 +109,7 @@ public class SafetyController {
 
     @Operation(summary = "Resolve a safety incident")
     @PostMapping("/projects/{projectId}/safety/incidents/{id}/resolve")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     @Transactional
     IncidentResponse resolveIncident(@PathVariable UUID projectId, @PathVariable UUID id,
                                      @Valid @RequestBody ResolveIncidentRequest req) {
@@ -121,7 +121,7 @@ public class SafetyController {
 
     @Operation(summary = "Safety report PDF")
     @GetMapping(value = "/projects/{projectId}/safety/reports/safety-report.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     ResponseEntity<byte[]> safetyReport(@PathVariable UUID projectId) {
         byte[] pdf = safetyReportService.generateSafetyReportPdf(projectId);
         return ResponseEntity.ok()

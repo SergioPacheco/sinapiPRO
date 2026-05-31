@@ -46,14 +46,14 @@ public class JobCostingController {
 
     @Operation(summary = "List all cost codes for a budget")
     @GetMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     List<CostCodeResponse> list(@PathVariable UUID projectId) {
         return codeRepository.findByBudgetIdOrderByCode(projectId).stream().map(CostCodeResponse::from).toList();
     }
 
     @Operation(summary = "Create a cost code")
     @PostMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     ResponseEntity<CostCodeResponse> create(@PathVariable UUID projectId, @Valid @RequestBody CreateCostCodeRequest req) {
         Budget budget = budgetRepository.findById(projectId)
                 .orElseThrow(() -> new DomainNotFoundException("Budget not found: " + projectId));
@@ -65,7 +65,7 @@ public class JobCostingController {
 
     @Operation(summary = "Delete a cost code")
     @DeleteMapping("/{codeId}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void delete(@PathVariable UUID projectId, @PathVariable UUID codeId) {
         codeRepository.deleteById(codeId);
@@ -73,7 +73,7 @@ public class JobCostingController {
 
     @Operation(summary = "Record a cost transaction (actual or committed)")
     @PostMapping("/{codeId}/transactions")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     @ResponseStatus(HttpStatus.CREATED)
     TransactionResponse recordTransaction(@PathVariable UUID projectId, @PathVariable UUID codeId,
                                           @Valid @RequestBody CreateTransactionRequest req) {
@@ -86,7 +86,7 @@ public class JobCostingController {
 
     @Operation(summary = "List transactions for a cost code")
     @GetMapping("/{codeId}/transactions")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     List<TransactionResponse> listTransactions(@PathVariable UUID projectId, @PathVariable UUID codeId) {
         return transactionRepository.findByCostCodeIdOrderByTransactionDateDesc(codeId).stream()
                 .map(TransactionResponse::from).toList();
@@ -94,21 +94,21 @@ public class JobCostingController {
 
     @Operation(summary = "Variance summary per cost code")
     @GetMapping("/summary")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     List<JobCostingService.CostCodeSummary> summary(@PathVariable UUID projectId) {
         return jobCostingService.summarizeAll(projectId);
     }
 
     @Operation(summary = "Budget-level cost summary (total budgeted, actual, committed, variance)")
     @GetMapping("/budget-summary")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     JobCostingService.BudgetCostSummary budgetSummary(@PathVariable UUID projectId) {
         return jobCostingService.budgetSummary(projectId);
     }
 
     @Operation(summary = "WIP Report — over/under billing analysis")
     @GetMapping("/wip-report")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     WipReportService.WipReport wipReport(@PathVariable UUID projectId) {
         return wipReportService.calculate(projectId);
     }

@@ -49,21 +49,21 @@ public class MeasurementController {
 
     @Operation(summary = "List measurements for a budget")
     @GetMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('measurement.read')")
     PageResponse<MeasurementResponse> list(@PathVariable UUID projectId, @PageableDefault(size = 20) Pageable pageable) {
         return PageResponse.from(measurementRepository.findByBudgetId(projectId, pageable).map(MeasurementResponse::from));
     }
 
     @Operation(summary = "Get measurement detail")
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('measurement.read')")
     MeasurementResponse get(@PathVariable UUID projectId, @PathVariable UUID id) {
         return MeasurementResponse.from(findMeasurementInProject(projectId, id));
     }
 
     @Operation(summary = "Get measurement detail with contracted, previous, period, cumulative and balance quantities")
     @GetMapping("/{id}/detail")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('measurement.read')")
     MeasurementDetail detail(@PathVariable UUID projectId, @PathVariable UUID id) {
         findMeasurementInProject(projectId, id);
         return measurementService.detail(id);
@@ -71,14 +71,14 @@ public class MeasurementController {
 
     @Operation(summary = "List budget items available for measurement")
     @GetMapping("/available-items")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('measurement.read')")
     List<AvailableBudgetItem> availableItems(@PathVariable UUID projectId) {
         return measurementService.availableBudgetItems(projectId);
     }
 
     @Operation(summary = "Create a measurement")
     @PostMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('measurement.write')")
     ResponseEntity<MeasurementResponse> create(@PathVariable UUID projectId, @Valid @RequestBody CreateMeasurementRequest req) {
         List<ItemInput> items = req.items().stream()
                 .map(i -> new ItemInput(i.costCodeId(), i.budgetItemId(), i.description(), i.quantity(), i.unitPrice()))
@@ -91,7 +91,7 @@ public class MeasurementController {
 
     @Operation(summary = "Submit measurement for approval")
     @PostMapping("/{id}/submit")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('measurement.write')")
     MeasurementResponse submit(@PathVariable UUID projectId, @PathVariable UUID id) {
         Measurement current = findMeasurementInProject(projectId, id);
         String fromStatus = current.getStatus().name();
@@ -103,7 +103,7 @@ public class MeasurementController {
 
     @Operation(summary = "Approve measurement")
     @PostMapping("/{id}/approve")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('measurement.approve')")
     MeasurementResponse approve(@PathVariable UUID projectId, @PathVariable UUID id) {
         Measurement current = findMeasurementInProject(projectId, id);
         String fromStatus = current.getStatus().name();
@@ -115,7 +115,7 @@ public class MeasurementController {
 
     @Operation(summary = "Reject measurement with reason")
     @PostMapping("/{id}/reject")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('measurement.reject')")
     MeasurementResponse reject(@PathVariable UUID projectId, @PathVariable UUID id,
                                @Valid @RequestBody RejectRequest req) {
         Measurement m = findMeasurementInProject(projectId, id);
@@ -129,7 +129,7 @@ public class MeasurementController {
 
     @Operation(summary = "Get measurement approval history")
     @GetMapping("/{id}/history")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('measurement.read')")
     List<HistoryResponse> history(@PathVariable UUID projectId, @PathVariable UUID id) {
         findMeasurementInProject(projectId, id);
         return historyRepository.findByMeasurementIdOrderByCreatedAtDesc(id).stream()
@@ -140,7 +140,7 @@ public class MeasurementController {
 
     @Operation(summary = "Get memo for a measurement item")
     @GetMapping("/{id}/items/{itemId}/memo")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('measurement.read')")
     ResponseEntity<MemoResponse> getMemo(@PathVariable UUID projectId, @PathVariable UUID id, @PathVariable UUID itemId) {
         Measurement m = findMeasurementInProject(projectId, id);
         boolean belongs = m.getItems().stream().anyMatch(i -> i.getId().equals(itemId));
@@ -157,7 +157,7 @@ public class MeasurementController {
 
     @Operation(summary = "Save memo for a measurement item")
     @PutMapping("/{id}/items/{itemId}/memo")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('measurement.write')")
     MemoResponse saveMemo(@PathVariable UUID projectId, @PathVariable UUID id, @PathVariable UUID itemId,
                           @Valid @RequestBody MemoRequest req) {
         Measurement m = findMeasurementInProject(projectId, id);
@@ -183,7 +183,7 @@ public class MeasurementController {
 
     @Operation(summary = "Add extra service item to measurement")
     @PostMapping("/{id}/extra-items")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('measurement.write')")
     MeasurementResponse addExtraItem(@PathVariable UUID projectId, @PathVariable UUID id,
                                      @Valid @RequestBody ExtraItemRequest req) {
         Measurement m = findMeasurementInProject(projectId, id);
@@ -196,14 +196,14 @@ public class MeasurementController {
 
     @Operation(summary = "Summary of all measurements for a budget (approved totals)")
     @GetMapping("/summary")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('measurement.read')")
     MeasurementSummary summary(@PathVariable UUID projectId) {
         return measurementService.summary(projectId);
     }
 
     @Operation(summary = "Cumulative amounts up to a specific measurement")
     @GetMapping("/{id}/cumulative")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('measurement.read')")
     CumulativeResult cumulative(@PathVariable UUID projectId, @PathVariable UUID id) {
         findMeasurementInProject(projectId, id);
         return measurementService.cumulative(projectId, id);
@@ -211,14 +211,14 @@ public class MeasurementController {
 
     @Operation(summary = "Balance remaining to measure against contracted total")
     @GetMapping("/balance")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('measurement.read')")
     BalanceResult balance(@PathVariable UUID projectId, @RequestParam BigDecimal contractedTotal) {
         return measurementService.balance(projectId, contractedTotal);
     }
 
     @Operation(summary = "Measurement bulletin PDF")
     @GetMapping(value = "/{id}/reports/bulletin.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('measurement.read')")
     ResponseEntity<byte[]> bulletinReport(@PathVariable UUID projectId, @PathVariable UUID id) {
         findMeasurementInProject(projectId, id);
         byte[] pdf = measurementReportService.boletimAcumulado(id);
@@ -241,7 +241,7 @@ public class MeasurementController {
 
     @Operation(summary = "Link a change order (aditivo) to a measurement")
     @PutMapping("/{id}/change-order")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('measurement.write')")
     @org.springframework.transaction.annotation.Transactional
     MeasurementResponse linkChangeOrder(@PathVariable UUID projectId, @PathVariable UUID id,
                                         @RequestBody LinkChangeOrderRequest req) {
@@ -255,7 +255,7 @@ public class MeasurementController {
 
     @Operation(summary = "Import measurement items from Excel (CSV format: description, quantity, unitPrice)")
     @PostMapping("/{id}/import")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('measurement.write')")
     @org.springframework.transaction.annotation.Transactional
     ImportResult importFromExcel(@PathVariable UUID projectId, @PathVariable UUID id,
                                 @RequestBody List<ImportItemRow> rows) {
@@ -275,7 +275,7 @@ public class MeasurementController {
 
     @Operation(summary = "Measurement photo report PDF")
     @GetMapping(value = "/{id}/reports/photo-report.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('measurement.read')")
     ResponseEntity<byte[]> photoReport(@PathVariable UUID projectId, @PathVariable UUID id) {
         findMeasurementInProject(projectId, id);
         byte[] pdf = measurementReportService.rdoCompleto(id);

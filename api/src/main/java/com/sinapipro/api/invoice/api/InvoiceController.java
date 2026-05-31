@@ -31,7 +31,7 @@ public class InvoiceController {
 
     @Operation(summary = "List invoices with filters and pagination")
     @GetMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('finance.read')")
     PageResponse<InvoiceResponse> list(
             @RequestParam(required = false) InvoiceStatus status,
             @RequestParam(required = false) UUID budgetId,
@@ -43,14 +43,14 @@ public class InvoiceController {
 
     @Operation(summary = "Get invoice by ID")
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('finance.read')")
     InvoiceResponse findById(@PathVariable UUID id) {
         return InvoiceResponse.from(invoiceService.findById(id));
     }
 
     @Operation(summary = "Create a new invoice")
     @PostMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('finance.write')")
     ResponseEntity<InvoiceResponse> create(@Valid @RequestBody CreateInvoiceRequest request) {
         Invoice invoice = invoiceService.create(request);
         InvoiceResponse response = InvoiceResponse.from(invoice);
@@ -59,14 +59,14 @@ public class InvoiceController {
 
     @Operation(summary = "Update an existing invoice")
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('finance.write')")
     InvoiceResponse update(@PathVariable UUID id, @Valid @RequestBody UpdateInvoiceRequest request) {
         return InvoiceResponse.from(invoiceService.update(id, request));
     }
 
     @Operation(summary = "Delete an invoice")
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('finance.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void delete(@PathVariable UUID id) {
         invoiceService.delete(id);

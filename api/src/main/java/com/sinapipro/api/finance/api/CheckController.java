@@ -42,14 +42,14 @@ public class CheckController {
 
     @Operation(summary = "List issued checks by status")
     @GetMapping("/checks/issued")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('finance.read')")
     List<CheckIssuance> listIssuedChecks(@RequestParam(defaultValue = "ISSUED") String status) {
         return checkIssuanceRepo.findByStatus(status);
     }
 
     @Operation(summary = "Clear an issued check")
     @PostMapping("/checks/issued/{id}/clear")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('finance.write')")
     CheckIssuance clearIssuedCheck(@PathVariable UUID id, @RequestParam LocalDate clearedDate) {
         var check = checkIssuanceRepo.findById(id).orElseThrow(() -> new DomainNotFoundException("Check not found: " + id));
         check.clear(clearedDate);
@@ -58,7 +58,7 @@ public class CheckController {
 
     @Operation(summary = "Cancel an issued check")
     @PostMapping("/checks/issued/{id}/cancel")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('finance.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void cancelIssuedCheck(@PathVariable UUID id) {
         var check = checkIssuanceRepo.findById(id).orElseThrow(() -> new DomainNotFoundException("Check not found: " + id));
@@ -85,14 +85,14 @@ public class CheckController {
 
     @Operation(summary = "List received checks by status")
     @GetMapping("/checks/received")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('finance.read')")
     List<CheckReceivedResponse> listReceivedChecks(@RequestParam(defaultValue = "RECEIVED") String status) {
         return checkReceivedRepo.findByStatus(status).stream().map(CheckReceivedResponse::from).toList();
     }
 
     @Operation(summary = "Register a received check")
     @PostMapping("/checks/received")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('finance.write')")
     ResponseEntity<CheckReceivedResponse> createReceivedCheck(@Valid @RequestBody CheckReceivedRequest req) {
         var check = new CheckReceived(req.bankCode(), req.agency(), req.accountNumber(), req.checkNumber(),
                 req.amount(), req.issueDate(), req.dueDate(), req.issuerName(), req.issuerDocument());
@@ -105,7 +105,7 @@ public class CheckController {
 
     @Operation(summary = "Send check to bank custody")
     @PostMapping("/checks/received/{id}/custody")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('finance.write')")
     CheckReceivedResponse sendToCustody(@PathVariable UUID id, @RequestParam UUID bankAccountId) {
         var check = checkReceivedRepo.findById(id).orElseThrow(() -> new DomainNotFoundException("Check not found: " + id));
         check.sendToCustody(bankAccountId);
@@ -114,7 +114,7 @@ public class CheckController {
 
     @Operation(summary = "Clear a received check (compensated)")
     @PostMapping("/checks/received/{id}/clear")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('finance.write')")
     CheckReceivedResponse clearReceivedCheck(@PathVariable UUID id, @RequestParam LocalDate clearedDate) {
         var check = checkReceivedRepo.findById(id).orElseThrow(() -> new DomainNotFoundException("Check not found: " + id));
         check.clear(clearedDate);
@@ -123,7 +123,7 @@ public class CheckController {
 
     @Operation(summary = "Return a received check (bounced)")
     @PostMapping("/checks/received/{id}/return")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('finance.write')")
     CheckReceivedResponse returnCheck(@PathVariable UUID id, @RequestParam String reason) {
         var check = checkReceivedRepo.findById(id).orElseThrow(() -> new DomainNotFoundException("Check not found: " + id));
         check.returnCheck(reason);
@@ -132,7 +132,7 @@ public class CheckController {
 
     @Operation(summary = "List checks in custody for a bank account")
     @GetMapping("/checks/custody/{bankAccountId}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('finance.read')")
     List<CheckReceivedResponse> listCustody(@PathVariable UUID bankAccountId) {
         return checkReceivedRepo.findByCustodyBankAccountId(bankAccountId).stream()
                 .filter(c -> "IN_CUSTODY".equals(c.getStatus()))
@@ -145,14 +145,14 @@ public class CheckController {
 
     @Operation(summary = "Generate CNAB remittance file for receivables (boletos)")
     @PostMapping("/cnab/remittance")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('finance.write')")
     CnabService.CnabFile generateRemittance(@RequestParam UUID bankAccountId, @RequestBody List<UUID> installmentIds) {
         return cnabService.generateRemittance(bankAccountId, installmentIds);
     }
 
     @Operation(summary = "Process CNAB return file (automatic reconciliation)")
     @PostMapping("/cnab/return")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('finance.write')")
     CnabService.CnabReturnResult processReturn(@RequestBody String fileContent) {
         return cnabService.processReturn(fileContent);
     }

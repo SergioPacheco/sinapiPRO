@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
@@ -39,7 +39,7 @@ import { StatusTagComponent } from '../../shared/components';
           <td>{{ b.title }}</td>
           <td class="text-right font-mono">{{ b.totalAmount | number:'1.2-2' }}</td>
           <td><sp-status [status]="b.status" /></td>
-          <td><a [routerLink]="['/budgets', b.id]" class="pi pi-arrow-right" style="color:var(--sp-primary)"></a></td>
+          <td><a [routerLink]="['/projects', projectId, 'budgets', b.id]" class="pi pi-arrow-right" style="color:var(--sp-primary)"></a></td>
         </tr>
       </ng-template>
       <ng-template pTemplate="emptymessage"><tr><td colspan="5" class="text-center" style="padding:2rem;color:var(--sp-text-muted)">Nenhum orçamento. Crie o primeiro.</td></tr></ng-template>
@@ -71,25 +71,49 @@ import { StatusTagComponent } from '../../shared/components';
 })
 export class BudgetListComponent implements OnInit {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private http = inject(HttpClient);
   private messages = inject(MessageService);
 
   budgets = signal<any[]>([]);
   loading = signal(true);
   showNew = false;
-  form: any = { status: 'DRAFT', roundingMethod: 'TRUNCATE', totalAmount: 0 };
+  form: any = this.defaultForm();
   roundingOpts = [{ label: 'Truncar (TCU)', value: 'TRUNCATE' }, { label: 'ABNT', value: 'ROUND_ABNT' }, { label: 'Simples', value: 'ROUND_SIMPLE' }];
 
-  private get pid() { return this.route.parent?.snapshot.paramMap.get('id'); }
+  get projectId() { return this.route.parent?.snapshot.paramMap.get('id'); }
 
   ngOnInit() {
-    this.http.get<any>(`/projects/${this.pid}/budgets`).subscribe({ next: r => { this.budgets.set(r.content || r || []); this.loading.set(false); }, error: () => this.loading.set(false) });
+    this.http.get<any>(`/projects/${this.projectId}/budgets`).subscribe({ next: r => { this.budgets.set(r.content || r || []); this.loading.set(false); }, error: () => this.loading.set(false) });
   }
 
   create() {
-    const body = { ...this.form, startDate: this.form.startDate?.toISOString?.()?.slice(0, 10), endDate: this.form.endDate?.toISOString?.()?.slice(0, 10) };
-    this.http.post<any>(`/projects/${this.pid}/budgets`, body).subscribe({
-      next: (res) => { this.showNew = false; this.messages.add({ severity: 'success', summary: 'Orçamento criado' }); window.location.href = `/budgets/${res.id}`; },
+    const body = {
+      ...this.form,
+      metadata: this.form.metadata || {},
+      startDate: this.form.startDate?.toISOString?.()?.slice(0, 10),
+      endDate: this.form.endDate?.toISOString?.()?.slice(0, 10),
+    };
+    this.http.post<any>(`/projects/${this.projectId}/budgets`, body).subscribe({
+      next: (res) => {
+        this.showNew = false;
+        this.form = this.defaultForm();
+        this.messages.add({ severity: 'success', summary: 'Orçamento criado' });
+        this.router.navigate(['/projects', this.projectId, 'budgets', res.id]);
+      },
     });
+  }
+
+  private defaultForm() {
+    return {
+      status: 'DRAFT',
+      roundingMethod: 'TRUNCATE',
+      decimalPlaces: 4,
+      totalAmount: 0,
+      startDate: new Date(),
+      referenceDate: '2024-12-01',
+      state: 'SP',
+      metadata: {},
+    };
   }
 }

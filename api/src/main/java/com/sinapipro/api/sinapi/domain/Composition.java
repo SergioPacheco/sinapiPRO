@@ -36,6 +36,12 @@ public class Composition extends TenantAwareEntity {
     @Column(name = "is_current", nullable = false)
     private Boolean isCurrent = true;
 
+    @Column(name = "unit_cost", precision = 18, scale = 4)
+    private java.math.BigDecimal unitCost;
+
+    @Column(name = "reference_date")
+    private java.time.LocalDate referenceDate;
+
     @OneToMany(mappedBy = "composition", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CompositionItem> items = new ArrayList<>();
 
@@ -100,6 +106,8 @@ public class Composition extends TenantAwareEntity {
     public Integer getVersion() { return version; }
     public UUID getParentId() { return parentId; }
     public Boolean getIsCurrent() { return isCurrent; }
+    public java.math.BigDecimal getUnitCost() { return unitCost; }
+    public java.time.LocalDate getReferenceDate() { return referenceDate; }
 
     public boolean isEditable() { return "PROPRIO".equals(origin); }
 }

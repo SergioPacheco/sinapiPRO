@@ -128,22 +128,34 @@ public class SinapiImportService {
                         var itemCode = getCellString(row, colItemCode).trim();
 
                         if (itemType.isEmpty() && itemCode.isEmpty()) {
+                            // Header line of composition
                             compositionRepository.findBySinapiCode(compCode)
                                     .orElseGet(() -> compositionRepository.save(new Composition(compCode, compDesc, compUnit, groupName)));
                             created++;
                         } else if (!itemCode.isEmpty()) {
                             var coefficient = getCellDecimal(row, colCoef);
-                            if (coefficient == null) continue;
+                            if (coefficient == null || coefficient.compareTo(BigDecimal.ZERO) == 0) continue;
 
                             var comp = compositionRepository.findBySinapiCode(compCode).orElse(null);
                             if (comp == null) continue;
 
-                            var material = materialRepository.findBySinapiCode(itemCode).orElse(null);
-                            if (material != null) {
-                                boolean exists = comp.getItems().stream()
-                                        .anyMatch(ci -> ci.getMaterial().getSinapiCode().equals(itemCode));
-                                if (!exists) {
-                                    comp.addItem(material, coefficient);
+                            if ("INSUMO".equalsIgnoreCase(itemType)) {
+                                var material = materialRepository.findBySinapiCode(itemCode).orElse(null);
+                                if (material != null) {
+                                    boolean exists = comp.getItems().stream()
+                                            .anyMatch(ci -> ci.getMaterial() != null && ci.getMaterial().getSinapiCode().equals(itemCode));
+                                    if (!exists) {
+                                        comp.addItem(material, coefficient);
+                                    }
+                                }
+                            } else if ("COMPOSICAO".equalsIgnoreCase(itemType)) {
+                                var childComp = compositionRepository.findBySinapiCode(itemCode).orElse(null);
+                                if (childComp != null) {
+                                    boolean exists = comp.getItems().stream()
+                                            .anyMatch(ci -> ci.getChildComposition() != null && ci.getChildComposition().getSinapiCode().equals(itemCode));
+                                    if (!exists) {
+                                        comp.addCompositionItem(childComp, coefficient);
+                                    }
                                 }
                             }
                         }

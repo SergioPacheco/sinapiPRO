@@ -3,6 +3,7 @@ package com.sinapipro.api.budget.api;
 import com.sinapipro.api.budget.application.AbcCurveService;
 import com.sinapipro.api.budget.application.BudgetCalculationService;
 import com.sinapipro.api.report.BudgetReportService;
+import com.sinapipro.api.report.ExcelExportService;
 import com.sinapipro.api.budget.application.PriceAdjustmentService;
 import com.sinapipro.api.budget.domain.*;
 import com.sinapipro.api.config.settings.AppSettingsRepository;
@@ -45,6 +46,7 @@ class BudgetDetailControllerTest {
     @Mock AbcCurveService abcCurveService;
     @Mock PriceAdjustmentService priceAdjustmentService;
     @Mock BudgetReportService budgetReportService;
+    @Mock ExcelExportService excelExportService;
     @Mock CompositionCostService compositionCostService;
     @Mock AppSettingsRepository settingsRepository;
 
@@ -56,7 +58,7 @@ class BudgetDetailControllerTest {
                 budgetRepository, stageRepository, itemRepository, bdiConfigRepository, memoRepository,
                 proposalRepository, tagRepository, socialChargesRepository,
                 compositionRepository, calculationService, abcCurveService, priceAdjustmentService,
-                budgetReportService, compositionCostService, settingsRepository
+                budgetReportService, excelExportService, compositionCostService, settingsRepository
         );
     }
 
@@ -129,6 +131,7 @@ class BudgetDetailControllerTest {
         UUID anotherBudgetId = UUID.randomUUID();
         UUID stageId = UUID.randomUUID();
         UUID compositionId = UUID.randomUUID();
+        mockEditableBudget(budgetId);
         mockStageInBudget(stageId, anotherBudgetId);
 
         assertThatThrownBy(() -> controller.createItem(
@@ -219,6 +222,12 @@ class BudgetDetailControllerTest {
         when(stage.getBudget()).thenReturn(budget);
         when(item.getStage()).thenReturn(stage);
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+    }
+
+    private void mockEditableBudget(UUID budgetId) {
+        Budget budget = mock(Budget.class);
+        when(budget.getStatus()).thenReturn(BudgetStatus.DRAFT);
+        when(budgetRepository.findById(budgetId)).thenReturn(Optional.of(budget));
     }
 
     private void mockStageInBudget(UUID stageId, UUID budgetId) {

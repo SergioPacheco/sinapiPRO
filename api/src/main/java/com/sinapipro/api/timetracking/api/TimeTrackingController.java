@@ -32,13 +32,13 @@ public class TimeTrackingController {
     }
 
     @Operation(summary = "List timesheet entries") @GetMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('labor.read')")
     PageResponse<TimesheetResponse> list(@PathVariable UUID projectId, @PageableDefault(size = 50) Pageable pageable) {
         return PageResponse.from(repository.findByBudgetId(projectId, pageable).map(TimesheetResponse::from));
     }
 
     @Operation(summary = "Record timesheet entry") @PostMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')") @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("@perm.check('labor.write')") @ResponseStatus(HttpStatus.CREATED)
     TimesheetResponse record(@PathVariable UUID projectId, @Valid @RequestBody CreateTimesheetRequest req) {
         TimesheetEntry entry = repository.save(new TimesheetEntry(projectId, req.costCodeId(), req.workerName(),
                 req.role(), req.workDate(), req.regularHours(), req.overtimeHours() != null ? req.overtimeHours() : BigDecimal.ZERO,
@@ -47,7 +47,7 @@ public class TimeTrackingController {
     }
 
     @Operation(summary = "Labor productivity report (hours/unit, cost by role)") @GetMapping("/productivity")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('labor.read')")
     LaborProductivityService.ProductivityReport productivity(@PathVariable UUID projectId) {
         return productivityService.calculate(projectId);
     }

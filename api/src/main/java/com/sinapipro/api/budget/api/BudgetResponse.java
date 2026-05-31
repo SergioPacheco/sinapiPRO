@@ -11,6 +11,7 @@ import java.util.UUID;
 
 public record BudgetResponse(
         UUID id,
+        UUID projectId,
         String code,
         String title,
         String customerName,
@@ -19,15 +20,22 @@ public record BudgetResponse(
         boolean active,
         LocalDate startDate,
         LocalDate endDate,
+        LocalDate referenceDate,
+        String state,
+        String roundingMethod,
+        Integer decimalPlaces,
+        String itemMask,
         Map<String, Object> metadata,
         Instant createdAt,
         Instant updatedAt
 ) {
     public static BudgetResponse from(Budget budget) {
         return new BudgetResponse(
-                budget.getId(), budget.getCode(), budget.getTitle(), budget.getCustomerName(),
+                budget.getId(), budget.getProjectId(), budget.getCode(), budget.getTitle(), budget.getCustomerName(),
                 budget.getTotalAmount(), budget.getStatus(), budget.isActive(),
                 budget.getStartDate(), budget.getEndDate(),
+                budget.getReferenceDate(), budget.getState(), budget.getRoundingMethod(),
+                budget.getDecimalPlaces(), budget.getItemMask(),
                 budget.getMetadata(), budget.getCreatedAt(), budget.getUpdatedAt());
     }
 }

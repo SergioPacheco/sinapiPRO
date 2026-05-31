@@ -3,7 +3,7 @@ package com.sinapipro.api.budget.api;
 import com.sinapipro.api.budget.domain.BudgetStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
@@ -14,9 +14,21 @@ public record CreateBudgetRequest(
         @NotBlank @Size(max = 40) String code,
         @NotBlank @Size(max = 140) String title,
         @NotBlank @Size(max = 140) String customerName,
-        @NotNull @Positive BigDecimal totalAmount,
+        @NotNull @PositiveOrZero BigDecimal totalAmount,
         @NotNull BudgetStatus status,
         @NotNull LocalDate startDate,
         LocalDate endDate,
-        Map<String, Object> metadata
-) {}
+        Map<String, Object> metadata,
+        LocalDate referenceDate,
+        String state,
+        String roundingMethod,
+        Integer decimalPlaces,
+        String itemMask
+) {
+    public CreateBudgetRequest(String code, String title, String customerName, BigDecimal totalAmount,
+                               BudgetStatus status, LocalDate startDate, LocalDate endDate,
+                               Map<String, Object> metadata) {
+        this(code, title, customerName, totalAmount, status, startDate, endDate, metadata,
+                null, null, null, null, null);
+    }
+}

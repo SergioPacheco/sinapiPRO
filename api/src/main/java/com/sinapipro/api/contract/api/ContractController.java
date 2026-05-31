@@ -44,14 +44,14 @@ public class ContractController {
 
     @Operation(summary = "List contracts for a budget")
     @GetMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     PageResponse<ContractResponse> list(@PathVariable UUID projectId, @PageableDefault(size = 20) Pageable pageable) {
         return PageResponse.from(contractRepository.findByBudgetId(projectId, pageable).map(ContractResponse::from));
     }
 
     @Operation(summary = "Create a contract")
     @PostMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     ResponseEntity<ContractResponse> create(@PathVariable UUID projectId, @Valid @RequestBody CreateContractRequest req) {
         Contract contract = contractService.create(projectId, req.supplierId(), req.number(), req.description(),
                 req.originalValue(), req.retentionPct(), req.startDate(), req.endDate());
@@ -61,21 +61,21 @@ public class ContractController {
 
     @Operation(summary = "Activate a contract")
     @PostMapping("/{contractId}/activate")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     ContractResponse activate(@PathVariable UUID projectId, @PathVariable UUID contractId) {
         return ContractResponse.from(contractService.activate(contractId));
     }
 
     @Operation(summary = "Financial summary of a contract")
     @GetMapping("/{contractId}/financial-summary")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     ContractFinancialSummary financialSummary(@PathVariable UUID projectId, @PathVariable UUID contractId) {
         return contractService.financialSummary(contractId);
     }
 
     @Operation(summary = "Add a change order (aditivo)")
     @PostMapping("/{contractId}/change-orders")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     @ResponseStatus(HttpStatus.CREATED)
     ChangeOrderResponse addChangeOrder(@PathVariable UUID projectId, @PathVariable UUID contractId,
                                        @Valid @RequestBody CreateChangeOrderRequest req) {
@@ -86,7 +86,7 @@ public class ContractController {
 
     @Operation(summary = "Approve a change order")
     @PostMapping("/{contractId}/change-orders/{coId}/approve")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     ChangeOrderResponse approveChangeOrder(@PathVariable UUID projectId, @PathVariable UUID contractId,
                                            @PathVariable UUID coId) {
         return ChangeOrderResponse.from(contractService.approveChangeOrder(contractId, coId));
@@ -94,7 +94,7 @@ public class ContractController {
 
     @Operation(summary = "Reject a change order")
     @PostMapping("/{contractId}/change-orders/{coId}/reject")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     ChangeOrderResponse rejectChangeOrder(@PathVariable UUID projectId, @PathVariable UUID contractId,
                                           @PathVariable UUID coId) {
         return ChangeOrderResponse.from(contractService.rejectChangeOrder(contractId, coId));
@@ -102,7 +102,7 @@ public class ContractController {
 
     @Operation(summary = "Contract report PDF")
     @GetMapping(value = "/{contractId}/reports/contract.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     ResponseEntity<byte[]> contractReport(@PathVariable UUID projectId, @PathVariable UUID contractId) {
         byte[] pdf = contractReportService.generateContractPdf(contractId);
         return ResponseEntity.ok()

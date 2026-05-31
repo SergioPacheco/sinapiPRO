@@ -26,6 +26,19 @@ public class UserController {
         this.userRepo = userRepo; this.roleRepo = roleRepo;
     }
 
+    @Operation(summary = "Get current authenticated user profile")
+    @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    UserResponse me(org.springframework.security.core.Authentication authentication) {
+        if (authentication instanceof org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken jwtAuth) {
+            String sub = jwtAuth.getToken().getSubject();
+            var user = userRepo.findByExternalId(sub)
+                    .orElseThrow(() -> new DomainNotFoundException("User not provisioned yet"));
+            return UserResponse.from(user);
+        }
+        throw new DomainNotFoundException("No JWT authentication");
+    }
+
     @Operation(summary = "List all users")
     @GetMapping
     List<UserResponse> list() {

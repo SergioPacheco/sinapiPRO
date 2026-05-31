@@ -42,48 +42,49 @@ public class BudgetController {
 
     @Operation(summary = "List budgets with filters and pagination")
     @GetMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     PageResponse<BudgetResponse> list(
+            @PathVariable UUID projectId,
             @RequestParam(required = false) BudgetStatus status,
             @RequestParam(required = false) String customerName,
             @PageableDefault(size = 20) Pageable pageable) {
-        var page = budgetService.findAll(new BudgetFilter(status, customerName), pageable);
+        var page = budgetService.findAll(new BudgetFilter(projectId, status, customerName), pageable);
         return PageResponse.from(page.map(BudgetResponse::from));
     }
 
     @Operation(summary = "Get budget by ID")
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     BudgetResponse findById(@PathVariable UUID id) {
         return BudgetResponse.from(budgetService.findById(id));
     }
 
     @Operation(summary = "Get budget by code")
     @GetMapping("/code/{code}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     BudgetResponse findByCode(@PathVariable String code) {
         return BudgetResponse.from(budgetService.findByCode(code));
     }
 
     @Operation(summary = "Create a new budget")
     @PostMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
-    ResponseEntity<BudgetResponse> create(@Valid @RequestBody CreateBudgetRequest request) {
-        var budget = budgetService.create(request);
+    @PreAuthorize("@perm.check('budget.write')")
+    ResponseEntity<BudgetResponse> create(@PathVariable UUID projectId, @Valid @RequestBody CreateBudgetRequest request) {
+        var budget = budgetService.create(projectId, request);
         var response = BudgetResponse.from(budget);
         return ResponseEntity.created(URI.create("/api/v1/budgets/" + budget.getId())).body(response);
     }
 
     @Operation(summary = "Update an existing budget")
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     BudgetResponse update(@PathVariable UUID id, @Valid @RequestBody UpdateBudgetRequest request) {
         return BudgetResponse.from(budgetService.update(id, request));
     }
 
     @Operation(summary = "Copy a budget with stages, items and BDI")
     @PostMapping("/{id}/copy")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     ResponseEntity<BudgetResponse> copy(@PathVariable UUID id, @Valid @RequestBody CopyBudgetRequest request) {
         var budget = budgetService.copy(id, request.code(), request.title());
         return ResponseEntity.status(HttpStatus.CREATED).body(BudgetResponse.from(budget));
@@ -91,14 +92,14 @@ public class BudgetController {
 
     @Operation(summary = "Activate a budget as the current execution budget")
     @PostMapping("/{id}/activate")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     BudgetResponse activate(@PathVariable UUID id) {
         return BudgetResponse.from(budgetService.activate(id));
     }
 
     @Operation(summary = "Delete a budget")
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void delete(@PathVariable UUID id) {
         budgetService.delete(id);
@@ -175,7 +176,7 @@ public class BudgetController {
     // Task 3.6 — Importar itens de outro orçamento
     @Operation(summary = "Import items from another budget into a stage")
     @PostMapping("/{budgetId}/stages/{stageId}/import-items")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     @org.springframework.transaction.annotation.Transactional
     ResponseEntity<BulkAddResult> importItems(@PathVariable UUID budgetId, @PathVariable UUID stageId,
                                               @RequestBody ImportItemsRequest req) {

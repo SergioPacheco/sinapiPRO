@@ -20,8 +20,9 @@ public interface BudgetRepository extends JpaRepository<Budget, UUID>, JpaSpecif
     @Query("""
             SELECT b FROM Budget b
             WHERE (:status IS NULL OR b.status = :status)
+              AND (:projectId IS NULL OR b.projectId = :projectId)
               AND (:customerName IS NULL OR LOWER(CAST(b.customerName AS String)) LIKE LOWER(CONCAT('%', CAST(:customerName AS String), '%')))
             ORDER BY b.createdAt DESC
             """)
-    Page<Budget> findFiltered(BudgetStatus status, String customerName, Pageable pageable);
+    Page<Budget> findFiltered(UUID projectId, BudgetStatus status, String customerName, Pageable pageable);
 }

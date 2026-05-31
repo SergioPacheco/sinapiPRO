@@ -78,7 +78,7 @@ public class RegistryController {
 
     @Operation(summary = "List active clients")
     @GetMapping("/clients")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     PageResponse<ClientResponse> listClients(@RequestParam(required = false) String search,
                                              @PageableDefault(size = 20) Pageable pageable) {
         var page = search != null && !search.isBlank()
@@ -89,7 +89,7 @@ public class RegistryController {
 
     @Operation(summary = "Create a client")
     @PostMapping("/clients")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     ResponseEntity<ClientResponse> createClient(@Valid @RequestBody CreateClientRequest req) {
         var client = clientRepository.save(new Client(req.name(), req.document(), req.email(),
                 req.phone(), req.address(), req.city(), req.state(), req.notes()));
@@ -99,7 +99,7 @@ public class RegistryController {
 
     @Operation(summary = "Deactivate a client")
     @DeleteMapping("/clients/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deactivateClient(@PathVariable UUID id) {
         var client = clientRepository.findById(id)
@@ -112,7 +112,7 @@ public class RegistryController {
 
     @Operation(summary = "List active employees")
     @GetMapping("/employees")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     PageResponse<EmployeeResponse> listEmployees(@RequestParam(required = false) String type,
                                                   @RequestParam(required = false) String search,
                                                   @PageableDefault(size = 20) Pageable pageable) {
@@ -126,7 +126,7 @@ public class RegistryController {
 
     @Operation(summary = "Get employee or contractor detail")
     @GetMapping("/employees/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     EmployeeResponse getEmployee(@PathVariable UUID id) {
         var employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new DomainNotFoundException("Employee not found: " + id));
@@ -135,7 +135,7 @@ public class RegistryController {
 
     @Operation(summary = "Create an employee or contractor")
     @PostMapping("/employees")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     ResponseEntity<EmployeeResponse> createEmployee(@Valid @RequestBody CreateEmployeeRequest req) {
         var employee = employeeRepository.save(new Employee(
                 req.employeeCode(), req.name(), req.document(), req.role(), req.specialty(),
@@ -151,7 +151,7 @@ public class RegistryController {
 
     @Operation(summary = "Update an employee or contractor")
     @PutMapping("/employees/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     EmployeeResponse updateEmployee(@PathVariable UUID id, @Valid @RequestBody UpdateEmployeeRequest req) {
         var employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new DomainNotFoundException("Employee not found: " + id));
@@ -167,7 +167,7 @@ public class RegistryController {
 
     @Operation(summary = "Deactivate an employee")
     @DeleteMapping("/employees/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deactivateEmployee(@PathVariable UUID id) {
         var employee = employeeRepository.findById(id)
@@ -180,14 +180,14 @@ public class RegistryController {
 
     @Operation(summary = "List all units of measure")
     @GetMapping("/units")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     List<UnitResponse> listUnits() {
         return unitRepository.findAll().stream().map(UnitResponse::from).toList();
     }
 
     @Operation(summary = "Create a unit of measure")
     @PostMapping("/units")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.CREATED)
     UnitResponse createUnit(@Valid @RequestBody CreateUnitRequest req) {
         var unit = unitRepository.save(new UnitOfMeasure(req.symbol(), req.description()));
@@ -198,14 +198,14 @@ public class RegistryController {
 
     @Operation(summary = "List active payment methods")
     @GetMapping("/payment-methods")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     List<PaymentMethodResponse> listPaymentMethods() {
         return paymentMethodRepository.findByActiveTrue().stream().map(PaymentMethodResponse::from).toList();
     }
 
     @Operation(summary = "Create a payment method")
     @PostMapping("/payment-methods")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.CREATED)
     PaymentMethodResponse createPaymentMethod(@Valid @RequestBody CreatePaymentMethodRequest req) {
         var pm = paymentMethodRepository.save(new PaymentMethod(req.name(), req.installments() != null ? req.installments() : 1));
@@ -216,14 +216,14 @@ public class RegistryController {
 
     @Operation(summary = "List active bank accounts")
     @GetMapping("/bank-accounts")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     List<BankAccountResponse> listBankAccounts() {
         return bankAccountRepository.findByActiveTrue().stream().map(BankAccountResponse::from).toList();
     }
 
     @Operation(summary = "Create a bank account")
     @PostMapping("/bank-accounts")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.CREATED)
     BankAccountResponse createBankAccount(@Valid @RequestBody CreateBankAccountRequest req) {
         var account = bankAccountRepository.save(new BankAccount(req.bankCode(), req.bankName(),
@@ -233,7 +233,7 @@ public class RegistryController {
 
     @Operation(summary = "Deactivate a bank account")
     @DeleteMapping("/bank-accounts/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deactivateBankAccount(@PathVariable UUID id) {
         var account = bankAccountRepository.findById(id)
@@ -245,20 +245,20 @@ public class RegistryController {
     // --- Contractors ---
 
     @GetMapping("/contractors")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     List<ContractorResponse> listContractors() {
         return contractorRepository.findAll().stream().filter(Contractor::isActive).map(ContractorResponse::from).toList();
     }
 
     @PostMapping("/contractors")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.CREATED)
     ContractorResponse createContractor(@Valid @RequestBody CreateContractorRequest req) {
         return ContractorResponse.from(contractorRepository.save(new Contractor(req.name(), req.document(), req.specialty(), req.phone(), req.email(), req.city(), req.state())));
     }
 
     @PutMapping("/contractors/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     ContractorResponse updateContractor(@PathVariable UUID id, @Valid @RequestBody CreateContractorRequest req) {
         var e = contractorRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("Contractor not found: " + id));
         e.update(req.name(), req.document(), req.specialty(), req.phone(), req.email(), req.city(), req.state());
@@ -266,7 +266,7 @@ public class RegistryController {
     }
 
     @DeleteMapping("/contractors/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteContractor(@PathVariable UUID id) {
         var e = contractorRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("Contractor not found: " + id));
@@ -276,20 +276,20 @@ public class RegistryController {
     // --- Inspectors ---
 
     @GetMapping("/inspectors")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     List<InspectorResponse> listInspectors() {
         return inspectorRepository.findAll().stream().filter(Inspector::isActive).map(InspectorResponse::from).toList();
     }
 
     @PostMapping("/inspectors")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.CREATED)
     InspectorResponse createInspector(@Valid @RequestBody CreateInspectorRequest req) {
         return InspectorResponse.from(inspectorRepository.save(new Inspector(req.name(), req.document(), req.role(), req.organization(), req.phone(), req.email())));
     }
 
     @PutMapping("/inspectors/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     InspectorResponse updateInspector(@PathVariable UUID id, @Valid @RequestBody CreateInspectorRequest req) {
         var e = inspectorRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("Inspector not found: " + id));
         e.update(req.name(), req.document(), req.role(), req.organization(), req.phone(), req.email());
@@ -297,7 +297,7 @@ public class RegistryController {
     }
 
     @DeleteMapping("/inspectors/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteInspector(@PathVariable UUID id) {
         var e = inspectorRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("Inspector not found: " + id));
@@ -307,20 +307,20 @@ public class RegistryController {
     // --- BDI Templates ---
 
     @GetMapping("/bdi-templates")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     List<BdiTemplateResponse> listBdiTemplates() {
         return bdiTemplateRepository.findAll().stream().map(BdiTemplateResponse::from).toList();
     }
 
     @PostMapping("/bdi-templates")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.CREATED)
     BdiTemplateResponse createBdiTemplate(@Valid @RequestBody CreateBdiTemplateRequest req) {
         return BdiTemplateResponse.from(bdiTemplateRepository.save(new BdiTemplate(req.name(), req.administration(), req.profit(), req.financialCost(), req.taxes(), req.total())));
     }
 
     @PutMapping("/bdi-templates/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     BdiTemplateResponse updateBdiTemplate(@PathVariable UUID id, @Valid @RequestBody CreateBdiTemplateRequest req) {
         var e = bdiTemplateRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("BDI Template not found: " + id));
         e.update(req.name(), req.administration(), req.profit(), req.financialCost(), req.taxes(), req.total());
@@ -328,27 +328,27 @@ public class RegistryController {
     }
 
     @DeleteMapping("/bdi-templates/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteBdiTemplate(@PathVariable UUID id) { bdiTemplateRepository.deleteById(id); }
 
     // --- Social Charges ---
 
     @GetMapping("/social-charges")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     List<SocialChargeResponse> listSocialCharges() {
         return socialChargeRepository.findAll().stream().map(SocialChargeResponse::from).toList();
     }
 
     @PostMapping("/social-charges")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.CREATED)
     SocialChargeResponse createSocialCharge(@Valid @RequestBody CreateSocialChargeRequest req) {
         return SocialChargeResponse.from(socialChargeRepository.save(new SocialCharge(req.name(), req.type(), req.percentage())));
     }
 
     @PutMapping("/social-charges/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     SocialChargeResponse updateSocialCharge(@PathVariable UUID id, @Valid @RequestBody CreateSocialChargeRequest req) {
         var e = socialChargeRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("Social Charge not found: " + id));
         e.update(req.name(), req.type(), req.percentage());
@@ -356,27 +356,27 @@ public class RegistryController {
     }
 
     @DeleteMapping("/social-charges/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteSocialCharge(@PathVariable UUID id) { socialChargeRepository.deleteById(id); }
 
     // --- Payment Conditions ---
 
     @GetMapping("/payment-conditions")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     List<PaymentConditionResponse> listPaymentConditions() {
         return paymentConditionRepository.findAll().stream().filter(PaymentCondition::isActive).map(PaymentConditionResponse::from).toList();
     }
 
     @PostMapping("/payment-conditions")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.CREATED)
     PaymentConditionResponse createPaymentCondition(@Valid @RequestBody CreatePaymentConditionRequest req) {
         return PaymentConditionResponse.from(paymentConditionRepository.save(new PaymentCondition(req.name(), req.installments() != null ? req.installments() : 1, req.description())));
     }
 
     @PutMapping("/payment-conditions/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     PaymentConditionResponse updatePaymentCondition(@PathVariable UUID id, @Valid @RequestBody CreatePaymentConditionRequest req) {
         var e = paymentConditionRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("Payment Condition not found: " + id));
         e.update(req.name(), req.installments() != null ? req.installments() : 1, req.description());
@@ -384,7 +384,7 @@ public class RegistryController {
     }
 
     @DeleteMapping("/payment-conditions/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deletePaymentCondition(@PathVariable UUID id) {
         var e = paymentConditionRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("Payment Condition not found: " + id));
@@ -394,20 +394,20 @@ public class RegistryController {
     // --- Cost Centers ---
 
     @GetMapping("/cost-centers")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     List<CostCenterResponse> listCostCenters() {
         return costCenterRepository.findAll().stream().filter(CostCenter::isActive).map(CostCenterResponse::from).toList();
     }
 
     @PostMapping("/cost-centers")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.CREATED)
     CostCenterResponse createCostCenter(@Valid @RequestBody CreateCostCenterRequest req) {
         return CostCenterResponse.from(costCenterRepository.save(new CostCenter(req.code(), req.name(), req.description())));
     }
 
     @PutMapping("/cost-centers/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     CostCenterResponse updateCostCenter(@PathVariable UUID id, @Valid @RequestBody CreateCostCenterRequest req) {
         var e = costCenterRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("Cost Center not found: " + id));
         e.update(req.code(), req.name(), req.description());
@@ -415,7 +415,7 @@ public class RegistryController {
     }
 
     @DeleteMapping("/cost-centers/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteCostCenter(@PathVariable UUID id) {
         var e = costCenterRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("Cost Center not found: " + id));
@@ -425,20 +425,20 @@ public class RegistryController {
     // --- Finance Categories ---
 
     @GetMapping("/finance-categories")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     List<FinanceCategoryResponse> listFinanceCategories() {
         return financeCategoryRepository.findAll().stream().filter(FinanceCategory::isActive).map(FinanceCategoryResponse::from).toList();
     }
 
     @PostMapping("/finance-categories")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.CREATED)
     FinanceCategoryResponse createFinanceCategory(@Valid @RequestBody CreateFinanceCategoryRequest req) {
         return FinanceCategoryResponse.from(financeCategoryRepository.save(new FinanceCategory(req.code(), req.name(), req.type())));
     }
 
     @PutMapping("/finance-categories/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     FinanceCategoryResponse updateFinanceCategory(@PathVariable UUID id, @Valid @RequestBody CreateFinanceCategoryRequest req) {
         var e = financeCategoryRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("Finance Category not found: " + id));
         e.update(req.code(), req.name(), req.type());
@@ -446,7 +446,7 @@ public class RegistryController {
     }
 
     @DeleteMapping("/finance-categories/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteFinanceCategory(@PathVariable UUID id) {
         var e = financeCategoryRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("Finance Category not found: " + id));
@@ -456,20 +456,20 @@ public class RegistryController {
     // --- Project Types ---
 
     @GetMapping("/project-types")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     List<ProjectTypeResponse> listProjectTypes() {
         return projectTypeRepository.findAll().stream().map(ProjectTypeResponse::from).toList();
     }
 
     @PostMapping("/project-types")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.CREATED)
     ProjectTypeResponse createProjectType(@Valid @RequestBody CreateProjectTypeRequest req) {
         return ProjectTypeResponse.from(projectTypeRepository.save(new ProjectType(req.name(), req.description())));
     }
 
     @PutMapping("/project-types/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     ProjectTypeResponse updateProjectType(@PathVariable UUID id, @Valid @RequestBody CreateProjectTypeRequest req) {
         var e = projectTypeRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("Project Type not found: " + id));
         e.update(req.name(), req.description());
@@ -477,27 +477,27 @@ public class RegistryController {
     }
 
     @DeleteMapping("/project-types/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteProjectType(@PathVariable UUID id) { projectTypeRepository.deleteById(id); }
 
     // --- Default Stages ---
 
     @GetMapping("/default-stages")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     List<DefaultStageResponse> listDefaultStages() {
         return defaultStageRepository.findAll().stream().sorted((a, b) -> Integer.compare(a.getSortOrder(), b.getSortOrder())).map(DefaultStageResponse::from).toList();
     }
 
     @PostMapping("/default-stages")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.CREATED)
     DefaultStageResponse createDefaultStage(@Valid @RequestBody CreateDefaultStageRequest req) {
         return DefaultStageResponse.from(defaultStageRepository.save(new DefaultStage(req.name(), req.sortOrder() != null ? req.sortOrder() : 0, req.description())));
     }
 
     @PutMapping("/default-stages/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     DefaultStageResponse updateDefaultStage(@PathVariable UUID id, @Valid @RequestBody CreateDefaultStageRequest req) {
         var e = defaultStageRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("Default Stage not found: " + id));
         e.update(req.name(), req.sortOrder() != null ? req.sortOrder() : 0, req.description());
@@ -505,27 +505,27 @@ public class RegistryController {
     }
 
     @DeleteMapping("/default-stages/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteDefaultStage(@PathVariable UUID id) { defaultStageRepository.deleteById(id); }
 
     // --- Incident Types ---
 
     @GetMapping("/incident-types")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     List<IncidentTypeResponse> listIncidentTypes() {
         return incidentTypeRepository.findAll().stream().map(IncidentTypeResponse::from).toList();
     }
 
     @PostMapping("/incident-types")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.CREATED)
     IncidentTypeResponse createIncidentType(@Valid @RequestBody CreateIncidentTypeRequest req) {
         return IncidentTypeResponse.from(incidentTypeRepository.save(new IncidentType(req.name(), req.severity(), req.description())));
     }
 
     @PutMapping("/incident-types/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     IncidentTypeResponse updateIncidentType(@PathVariable UUID id, @Valid @RequestBody CreateIncidentTypeRequest req) {
         var e = incidentTypeRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("Incident Type not found: " + id));
         e.update(req.name(), req.severity(), req.description());
@@ -533,27 +533,27 @@ public class RegistryController {
     }
 
     @DeleteMapping("/incident-types/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteIncidentType(@PathVariable UUID id) { incidentTypeRepository.deleteById(id); }
 
     // --- EPIs ---
 
     @GetMapping("/epis")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     List<EpiResponse> listEpis() {
         return epiRepository.findAll().stream().map(EpiResponse::from).toList();
     }
 
     @PostMapping("/epis")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.CREATED)
     EpiResponse createEpi(@Valid @RequestBody CreateEpiRequest req) {
         return EpiResponse.from(epiRepository.save(new Epi(req.name(), req.caNumber(), req.validityMonths(), req.description())));
     }
 
     @PutMapping("/epis/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     EpiResponse updateEpi(@PathVariable UUID id, @Valid @RequestBody CreateEpiRequest req) {
         var e = epiRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("EPI not found: " + id));
         e.update(req.name(), req.caNumber(), req.validityMonths(), req.description());
@@ -561,27 +561,27 @@ public class RegistryController {
     }
 
     @DeleteMapping("/epis/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteEpi(@PathVariable UUID id) { epiRepository.deleteById(id); }
 
     // --- Report Templates ---
 
     @GetMapping("/report-templates")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     List<ReportTemplateResponse> listReportTemplates() {
         return reportTemplateRepository.findAll().stream().map(ReportTemplateResponse::from).toList();
     }
 
     @PostMapping("/report-templates")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.CREATED)
     ReportTemplateResponse createReportTemplate(@Valid @RequestBody CreateReportTemplateRequest req) {
         return ReportTemplateResponse.from(reportTemplateRepository.save(new ReportTemplate(req.name(), req.type(), req.description())));
     }
 
     @PutMapping("/report-templates/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     ReportTemplateResponse updateReportTemplate(@PathVariable UUID id, @Valid @RequestBody CreateReportTemplateRequest req) {
         var e = reportTemplateRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("Report Template not found: " + id));
         e.update(req.name(), req.type(), req.description());
@@ -589,7 +589,7 @@ public class RegistryController {
     }
 
     @DeleteMapping("/report-templates/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteReportTemplate(@PathVariable UUID id) { reportTemplateRepository.deleteById(id); }
 

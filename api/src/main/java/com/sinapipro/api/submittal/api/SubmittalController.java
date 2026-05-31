@@ -28,13 +28,13 @@ public class SubmittalController {
     public SubmittalController(SubmittalRepository repository) { this.repository = repository; }
 
     @Operation(summary = "List submittals") @GetMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     PageResponse<SubmittalResponse> list(@PathVariable UUID projectId, @PageableDefault(size = 20) Pageable pageable) {
         return PageResponse.from(repository.findByBudgetId(projectId, pageable).map(SubmittalResponse::from));
     }
 
     @Operation(summary = "Create submittal") @PostMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     ResponseEntity<SubmittalResponse> create(@PathVariable UUID projectId, @Valid @RequestBody CreateRequest req) {
         int num = repository.countByBudgetId(projectId) + 1;
         Submittal s = repository.save(new Submittal(projectId, num, req.title(), req.specSection(),
@@ -44,31 +44,31 @@ public class SubmittalController {
     }
 
     @Operation(summary = "Submit for review") @PostMapping("/{id}/submit")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')") @Transactional
+    @PreAuthorize("@perm.check('budget.write')") @Transactional
     SubmittalResponse submit(@PathVariable UUID projectId, @PathVariable UUID id) {
         Submittal s = findOrThrow(id); s.submit(); return SubmittalResponse.from(repository.save(s));
     }
 
     @Operation(summary = "Approve") @PostMapping("/{id}/approve")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')") @Transactional
+    @PreAuthorize("@perm.check('budget.write')") @Transactional
     SubmittalResponse approve(@PathVariable UUID projectId, @PathVariable UUID id, @RequestBody(required = false) ReviewRequest req) {
         Submittal s = findOrThrow(id); s.approve(req != null ? req.notes() : null); return SubmittalResponse.from(repository.save(s));
     }
 
     @Operation(summary = "Approve as noted") @PostMapping("/{id}/approve-as-noted")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')") @Transactional
+    @PreAuthorize("@perm.check('budget.write')") @Transactional
     SubmittalResponse approveAsNoted(@PathVariable UUID projectId, @PathVariable UUID id, @Valid @RequestBody ReviewRequest req) {
         Submittal s = findOrThrow(id); s.approveAsNoted(req.notes()); return SubmittalResponse.from(repository.save(s));
     }
 
     @Operation(summary = "Reject") @PostMapping("/{id}/reject")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')") @Transactional
+    @PreAuthorize("@perm.check('budget.write')") @Transactional
     SubmittalResponse reject(@PathVariable UUID projectId, @PathVariable UUID id, @Valid @RequestBody ReviewRequest req) {
         Submittal s = findOrThrow(id); s.reject(req.notes()); return SubmittalResponse.from(repository.save(s));
     }
 
     @Operation(summary = "Revise and resubmit") @PostMapping("/{id}/revise")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')") @Transactional
+    @PreAuthorize("@perm.check('budget.write')") @Transactional
     SubmittalResponse revise(@PathVariable UUID projectId, @PathVariable UUID id, @Valid @RequestBody ReviewRequest req) {
         Submittal s = findOrThrow(id); s.reviseAndResubmit(req.notes()); return SubmittalResponse.from(repository.save(s));
     }

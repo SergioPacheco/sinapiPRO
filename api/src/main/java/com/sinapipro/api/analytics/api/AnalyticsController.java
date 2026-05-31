@@ -14,7 +14,7 @@ import java.util.UUID;
 @Tag(name = "Analytics", description = "Dashboard, EVM, cash flow and portfolio analytics")
 @RestController
 @RequestMapping("/api/v1/analytics")
-@PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+@PreAuthorize("@perm.check('budget.read')")
 public class AnalyticsController {
 
     private final PortfolioAnalyticsService portfolioService;

@@ -14,7 +14,7 @@ import java.util.UUID;
 @Tag(name = "Reports", description = "Geração de relatórios PDF — Financeiro, Suprimentos, Medição, Comercial, Orçamento, MO/Estoque, Gerencial")
 @RestController
 @RequestMapping("/api/v1/reports")
-@PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+@PreAuthorize("@perm.check('report.read')")
 public class ReportController {
 
     private final FinanceReportService finance;

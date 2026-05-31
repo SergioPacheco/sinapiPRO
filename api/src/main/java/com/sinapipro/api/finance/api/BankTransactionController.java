@@ -23,7 +23,7 @@ import java.util.UUID;
 @Tag(name = "Bank Transactions", description = "Movimentação bancária e conciliação")
 @RestController
 @RequestMapping("/api/v1/bank-accounts/{accountId}/transactions")
-@PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+@PreAuthorize("@perm.check('finance.read')")
 public class BankTransactionController {
 
     private final BankTransactionService service;
@@ -41,7 +41,7 @@ public class BankTransactionController {
 
     @Operation(summary = "Create a manual transaction")
     @PostMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('finance.write')")
     @ResponseStatus(HttpStatus.CREATED)
     TransactionResponse create(@PathVariable UUID accountId,
                                 @Valid @RequestBody CreateTransactionRequest req) {
@@ -58,14 +58,14 @@ public class BankTransactionController {
 
     @Operation(summary = "Reconcile a transaction")
     @PostMapping("/{transactionId}/reconcile")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('finance.write')")
     TransactionResponse reconcile(@PathVariable UUID accountId, @PathVariable UUID transactionId) {
         return TransactionResponse.from(service.reconcile(transactionId));
     }
 
     @Operation(summary = "Batch reconcile transactions")
     @PostMapping("/reconcile-batch")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('finance.write')")
     ReconcileResult reconcileBatch(@PathVariable UUID accountId,
                                     @RequestBody List<UUID> transactionIds) {
         return new ReconcileResult(service.reconcileBatch(transactionIds));

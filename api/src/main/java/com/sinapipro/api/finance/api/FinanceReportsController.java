@@ -23,11 +23,11 @@ import java.util.UUID;
 public class FinanceReportsController {
 
     private final DreService dreService;
-    private final AgingReportService agingReportService;
+    private final FinanceAgingService agingReportService;
     private final CostApportionmentService costApportionmentService;
     private final FinanceService financeService;
 
-    public FinanceReportsController(DreService dreService, AgingReportService agingReportService,
+    public FinanceReportsController(DreService dreService, FinanceAgingService agingReportService,
                                     CostApportionmentService costApportionmentService,
                                     FinanceService financeService) {
         this.dreService = dreService;
@@ -42,7 +42,7 @@ public class FinanceReportsController {
 
     @Operation(summary = "Generate DRE (Income Statement) for a project")
     @GetMapping("/projects/{projectId}/dre")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('finance.read')")
     DreService.DreReport getDre(@PathVariable UUID projectId,
                                 @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
                                 @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
@@ -55,15 +55,15 @@ public class FinanceReportsController {
 
     @Operation(summary = "Aging report for payables (overdue by bracket)")
     @GetMapping("/aging/payables")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
-    AgingReportService.AgingReport payablesAging(@RequestParam(required = false) UUID projectId) {
+    @PreAuthorize("@perm.check('finance.read')")
+    FinanceAgingService.AgingReport payablesAging(@RequestParam(required = false) UUID projectId) {
         return agingReportService.payablesAging(projectId);
     }
 
     @Operation(summary = "Aging report for receivables (overdue by bracket)")
     @GetMapping("/aging/receivables")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
-    AgingReportService.AgingReport receivablesAging(@RequestParam(required = false) UUID projectId) {
+    @PreAuthorize("@perm.check('finance.read')")
+    FinanceAgingService.AgingReport receivablesAging(@RequestParam(required = false) UUID projectId) {
         return agingReportService.receivablesAging(projectId);
     }
 
@@ -81,7 +81,7 @@ public class FinanceReportsController {
 
     @Operation(summary = "Apportion a cost across projects by custom percentages")
     @PostMapping("/apportionment")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('finance.write')")
     ResponseEntity<List<ApportionmentResult>> apportion(@Valid @RequestBody ApportionmentRequest req) {
         var payables = costApportionmentService.apportion(req.description(), req.totalAmount(),
                 req.dueDate(), req.category(), req.supplierId(), req.distribution());
@@ -92,7 +92,7 @@ public class FinanceReportsController {
 
     @Operation(summary = "Apportion a cost using project-configured rates")
     @PostMapping("/apportionment/by-rates")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('finance.write')")
     ResponseEntity<List<ApportionmentResult>> apportionByRates(@Valid @RequestBody ApportionByRatesRequest req) {
         var payables = costApportionmentService.apportionByProjectRates(req.description(), req.totalAmount(),
                 req.dueDate(), req.category(), req.supplierId(), req.projectIds());
@@ -109,7 +109,7 @@ public class FinanceReportsController {
 
     @Operation(summary = "Cash flow projection for a project (monthly inflows vs outflows)")
     @GetMapping("/projects/{budgetId}/cash-flow-projection")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('finance.read')")
     FinanceService.CashFlowProjection getCashFlowProjection(
             @PathVariable UUID budgetId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -119,7 +119,7 @@ public class FinanceReportsController {
 
     @Operation(summary = "Consolidated cash flow summary across multiple projects")
     @PostMapping("/cash-flow/consolidated")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('finance.read')")
     FinanceService.ConsolidatedCashFlow getConsolidatedCashFlow(@RequestBody List<UUID> projectIds) {
         return financeService.consolidatedCashFlow(projectIds);
     }

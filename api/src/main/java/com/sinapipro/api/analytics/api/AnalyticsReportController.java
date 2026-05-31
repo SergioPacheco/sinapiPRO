@@ -18,7 +18,7 @@ import java.util.UUID;
 @Tag(name = "Analytics Reports", description = "DRE, Mapa de Custos, Fluxo de Caixa, Aging, Dashboard Executivo")
 @RestController
 @RequestMapping("/api/v1/analytics")
-@PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+@PreAuthorize("@perm.check('budget.read')")
 public class AnalyticsReportController {
 
     private final DREService dreService;

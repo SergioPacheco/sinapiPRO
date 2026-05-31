@@ -32,7 +32,7 @@ public class PunchListController {
 
     @Operation(summary = "List punch list items")
     @GetMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     PageResponse<PunchListResponse> list(@PathVariable UUID projectId,
                                          @RequestParam(required = false) PunchListStatus status,
                                          @PageableDefault(size = 20) Pageable pageable) {
@@ -44,7 +44,7 @@ public class PunchListController {
 
     @Operation(summary = "Create a punch list item")
     @PostMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     ResponseEntity<PunchListResponse> create(@PathVariable UUID projectId, @Valid @RequestBody CreatePunchListRequest req) {
         PunchListItem item = repository.save(new PunchListItem(projectId, req.location(), req.description(),
                 req.category(), req.priority(), req.assignedTo(), req.dueDate(), req.createdBy()));
@@ -54,7 +54,7 @@ public class PunchListController {
 
     @Operation(summary = "Mark item as in progress")
     @PostMapping("/{id}/start")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     @Transactional
     PunchListResponse start(@PathVariable UUID projectId, @PathVariable UUID id) {
         PunchListItem item = findOrThrow(id);
@@ -64,7 +64,7 @@ public class PunchListController {
 
     @Operation(summary = "Mark item as completed")
     @PostMapping("/{id}/complete")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     @Transactional
     PunchListResponse complete(@PathVariable UUID projectId, @PathVariable UUID id) {
         PunchListItem item = findOrThrow(id);
@@ -74,7 +74,7 @@ public class PunchListController {
 
     @Operation(summary = "Verify completed item")
     @PostMapping("/{id}/verify")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('budget.write')")
     @Transactional
     PunchListResponse verify(@PathVariable UUID projectId, @PathVariable UUID id) {
         PunchListItem item = findOrThrow(id);
@@ -84,7 +84,7 @@ public class PunchListController {
 
     @Operation(summary = "Punch list summary (counts by status)")
     @GetMapping("/summary")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('budget.read')")
     PunchListSummary summary(@PathVariable UUID projectId) {
         return new PunchListSummary(
                 repository.countByBudgetIdAndStatus(projectId, PunchListStatus.OPEN),

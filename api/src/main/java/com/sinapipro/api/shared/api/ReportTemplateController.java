@@ -30,7 +30,7 @@ public class ReportTemplateController {
 
     @Operation(summary = "List all report templates")
     @GetMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('settings.read')")
     List<ReportTemplate> list(@RequestParam(required = false) String type) {
         if (type != null) return repository.findByTypeOrderByNameAsc(type);
         return repository.findAll();
@@ -38,7 +38,7 @@ public class ReportTemplateController {
 
     @Operation(summary = "Get a report template by ID")
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('settings.read')")
     ReportTemplate get(@PathVariable UUID id) {
         return repository.findById(id)
                 .orElseThrow(() -> new DomainNotFoundException("Report template not found: " + id));
@@ -46,7 +46,7 @@ public class ReportTemplateController {
 
     @Operation(summary = "Create a report template")
     @PostMapping
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('settings.write')")
     ResponseEntity<ReportTemplate> create(@Valid @RequestBody CreateTemplateRequest req) {
         var template = new ReportTemplate(req.name(), req.type(), req.description());
         template.setLogoPath(req.logoPath());
@@ -60,7 +60,7 @@ public class ReportTemplateController {
 
     @Operation(summary = "Update a report template")
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('settings.write')")
     ReportTemplate update(@PathVariable UUID id, @Valid @RequestBody UpdateTemplateRequest req) {
         var template = repository.findById(id)
                 .orElseThrow(() -> new DomainNotFoundException("Report template not found: " + id));
@@ -75,7 +75,7 @@ public class ReportTemplateController {
 
     @Operation(summary = "Delete a report template")
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('settings.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void delete(@PathVariable UUID id) {
         if (!repository.existsById(id)) throw new DomainNotFoundException("Report template not found: " + id);

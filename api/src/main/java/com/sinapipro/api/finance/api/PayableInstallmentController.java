@@ -19,7 +19,7 @@ import java.util.UUID;
 @Tag(name = "Payable Installments", description = "Parcelamento e pagamento de contas a pagar")
 @RestController
 @RequestMapping("/api/v1/payables")
-@PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+@PreAuthorize("@perm.check('finance.read')")
 public class PayableInstallmentController {
 
     private final PayableInstallmentService installmentService;
@@ -36,7 +36,7 @@ public class PayableInstallmentController {
 
     @Operation(summary = "Generate installments for a payable")
     @PostMapping("/{payableId}/installments")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('finance.write')")
     @ResponseStatus(HttpStatus.CREATED)
     List<InstallmentResponse> generateInstallments(@PathVariable UUID payableId,
                                                     @Valid @RequestBody GenerateInstallmentsRequest req) {
@@ -53,7 +53,7 @@ public class PayableInstallmentController {
 
     @Operation(summary = "Execute payment of an installment")
     @PostMapping("/installments/{installmentId}/pay")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('finance.write')")
     PaymentResponse pay(@PathVariable UUID installmentId, @Valid @RequestBody PayInstallmentRequest req) {
         var result = paymentService.executePayment(installmentId, req.bankAccountId(),
                 req.paymentMethod(), req.paymentDate() != null ? req.paymentDate() : LocalDate.now(),
@@ -64,7 +64,7 @@ public class PayableInstallmentController {
 
     @Operation(summary = "Calculate tax retentions for a payable")
     @PostMapping("/{payableId}/retentions")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('finance.write')")
     @ResponseStatus(HttpStatus.CREATED)
     List<RetentionResponse> calculateRetentions(@PathVariable UUID payableId,
                                                  @Valid @RequestBody CalculateRetentionsRequest req) {

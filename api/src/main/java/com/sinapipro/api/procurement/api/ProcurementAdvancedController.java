@@ -21,7 +21,7 @@ import java.util.UUID;
 @Tag(name = "Procurement Advanced", description = "Limites, cronograma, multi-item, recebimento parcial")
 @RestController
 @RequestMapping("/api/v1/projects/{projectId}/procurement")
-@PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+@PreAuthorize("@perm.check('procurement.read')")
 public class ProcurementAdvancedController {
 
     private final PurchaseBudgetLimitService limitService;
@@ -46,7 +46,7 @@ public class ProcurementAdvancedController {
 
     @Operation(summary = "Create budget limit for project")
     @PostMapping("/limits")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('procurement.write')")
     @ResponseStatus(HttpStatus.CREATED)
     LimitResponse createLimit(@PathVariable UUID projectId, @Valid @RequestBody CreateLimitRequest req) {
         var limit = limitService.create(projectId, req.periodStart(), req.periodEnd(),
@@ -68,7 +68,7 @@ public class ProcurementAdvancedController {
 
     @Operation(summary = "Add item to procurement schedule")
     @PostMapping("/schedule")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('procurement.write')")
     @ResponseStatus(HttpStatus.CREATED)
     ScheduleResponse createScheduleItem(@PathVariable UUID projectId,
                                          @Valid @RequestBody CreateScheduleRequest req) {
@@ -79,7 +79,7 @@ public class ProcurementAdvancedController {
 
     @Operation(summary = "Link schedule item to purchase order")
     @PostMapping("/schedule/{scheduleId}/link-order")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('procurement.write')")
     ScheduleResponse linkOrder(@PathVariable UUID projectId, @PathVariable UUID scheduleId,
                                 @RequestBody LinkOrderRequest req) {
         return ScheduleResponse.from(scheduleService.linkToOrder(scheduleId, req.purchaseOrderId()));
@@ -89,7 +89,7 @@ public class ProcurementAdvancedController {
 
     @Operation(summary = "Add items to a purchase order")
     @PostMapping("/orders/{orderId}/items")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('procurement.write')")
     @ResponseStatus(HttpStatus.CREATED)
     List<OrderItemResponse> addItems(@PathVariable UUID projectId, @PathVariable UUID orderId,
                                       @RequestBody List<ItemEntry> entries) {
@@ -104,7 +104,7 @@ public class ProcurementAdvancedController {
 
     @Operation(summary = "Receive quantity for an order item")
     @PostMapping("/orders/items/{itemId}/receive")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('procurement.write')")
     OrderItemResponse receiveItem(@PathVariable UUID projectId, @PathVariable UUID itemId,
                                    @RequestBody ReceiveItemRequest req) {
         return OrderItemResponse.from(itemService.receiveItem(itemId, req.quantity()));

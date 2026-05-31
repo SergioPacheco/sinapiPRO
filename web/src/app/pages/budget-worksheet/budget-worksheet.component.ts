@@ -61,7 +61,7 @@ export class BudgetWorksheetComponent implements OnInit {
   // #17 Base de Preço / Insumo
   basePreco = 'SINAPI';
   baseState = 'SP';
-  baseMonth = '2024-12-01';
+  baseMonth = '2024-12';
 
   // #34 Proteção
   isReadOnly = false;
@@ -91,8 +91,9 @@ export class BudgetWorksheetComponent implements OnInit {
     { label: 'Sintético PDF', icon: 'pi pi-file-pdf', command: () => window.open(`/api/v1/budgets/${this.budgetId}/reports/worksheet.pdf`, '_blank') },
     { label: 'Analítico PDF', icon: 'pi pi-file-pdf', command: () => window.open(`/api/v1/budgets/${this.budgetId}/reports/analytical.pdf`, '_blank') },
     { label: 'Curva ABC', icon: 'pi pi-chart-bar', command: () => window.open(`/api/v1/budgets/${this.budgetId}/reports/abc-services.pdf`, '_blank') },
+    { label: 'Excel', icon: 'pi pi-file-excel', command: () => window.open(`/api/v1/budgets/${this.budgetId}/export/excel`, '_blank') },
     { separator: true },
-    { label: 'Efetivar', icon: 'pi pi-lock', command: () => this.http.post<any>(`/budgets/${this.budgetId}/effectuate`, {}).subscribe({ next: r => this.tree.budgetStatus.set(r.status) }) },
+    { label: 'Efetivar', icon: 'pi pi-lock', command: () => this.effectuate() },
   ];
 
   // Context menu (botão direito)
@@ -117,13 +118,25 @@ export class BudgetWorksheetComponent implements OnInit {
     this.tree.load(this.budgetId!);
     // #34 Verificar se orçamento está bloqueado
     this.http.get<any>(`/budgets/${this.budgetId}`).subscribe({
-      next: b => { this.isReadOnly = b.status === 'EFFECTIVE' || b.status === 'IN_EXECUTION'; this.baseState = b.state || 'SP'; this.baseMonth = b.referenceDate || '2024-12-01'; },
+      next: b => {
+        this.isReadOnly = this.isLockedStatus(b.status);
+        this.baseState = b.state || 'SP';
+        this.baseMonth = this.toMonthInput(b.referenceDate || '2024-12-01');
+      },
     });
   }
 
   // === Keyboard Navigation ===
   @HostListener('document:keydown', ['$event'])
   onKeydown(e: KeyboardEvent) {
+    if (this.isReadOnly && (
+      e.key === 'Insert' ||
+      e.key === 'Delete' ||
+      (e.ctrlKey && ['s', 'v', 'z', 'y'].includes(e.key.toLowerCase()))
+    )) {
+      e.preventDefault();
+      return;
+    }
     if (e.key === 'Insert') { e.preventDefault(); this.insertItem(); return; }
     if (e.ctrlKey && e.key === 'z') { e.preventDefault(); this.undo(); return; }
     if (e.ctrlKey && e.key === 'y') { e.preventDefault(); this.redo(); return; }
@@ -167,6 +180,7 @@ export class BudgetWorksheetComponent implements OnInit {
 
   // === Insert ===
   insertItem() {
+    if (this.isReadOnly) return;
     this.pushUndo();
     const idx = this.selectedRow ? this.tree.rows().indexOf(this.selectedRow) : this.tree.rows().length - 1;
     this.selectedRow = this.tree.insertEmpty(idx);
@@ -175,6 +189,7 @@ export class BudgetWorksheetComponent implements OnInit {
   }
 
   deleteSelected() {
+    if (this.isReadOnly) return;
     this.pushUndo();
     if (this.selectedRows.size > 1) {
       for (const row of this.selectedRows) this.tree.deleteRow(row);
@@ -235,29 +250,23 @@ export class BudgetWorksheetComponent implements OnInit {
   searchUnified(event: any) {
     const q = event.query || '';
     const n = this.tree.rows().filter(r => r.type === 'LEVEL').length + 1;
-    const levelOption = { _type: 'LEVEL', label: `📁 ${String(n).padStart(2, '0')}. — Novo Nível`, id: null, description: '' };
-    // Buscar composições E insumos
+    const levelOption = { _type: 'LEVEL', label: `${String(n).padStart(2, '0')}. - Nova Etapa`, id: null, description: '' };
     this.http.get<any>(`/compositions?q=${encodeURIComponent(q)}&size=10`).subscribe({
       next: res => {
         const results: any[] = [levelOption];
         for (const c of (res.content || res)) {
-          results.push({ ...c, _type: 'COMPOSITION', label: `🧱 ${c.sinapiCode} — ${c.description} (${c.unit})` });
+          results.push({ ...c, _type: 'COMPOSITION', label: `${c.sinapiCode} - ${c.description} (${c.unit})` });
         }
-        // Buscar materiais/insumos
-        this.http.get<any>(`/materials?q=${encodeURIComponent(q)}&size=8`).subscribe({
-          next: mres => {
-            for (const m of (mres.content || mres)) {
-              results.push({ ...m, _type: 'INPUT', label: `📦 ${m.sinapiCode} — ${m.description} (${m.unit})` });
-            }
-            this.suggestions = results;
-          },
-          error: () => this.suggestions = results,
-        });
+        this.suggestions = results;
       },
     });
   }
 
-  onSelect(row: BudgetRow, sel: any) { this.pushUndo(); this.tree.resolveRow(row, sel); }
+  onSelect(row: BudgetRow, event: any) {
+    const sel = event?.value ?? event;
+    this.pushUndo();
+    this.tree.resolveRow(row, sel);
+  }
   onStageBlur(row: BudgetRow) { if (row.description && !row.stageId) this.tree.resolveRow(row, { _type: 'LEVEL', description: row.description }); }
 
   openComposition() {
@@ -269,6 +278,7 @@ export class BudgetWorksheetComponent implements OnInit {
   }
 
   saveCompositionChanges() {
+    if (this.isReadOnly) return;
     const items = this.compositionItems.map(i => ({ childCompositionId: i.itemType === 'COMPOSITION' ? i.id : null, materialId: i.itemType !== 'COMPOSITION' ? i.id : null, coefficient: i.coefficient, itemType: i.itemType }));
     this.http.put(`/compositions/${this.compositionId}`, { description: this.compositionName, items }).subscribe({
       next: () => { this.showComposition = false; this.messages.add({ severity: 'success', summary: 'Composição atualizada' }); this.tree.load(this.budgetId!); },
@@ -289,6 +299,7 @@ export class BudgetWorksheetComponent implements OnInit {
   collapseAll() { for (const r of [...this.tree.rows()].reverse()) if ((r.type === 'LEVEL' || r.type === 'COMPOSITION') && r.expanded) this.tree.toggle(r); }
 
   applyMultiply() {
+    if (this.isReadOnly) return;
     this.pushUndo();
     for (const r of this.tree.rows()) if ((r.type === 'COMPOSITION' || r.type === 'INPUT') && r.quantity) { r.quantity *= this.multiplyFactor; r.total = (r.quantity || 0) * (r.unitCost || 0); r.dirty = true; }
     this.tree.rows.set([...this.tree.rows()]); this.showMultiply = false;
@@ -296,6 +307,7 @@ export class BudgetWorksheetComponent implements OnInit {
   }
 
   applyPriceToEquals() {
+    if (this.isReadOnly) return;
     if (!this.selectedRow?.compositionId || !this.selectedRow.unitCost) return;
     this.pushUndo();
     const id = this.selectedRow.compositionId, price = this.selectedRow.unitCost;
@@ -349,6 +361,7 @@ export class BudgetWorksheetComponent implements OnInit {
   }
 
   pasteItems() {
+    if (this.isReadOnly) return;
     if (!this.clipboard.length) { this.messages.add({ severity: 'warn', summary: 'Nada para colar' }); return; }
     this.pushUndo();
     const all = this.tree.rows();
@@ -362,6 +375,7 @@ export class BudgetWorksheetComponent implements OnInit {
 
   // === CONFIRMAÇÃO DE EXCLUSÃO ===
   deleteWithConfirm() {
+    if (this.isReadOnly) return;
     if (!this.selectedRow) return;
     if (confirm('Tem certeza que deseja excluir o item selecionado?')) {
       this.deleteSelected();
@@ -386,6 +400,7 @@ export class BudgetWorksheetComponent implements OnInit {
 
   // === ALTERAR TODAS COMPOSIÇÕES IGUAIS ===
   applyToAllEqual() {
+    if (this.isReadOnly) return;
     if (!this.selectedRow?.compositionId) { this.messages.add({ severity: 'warn', summary: 'Selecione uma composição' }); return; }
     this.pushUndo();
     const src = this.selectedRow;
@@ -539,11 +554,40 @@ export class BudgetWorksheetComponent implements OnInit {
 
   /** #17 Atualizar Base de Preço — recalcula todos os preços pela base selecionada */
   updateBasePrice() {
-    this.http.post<any>(`/budgets/${this.budgetId}/update-base-date`, { referenceDate: this.baseMonth, state: this.baseState }).subscribe({
+    if (this.isReadOnly) return;
+    this.http.post<any>(`/budgets/${this.budgetId}/update-base-date`, { referenceDate: this.normalizeBaseMonth(), state: this.baseState }).subscribe({
       next: res => {
         this.messages.add({ severity: 'success', summary: `Preços atualizados`, detail: `${res.updatedPrices} atualizados, ${res.divergentPrices} divergentes` });
         this.tree.load(this.budgetId!);
       },
     });
+  }
+
+  effectuate() {
+    if (this.tree.dirtyCount() > 0) {
+      this.messages.add({ severity: 'warn', summary: 'Salve as alterações antes de efetivar' });
+      return;
+    }
+    if (!confirm('Efetivar este orçamento e bloquear edição?')) return;
+    this.http.post<any>(`/budgets/${this.budgetId}/effectuate`, {}).subscribe({
+      next: r => {
+        this.tree.budgetStatus.set(r.status);
+        this.isReadOnly = this.isLockedStatus(r.status);
+        this.messages.add({ severity: 'success', summary: 'Orçamento efetivado' });
+      },
+      error: err => this.messages.add({ severity: 'warn', summary: 'Não foi possível efetivar', detail: err?.error?.message || err?.message }),
+    });
+  }
+
+  private normalizeBaseMonth(): string {
+    return this.baseMonth.length === 7 ? `${this.baseMonth}-01` : this.baseMonth;
+  }
+
+  private toMonthInput(date: string): string {
+    return date?.length >= 7 ? date.slice(0, 7) : '2024-12';
+  }
+
+  private isLockedStatus(status: string): boolean {
+    return ['IN_EXECUTION', 'COMPLETED', 'CANCELLED', 'SUPERSEDED'].includes(status);
   }
 }

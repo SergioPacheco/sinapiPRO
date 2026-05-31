@@ -18,6 +18,22 @@ import { ChipModule } from 'primeng/chip';
     <h2 style="margin:0 0 1rem;color:var(--sp-text)">Configurações</h2>
 
     <p-tabView>
+      <p-tabPanel header="Empresa">
+        <div class="grid" style="max-width:600px">
+          <div class="col-12"><label class="block text-sm text-color-secondary mb-1">Razão Social</label><input pInputText [(ngModel)]="company.name" class="w-full" /></div>
+          <div class="col-6"><label class="block text-sm text-color-secondary mb-1">CNPJ</label><input pInputText [(ngModel)]="company.cnpj" class="w-full" /></div>
+          <div class="col-6"><label class="block text-sm text-color-secondary mb-1">Inscrição Estadual</label><input pInputText [(ngModel)]="company.stateRegistration" class="w-full" /></div>
+          <div class="col-12"><label class="block text-sm text-color-secondary mb-1">Endereço</label><input pInputText [(ngModel)]="company.address" class="w-full" /></div>
+          <div class="col-4"><label class="block text-sm text-color-secondary mb-1">Cidade</label><input pInputText [(ngModel)]="company.city" class="w-full" /></div>
+          <div class="col-2"><label class="block text-sm text-color-secondary mb-1">UF</label><input pInputText [(ngModel)]="company.state" class="w-full" /></div>
+          <div class="col-3"><label class="block text-sm text-color-secondary mb-1">CEP</label><input pInputText [(ngModel)]="company.zipCode" class="w-full" /></div>
+          <div class="col-3"><label class="block text-sm text-color-secondary mb-1">Telefone</label><input pInputText [(ngModel)]="company.phone" class="w-full" /></div>
+          <div class="col-6"><label class="block text-sm text-color-secondary mb-1">Email</label><input pInputText [(ngModel)]="company.email" class="w-full" /></div>
+          <div class="col-6"><label class="block text-sm text-color-secondary mb-1">Site</label><input pInputText [(ngModel)]="company.website" class="w-full" /></div>
+          <div class="col-12 mt-3"><p-button label="Salvar" icon="pi pi-check" (onClick)="saveCompany()" /></div>
+        </div>
+      </p-tabPanel>
+
       <p-tabPanel header="Usuários">
         <div class="flex justify-content-end mb-2">
           <p-button label="Novo Usuário" icon="pi pi-user-plus" size="small" (onClick)="showUserDialog = true; userEditing = {}" />
@@ -108,11 +124,13 @@ export class SettingsComponent {
   permissionGroups = signal<any[]>([]);
   showUserDialog = false; userEditing: any = {};
   showRoleDialog = false; roleEditing: any = { permissions: [] };
+  company: any = {};
 
   ngOnInit() {
     this.http.get<any[]>('/users').subscribe({ next: r => this.users.set(r || []), error: () => {} });
     this.http.get<any[]>('/roles').subscribe({ next: r => this.roles.set(r || []), error: () => {} });
     this.http.get<any[]>('/roles/permissions').subscribe({ next: r => this.permissionGroups.set(r || []), error: () => {} });
+    this.http.get<any>('/settings/company').subscribe({ next: r => this.company = r || {}, error: () => {} });
   }
 
   editUser(u: any) { this.userEditing = { ...u, roleIds: [] }; this.showUserDialog = true; }
@@ -134,5 +152,9 @@ export class SettingsComponent {
 
   initDefaults() {
     this.http.post<any[]>('/roles/initialize-defaults', {}).subscribe(() => this.ngOnInit());
+  }
+
+  saveCompany() {
+    this.http.put('/settings/company', this.company).subscribe();
   }
 }

@@ -66,7 +66,15 @@ export class BdiDialogComponent {
   loadBdi() {
     for (const tab of this.tabs) {
       this.http.get<any>(`/budgets/${this.budgetId()}/bdi?itemType=${tab.type}`).subscribe(b => {
-        tab.data = { ac: b.administration || 0, s: b.socialCharges || 0, r: b.risks || 0, g: 0, df: b.financialExpenses || 0, l: b.profit || 0, i: b.taxes || 0 };
+        tab.data = {
+          ac: this.toPercent(b.administration),
+          s: this.toPercent(b.socialCharges),
+          r: this.toPercent(b.risks),
+          g: 0,
+          df: this.toPercent(b.financialExpenses),
+          l: this.toPercent(b.profit),
+          i: this.toPercent(b.taxes),
+        };
         this.recalc(tab);
       });
     }
@@ -81,10 +89,26 @@ export class BdiDialogComponent {
 
   save() {
     this.saving.set(true);
-    const batch = this.tabs.map(t => ({ itemType: t.type, administration: t.data.ac, profit: t.data.l, taxes: t.data.i, socialCharges: t.data.s, financialExpenses: t.data.df, risks: t.data.r }));
+    const batch = this.tabs.map(t => ({
+      itemType: t.type,
+      administration: this.toDecimal(t.data.ac),
+      profit: this.toDecimal(t.data.l),
+      taxes: this.toDecimal(t.data.i),
+      socialCharges: this.toDecimal(t.data.s),
+      financialExpenses: this.toDecimal(t.data.df),
+      risks: this.toDecimal(t.data.r),
+    }));
     this.http.put(`/budgets/${this.budgetId()}/bdi/batch`, batch).subscribe({
       next: () => { this.saving.set(false); this.messages.add({ severity: 'success', summary: 'BDI salvo' }); this.saved.emit(); this.visibleChange.emit(false); },
       error: () => this.saving.set(false),
     });
+  }
+
+  private toPercent(value: number | null | undefined): number {
+    return (value || 0) * 100;
+  }
+
+  private toDecimal(value: number | null | undefined): number {
+    return (value || 0) / 100;
   }
 }

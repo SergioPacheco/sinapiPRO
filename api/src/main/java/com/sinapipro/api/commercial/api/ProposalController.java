@@ -62,7 +62,7 @@ public class ProposalController {
     }
 
     @PostMapping("/{id}/accept")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('commercial.write')")
     public Proposal accept(@PathVariable UUID id) {
         var p = findOrThrow(id);
         p.setStatus("ACCEPTED");

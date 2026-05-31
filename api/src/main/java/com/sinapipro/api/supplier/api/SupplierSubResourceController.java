@@ -47,7 +47,7 @@ public class SupplierSubResourceController {
 
     @Operation(summary = "List documents for a supplier")
     @GetMapping("/documents")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     PageResponse<SupplierDocument> listDocuments(@PathVariable UUID supplierId, @PageableDefault(size = 20) Pageable pageable) {
         ensureSupplierExists(supplierId);
         return PageResponse.from(documentRepository.findBySupplierIdOrderByCreatedAtDesc(supplierId, pageable));
@@ -55,7 +55,7 @@ public class SupplierSubResourceController {
 
     @Operation(summary = "Add document to supplier")
     @PostMapping("/documents")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     ResponseEntity<SupplierDocument> createDocument(@PathVariable UUID supplierId, @Valid @RequestBody CreateDocumentRequest req) {
         ensureSupplierExists(supplierId);
         var doc = documentRepository.save(new SupplierDocument(supplierId, req.documentType(), req.number(), req.issueDate(), req.expiryDate(), req.filePath(), req.notes()));
@@ -64,7 +64,7 @@ public class SupplierSubResourceController {
 
     @Operation(summary = "Update a supplier document")
     @PutMapping("/documents/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     SupplierDocument updateDocument(@PathVariable UUID supplierId, @PathVariable UUID id, @Valid @RequestBody CreateDocumentRequest req) {
         ensureSupplierExists(supplierId);
         var doc = documentRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("Document not found: " + id));
@@ -74,7 +74,7 @@ public class SupplierSubResourceController {
 
     @Operation(summary = "Delete a supplier document")
     @DeleteMapping("/documents/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteDocument(@PathVariable UUID supplierId, @PathVariable UUID id) {
         ensureSupplierExists(supplierId);
@@ -86,7 +86,7 @@ public class SupplierSubResourceController {
 
     @Operation(summary = "List evaluations for a supplier")
     @GetMapping("/evaluations")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     PageResponse<SupplierEvaluation> listEvaluations(@PathVariable UUID supplierId, @PageableDefault(size = 20) Pageable pageable) {
         ensureSupplierExists(supplierId);
         return PageResponse.from(evaluationRepository.findBySupplierIdOrderByCreatedAtDesc(supplierId, pageable));
@@ -94,7 +94,7 @@ public class SupplierSubResourceController {
 
     @Operation(summary = "Add evaluation to supplier")
     @PostMapping("/evaluations")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     ResponseEntity<SupplierEvaluation> createEvaluation(@PathVariable UUID supplierId, @Valid @RequestBody CreateEvaluationRequest req) {
         ensureSupplierExists(supplierId);
         var eval = evaluationRepository.save(new SupplierEvaluation(supplierId, req.evaluationDate(), req.criterion(), req.score(), req.evaluator(), req.notes()));
@@ -103,7 +103,7 @@ public class SupplierSubResourceController {
 
     @Operation(summary = "Delete an evaluation")
     @DeleteMapping("/evaluations/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteEvaluation(@PathVariable UUID supplierId, @PathVariable UUID id) {
         ensureSupplierExists(supplierId);
@@ -113,7 +113,7 @@ public class SupplierSubResourceController {
 
     @Operation(summary = "Get average evaluation score for a supplier")
     @GetMapping("/evaluations/average")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     AverageScoreResponse averageScore(@PathVariable UUID supplierId) {
         ensureSupplierExists(supplierId);
         return new AverageScoreResponse(evaluationRepository.averageScoreBySupplierId(supplierId));
@@ -123,7 +123,7 @@ public class SupplierSubResourceController {
 
     @Operation(summary = "List bank accounts for a supplier")
     @GetMapping("/bank-accounts")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.read')")
+    @PreAuthorize("@perm.check('registry.read')")
     PageResponse<SupplierBankAccount> listBankAccounts(@PathVariable UUID supplierId, @PageableDefault(size = 20) Pageable pageable) {
         ensureSupplierExists(supplierId);
         return PageResponse.from(bankAccountRepository.findBySupplierIdOrderByCreatedAtDesc(supplierId, pageable));
@@ -131,7 +131,7 @@ public class SupplierSubResourceController {
 
     @Operation(summary = "Add bank account to supplier")
     @PostMapping("/bank-accounts")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     ResponseEntity<SupplierBankAccount> createBankAccount(@PathVariable UUID supplierId, @Valid @RequestBody CreateBankAccountRequest req) {
         ensureSupplierExists(supplierId);
         var account = bankAccountRepository.save(new SupplierBankAccount(supplierId, req.bankCode(), req.bankName(), req.agency(), req.accountNumber(), req.accountType(), req.holderName(), req.holderDocument(), req.pixKey()));
@@ -140,7 +140,7 @@ public class SupplierSubResourceController {
 
     @Operation(summary = "Update a bank account")
     @PutMapping("/bank-accounts/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     SupplierBankAccount updateBankAccount(@PathVariable UUID supplierId, @PathVariable UUID id, @Valid @RequestBody UpdateBankAccountRequest req) {
         ensureSupplierExists(supplierId);
         var account = bankAccountRepository.findById(id).orElseThrow(() -> new DomainNotFoundException("Bank account not found: " + id));
@@ -150,7 +150,7 @@ public class SupplierSubResourceController {
 
     @Operation(summary = "Delete a bank account")
     @DeleteMapping("/bank-accounts/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_sinapipro.write')")
+    @PreAuthorize("@perm.check('registry.write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteBankAccount(@PathVariable UUID supplierId, @PathVariable UUID id) {
         ensureSupplierExists(supplierId);
