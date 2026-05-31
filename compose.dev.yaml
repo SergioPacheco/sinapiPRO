@@ -1,43 +1,161 @@
+# Full-stack Docker Compose — inspired by JHipster
+# Usage: docker compose -f compose.dev.yaml up
 services:
+
+  # ─── Database ───────────────────────────────────────────────
   postgres:
     image: postgres:17.5
+    container_name: sinapipro-postgres
     environment:
       POSTGRES_DB: sinapipro
       POSTGRES_USER: sinapipro
       POSTGRES_PASSWORD: sinapipro
     ports:
-      - "5433:5432"
+      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U sinapipro"]
-      interval: 3s
+      interval: 5s
       timeout: 3s
       retries: 10
 
-  api:
-    build: ./api
-    ports:
-      - "8080:8080"
+  # ─── Search Engine (JHipster Elasticsearch pattern) ─────────
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
+    container_name: sinapipro-elasticsearch
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sinapipro
-      SPRING_DATASOURCE_USERNAME: sinapipro
-      SPRING_DATASOURCE_PASSWORD: sinapipro
-      SPRING_DOCKER_COMPOSE_ENABLED: "false"
-      SPRING_PROFILES_ACTIVE: dev
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
     volumes:
-      - ./docs/reference/sinapi:/app/sinapi:ro
+      - esdata:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -q '\"status\":\"green\\|yellow\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ─── Identity Provider (JHipster Keycloak pattern) ──────────
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.2.5
+    container_name: sinapipro-keycloak
+    command: start-dev --import-realm
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/sinapipro
+      KC_DB_USERNAME: sinapipro
+      KC_DB_PASSWORD: sinapipro
+      KC_DB_SCHEMA: keycloak
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "9080:8080"
+    volumes:
+      - ./keycloak/realm-config:/opt/keycloak/data/import:ro
     depends_on:
       postgres:
         condition: service_healthy
-    restart: on-failure
 
-  frontend:
-    build: ./web
+  # ─── API (Spring Boot 4) ────────────────────────────────────
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: sinapipro-api
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_URL: jdbc:postgresql://postgres:5432/sinapipro
+      DB_USERNAME: sinapipro
+      DB_PASSWORD: sinapipro
+      SPRING_DOCKER_COMPOSE_ENABLED: "false"
+      SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
+      OTEL_ENDPOINT: http://otel-lgtm:4318/v1/traces
+      MAIL_HOST: mailhog
+      MAIL_PORT: "1025"
+      JWT_SECRET: showcase-dev-key-not-for-production-min-48-chars!!
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+
+  # ─── Frontend (Angular 19 + Nginx) ─────────────────────────
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: sinapipro-web
     ports:
       - "4200:80"
     depends_on:
       - api
 
+  # ─── Observability (Prometheus + Grafana + OTel) ────────────
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    container_name: sinapipro-prometheus
+    command: ["--config.file=/etc/prometheus/prometheus.yml"]
+    volumes:
+      - ./api/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - promdata:/prometheus
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:12.0.2
+    container_name: sinapipro-grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafanadata:/var/lib/grafana
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - ./api/grafana-provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./api/grafana-provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+
+  otel-lgtm:
+    image: grafana/otel-lgtm:0.11.8
+    container_name: sinapipro-otel
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "3100:3100"
+
+  # ─── Code Quality (JHipster Sonar pattern) ──────────────────
+  sonarqube:
+    image: sonarqube:lts-community
+    container_name: sinapipro-sonar
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://postgres:5432/sinapipro
+      SONAR_JDBC_USERNAME: sinapipro
+      SONAR_JDBC_PASSWORD: sinapipro
+    ports:
+      - "9000:9000"
+    volumes:
+      - sonardata:/opt/sonarqube/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ─── Email (dev) ────────────────────────────────────────────
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: sinapipro-mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
 volumes:
   pgdata:
+  esdata:
+  promdata:
+  grafanadata:
+  sonardata:

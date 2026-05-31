@@ -1,20 +1,13 @@
-ARG NODE_IMAGE=node:20.18
-ARG NGINX_IMAGE=nginx:alpine
-
-FROM ${NODE_IMAGE} AS build
+# Stage 1: Build
+FROM node:22-alpine AS build
 WORKDIR /app
-
-COPY package.json package-lock.json ./
-RUN npm ci --legacy-peer-deps
-
+COPY package.json package-lock.json* ./
+RUN npm ci
 COPY . .
-RUN npx ng build
+RUN npm run build -- --configuration production
 
-FROM ${NGINX_IMAGE}
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Stage 2: Serve with Nginx
+FROM nginx:alpine
 COPY --from=build /app/dist/web/browser /usr/share/nginx/html
-
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
-
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD wget -qO- http://127.0.0.1/ >/dev/null || exit 1

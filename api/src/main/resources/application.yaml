@@ -38,6 +38,12 @@ spring:
   jackson:
     deserialization:
       fail-on-unknown-properties: false
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=500,expireAfterWrite=600s,recordStats
+  elasticsearch:
+    uris: ${SPRING_ELASTICSEARCH_URIS:http://localhost:9200}
   mvc:
     problemdetails:
       enabled: true
@@ -58,7 +64,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,prometheus,metrics,env,configprops
+        include: health,info,prometheus,metrics,env,configprops,caches
   endpoint:
     health:
       probes:
