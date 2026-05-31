@@ -21,7 +21,12 @@ import java.util.UUID;
 public class WeatherDelayController {
 
     private final WeatherDelayRepository repository;
-    public WeatherDelayController(WeatherDelayRepository repository) { this.repository = repository; }
+    private final com.sinapipro.api.weather.application.WeatherService weatherService;
+
+    public WeatherDelayController(WeatherDelayRepository repository, com.sinapipro.api.weather.application.WeatherService weatherService) {
+        this.repository = repository;
+        this.weatherService = weatherService;
+    }
 
     @Operation(summary = "List weather delays") @GetMapping
     @PreAuthorize("@perm.check('budget.read')")

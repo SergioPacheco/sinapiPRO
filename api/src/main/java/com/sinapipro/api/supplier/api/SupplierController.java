@@ -2,6 +2,7 @@ package com.sinapipro.api.supplier.api;
 
 import com.sinapipro.api.shared.api.PageResponse;
 import com.sinapipro.api.supplier.application.SupplierService;
+import com.sinapipro.api.supplier.application.SupplierRankingService;
 import com.sinapipro.api.supplier.domain.Supplier;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,9 +24,11 @@ import java.util.UUID;
 public class SupplierController {
 
     private final SupplierService supplierService;
+    private final SupplierRankingService rankingService;
 
-    public SupplierController(SupplierService supplierService) {
+    public SupplierController(SupplierService supplierService, SupplierRankingService rankingService) {
         this.supplierService = supplierService;
+        this.rankingService = rankingService;
     }
 
     @Operation(summary = "List suppliers with filters and pagination")

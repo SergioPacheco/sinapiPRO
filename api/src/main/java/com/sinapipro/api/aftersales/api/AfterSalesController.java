@@ -1,5 +1,6 @@
 package com.sinapipro.api.aftersales.api;
 
+import com.sinapipro.api.aftersales.application.ServiceTicketService;
 import com.sinapipro.api.aftersales.domain.*;
 import com.sinapipro.api.shared.api.PageResponse;
 import com.sinapipro.api.shared.error.DomainNotFoundException;
@@ -24,9 +25,11 @@ import java.util.UUID;
 @RequestMapping("/api/v1/after-sales/tickets")
 public class AfterSalesController {
 
+    private final ServiceTicketService ticketService;
     private final ServiceTicketRepository ticketRepository;
 
-    public AfterSalesController(ServiceTicketRepository ticketRepository) {
+    public AfterSalesController(ServiceTicketService ticketService, ServiceTicketRepository ticketRepository) {
+        this.ticketService = ticketService;
         this.ticketRepository = ticketRepository;
     }
 

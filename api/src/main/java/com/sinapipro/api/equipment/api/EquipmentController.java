@@ -2,6 +2,7 @@ package com.sinapipro.api.equipment.api;
 
 import com.sinapipro.api.equipment.application.EquipmentService;
 import com.sinapipro.api.equipment.application.EquipmentService.*;
+import com.sinapipro.api.equipment.application.FleetService;
 import com.sinapipro.api.equipment.domain.Equipment;
 import com.sinapipro.api.equipment.domain.EquipmentFueling;
 import com.sinapipro.api.equipment.domain.EquipmentFuelingRepository;
@@ -35,13 +36,16 @@ import java.util.UUID;
 public class EquipmentController {
 
     private final EquipmentService equipmentService;
+    private final FleetService fleetService;
     private final EquipmentUsageRepository usageRepository;
     private final EquipmentFuelingRepository fuelingRepository;
     private final EquipmentRepository equipmentRepository;
 
-    public EquipmentController(EquipmentService equipmentService, EquipmentUsageRepository usageRepository,
+    public EquipmentController(EquipmentService equipmentService, FleetService fleetService,
+                               EquipmentUsageRepository usageRepository,
                                EquipmentFuelingRepository fuelingRepository, EquipmentRepository equipmentRepository) {
         this.equipmentService = equipmentService;
+        this.fleetService = fleetService;
         this.usageRepository = usageRepository;
         this.fuelingRepository = fuelingRepository;
         this.equipmentRepository = equipmentRepository;

@@ -5,6 +5,11 @@ import com.sinapipro.api.finance.application.BudgetVsActualService;
 import com.sinapipro.api.finance.application.BudgetVsActualService.*;
 import com.sinapipro.api.finance.application.FinanceService;
 import com.sinapipro.api.finance.application.FinanceService.*;
+import com.sinapipro.api.finance.application.FinancialOperationsService;
+import com.sinapipro.api.finance.application.MonetaryIndexService;
+import com.sinapipro.api.finance.application.ManagerialReportsService;
+import com.sinapipro.api.finance.application.FiscalService;
+import com.sinapipro.api.finance.application.PaymentAuthorizationService;
 import com.sinapipro.api.finance.domain.*;
 import com.sinapipro.api.shared.api.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,12 +41,27 @@ public class FinanceController {
     private final FinanceService financeService;
     private final BudgetVsActualService budgetVsActualService;
     private final BudgetVsActualReportService budgetVsActualReportService;
+    private final FinancialOperationsService financialOperationsService;
+    private final MonetaryIndexService monetaryIndexService;
+    private final ManagerialReportsService managerialReportsService;
+    private final FiscalService fiscalService;
+    private final PaymentAuthorizationService paymentAuthorizationService;
 
     public FinanceController(FinanceService financeService, BudgetVsActualService budgetVsActualService,
-                             BudgetVsActualReportService budgetVsActualReportService) {
+                             BudgetVsActualReportService budgetVsActualReportService,
+                             FinancialOperationsService financialOperationsService,
+                             MonetaryIndexService monetaryIndexService,
+                             ManagerialReportsService managerialReportsService,
+                             FiscalService fiscalService,
+                             PaymentAuthorizationService paymentAuthorizationService) {
         this.financeService = financeService;
         this.budgetVsActualService = budgetVsActualService;
         this.budgetVsActualReportService = budgetVsActualReportService;
+        this.financialOperationsService = financialOperationsService;
+        this.monetaryIndexService = monetaryIndexService;
+        this.managerialReportsService = managerialReportsService;
+        this.fiscalService = fiscalService;
+        this.paymentAuthorizationService = paymentAuthorizationService;
     }
 
     // --- Payables ---

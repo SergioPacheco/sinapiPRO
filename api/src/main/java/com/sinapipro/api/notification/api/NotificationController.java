@@ -1,6 +1,7 @@
 package com.sinapipro.api.notification.api;
 
 import com.sinapipro.api.notification.application.NotificationService;
+import com.sinapipro.api.notification.application.WebSocketNotificationService;
 import com.sinapipro.api.notification.domain.Notification;
 import com.sinapipro.api.shared.api.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,7 +23,12 @@ import java.util.UUID;
 public class NotificationController {
 
     private final NotificationService notificationService;
-    public NotificationController(NotificationService notificationService) { this.notificationService = notificationService; }
+    private final WebSocketNotificationService wsNotificationService;
+
+    public NotificationController(NotificationService notificationService, WebSocketNotificationService wsNotificationService) {
+        this.notificationService = notificationService;
+        this.wsNotificationService = wsNotificationService;
+    }
 
     @Operation(summary = "Generate alerts for a budget (scans RFIs, equipment, contracts)")
     @PostMapping("/projects/{projectId}/notifications/generate")

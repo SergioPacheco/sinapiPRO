@@ -27,15 +27,19 @@ public class ReportController {
     private final ServiceOrderReportService serviceOrder;
     private final AdditionalFinanceReportService addFinance;
     private final AdditionalCommercialReportService addCommercial;
+    private final StructuredReportService structuredReport;
+    private final PlaywrightPdfService playwrightPdf;
 
     public ReportController(FinanceReportService finance, ProcurementReportService procurement,
                              MeasurementReportService measurement, CommercialReportService commercial,
                              BudgetReportService budget, LaborStockReportService laborStock,
                              ManagerialReportService managerial, ServiceOrderReportService serviceOrder,
-                             AdditionalFinanceReportService addFinance, AdditionalCommercialReportService addCommercial) {
+                             AdditionalFinanceReportService addFinance, AdditionalCommercialReportService addCommercial,
+                             StructuredReportService structuredReport, PlaywrightPdfService playwrightPdf) {
         this.finance = finance; this.procurement = procurement; this.measurement = measurement;
         this.commercial = commercial; this.budget = budget; this.laborStock = laborStock; this.managerial = managerial;
         this.serviceOrder = serviceOrder; this.addFinance = addFinance; this.addCommercial = addCommercial;
+        this.structuredReport = structuredReport; this.playwrightPdf = playwrightPdf;
     }
 
     // === FINANCEIRO (Sprint 17) ===

@@ -23,8 +23,12 @@ import java.util.UUID;
 public class LaborController {
 
     private final LaborService service;
+    private final com.sinapipro.api.timetracking.application.LaborManagementService laborManagementService;
 
-    public LaborController(LaborService service) { this.service = service; }
+    public LaborController(LaborService service, com.sinapipro.api.timetracking.application.LaborManagementService laborManagementService) {
+        this.service = service;
+        this.laborManagementService = laborManagementService;
+    }
 
     // --- Competency Periods ---
 
