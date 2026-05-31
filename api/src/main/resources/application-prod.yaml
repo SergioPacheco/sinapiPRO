@@ -2,7 +2,7 @@
 spring:
   jpa:
     hibernate:
-      ddl-auto: validate  # NEVER auto-modify schema in production
+      ddl-auto: validate
     properties:
       hibernate:
         format_sql: false
@@ -12,13 +12,29 @@ spring:
   docker:
     compose:
       enabled: false
+  elasticsearch:
+    uris: ${SPRING_ELASTICSEARCH_URIS:}
+
+sinapipro:
+  security:
+    secret: ${JWT_SECRET}  # No default — MUST be set via env var in prod
+    cors:
+      allowed-origins: ${CORS_ORIGINS:https://app.sinapipro.dev}
+
+server:
+  tomcat:
+    connection-timeout: 20s
 
 logging:
+  structured:
+    format:
+      console: ecs
   level:
     com.sinapipro: INFO
     org.hibernate.SQL: WARN
+    org.springframework.security: WARN
 
 management:
   tracing:
     sampling:
-      probability: 0.1  # Sample 10% of traces in prod
+      probability: ${OTEL_SAMPLING:0.1}

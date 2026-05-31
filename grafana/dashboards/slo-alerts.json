@@ -1,0 +1,61 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "title": "SinapiPRO - SLO Alerts",
+  "panels": [
+    {
+      "title": "HTTP Latency p95",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{application=\"sinapipro-api\"}[5m])) by (le))",
+          "legendFormat": "p95"
+        }
+      ],
+      "alert": {
+        "name": "High Latency (p95 > 2s)",
+        "conditions": [
+          { "evaluator": { "type": "gt", "params": [2] }, "reducer": { "type": "avg" } }
+        ],
+        "frequency": "60s",
+        "for": "5m"
+      }
+    },
+    {
+      "title": "Error Rate",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{application=\"sinapipro-api\",status=~\"5..\"}[5m])) / sum(rate(http_server_requests_seconds_count{application=\"sinapipro-api\"}[5m])) * 100",
+          "legendFormat": "error %"
+        }
+      ],
+      "alert": {
+        "name": "High Error Rate (> 5%)",
+        "conditions": [
+          { "evaluator": { "type": "gt", "params": [5] }, "reducer": { "type": "avg" } }
+        ],
+        "frequency": "60s",
+        "for": "5m"
+      }
+    },
+    {
+      "title": "JVM Heap Usage",
+      "type": "gauge",
+      "targets": [
+        {
+          "expr": "jvm_memory_used_bytes{area=\"heap\",application=\"sinapipro-api\"} / jvm_memory_max_bytes{area=\"heap\",application=\"sinapipro-api\"} * 100",
+          "legendFormat": "heap %"
+        }
+      ],
+      "alert": {
+        "name": "High Heap Usage (> 85%)",
+        "conditions": [
+          { "evaluator": { "type": "gt", "params": [85] }, "reducer": { "type": "avg" } }
+        ],
+        "frequency": "60s",
+        "for": "10m"
+      }
+    }
+  ]
+}
