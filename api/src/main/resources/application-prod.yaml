@@ -1,18 +1,24 @@
-# Profile PROD — schema gerenciado exclusivamente por Flyway
+# Production profile — activate with SPRING_PROFILES_ACTIVE=prod
 spring:
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: validate  # NEVER auto-modify schema in production
+    properties:
+      hibernate:
+        format_sql: false
   flyway:
-    clean-disabled: true
+    enabled: true
     baseline-on-migrate: false
-
-management:
-  tracing:
-    sampling:
-      probability: 0.1
+  docker:
+    compose:
+      enabled: false
 
 logging:
   level:
     com.sinapipro: INFO
     org.hibernate.SQL: WARN
+
+management:
+  tracing:
+    sampling:
+      probability: 0.1  # Sample 10% of traces in prod

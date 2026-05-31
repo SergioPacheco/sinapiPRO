@@ -95,6 +95,15 @@ Orçamentos • Medições • Cronograma • Diário de Obra • Suprimentos �
 - Node.js 22+
 - Docker & Docker Compose
 
+### One Command Startup (Docker)
+```bash
+docker compose up --build
+# Frontend:     http://localhost:4200
+# API/Swagger:  http://localhost:8080/swagger-ui.html
+# MailHog:      http://localhost:8025
+# Login:        admin@sinapipro.dev / SinapiPro#2026
+```
+
 ### Development (API only)
 ```bash
 cd api
@@ -104,7 +113,7 @@ mvn spring-boot:run -s .mvn/settings.xml
 # Actuator: http://localhost:8081/actuator
 ```
 
-### Full Stack (Docker Compose)
+### Full Stack with Observability
 ```bash
 docker compose -f compose.dev.yaml up
 # Frontend:     http://localhost:4200

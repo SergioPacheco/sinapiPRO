@@ -1,0 +1,84 @@
+# SinapiPRO — Single command startup
+# Usage: docker compose up --build
+# Access: http://localhost:4200 (frontend) | http://localhost:8080/swagger-ui.html (API)
+services:
+
+  postgres:
+    image: postgres:17.5
+    environment:
+      POSTGRES_DB: sinapipro
+      POSTGRES_USER: sinapipro
+      POSTGRES_PASSWORD: sinapipro
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sinapipro"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_URL: jdbc:postgresql://postgres:5432/sinapipro
+      DB_USERNAME: sinapipro
+      DB_PASSWORD: sinapipro
+      SPRING_DOCKER_COMPOSE_ENABLED: "false"
+      SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
+      MAIL_HOST: mailhog
+      MAIL_PORT: "1025"
+      JWT_SECRET: showcase-dev-key-not-for-production-min-48-chars!!
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8081/actuator/health/liveness || exit 1"]
+      interval: 15s
+      timeout: 5s
+      start_period: 60s
+      retries: 5
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    ports:
+      - "4200:80"
+    depends_on:
+      api:
+        condition: service_healthy
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms256m -Xmx256m
+    ports:
+      - "9200:9200"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    ports:
+      - "8025:8025"
+
+volumes:
+  pgdata:
+  esdata:
