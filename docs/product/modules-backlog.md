@@ -1,8 +1,8 @@
-# Spec: Implementação Completa dos Módulos — Baseado no Strato
+# Spec: Implementação Completa dos Módulos
 
 ## Visão Geral
 
-Cada módulo do SinapiPRO deve ter a mesma profundidade funcional do Strato.
+Cada módulo do SinapiPRO deve ter profundidade funcional completa.
 O menu lateral mostra todos os sub-itens quando a obra está selecionada.
 
 ---

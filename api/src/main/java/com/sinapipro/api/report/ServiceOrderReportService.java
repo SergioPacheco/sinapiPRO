@@ -9,7 +9,6 @@ import java.util.UUID;
 
 /**
  * Relatórios de Ordem de Serviço / Atendimento.
- * Equivalentes Strato: ATExxxxx (14), SLCxxxxx (11)
  */
 @Service
 @Transactional(readOnly = true)

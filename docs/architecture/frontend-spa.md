@@ -1,14 +1,13 @@
 # SinapiPRO — Arquitetura Frontend SPA
 
 > Princípio: **Mínimo de páginas, máximo de fluxo.**
-> O Strato tinha ~50 telas para 6 fluxos. O SinapiPRO resolve com **12 páginas** + modais/drawers/steps inline.
+> O SinapiPRO resolve com **12 páginas** + modais/drawers/steps inline.
 
 ---
 
 ## Filosofia UX
 
 ```
-❌ Strato: 1 tela por ação (21 telas só para suprimentos)
 ✅ SinapiPRO: 1 página por MÓDULO, fluxo inteiro inline
 
 O usuário NUNCA sai da página para completar um processo.
@@ -64,7 +63,7 @@ Ações (todas via DRAWER lateral, sem sair da página):
 • Click na linha → Drawer de detalhe (parcelas + retenções + histórico)
 ```
 
-**Strato precisava de 6 telas. SinapiPRO: 1 tab + drawers.**
+**SinapiPRO: 1 tab + drawers.**
 
 ---
 
@@ -104,7 +103,7 @@ Click no card → Drawer lateral com TODO o fluxo:
 • Recebimento: conferência item a item, [Receber Parcial] [Receber Total]
 ```
 
-**Strato precisava de 21 telas. SinapiPRO: 1 página com kanban + drawer.**
+**SinapiPRO: 1 página com kanban + drawer.**
 
 ---
 
@@ -138,7 +137,7 @@ Click no card → Drawer lateral com TODO o fluxo:
 "Distrato" → Modal com cálculo de multa + valor a devolver
 ```
 
-**Strato precisava de 14 telas. SinapiPRO: 1 página master-detail.**
+**SinapiPRO: 1 página master-detail.**
 
 ---
 
@@ -161,7 +160,7 @@ Click no card → Drawer lateral com TODO o fluxo:
 Tab "Banco Horas" → Saldo por funcionário + lançamentos crédito/débito
 ```
 
-**Strato precisava de 8 telas. SinapiPRO: 1 página com tabs.**
+**SinapiPRO: 1 página com tabs.**
 
 ---
 
@@ -188,7 +187,7 @@ Tab "Cronograma $" → Distribuição por mês (editable grid)
 Tab "Análise Compras" → Orçado × Comprado × Saldo (read-only)
 ```
 
-**Strato precisava de 6 telas. SinapiPRO: 1 página com tree + tabs.**
+**SinapiPRO: 1 página com tree + tabs.**
 
 ---
 
@@ -209,17 +208,17 @@ Tab "Análise Compras" → Orçado × Comprado × Saldo (read-only)
 
 ---
 
-## Resumo: Strato vs SinapiPRO
+## Resumo: Eficiência de Navegação
 
-| Fluxo | Telas Strato | Páginas SinapiPRO | Técnica |
-|---|:---:|:---:|---|
-| Contas a Pagar | 6 | **1 tab** | Drawer para ações |
-| Contas a Receber | 4 | **1 tab** | Drawer + upload CNAB |
-| Suprimentos | 21 | **1 página** | Kanban + drawer |
-| Vendas Imobiliárias | 14 | **1 página** | Master-detail + stepper |
-| Mão de Obra | 8 | **1 página** | Tabs por competência |
-| Orçamento | 6 | **1 página** | Tree + tabs + grid |
-| **TOTAL** | **59 telas** | **12 páginas** | SPA com drawers/modais |
+| Fluxo | Páginas SinapiPRO | Técnica |
+|---|:---:|---|
+| Contas a Pagar | **1 tab** | Drawer para ações |
+| Contas a Receber | **1 tab** | Drawer + upload CNAB |
+| Suprimentos | **1 página** | Kanban + drawer |
+| Vendas Imobiliárias | **1 página** | Master-detail + stepper |
+| Mão de Obra | **1 página** | Tabs por competência |
+| Orçamento | **1 página** | Tree + tabs + grid |
+| **TOTAL** | **12 páginas** | SPA com drawers/modais |
 
 ---
 

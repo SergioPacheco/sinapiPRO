@@ -22,8 +22,6 @@ Construtoras de pequeno e médio porte no Brasil usam planilhas Excel, sistemas 
 
 | Concorrente | Fraqueza | SinapiPRO |
 |---|---|---|
-| OrçaFascio | Só orçamento, sem financeiro/suprimentos | ERP completo |
-| Strato | Legado (JSF/Delphi), UX datada | Stack moderna, UX clean |
 | Sienge | Caro, complexo, enterprise-only | Open source, simples |
 | Mega ERP | Genérico, não entende construção | Vertical especializado |
 | Planilhas | Sem integração, sem workflow | Fluxo integrado end-to-end |

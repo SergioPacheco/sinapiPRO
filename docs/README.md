@@ -34,7 +34,6 @@ docker compose -f compose.dev.yaml up --build
 - [Fluxos de Negócio](./domain/business-flows.md) — Lead → Orçamento → Obra → Medição → Entrega
 - [Regras de Orçamento](./domain/orcamento-rules.md) — BDI, composições, curva ABC
 - [Glossário](./domain/glossary.md) — Termos do domínio construção civil
-- [Benchmark OrcaFascio](./domain/orcafascio-benchmark.md) — Comparação com concorrentes
 
 ### 📦 Produto
 - [PRD](./product/PRD.md) — Product Requirements Document

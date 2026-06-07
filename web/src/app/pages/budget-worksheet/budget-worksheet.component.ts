@@ -501,7 +501,7 @@ export class BudgetWorksheetComponent implements OnInit {
     return { 'r-level': row.type === 'LEVEL', 'r-sublevel': row.type === 'SUB_LEVEL', 'r-comp': row.type === 'COMPOSITION', 'r-input': row.type === 'INPUT', 'r-sub': row.type === 'SUB_COMPOSITION', 'r-empty': row.type === 'EMPTY', 'r-dirty': row.dirty, 'r-selected': row === this.selectedRow, 'r-multi': this.isMultiSelected(row) };
   }
 
-  // === ITENS FALTANTES DO STRATO ===
+  // === ITENS FALTANTES ===
 
   /** #3 Tab no campo Cód.Ref busca insumo automaticamente */
   onRefCodeTab(row: BudgetRow, event: KeyboardEvent) {

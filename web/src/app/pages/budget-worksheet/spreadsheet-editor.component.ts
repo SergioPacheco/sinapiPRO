@@ -26,7 +26,7 @@ interface SpreadsheetRow {
 }
 
 /**
- * Spreadsheet Editor — Digitação Rápida estilo Strato/Excel
+ * Spreadsheet Editor — Digitação Rápida estilo Excel
  *
  * O usuário digita código ou descrição na célula → autocomplete busca composições
  * → ao selecionar, preenche unidade e custo automaticamente

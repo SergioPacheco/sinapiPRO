@@ -35,7 +35,7 @@ import { StatusTagComponent } from '../../shared/components';
       <div class="metric-card"><span class="metric-label">Acumulado</span><strong>{{ cumulative().accumulatedValue | number:'1.2-2' }}</strong></div>
     </div>
 
-    <!-- Grid de Itens (estilo Strato: Contratado × Anterior × Atual × Saldo) -->
+    <!-- Grid de Itens (Contratado × Anterior × Atual × Saldo) -->
     <p-table [value]="items()" styleClass="p-datatable-sm p-datatable-gridlines" [rowHover]="true">
       <ng-template pTemplate="header">
         <tr>

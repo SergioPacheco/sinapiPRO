@@ -9,7 +9,6 @@ import java.util.UUID;
 
 /**
  * Relatórios comerciais adicionais.
- * Equivalentes Strato: VORxxxxx (7), VRSxxxxx (4), TPExxxxx (5), PRCxxxxx (8), CRTxxxxx (5), CRIxxxxx (4), RNKxxxxx (3)
  */
 @Service
 @Transactional(readOnly = true)

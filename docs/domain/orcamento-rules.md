@@ -1,7 +1,6 @@
 # Lógicas de Negócio — Sistema de Orçamento de Obras Web
 
-> Extraído do manual OrçaFascio (https://suporte.orcafascio.com/)
-> Aplicável ao módulo de Orçamentos do SinapiPRO
+> Regras de negócio do módulo de Orçamentos do SinapiPRO
 
 ---
 
@@ -283,24 +282,24 @@ Memória:
 
 ---
 
-## 13. Comparativo: OrçaFascio vs. SinapiPRO (gap analysis)
+## 13. Gap Analysis — Orçamento
 
-| Funcionalidade | OrçaFascio | SinapiPRO | Gap |
-|---------------|:----------:|:---------:|:---:|
-| Etapas hierárquicas | ✅ | ✅ | — |
-| Composições SINAPI | ✅ | ✅ | — |
-| Banco próprio (insumos) | ✅ | ✅ | — |
-| Banco próprio (composições) | ✅ | ✅ | — |
-| Importação XLSX | ✅ | ✅ | — |
-| BDI configurável | ✅ | ✅ | — |
-| BDI diferenciado por tipo | ✅ | ❌ | **Gap** |
-| Curva ABC | ✅ | ✅ | — |
-| Múltiplas bases simultâneas | ✅ | ❌ | **Gap** |
-| Atualização de data base | ✅ | ❌ | **Gap** |
-| Arredondamento configurável | ✅ | ❌ | **Gap** |
-| Truncamento TCU | ✅ | ❌ | **Gap** |
-| Máscara de item | ✅ | ❌ | **Gap** |
-| Memória de cálculo | ✅ | ❌ | **Gap** |
+| Funcionalidade | Implementado | Gap |
+|---------------|:----------:|:---:|
+| Etapas hierárquicas | ✅ | — |
+| Composições SINAPI | ✅ | — |
+| Banco próprio (insumos) | ✅ | — |
+| Banco próprio (composições) | ✅ | — |
+| Importação XLSX | ✅ | — |
+| BDI configurável | ✅ | — |
+| BDI diferenciado por tipo | ❌ | **Gap** |
+| Curva ABC | ✅ | — |
+| Múltiplas bases simultâneas | ❌ | **Gap** |
+| Atualização de data base | ❌ | **Gap** |
+| Arredondamento configurável | ❌ | **Gap** |
+| Truncamento TCU | ❌ | **Gap** |
+| Máscara de item | ❌ | **Gap** |
+| Memória de cálculo | ❌ | **Gap** |
 | Cronograma físico-financeiro | ✅ | ✅ (separado) | — |
 | Relatório sintético PDF | ✅ | ✅ | — |
 | Relatório analítico PDF | ✅ | ❌ | **Gap** |
@@ -346,8 +345,6 @@ Memória:
 ---
 
 # Lógicas de Negócio — Módulo de Medição de Obras
-
-> Extraído do manual OrçaFascio — OF Medição
 
 ---
 
@@ -505,24 +502,24 @@ Memória:
 
 ---
 
-## 20. Comparativo: OrçaFascio Medição vs. SinapiPRO
+## 20. Gap Analysis — Medição
 
-| Funcionalidade | OrçaFascio | SinapiPRO | Gap |
-|---------------|:----------:|:---------:|:---:|
-| Criar medição por período | ✅ | ✅ | — |
-| Itens do orçamento/contrato | ✅ | ✅ | — |
-| Quantidade executada | ✅ | ✅ | — |
-| Workflow aprovação | ✅ | ✅ | — |
-| Acumulado + saldo | ✅ | ✅ | — |
-| Retenção contratual | ✅ | ✅ | — |
-| Boletim PDF | ✅ | ✅ | — |
-| Memória de cálculo | ✅ | ❌ | **Gap** |
-| Múltiplos fiscais | ✅ | ❌ | **Gap** |
-| Medição por empreiteiro | ✅ | ❌ | **Gap** |
-| Importar medição (Excel) | ✅ | ❌ | **Gap** |
-| Anexos/fotos na medição | ✅ | ❌ | **Gap** |
-| Lixeira de medições | ✅ | ❌ | **Gap** |
-| Rejeição com justificativa | ✅ | ❌ | **Gap** |
+| Funcionalidade | Implementado | Gap |
+|---------------|:----------:|:---:|
+| Criar medição por período | ✅ | — |
+| Itens do orçamento/contrato | ✅ | — |
+| Quantidade executada | ✅ | — |
+| Workflow aprovação | ✅ | — |
+| Acumulado + saldo | ✅ | — |
+| Retenção contratual | ✅ | — |
+| Boletim PDF | ✅ | — |
+| Memória de cálculo | ❌ | **Gap** |
+| Múltiplos fiscais | ❌ | **Gap** |
+| Medição por empreiteiro | ❌ | **Gap** |
+| Importar medição (Excel) | ❌ | **Gap** |
+| Anexos/fotos na medição | ❌ | **Gap** |
+| Lixeira de medições | ❌ | **Gap** |
+| Rejeição com justificativa | ❌ | **Gap** |
 | Histórico de aprovações | ✅ | ❌ | **Gap** |
 | Relatório por empreiteiro | ✅ | ❌ | **Gap** |
 | Configuração de casas decimais | ✅ | ❌ | **Gap** |

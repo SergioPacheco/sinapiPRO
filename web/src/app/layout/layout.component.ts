@@ -21,7 +21,7 @@ import { DropdownModule } from 'primeng/dropdown';
           <button class="collapse-btn" (click)="collapsed = !collapsed"><i [class]="collapsed ? 'pi pi-angle-right' : 'pi pi-angle-left'"></i></button>
         </div>
 
-        <!-- Seletor de Obra (como no Strato) -->
+        <!-- Seletor de Obra -->
         <div class="obra-selector">
           <label class="obra-label">OBRA</label>
           <p-dropdown [options]="obras()" [(ngModel)]="obraId" optionLabel="name" optionValue="id" placeholder="Selecionar obra..." [filter]="true" filterPlaceholder="Buscar..." styleClass="w-full obra-dropdown" (onChange)="onObraChange()" [showClear]="true" />

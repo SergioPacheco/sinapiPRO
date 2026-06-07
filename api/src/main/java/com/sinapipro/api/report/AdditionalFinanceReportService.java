@@ -9,7 +9,6 @@ import java.util.UUID;
 
 /**
  * Relatórios financeiros adicionais não cobertos pelo FinanceReportService.
- * Equivalentes Strato: IRFxxxxx, DISxxxxx, ACFxxxxx, RSDxxxxx, POFxxxxx, PCOxxxxx, NOFxxxxx, NPRxxxxx, LIBxxxxx, CCHxxxxx, PERxxxxx
  */
 @Service
 @Transactional(readOnly = true)
