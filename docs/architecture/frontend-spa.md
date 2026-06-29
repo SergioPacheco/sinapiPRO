@@ -41,14 +41,14 @@ Ações são: modais, drawers laterais, steppers inline, tabs.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│ [Pagar] [Receber] [Banco] [Conciliação] [Cheques]              │
+│ [Pagar] [Receber] [Banco] [Conciliação] [Cheques]               │
 ├─────────────────────────────────────────────────────────────────┤
-│ Filtros: [Obra ▼] [Status ▼] [Período ▼] [Fornecedor ▼]       │
+│ Filtros: [Obra ▼] [Status ▼] [Período ▼] [Fornecedor ▼]         │
 ├─────────────────────────────────────────────────────────────────┤
 │ ┌─────────────────────────────────────────────────────────────┐ │
 │ │ Tabela de despesas (TanStack Table)                         │ │
-│ │ NF 001 | Fornecedor X | R$ 5.000 | 3 parcelas | ABERTA    │ │
-│ │ NF 002 | Fornecedor Y | R$ 12.000 | 1 parcela | AUTORIZADA│ │
+│ │ NF 001 | Fornecedor X | R$ 5.000 | 3 parcelas | ABERTA      │ │
+│ │ NF 002 | Fornecedor Y | R$ 12.000 | 1 parcela | AUTORIZADA  │ │
 │ └─────────────────────────────────────────────────────────────┘ │
 │                                                                 │
 │ [+ Nova Despesa]  [Autorizar Selecionadas]  [Pagar Selecionadas]│
@@ -86,11 +86,11 @@ Mesmo layout, com ações específicas:
 │ [Kanban] [Lista] [Cronograma]                                   │
 ├─────────────────────────────────────────────────────────────────┤
 │ REQUISIÇÃO    │ COTAÇÃO      │ PEDIDO       │ RECEBIMENTO       │
-│ ┌───────────┐ │ ┌──────────┐ │ ┌──────────┐ │ ┌──────────────┐ │
-│ │ REQ-001   │ │ │ COT-001  │ │ │ PED-001  │ │ │ REC-001      │ │
-│ │ Cimento   │ │ │ 3 fornec │ │ │ Forn. X  │ │ │ NF 12345     │ │
-│ │ [Cotar →] │ │ │[Analisar]│ │ │[Receber] │ │ │ ✓ Completo   │ │
-│ └───────────┘ │ └──────────┘ │ └──────────┘ │ └──────────────┘ │
+│ ┌───────────┐ │ ┌──────────┐ │ ┌──────────┐ │ ┌──────────────┐  │
+│ │ REQ-001   │ │ │ COT-001  │ │ │ PED-001  │ │ │ REC-001      │  │
+│ │ Cimento   │ │ │ 3 fornec │ │ │ Forn. X  │ │ │ NF 12345     │  │
+│ │ [Cotar →] │ │ │[Analisar]│ │ │[Receber] │ │ │ ✓ Completo   │  │
+│ └───────────┘ │ └──────────┘ │ └──────────┘ │ └──────────────┘  │
 │ ┌───────────┐ │              │              │                   │
 │ │ REQ-002   │ │              │              │                   │
 │ └───────────┘ │              │              │                   │
@@ -115,15 +115,15 @@ Click no card → Drawer lateral com TODO o fluxo:
 ├──────────────────────┬──────────────────────────────────────────┤
 │ UNIDADES             │ DETALHE DA UNIDADE / CONTRATO            │
 │ ┌──────────────────┐ │ ┌──────────────────────────────────────┐ │
-│ │ Apto 101 - VAGO  │ │ │ Apto 201 — VENDIDO                  │ │
+│ │ Apto 101 - VAGO  │ │ │ Apto 201 — VENDIDO                   │ │
 │ │ Apto 102 - VAGO  │ │ │                                      │ │
 │ │ Apto 201 - VEND. │◀│ │ Comprador: João Silva                │ │
 │ │ Apto 202 - RESER │ │ │ Contrato: CV-2024-001                │ │
 │ │ Apto 301 - VAGO  │ │ │ Valor: R$ 450.000                    │ │
 │ └──────────────────┘ │ │ Entrada: R$ 90.000                   │ │
-│                      │ │ Parcelas: 60x Price (INCC)            │ │
+│                      │ │ Parcelas: 60x Price (INCC)           │ │
 │ [+ Vender]           │ │                                      │ │
-│ [Mapa Visual]        │ │ [Parcelas] [Reajustar] [Distrato]   │ │
+│ [Mapa Visual]        │ │ [Parcelas] [Reajustar] [Distrato]    │ │
 │                      │ │ [Cessão] [Comissão] [Imprimir]       │ │
 │                      │ └──────────────────────────────────────┘ │
 └──────────────────────┴──────────────────────────────────────────┘
@@ -145,14 +145,14 @@ Click no card → Drawer lateral com TODO o fluxo:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│ Competência: [Mai/2026 ▼] [ABERTA]  Obra: [Todas ▼]            │
+│ Competência: [Mai/2026 ▼] [ABERTA]  Obra: [Todas ▼]             │
 ├─────────────────────────────────────────────────────────────────┤
-│ [Apontamento] [Banco Horas] [Folha Resumo] [Tabela Preços]     │
+│ [Apontamento] [Banco Horas] [Folha Resumo] [Tabela Preços]      │
 ├─────────────────────────────────────────────────────────────────┤
-│ Funcionário    │ Normal │ HE50% │ HE100% │ Noturna │ Total     │
-│ João Silva     │  176h  │  12h  │   4h   │   8h    │ 200h      │
-│ Maria Santos   │  160h  │   8h  │   0h   │   0h    │ 168h      │
-│ [+ Lançar]     │        │       │        │         │           │
+│ Funcionário    │ Normal │ HE50% │ HE100% │ Noturna │ Total      │
+│ João Silva     │  176h  │  12h  │   4h   │   8h    │ 200h       │
+│ Maria Santos   │  160h  │   8h  │   0h   │   0h    │ 168h       │
+│ [+ Lançar]     │        │       │        │         │            │
 └─────────────────────────────────────────────────────────────────┘
 
 "+ Lançar" → Drawer: funcionário, data, tipo hora, horas, obra/etapa
@@ -168,16 +168,16 @@ Tab "Banco Horas" → Saldo por funcionário + lançamentos crédito/débito
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│ Orçamento: ORC-2024-001 | Status: RASCUNHO | R$ 2.450.000      │
+│ Orçamento: ORC-2024-001 | Status: RASCUNHO | R$ 2.450.000       │
 ├─────────────────────────────────────────────────────────────────┤
 │ [Composição] [Cronograma $] [Análise Compras] [BDI] [Relatórios]│
 ├─────────────────────────────────────────────────────────────────┤
 │ ETAPAS (tree)          │ ITENS DA ETAPA                         │
-│ ▼ 01. Serviços Prelim. │ Código  │ Descrição    │ Qtd │ Total  │
-│   ▼ 01.01 Limpeza      │ 73948/2 │ Limpeza terr │ 500 │ 12.500 │
-│   ▼ 01.02 Tapume       │ 74209/1 │ Tapume madei │ 120 │ 8.400  │
-│ ▼ 02. Infraestrutura   │         │              │     │        │
-│ ▼ 03. Superestrutura   │ [+ Item] [Digitação Rápida] [Importar]│
+│ ▼ 01. Serviços Prelim. │ Código  │ Descrição    │ Qtd │ Total   │
+│   ▼ 01.01 Limpeza      │ 73948/2 │ Limpeza terr │ 500 │ 12.500  │
+│   ▼ 01.02 Tapume       │ 74209/1 │ Tapume madei │ 120 │ 8.400   │
+│ ▼ 02. Infraestrutura   │         │              │     │         │
+│ ▼ 03. Superestrutura   │ [+ Item] [Digitação Rápida] [Importar] │
 └─────────────────────────────────────────────────────────────────┘
 
 "+ Item" → Drawer: busca composição SINAPI + quantidade + BDI

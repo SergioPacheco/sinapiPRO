@@ -6,27 +6,27 @@ SinapiPRO é um **monolito modular** com vertical slicing. Cada módulo de negó
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        Frontend (Angular 19)                  │
-│  PrimeNG + ECharts │ SSE Notifications │ JWT Auth            │
+│                        Frontend (Angular 19)                │
+│  PrimeNG + ECharts │ SSE Notifications │ JWT Auth           │
 └──────────────────────────────┬──────────────────────────────┘
                                │ HTTP/REST
 ┌──────────────────────────────▼──────────────────────────────┐
-│                     API (Spring Boot 4)                       │
-│                                                              │
-│  ┌─────────┐ ┌──────────┐ ┌─────────┐ ┌──────────────┐    │
-│  │ Budget  │ │Measurement│ │ Finance │ │ Procurement  │    │
-│  │ api/    │ │ api/      │ │ api/    │ │ api/         │    │
-│  │ app/    │ │ app/      │ │ app/    │ │ app/         │    │
-│  │ domain/ │ │ domain/   │ │ domain/ │ │ domain/      │    │
-│  └─────────┘ └──────────┘ └─────────┘ └──────────────┘    │
-│                                                              │
+│                     API (Spring Boot 4)                     │
+│                                                             │
+│  ┌─────────┐ ┌──────────┐ ┌─────────┐ ┌──────────────┐      │
+│  │ Budget  │ │Measurement│ │ Finance │ │ Procurement │      │
+│  │ api/    │ │ api/      │ │ api/    │ │ api/        │      │
+│  │ app/    │ │ app/      │ │ app/    │ │ app/        │      │
+│  │ domain/ │ │ domain/   │ │ domain/ │ │ domain/     │      │
+│  └─────────┘ └──────────┘ └─────────┘ └──────────────┘      │
+│                                                             │
 │  ┌─────────────────── Shared ───────────────────────────┐   │
 │  │ Security (RBAC) │ Storage │ Email │ Events │ Audit   │   │
 │  └──────────────────────────────────────────────────────┘   │
 └──────────────────────────────┬──────────────────────────────┘
                                │ JDBC
 ┌──────────────────────────────▼──────────────────────────────┐
-│                    PostgreSQL 17.5                            │
+│                    PostgreSQL 17.5                          │
 │  UUID PKs │ JSONB │ tsvector FTS │ Flyway migrations        │
 └─────────────────────────────────────────────────────────────┘
 ```
