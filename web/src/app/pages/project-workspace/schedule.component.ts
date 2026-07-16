@@ -10,11 +10,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { CalendarModule } from 'primeng/calendar';
 import { MessageService } from 'primeng/api';
+import { SCurveComponent, SCurveData } from './s-curve.component';
 
 @Component({
   selector: 'app-schedule',
   standalone: true,
-  imports: [DecimalPipe, FormsModule, TableModule, ButtonModule, DialogModule, InputTextModule, InputNumberModule, CalendarModule],
+  imports: [DecimalPipe, FormsModule, TableModule, ButtonModule, DialogModule, InputTextModule, InputNumberModule, CalendarModule, SCurveComponent],
   template: `
     <div class="flex align-items-center justify-content-between mb-3">
       <h2 style="margin:0;color:var(--sp-text)">Cronograma</h2>
@@ -68,6 +69,14 @@ import { MessageService } from 'primeng/api';
         <p-button label="Criar" icon="pi pi-check" (onClick)="create()" />
       </ng-template>
     </p-dialog>
+    <!-- Curva S Dialog -->
+    <p-dialog header="Curva S — Planejado vs Realizado" [(visible)]="showSCurve" [style]="{width:'700px'}" [modal]="true">
+      @if (sCurveData()) {
+        <app-s-curve [data]="sCurveData()!" />
+      } @else {
+        <div style="text-align:center;padding:2rem;color:var(--sp-text-muted)">Carregando...</div>
+      }
+    </p-dialog>
   `,
 })
 export class ScheduleComponent implements OnInit {
@@ -78,6 +87,8 @@ export class ScheduleComponent implements OnInit {
   activities = signal<any[]>([]);
   loading = signal(true);
   showNew = false;
+  showSCurve = false;
+  sCurveData = signal<SCurveData | null>(null);
   form: any = {};
 
   private get pid() { return this.route.parent?.snapshot.paramMap.get('id'); }
@@ -103,6 +114,18 @@ export class ScheduleComponent implements OnInit {
   }
 
   showCurveS() {
-    this.http.get<any>(`/projects/${this.pid}/schedule/s-curve`).subscribe({ next: r => this.messages.add({ severity: 'info', summary: 'Curva S', detail: JSON.stringify(r).slice(0, 100) }) });
+    this.showSCurve = true;
+    this.sCurveData.set(null);
+    this.http.get<any>(`/projects/${this.pid}/schedule/s-curve`).subscribe({
+      next: r => {
+        // API retorna { periods: string[], planned: number[], actual: number[] }
+        this.sCurveData.set({
+          periods: r.periods || r.labels || [],
+          planned: r.planned || r.baseline || [],
+          actual: r.actual || r.progress || [],
+        });
+      },
+      error: () => this.messages.add({ severity: 'error', summary: 'Erro ao carregar Curva S' }),
+    });
   }
 }

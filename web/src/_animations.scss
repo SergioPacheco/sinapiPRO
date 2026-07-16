@@ -1,0 +1,92 @@
+// ─── GPU-Safe Animations ─────────────────────────────────────
+// Todas as animações operam APENAS em propriedades do Compositor Thread:
+// - transform (translateX/Y, scale, rotate)
+// - opacity
+// Estas NÃO disparam Layout (reflow) nem Paint no Main Thread.
+// Resultado: 60 FPS garantido, processado na GPU.
+
+// ─── Mixins ──────────────────────────────────────────────────
+
+/// Transição GPU-safe com will-change automático.
+/// Usar apenas em propriedades do compositor: transform, opacity.
+@mixin gpu-transition($property: transform, $duration: 0.2s, $easing: cubic-bezier(0.4, 0, 0.2, 1)) {
+  transition: $property $duration $easing;
+  will-change: $property;
+}
+
+/// Transição multi-propriedade (transform + opacity juntas)
+@mixin gpu-transition-multi($duration: 0.2s, $easing: cubic-bezier(0.4, 0, 0.2, 1)) {
+  transition: transform $duration $easing, opacity $duration $easing;
+  will-change: transform, opacity;
+}
+
+/// Promover elemento para própria GPU layer (usar com parcimônia)
+@mixin gpu-layer {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/// Containment — isola o elemento do restante do layout
+@mixin contain-strict {
+  contain: layout style paint;
+}
+
+/// Content-visibility — pula renderização de conteúdo fora da viewport
+@mixin content-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
+}
+
+// ─── Keyframes (compositor-only) ─────────────────────────────
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(4px); }
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+
+@keyframes slideOutLeft {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-100%); }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes scaleOut {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(0.95); }
+}
+
+// ─── Utility Classes ─────────────────────────────────────────
+
+.animate-fade-in   { animation: fadeIn 0.15s ease both; }
+.animate-fade-out  { animation: fadeOut 0.15s ease both; }
+.animate-slide-in  { animation: slideInLeft 0.2s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.animate-scale-in  { animation: scaleIn 0.15s ease both; }
+
+// ─── Anti-patterns (documentação) ────────────────────────────
+// ❌ NUNCA animar estas propriedades (causam reflow/layout):
+//    width, height, top, left, right, bottom,
+//    margin, padding, border-width, font-size
+//
+// ✅ SEMPRE usar equivalentes GPU:
+//    width/height → transform: scale()
+//    top/left     → transform: translate()
+//    visibility   → opacity: 0/1

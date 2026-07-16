@@ -75,6 +75,7 @@ services:
       OTEL_ENDPOINT: http://otel-lgtm:4318/v1/traces
       MAIL_HOST: mailhog
       MAIL_PORT: "1025"
+      GOTENBERG_URL: http://gotenberg:3000
       JWT_SECRET: showcase-dev-key-not-for-production-min-48-chars!!
     ports:
       - "8080:8080"
@@ -152,6 +153,17 @@ services:
     ports:
       - "1025:1025"
       - "8025:8025"
+
+  # ─── PDF Generation (Gotenberg — HTML→PDF via Chrome) ──────
+  gotenberg:
+    image: gotenberg/gotenberg:8
+    container_name: sinapipro-gotenberg
+    ports:
+      - "3030:3000"
+    environment:
+      - CHROMIUM_DISABLE_JAVASCRIPT=true
+      - CHROMIUM_ALLOW_LIST=file:///tmp/.*
+    restart: unless-stopped
 
 volumes:
   pgdata:

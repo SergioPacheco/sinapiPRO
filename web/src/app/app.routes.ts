@@ -32,6 +32,7 @@ export const routes: Routes = [
           { path: 'finance/cash-flow', loadComponent: () => import('./pages/finance/cash-flow.component').then(m => m.CashFlowComponent) },
           { path: 'contracts', loadComponent: () => import('./pages/project-workspace/contracts.component').then(m => m.ContractsComponent) },
           { path: 'schedule', loadComponent: () => import('./pages/project-workspace/schedule.component').then(m => m.ScheduleComponent) },
+          { path: 'baseline', loadComponent: () => import('./pages/project-workspace/baseline-comparison.component').then(m => m.BaselineComparisonComponent) },
           { path: 'safety', loadComponent: () => import('./pages/safety/safety-list.component').then(m => m.SafetyListComponent) },
           { path: 'rfi', loadComponent: () => import('./pages/rfi/rfi-list.component').then(m => m.RfiListComponent) },
           { path: 'punch-list', loadComponent: () => import('./pages/punch-list/punch-list.component').then(m => m.PunchListComponent) },

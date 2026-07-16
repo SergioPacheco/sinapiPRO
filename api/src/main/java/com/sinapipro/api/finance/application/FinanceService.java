@@ -56,6 +56,18 @@ public class FinanceService {
         return payableRepository.findByBudgetId(budgetId, pageable);
     }
 
+    public Page<Payable> listPayables(UUID budgetId, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        if (startDate != null && endDate != null) {
+            return payableRepository.findAll(
+                (root, query, cb) -> cb.and(
+                    cb.equal(root.get("budgetId"), budgetId),
+                    cb.greaterThanOrEqualTo(root.get("dueDate"), startDate),
+                    cb.lessThanOrEqualTo(root.get("dueDate"), endDate)
+                ), pageable);
+        }
+        return payableRepository.findByBudgetId(budgetId, pageable);
+    }
+
     public List<Payable> overduePayables(UUID budgetId) {
         return payableRepository.findOverdue(budgetId, LocalDate.now());
     }
@@ -89,6 +101,18 @@ public class FinanceService {
     }
 
     public Page<Receivable> listReceivables(UUID budgetId, Pageable pageable) {
+        return receivableRepository.findByBudgetId(budgetId, pageable);
+    }
+
+    public Page<Receivable> listReceivables(UUID budgetId, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        if (startDate != null && endDate != null) {
+            return receivableRepository.findAll(
+                (root, query, cb) -> cb.and(
+                    cb.equal(root.get("budgetId"), budgetId),
+                    cb.greaterThanOrEqualTo(root.get("dueDate"), startDate),
+                    cb.lessThanOrEqualTo(root.get("dueDate"), endDate)
+                ), pageable);
+        }
         return receivableRepository.findByBudgetId(budgetId, pageable);
     }
 

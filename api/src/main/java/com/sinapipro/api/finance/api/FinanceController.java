@@ -69,8 +69,11 @@ public class FinanceController {
     @Operation(summary = "List accounts payable")
     @GetMapping("/payables")
     @PreAuthorize("@perm.check('finance.read')")
-    PageResponse<PayableResponse> listPayables(@PathVariable UUID projectId, @PageableDefault(size = 20) Pageable pageable) {
-        return PageResponse.from(financeService.listPayables(projectId, pageable).map(PayableResponse::from));
+    PageResponse<PayableResponse> listPayables(@PathVariable UUID projectId,
+                                               @RequestParam(required = false) LocalDate startDate,
+                                               @RequestParam(required = false) LocalDate endDate,
+                                               @PageableDefault(size = 20) Pageable pageable) {
+        return PageResponse.from(financeService.listPayables(projectId, startDate, endDate, pageable).map(PayableResponse::from));
     }
 
     @Operation(summary = "Create an account payable")
@@ -109,8 +112,11 @@ public class FinanceController {
     @Operation(summary = "List accounts receivable")
     @GetMapping("/receivables")
     @PreAuthorize("@perm.check('finance.read')")
-    PageResponse<ReceivableResponse> listReceivables(@PathVariable UUID projectId, @PageableDefault(size = 20) Pageable pageable) {
-        return PageResponse.from(financeService.listReceivables(projectId, pageable).map(ReceivableResponse::from));
+    PageResponse<ReceivableResponse> listReceivables(@PathVariable UUID projectId,
+                                                     @RequestParam(required = false) LocalDate startDate,
+                                                     @RequestParam(required = false) LocalDate endDate,
+                                                     @PageableDefault(size = 20) Pageable pageable) {
+        return PageResponse.from(financeService.listReceivables(projectId, startDate, endDate, pageable).map(ReceivableResponse::from));
     }
 
     @Operation(summary = "Create an account receivable")

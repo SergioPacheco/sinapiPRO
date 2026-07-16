@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 // === Spreadsheet Design System ===
 // Inspired by Excel/Sheets/Airtable — high density, professional, dark mode
 
@@ -63,7 +65,7 @@ $mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
 
   thead {
     position: sticky; top: 0; z-index: 3;
-    tr { background: darken($card, 2%); }
+    tr { background: color.adjust($card, $lightness: -2%); }
     th {
       padding: 6px 6px; font-size: 10px; font-weight: 600;
       color: $muted; text-transform: uppercase; letter-spacing: 0.5px;
@@ -79,9 +81,20 @@ $mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
   tbody {
     tr {
       height: $row-h; cursor: pointer;
-      transition: background 0.08s;
-      &:hover { background: rgba(255,255,255,0.02); }
-      td { border-bottom: 1px solid $border-light; padding: 0 6px; vertical-align: middle; }
+      position: relative;
+      // GPU-safe hover: pseudo-element com opacity (compositor thread)
+      &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: rgba(255,255,255,0.03);
+        opacity: 0;
+        transition: opacity 0.08s;
+        pointer-events: none;
+        z-index: 0;
+      }
+      &:hover::after { opacity: 1; }
+      td { border-bottom: 1px solid $border-light; padding: 0 6px; vertical-align: middle; position: relative; z-index: 1; }
     }
 
     // Row types
@@ -90,7 +103,7 @@ $mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
     tr.r-comp td { color: $text; }
     tr.r-input td { color: $text; }
     tr.r-sub td { color: $green; font-size: 11px; }
-    tr.r-sub.inactive td { text-decoration: line-through; color: darken($green, 20%); }
+    tr.r-sub.inactive td { text-decoration: line-through; color: color.adjust($green, $lightness: -20%); }
     tr.r-empty td { background: rgba($primary, 0.03); }
     tr.r-dirty td { background: rgba(251, 191, 36, 0.04) !important; }
     tr.r-selected td { background: rgba($primary, 0.08) !important; box-shadow: inset 2px 0 0 $primary; }
@@ -119,7 +132,7 @@ $mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
 }
 .cell-code { font-family: $mono; font-size: 10.5px; color: $muted; white-space: nowrap; }
 .cell-stage { font-weight: 700; padding-left: 6px !important; }
-.cell-ref { font-family: $mono; font-size: 10.5px; color: darken($muted, 5%); }
+.cell-ref { font-family: $mono; font-size: 10.5px; color: color.adjust($muted, $lightness: -5%); }
 .cell-desc { }
 .cell-unit { text-align: center; font-size: 10px; color: $muted; }
 .cell-num { text-align: right; font-family: $mono; font-size: 11px; }
@@ -160,7 +173,7 @@ tr:hover .del-btn { opacity: 1; }
 // === Base bar (#17) ===
 .base-bar {
   display: flex; align-items: center; gap: 8px; padding: 4px 14px;
-  background: darken($card, 2%); border: 1px solid $border; border-top: none;
+  background: color.adjust($card, $lightness: -2%); border: 1px solid $border; border-top: none;
   font-size: 11px; color: $muted;
 }
 .base-label { font-weight: 600; font-size: 10px; text-transform: uppercase; }

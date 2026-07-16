@@ -1,4 +1,5 @@
 /// <reference types="cypress" />
+import 'cypress-axe';
 
 Cypress.Commands.add('login', (username = 'admin@sinapipro.dev', password = 'SinapiPro#2026') => {
   cy.request('POST', 'http://localhost:8080/api/auth/token', {
